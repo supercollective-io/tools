@@ -30,46 +30,39 @@ are locked. pnpm policy lives in `pnpm-workspace.yaml`; unknown dependency
 build scripts fail installation. Lefthook installation is explicit rather
 than an automatic dependency lifecycle script.
 
-## Open the live rehearsal workspace
+## Start
 
-For the tested local Qwen setup, follow the
-[parallel Ollama instructions](docs/live-rehearsal.md#isolated-local-pair-setup)
-and use `examples/live-local-pair.json`. To configure another model:
+Install [Ollama](https://ollama.com/download), then:
 
 ```sh
-mkdir -p runs
-cp examples/live-ollama.json runs/live-config.json
+pnpm start
 ```
 
-Replace both model placeholders in `composer.model` and `live.participants.model`,
-and set each role's `baseUrl` for your model service when required. Then run:
+This prepares a separate local model service, downloads Qwen 3B if needed
+(about 1.9 GB, once), and opens the browser. Press **Start** to begin the default
+one-minute rehearsal with two participants. Ctrl+C stops the app and its model
+service; the writing is saved automatically. Your existing Ollama service stays
+unchanged. If mise is not activated in your shell, use `mise exec -- pnpm start`.
 
 ```sh
-pnpm cli rehearse --scenario examples/simulation-pair.json --config runs/live-config.json
+pnpm start --all   # Eight participants
+pnpm resume       # Latest unfinished rehearsal
+pnpm replay       # Read the latest saved rehearsal; no model service needed
 ```
 
-Open the printed local URL and select **Start rehearsal**. Each participant and
-the collective continue one growing text across inference requests. Request
-boundaries are continuations, not participant turns. All writing is saved;
-feedback publication can happen inside a word or sentence. Highlighted source
-text has not yet been sent to the composer, which does not imply whether the
-model will represent it. Use **Pause**, **Resume rehearsal** and **End** to
-control the session. Reopen a saved workspace with
-`pnpm cli rehearse --run runs/session.jsonl`, or use standard terminal `resume`
-and offline `replay`.
+The small local model is useful for trying the interaction; its composition
+quality is still limited, especially with eight participants. See the
+[actual rehearsal results](docs/live-rehearsal-2026-11-03.md).
 
-The pair scenario keeps the first rehearsal small; `examples/simulation.json`
-provides eight participants. For cloud calls, copy `examples/live-openai.json`,
-replace both model placeholders and supply `OPENAI_API_KEY` through the environment.
-There is no automatic provider switch. See the [live rehearsal guide](docs/live-rehearsal.md)
-for feedback timing, first-token waits, context capacity and recovery. This is a
-local operator workspace; projection, live phone speech and deployment remain
-separate work.
+Optional overrides: `--scenario`, `--config`, `--run`, `--port`, `--no-open`.
+A custom configuration uses the model services you specify. `pnpm start --help`
+lists the options. The [guide](docs/live-rehearsal.md) covers configuration,
+feedback and recovery; the historical experiments below remain available.
 
 ## Run a scripted Stage 1 rehearsal
 
 1. Start an existing Ollama service and inspect its models with `ollama list`.
-   The application never downloads a model.
+   This historical command expects the model to be installed already.
 2. Copy the example configuration to the ignored `runs` directory:
 
    ```sh

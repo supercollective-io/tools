@@ -8,6 +8,9 @@
     "node": ">=26 <27"
   },
   "scripts": {
+    "start": "node src/start.ts",
+    "resume": "node src/start.ts resume",
+    "replay": "node src/start.ts replay",
     "cli": "node --env-file-if-exists=.env src/cli.ts",
     "fmt": "biome format --write .",
     "lint": "biome lint .",

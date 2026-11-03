@@ -35,38 +35,33 @@ certify agreement, quality or completion of a sentence.
 
 ## Start the local workspace
 
-Complete the [setup](../README.md#set-up), start your local model service and
-prepare the configuration:
+After the [repository setup](../README.md#set-up) and installing Ollama, run:
 
 ```sh
-mkdir -p runs
-cp examples/live-ollama.json runs/live-config.json
+pnpm start
 ```
 
-Replace both model placeholders: `composer.model` and `live.participants.model`.
-Set each role's `baseUrl` if its service uses another address. You can choose
-separate models or providers for the two roles. Use `examples/live-openai.json`
-for cloud calls and supply `OPENAI_API_KEY` through the environment or ignored
-`.env`. There are no automatic downloads, cloud switches or provider fallbacks.
+The launcher starts its own local-only Ollama service on port 11435, uses the
+installed Qwen 3B model or downloads it once, and opens the browser on an available
+port. It leaves the original service on 11434 untouched. Press **Start** in the
+browser to begin. Ctrl+C pauses the rehearsal and stops both owned processes.
 
-```sh
-pnpm cli rehearse --scenario examples/simulation-pair.json --config runs/live-config.json
-```
+The default is two fictional participants and one minute of active writing.
+`pnpm start --all` uses eight participants, nine inference slots, and a 5 s context
+refresh interval. `pnpm resume` selects the most recently modified unfinished
+live journal; `pnpm replay` reads the latest live journal offline. Ended runs are
+excluded from automatic resume. Run files stay in `runs/`.
 
-Open the printed local URL. The workspace starts **Ready** without model calls.
-Select **Start rehearsal** to begin. The pair scenario is a small rehearsal;
-use `examples/simulation.json` for all eight fictional participants. These are
-model-generated contributions based on original demonstration contexts, not
-live phone speech or the user's actual source pieces.
+Use `pnpm resume --run runs/session.jsonl` to choose a saved run. Use
+`pnpm start --scenario <file>` for another topic, `--config <file>` for a custom
+model configuration, `--port <number>` for a fixed browser port, or `--no-open`
+to leave the browser closed. Custom configurations manage their own services;
+the launcher does not download models or start Ollama for them. Saved custom
+runs keep those settings. An occupied model-service port is reported explicitly
+rather than silently reusing a service with unknown parallelism.
 
-The browser shows the full growing collective and each participant's text.
-Highlighted participant text has not yet been sent to the composer. “Context
-sent” means a prefix was included in a model request; it does not establish that
-the model has read, represented or used that text. Waiting and receiving
-indicators describe observed request activity. A long first-token wait can
-reflect service queuing; request overlap alone does not prove parallel inference.
-Scroll back to read earlier writing; automatic following resumes only when you
-return to the bottom or select **Follow latest text**.
+The automatic setup replaces the manual commands below for normal use. The
+manual setup remains useful when configuring your own model services.
 
 ## Isolated local pair setup
 
@@ -106,8 +101,8 @@ OLLAMA_HOST=127.0.0.1:11435 ollama pull qwen2.5:3b-instruct-q4_K_M
 OLLAMA_HOST=127.0.0.1:11435 ollama list
 ```
 
-Model installation is an explicit operator action; the application never pulls
-models. The runnable `examples/live-local-pair.json` selects this model and
+With this manual setup, install the model yourself. The `pnpm start` launcher
+performs that check and download automatically. The runnable `examples/live-local-pair.json` selects this model and
 `http://127.0.0.1:11435` for both roles, with `numCtx: 8192` on each request.
 Keep the request context size aligned with the service setup. To use it directly:
 
