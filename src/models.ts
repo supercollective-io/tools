@@ -12,6 +12,7 @@ export type ModelConfig = {
   baseUrl?: string;
   temperature?: number;
   think?: boolean;
+  numCtx?: number;
   maxOutputTokens: number;
   timeoutMs: number;
 };
@@ -135,6 +136,7 @@ export const generate: Generate = async (
               ? {}
               : { temperature: config.temperature }),
             ...(config.think === undefined ? {} : { think: config.think }),
+            ...(config.numCtx === undefined ? {} : { numCtx: config.numCtx }),
             numPredict: config.maxOutputTokens,
             checkOrPullModel: false,
             maxRetries: 0,

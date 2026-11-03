@@ -134,12 +134,17 @@ export const baseConfigSchema = z.strictObject({
       baseUrl: baseUrl.optional(),
       temperature: z.number().min(0).max(2).optional(),
       think: z.boolean().optional(),
+      numCtx: z.number().int().min(512).max(131_072).optional(),
       maxOutputTokens: z.number().int().min(1).max(32_768),
       timeoutMs: z.number().int().min(100).max(600_000),
     })
     .refine(
       (value) => value.provider === "ollama" || value.think === undefined,
       "think is an Ollama-only setting.",
+    )
+    .refine(
+      (value) => value.provider === "ollama" || value.numCtx === undefined,
+      "numCtx is an Ollama-only setting.",
     ),
   instructions: text,
   history: z.strictObject({

@@ -28,6 +28,7 @@ import {
   type ModelConfig,
   validateModelEnvironment,
 } from "./models.ts";
+import { baseConfigSchema } from "./schema.ts";
 
 const config: ModelConfig = {
   provider: "ollama",
@@ -130,23 +131,38 @@ describe("model adapter", () => {
       }),
     );
     expect(mocks.ollama.mock.calls[0]?.[0]).not.toHaveProperty("think");
+    expect(mocks.ollama.mock.calls[0]?.[0]).not.toHaveProperty("numCtx");
   });
 
-  it("forwards an explicitly disabled thinking setting to Ollama", async () => {
+  it("forwards explicit thinking and context settings to Ollama", async () => {
     mocks.stream.mockImplementation(async function* () {
       yield { content: "Result" };
     });
     await generate(
       {
-        config: { ...config, think: false },
+        config: { ...config, think: false, numCtx: 8192 },
         messages: [],
         signal: new AbortController().signal,
       },
       vi.fn(),
     );
     expect(mocks.ollama).toHaveBeenCalledWith(
-      expect.objectContaining({ think: false }),
+      expect.objectContaining({ think: false, numCtx: 8192 }),
     );
+  });
+
+  it("accepts explicit Ollama context sizes and rejects them for OpenAI configuration", () => {
+    expect(
+      baseConfigSchema.shape.composer.safeParse({ ...config, numCtx: 8192 })
+        .success,
+    ).toBe(true);
+    expect(
+      baseConfigSchema.shape.composer.safeParse({
+        ...config,
+        provider: "openai",
+        numCtx: 8192,
+      }).success,
+    ).toBe(false);
   });
 
   it("configures OpenAI with an explicit credential and completion limit", async () => {
@@ -155,7 +171,7 @@ describe("model adapter", () => {
     });
     await generate(
       {
-        config: { ...config, provider: "openai", think: false },
+        config: { ...config, provider: "openai", think: false, numCtx: 8192 },
         messages: [],
         signal: new AbortController().signal,
       },
@@ -172,6 +188,7 @@ describe("model adapter", () => {
     );
     expect(mocks.ollama).not.toHaveBeenCalled();
     expect(mocks.openai.mock.calls[0]?.[0]).not.toHaveProperty("think");
+    expect(mocks.openai.mock.calls[0]?.[0]).not.toHaveProperty("numCtx");
   });
 
   it("does not start an already-aborted request", async () => {
