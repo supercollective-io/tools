@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { parseArgs } from "node:util";
 import { contributionsFor, percentageRanges } from "./composition.ts";
+import { handleContinuousCommand } from "./continuous-cli.ts";
 import { Controller, GenerationError } from "./controller.ts";
 import type { Generate } from "./models.ts";
 import { RunLog, readRun } from "./runs.ts";
@@ -19,6 +20,7 @@ const help = `Collective Microphone — collective writing rehearsals
 
   pnpm cli run --score <score.json> --config <config.json> [--out <new.jsonl>]
   pnpm cli simulate --scenario <scenario.json> --config <config.json> [--out <new.jsonl>] [--auto]
+  pnpm cli simulate-continuous --scenario <scenario.json> --config <config.json> [--out <new.jsonl>]
   pnpm cli resume --run <run.jsonl> [--auto]
   pnpm cli replay --run <run.jsonl>
   pnpm cli rerun --run <run.jsonl> [--config <config.json>] [--out <new.jsonl>]
@@ -29,6 +31,7 @@ Replay displays accepted passages immediately without contacting a model.
 Rerun composes again from admitted inputs, starting a separate history.
 Simulate generates participant responses in rounds. --auto advances simulation rounds automatically.
 Simulation rerun uses frozen participant contributions; use simulate for fresh contributions.
+Simulate-continuous runs overlapping participant streams and compositions; Ctrl+C pauses it.
 New logs default to runs/<UUID>.jsonl. Existing files are never overwritten.
 `;
 
@@ -196,14 +199,22 @@ async function main(): Promise<void> {
   if (
     positionals.length !== 1 ||
     !command ||
-    !["run", "simulate", "resume", "replay", "rerun"].includes(command)
+    ![
+      "run",
+      "simulate",
+      "simulate-continuous",
+      "resume",
+      "replay",
+      "rerun",
+    ].includes(command)
   )
     throw new Error(
-      "Expected run, simulate, resume, replay or rerun. Use --help for usage.",
+      "Expected run, simulate, simulate-continuous, resume, replay or rerun. Use --help for usage.",
     );
   const allowed: Record<string, string[]> = {
     run: ["score", "config", "out"],
     simulate: ["scenario", "config", "out", "auto"],
+    "simulate-continuous": ["scenario", "config", "out", "auto"],
     resume: ["run", "auto"],
     replay: ["run"],
     rerun: ["run", "config", "out"],
@@ -213,6 +224,7 @@ async function main(): Promise<void> {
       "An option is not supported by this command. Use --help for usage.",
     );
 
+  if (await handleContinuousCommand(command, values)) return;
   if (await handleSimulationCommand(command, values)) return;
   if (values.auto)
     throw new Error("--auto is supported only for simulation runs.");

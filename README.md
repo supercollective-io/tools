@@ -6,8 +6,8 @@ Stage 1 is a terminal rehearsal tool: gradually admit continuous texts from eigh
 voices, advance one percentage step at a time, stream a collective passage, and
 save the run.
 It supports local Ollama and OpenAI through modular LangChain integrations.
-Stage 2A adds round-based simulated participants. Continuous streams, the browser
-and live speech come in later stages.
+Stage 2A adds round-based simulated participants; Stage 2B admits their streamed
+text continuously. The browser and live phone speech come in later stages.
 
 The first artistic context is **Rehearsing We**, a participatory performance
 exploring collective power. The [piece brief and topic-design proposal](docs/rehearsing-we.md)
@@ -110,8 +110,48 @@ contributions in the context of its own collective history.
 
 Use `examples/simulation-openai.json` for cloud models and provide
 `OPENAI_API_KEY` through the environment. See the [Stage 2A procedure](docs/stage-2a.md)
-for private context, bounded history, recovery and rehearsal checks. Stage 2B
-continuous admission and Stage 3 projection remain future work.
+for private context, bounded history, recovery and rehearsal checks. Stage 2A
+keeps its complete-round behaviour alongside Stage 2B continuous admission.
+
+## Rehearse continuous participant input
+
+Stage 2B admits participant text while generation is still running. It has no
+round barrier: saved prefixes can enter composition before a turn finishes.
+Participants develop their own positions, with collective context frozen at each
+turn's start and optional engagement with it. This simulates model turns; it does
+not implement people speaking into phones.
+
+```sh
+cp examples/continuous-ollama.json runs/continuous-config.json
+```
+
+Replace both model placeholders in `composer.model` and
+`continuous.participants.model`, then run:
+
+```sh
+pnpm cli simulate-continuous --scenario examples/simulation.json --config runs/continuous-config.json
+```
+
+Continuous mode advances automatically; Ctrl+C pauses and preserves saved input.
+Use standard `resume --run` to continue and `replay --run` to inspect offline.
+A failed or interrupted participant turn keeps its saved prefix and consumes a
+turn slot; resume starts the next turn. A failed composer retries the same
+pending batch. Frozen rerun is not implemented for continuous logs; start a new
+continuous run for another rehearsal.
+
+The examples allow three turns per participant and eight concurrent participant
+requests, plus one separate composer request. Actual parallelism depends on the
+service. Reduce `continuous.concurrency` if a local service is overloaded; the
+two roles can use different models or providers. Use
+`examples/continuous-openai.json` for cloud calls.
+
+The composer takes at most 240 available characters per participant, without
+waiting for slow voices or complete words. Unadmitted buffers are bounded at
+12,000 characters per participant; a full buffer makes the producer wait without
+dropping text. Composition is paced by a 3000 ms interval after the preceding
+composer attempt finishes. These bounds govern input, not output word counts.
+See the [Stage 2B procedure](docs/stage-2b.md) for recovery, pacing and rehearsal
+checks. Projection remains a separate Stage 3.
 
 ## Use a cloud model
 
@@ -141,18 +181,20 @@ pnpm cli replay --run runs/session.jsonl
 pnpm cli rerun --run runs/session.jsonl --config runs/cloud-config.json
 ```
 
-| Command    | Behaviour                                                                                |
-| ---------- | ---------------------------------------------------------------------------------------- |
-| `run`      | Start a scripted run from a score and configuration.                                     |
-| `simulate` | Start independent participant rounds from a scenario and configuration.                  |
-| `resume`   | Continue the saved run and frozen configuration; retry unfinished work.                  |
-| `replay`   | Print accepted passages immediately, without model calls or credentials.                 |
-| `rerun`    | Create a separate run from previously admitted steps, optionally changing configuration. |
+| Command               | Behaviour                                                                                |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `run`                 | Start a scripted run from a score and configuration.                                     |
+| `simulate`            | Start independent participant rounds from a scenario and configuration.                  |
+| `simulate-continuous` | Admit streamed participant text without a round barrier.                                 |
+| `resume`              | Continue the saved run and frozen configuration; retry unfinished work.                  |
+| `replay`              | Print accepted passages immediately, without model calls or credentials.                 |
+| `rerun`               | Create a separate run from previously admitted steps, optionally changing configuration. |
 
-Both `run` and `rerun` accept `--out <new.jsonl>`. Existing files are never
-overwritten. A rerun includes admitted steps from the source, including a
+`run`, `simulate`, `simulate-continuous` and `rerun` accept `--out <new.jsonl>`.
+Existing files are never overwritten. A rerun includes admitted steps from the source, including a
 pending failed step, but excludes future steps that were never admitted.
 It generates its own collective history and links back to the source run.
+Continuous logs support resume and replay, but not frozen rerun.
 Use `run` again when comparing the entire score, including unadmitted steps.
 
 Replay pairs each accepted passage with its recorded input contributions and
@@ -164,8 +206,7 @@ resliced from current example files. Retries display the same pending inputs aga
 Only one process can own a writable run. After an unclean crash, its lock can
 remain for 10 seconds. Resume reconciles an unfinished generation as interrupted
 before offering its pending input again. If the final JSONL line was torn,
-resume saves
-the fragment to a neighbouring `.interrupted-<UUID>` file before repairing the
+resume saves the fragment to a neighbouring `.interrupted-<UUID>` file before repairing the
 log. Corrupt complete records are reported rather than silently discarded.
 
 Exit status is `0` for completion or an intentional pause, `1` for invalid input,
@@ -204,9 +245,9 @@ are complete templates.
   passages are not cropped or rejected for their length.
 
 Percentage steps simulate finite prerecorded contributions whose full lengths
-are known. The live interfaces planned for later stages will admit rough text in
-participant order as it becomes available. They cannot measure a percentage of
-an unknown final text. Stage 1 does not implement live participation.
+are known. Stage 2B admits model-generated text as it becomes available, without
+assuming a known final length. The live phone interfaces remain future work;
+Stage 1 percentage slicing and Stage 2A complete rounds remain available.
 
 Configuration and source material are frozen when a run starts. Changing an
 input file does not change an existing run. Use `rerun --config` for changes.

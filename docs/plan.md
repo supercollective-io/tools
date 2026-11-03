@@ -4,9 +4,10 @@
 
 Build a tool that turns many contributions into one evolving collective voice.
 Use successive functional experiments. Complete and commit each stage, then
-rehearse it with the operator before starting the next stage. Stage 2A is now
-authorised. Complete its responsive terminal experiment, then stop for operator
-feedback before Stage 2B or projection. Work directly on `main` in this checkout.
+rehearse it with the operator before starting the next stage. Stage 2B is now
+authorised. Complete continuous terminal admission and stop for operator feedback
+before Stage 3 projection. Keep Stage 1 and Stage 2A available. Work directly on
+`main` in this checkout.
 
 Artistic quality is a rehearsal judgement, not an exact-text automated test.
 Keep completed passages append-only. Streamed text is provisional until saved.
@@ -106,16 +107,47 @@ finding or a parameter with a forced rate.
 
 ## Stage 2B: continuous participant admission
 
-After Stage 2A feedback, remove the round barrier as a separate experiment.
-Admit rough sequential participant text as it becomes available without waiting
-for complete responses or thematic statements. Preserve per-participant order
-and explicit bounds on pending input. Do not assume known final stream lengths.
-Percentage cuts remain a simulation for finite prerecorded texts only.
+Provide `simulate-continuous` with the existing private participant scenario and
+separate `continuous` configuration. Participants independently generate
+successive turns. At each turn's start, freeze the latest accepted collective
+passage as optional context alongside their own bounded history. Do not expose
+peers' raw input or private perspectives. These are simulated model turns, not
+live phone speech. There is no round barrier or compulsory collective reply.
 
-Test interruption, partial availability, participant fairness, continuity and
-composer pacing before adding the projected interface. The continuous protocol
-and its recovery semantics require a separate design and rehearsal; Stage 2A
-does not claim to implement them.
+Persist each incoming token before making its text available. Admit rough
+sequential prefixes before participant generation completes. Preserve each
+person's oldest unadmitted turn first; do not wait for all voices, complete
+words, semantic boundaries or a known final length. Percentage cuts remain a
+Stage 1 simulation for finite prerecorded texts only.
+
+The examples allow three turns per participant and eight concurrent participant
+requests, separate from one composer call. Service parallelism determines actual
+overlap; reduce concurrency if a local service overloads. Permit separate models
+and providers for the two roles. Bound admitted chunks at 240 characters and
+pending buffers at 12,000 characters per participant. A full buffer applies
+backpressure until consumption, without dropping text. These are input bounds,
+not output word counts. Pace composition with 3000 ms after the preceding
+composer attempt finishes; keep at most one composer call in flight.
+
+A failed, interrupted or truncated participant turn retains its saved prefix as
+input and in its own partial history, with an explicit status. It consumes a
+turn slot; resume starts the next turn instead of regenerating its prefix.
+A failed composer keeps the identical admitted batch for retry. Collective
+provider cutoffs remain provisional and are not accepted. Drain whitespace-only
+buffers without a composer call. Complete only when all allowed participant
+turns have started and settled and buffered text has been drained and composed.
+
+Ctrl+C stops requests and drains journal writes before closing. Recover torn
+final journal lines and mark open attempts interrupted. Resume and offline
+replay route by run type, showing admitted contributions, accepted collective
+passages and pending participant text. Frozen rerun is not implemented for
+continuous runs; use a fresh continuous rehearsal. Preserve Stage 1 and Stage 2A.
+
+Acceptance: deterministic tests cover available-prefix admission, per-person
+ordering, fairness without a slow-voice barrier, backpressure, partial failures,
+composer retry, cancellation, crash recovery and complete buffer drainage.
+Follow [the Stage 2B procedure](stage-2b.md); record actual real-provider checks
+separately from mocked evidence. Stop for feedback before Stage 3 projection.
 
 ## Stage 3: projected rehearsal
 
@@ -180,16 +212,19 @@ The Coolify target/domain and GitHub destination will be established at that sta
 6. `feat(simulation): add round-based responsive participants`
 7. `test(simulation): verify private context complete rounds and recovery`
 8. `docs: add Stage 2A examples and rehearsal procedure`
-9. `feat(simulation): admit continuous participant text after Stage 2B approval`
-10. `feat(web): add operator and projection views`
-11. `feat(projection): add paced reveal and reconnect recovery`
-12. `feat(storage): persist live sessions in SQLite`
-13. `feat(participation): add scoped phone contributions`
-14. `feat(speech): submit live transcripts as contributions`
-15. `feat(operations): expose performance health and status`
-16. `build: package the application for Coolify`
-17. `test: verify performance load and recovery`
-18. `docs: add deployment backup and performance runbooks`
+9. `feat(simulation): admit continuous participant text` — include streaming,
+   persistence, CLI, deterministic tests, example configurations and procedure.
+10. `docs: record the Stage 2B continuous rehearsal` — actual provider evidence
+    and remaining limitations.
+11. `feat(web): add operator and projection views`
+12. `feat(projection): add paced reveal and reconnect recovery`
+13. `feat(storage): persist live sessions in SQLite`
+14. `feat(participation): add scoped phone contributions`
+15. `feat(speech): submit live transcripts as contributions`
+16. `feat(operations): expose performance health and status`
+17. `build: package the application for Coolify`
+18. `test: verify performance load and recovery`
+19. `docs: add deployment backup and performance runbooks`
 
 Include relevant tests and usage documentation with each feature. CI performs
 frozen installation, Biome checks, type checking, tests and build. Later stages

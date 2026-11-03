@@ -117,7 +117,7 @@ const baseUrl = z.url().refine((value) => {
   );
 }, "Use an HTTP(S) URL without credentials, query parameters or a fragment.");
 
-const baseConfigSchema = z.strictObject({
+export const baseConfigSchema = z.strictObject({
   schemaVersion: z.literal(1),
   composer: z
     .strictObject({

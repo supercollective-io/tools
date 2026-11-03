@@ -54,6 +54,40 @@ afterEach(() => {
 });
 
 describe("model adapter", () => {
+  it("awaits each saved-token callback before requesting the next streamed chunk", async () => {
+    let release: () => void = () => {};
+    const saved = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let requestedSecond = false;
+    mocks.stream.mockImplementation(async function* () {
+      yield { content: "First" };
+      requestedSecond = true;
+      yield { content: "Second" };
+    });
+    let enter: () => void = () => {};
+    const entered = new Promise<void>((resolve) => {
+      enter = resolve;
+    });
+    const onToken = vi.fn(async (text: string) => {
+      if (text === "First") {
+        enter();
+        await saved;
+      }
+    });
+    const result = generate(
+      { config, messages: [], signal: new AbortController().signal },
+      onToken,
+    );
+    await entered;
+    expect(requestedSecond).toBe(false);
+    expect(onToken.mock.calls).toEqual([["First"]]);
+    release();
+    await expect(result).resolves.toEqual({ text: "FirstSecond" });
+    expect(requestedSecond).toBe(true);
+    expect(onToken.mock.calls).toEqual([["First"], ["Second"]]);
+  });
+
   it("streams text blocks, excludes non-text blocks, and reports final usage", async () => {
     mocks.stream.mockImplementation(async function* () {
       yield { content: "Hello " };

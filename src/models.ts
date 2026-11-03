@@ -34,7 +34,7 @@ export type ModelResult = {
 
 export type Generate = (
   request: ModelRequest,
-  onToken: (token: string) => void,
+  onToken: (token: string) => void | Promise<void>,
 ) => Promise<ModelResult>;
 
 export type ModelErrorCode =
@@ -163,7 +163,7 @@ export const generate: Generate = async (
       const token = textContent(chunk.content);
       if (token) {
         text += token;
-        onToken(token);
+        await onToken(token);
       }
       if (chunk.usage_metadata) {
         usage = {
