@@ -13,11 +13,13 @@ import {
   type Score,
   scoreSchema,
 } from "./schema.ts";
+import { handleSimulationCommand } from "./simulation-cli.ts";
 
-const help = `Collective Microphone — scripted collective writing
+const help = `Collective Microphone — collective writing rehearsals
 
   pnpm cli run --score <score.json> --config <config.json> [--out <new.jsonl>]
-  pnpm cli resume --run <run.jsonl>
+  pnpm cli simulate --scenario <scenario.json> --config <config.json> [--out <new.jsonl>] [--auto]
+  pnpm cli resume --run <run.jsonl> [--auto]
   pnpm cli replay --run <run.jsonl>
   pnpm cli rerun --run <run.jsonl> [--config <config.json>] [--out <new.jsonl>]
 
@@ -25,6 +27,8 @@ At the prompt: Enter/next advances one step; retry retries a failed step;
 q/quit pauses the run. Ctrl+C cancels the current attempt. Resume later.
 Replay displays accepted passages immediately without contacting a model.
 Rerun composes again from admitted inputs, starting a separate history.
+Simulate generates participant responses in rounds. --auto advances simulation rounds automatically.
+Simulation rerun uses frozen participant contributions; use simulate for fresh contributions.
 New logs default to runs/<UUID>.jsonl. Existing files are never overwritten.
 `;
 
@@ -175,6 +179,8 @@ async function main(): Promise<void> {
           config: { type: "string" },
           run: { type: "string" },
           out: { type: "string" },
+          scenario: { type: "string" },
+          auto: { type: "boolean" },
         },
       });
     } catch {
@@ -190,14 +196,15 @@ async function main(): Promise<void> {
   if (
     positionals.length !== 1 ||
     !command ||
-    !["run", "resume", "replay", "rerun"].includes(command)
+    !["run", "simulate", "resume", "replay", "rerun"].includes(command)
   )
     throw new Error(
-      "Expected run, resume, replay or rerun. Use --help for usage.",
+      "Expected run, simulate, resume, replay or rerun. Use --help for usage.",
     );
   const allowed: Record<string, string[]> = {
     run: ["score", "config", "out"],
-    resume: ["run"],
+    simulate: ["scenario", "config", "out", "auto"],
+    resume: ["run", "auto"],
     replay: ["run"],
     rerun: ["run", "config", "out"],
   };
@@ -205,6 +212,10 @@ async function main(): Promise<void> {
     throw new Error(
       "An option is not supported by this command. Use --help for usage.",
     );
+
+  if (await handleSimulationCommand(command, values)) return;
+  if (values.auto)
+    throw new Error("--auto is supported only for simulation runs.");
 
   if (command === "run") {
     if (!values.score || !values.config)

@@ -117,7 +117,7 @@ const baseUrl = z.url().refine((value) => {
   );
 }, "Use an HTTP(S) URL without credentials, query parameters or a fragment.");
 
-export const configSchema = z.strictObject({
+const baseConfigSchema = z.strictObject({
   schemaVersion: z.literal(1),
   composer: z
     .strictObject({
@@ -148,6 +148,47 @@ export const configSchema = z.strictObject({
   }),
 });
 
+export const scenarioSchema = z
+  .strictObject({
+    schemaVersion: z.literal(1),
+    title: z.string().trim().min(1).max(200),
+    openingInvitation: text,
+    voices: z
+      .array(
+        z.strictObject({ id, name: text, perspective: text, background: text }),
+      )
+      .min(1)
+      .max(100),
+  })
+  .superRefine((scenario, ctx) => {
+    if (
+      new Set(scenario.voices.map((voice) => voice.id)).size !==
+      scenario.voices.length
+    )
+      ctx.addIssue({ code: "custom", message: "Voice IDs must be unique." });
+  });
+
+const simulationSettingsSchema = z.strictObject({
+  maxRounds: z.number().int().min(1).max(1000),
+  concurrency: z.number().int().min(1).max(32),
+  intervalMs: z.number().int().min(0).max(60_000),
+  participants: baseConfigSchema.shape.composer,
+  instructions: text,
+  history: z.strictObject({
+    maxTurns: z.number().int().min(0).max(100),
+    maxCharacters: z.number().int().min(0).max(200_000),
+  }),
+});
+
+export const configSchema = baseConfigSchema.extend({
+  simulation: simulationSettingsSchema.optional(),
+});
+export const simulationConfigSchema = baseConfigSchema.extend({
+  simulation: simulationSettingsSchema,
+});
+export type SimulationScenario = z.infer<typeof scenarioSchema>;
+export type SimulationConfig = z.infer<typeof simulationConfigSchema>;
+
 export type ContinuousScore = z.infer<typeof scoreSchema>;
 export type LegacyScore = z.infer<typeof legacyScoreSchema>;
 export type Score = z.infer<typeof storedScoreSchema>;
@@ -155,7 +196,7 @@ export type Config = z.infer<typeof configSchema>;
 export type Contribution = {
   id: string;
   participantId: string;
-  source: "script";
+  source: "script" | "simulated";
   text: string;
   respondingToPassageId: string | null;
 };

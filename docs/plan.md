@@ -4,8 +4,9 @@
 
 Build a tool that turns many contributions into one evolving collective voice.
 Use successive functional experiments. Complete and commit each stage, then
-rehearse it with the operator before starting the next stage. The initial build
-stops after Stage 1. Work directly on `main` in this checkout.
+rehearse it with the operator before starting the next stage. Stage 2A is now
+authorised. Complete its responsive terminal experiment, then stop for operator
+feedback before Stage 2B or projection. Work directly on `main` in this checkout.
 
 Artistic quality is a rehearsal judgement, not an exact-text automated test.
 Keep completed passages append-only. Streamed text is provisional until saved.
@@ -61,20 +62,60 @@ Rehearsal: compare writing across models, prompts, percentage sizes and memory.
 Verify that admitted slices reconstruct every original text exactly. Percentages
 simulate finite prerecorded contributions; they are not a live-stream protocol.
 
-## Stage 2: responsive terminal participants
+## Stage 2A: round-based responsive terminal participants
 
-Make independent model calls for eight participants, each with private voice,
-position, source text and bounded history. Responses answer actual collective
-passages and enter the existing contribution path; silence creates no contribution.
-Admit available text sequentially, preserving participant order even when slices
-are rough or unfinished. Do not require curated thematic fragments. Use
-percentage cuts only for finite prerecorded material with known full lengths;
-responsive or live streams do not have known final lengths.
-The composer never receives private source material. Allow stepped/automatic
-rounds, configurable pauses and maximum rounds, default concurrency one, and
-separate composer/participant model selection. Preserve completed responses
-when another participant fails. Pause stops new calls; end cancels outstanding
-calls and rejects late results. Rehearse distinct voices and meaningful dissent.
+Make independent model calls for eight fictional participants. Load a scenario
+with `title`, `openingInvitation` and voices containing `id`, `name`, `perspective`
+and private `background`. The example retains the broad collective-power topic
+and everyday circumstances from Stage 1. Backgrounds provide initial context;
+they are not prewritten output or a mandatory agenda.
+
+Participants primarily share and develop their own positions. Each round gives
+every participant the same previous accepted collective passage as optional
+context, alongside their own bounded history. Engagement with the collective is
+not compulsory. No participant sees peers' raw responses or private context.
+Default participant concurrency is one. Every participant completes one actual
+text response, saved before the round barrier releases all responses to the
+composer. The composer never receives private background or perspective.
+Stage 2A uses completed responses, not percentage cuts or continuous admission.
+
+Configure participant and composer models separately. Provide manual rounds and
+`--auto`, configurable intervals and a maximum round count. The example uses
+three rounds, concurrency one and 1000 ms intervals. Empty, truncated or failed
+generations are errors; the composer waits for every participant's completed
+text response. Preserve completed responses when another call fails or the
+operator interrupts. Resume reuses completed work; replay is offline.
+
+Simulation rerun freezes recorded participant responses and builds a separate
+collective history without participant calls. Include rounds with a completed
+text from every participant, including pending composer work. Exclude unfinished rounds
+with partial responses and retain them in the source log. Preserve original
+`respondingToPassageId` links as available-context links, not proof of a direct
+reply, and label recorded inputs. Freeze the source scenario
+and settings in the record; allow a composer configuration override. Use a fresh
+`simulate` run to generate new contributions in its own collective context.
+
+Acceptance: deterministic tests cover private prompt boundaries, common previous
+collective context, one completed text per participant, failure recovery and
+bounded automatic execution. Rehearse independent development, optional
+engagement with the collective and meaningful dissent separately
+with real providers. Follow [the Stage 2A procedure](stage-2a.md), record which
+checks actually passed and stop for feedback after this stage. The range from
+independent threads to direct replies is a rehearsal hypothesis, not a research
+finding or a parameter with a forced rate.
+
+## Stage 2B: continuous participant admission
+
+After Stage 2A feedback, remove the round barrier as a separate experiment.
+Admit rough sequential participant text as it becomes available without waiting
+for complete responses or thematic statements. Preserve per-participant order
+and explicit bounds on pending input. Do not assume known final stream lengths.
+Percentage cuts remain a simulation for finite prerecorded texts only.
+
+Test interruption, partial availability, participant fairness, continuity and
+composer pacing before adding the projected interface. The continuous protocol
+and its recovery semantics require a separate design and rehearsal; Stage 2A
+does not claim to implement them.
 
 ## Stage 3: projected rehearsal
 
@@ -88,7 +129,7 @@ Rehearse typography, reading pace and passage length on the projection screen.
 ## Stage 4: typed phone participation
 
 Add QR joining, anonymous session-scoped identities and submission feedback.
-Capture the answered passage when typing begins. Introduce SQLite, Drizzle and
+Capture the collective context visible when typing begins. Introduce SQLite, Drizzle and
 `better-sqlite3` for live sessions, retaining JSONL import/export and CLI runs.
 Deduplicate participant-scoped submission IDs and acknowledge only saved input.
 Select bounded batches round-robin across participants, preserving per-person
@@ -136,16 +177,19 @@ The Coolify target/domain and GitHub destination will be established at that sta
 3. `ci: enforce reproducible installs and project checks`
 4. `feat(cli): compose scored voices with cloud and Ollama`
 5. `feat(runs): add recovery replay and rerun`
-6. `feat(simulation): add independent responsive participants`
-7. `feat(web): add operator and projection views`
-8. `feat(projection): add paced reveal and reconnect recovery`
-9. `feat(storage): persist live sessions in SQLite`
-10. `feat(participation): add scoped phone contributions`
-11. `feat(speech): submit live transcripts as contributions`
-12. `feat(operations): expose performance health and status`
-13. `build: package the application for Coolify`
-14. `test: verify performance load and recovery`
-15. `docs: add deployment backup and performance runbooks`
+6. `feat(simulation): add round-based responsive participants`
+7. `test(simulation): verify private context complete rounds and recovery`
+8. `docs: add Stage 2A examples and rehearsal procedure`
+9. `feat(simulation): admit continuous participant text after Stage 2B approval`
+10. `feat(web): add operator and projection views`
+11. `feat(projection): add paced reveal and reconnect recovery`
+12. `feat(storage): persist live sessions in SQLite`
+13. `feat(participation): add scoped phone contributions`
+14. `feat(speech): submit live transcripts as contributions`
+15. `feat(operations): expose performance health and status`
+16. `build: package the application for Coolify`
+17. `test: verify performance load and recovery`
+18. `docs: add deployment backup and performance runbooks`
 
 Include relevant tests and usage documentation with each feature. CI performs
 frozen installation, Biome checks, type checking, tests and build. Later stages

@@ -34,7 +34,7 @@ export function contributionsFor(
   score: Score,
   batchIndex: number,
   respondingToPassageId: string | null,
-): Contribution[] {
+): (Contribution & { source: "script" })[] {
   if (score.schemaVersion === 2) {
     const range = percentageRanges(score)[batchIndex];
     if (!range) throw new Error("Batch does not exist.");

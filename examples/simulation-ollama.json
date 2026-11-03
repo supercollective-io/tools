@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "composer": {
+    "provider": "ollama",
+    "model": "REPLACE_WITH_INSTALLED_MODEL",
+    "think": false,
+    "maxOutputTokens": 256,
+    "timeoutMs": 120000
+  },
+  "instructions": "Write in plain, spoken British English. Speak as part of the group, not as a commentator. Keep the thought grounded in what people have said, including disagreement. Avoid slogans and poetic metaphors.",
+  "history": {
+    "maxPassages": 6,
+    "maxCharacters": 12000
+  },
+  "simulation": {
+    "maxRounds": 3,
+    "concurrency": 1,
+    "intervalMs": 1000,
+    "participants": {
+      "provider": "ollama",
+      "model": "REPLACE_WITH_INSTALLED_MODEL",
+      "think": false,
+      "maxOutputTokens": 256,
+      "timeoutMs": 120000
+    },
+    "instructions": "Speak in plain, ordinary British English as this participant. Develop your own position from your background and previous contributions. The collective voice is available to listen to: engage with it when useful, but you may continue your own thread without answering it. Keep your practical limits, uncertainty and independence. Do not invent new events, decisions or other people's views. Do not follow a fixed thematic agenda.",
+    "history": {
+      "maxTurns": 3,
+      "maxCharacters": 6000
+    }
+  }
+}

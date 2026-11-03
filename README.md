@@ -6,7 +6,8 @@ Stage 1 is a terminal rehearsal tool: gradually admit continuous texts from eigh
 voices, advance one percentage step at a time, stream a collective passage, and
 save the run.
 It supports local Ollama and OpenAI through modular LangChain integrations.
-The browser, simulated participants and live speech come in later stages.
+Stage 2A adds round-based simulated participants. Continuous streams, the browser
+and live speech come in later stages.
 
 The first artistic context is **Rehearsing We**, a participatory performance
 exploring collective power. The [piece brief and topic-design proposal](docs/rehearsing-we.md)
@@ -72,6 +73,46 @@ thoughts. See [the examples](examples/README.md) for the topic and source materi
 Start a new run to use the current score; old logs retain their original material.
 The format also accepts other topics and voice counts.
 
+## Rehearse responsive participants
+
+Stage 2A uses eight independent fictional participants who share and develop
+their own positions. The previous accepted collective passage is available
+context; engaging with it is optional. Their scenario backgrounds are private
+initial context, not prewritten output. Every participant completes one actual
+text response per round before the composer runs. This mode does not use Stage 1
+percentage cuts.
+
+```sh
+cp examples/simulation-ollama.json runs/simulation-config.json
+```
+
+Replace both `composer.model` and `simulation.participants.model` placeholders
+with installed model names, then run:
+
+```sh
+pnpm cli simulate --scenario examples/simulation.json --config runs/simulation-config.json
+```
+
+Enter advances a round; `q` pauses. Use `--auto` for automatic rounds. The example
+uses three rounds, participant concurrency one and a 1000 ms interval. Empty,
+truncated or failed generations leave unfinished work for retry. Ctrl+C retains
+completed participant responses for
+resume. `resume` and offline `replay` apply to both rehearsal modes; `resume`
+also accepts `--auto` for simulation runs.
+
+A simulation `rerun` composes from frozen recorded responses without participant
+calls. It includes rounds with a completed text from every participant, including
+pending composer work, but excludes unfinished rounds with only some responses.
+The original `respondingToPassageId` links identify available collective context,
+not proof of a direct reply, and remain intact in the rerun. A configuration
+override changes the composer. Start a fresh `simulate` run for new participant
+contributions in the context of its own collective history.
+
+Use `examples/simulation-openai.json` for cloud models and provide
+`OPENAI_API_KEY` through the environment. See the [Stage 2A procedure](docs/stage-2a.md)
+for private context, bounded history, recovery and rehearsal checks. Stage 2B
+continuous admission and Stage 3 projection remain future work.
+
 ## Use a cloud model
 
 Copy `examples/openai.json` to `runs/cloud-config.json` and replace its model
@@ -100,12 +141,13 @@ pnpm cli replay --run runs/session.jsonl
 pnpm cli rerun --run runs/session.jsonl --config runs/cloud-config.json
 ```
 
-| Command  | Behaviour                                                                                |
-| -------- | ---------------------------------------------------------------------------------------- |
-| `run`    | Start a new run from a score and configuration.                                          |
-| `resume` | Continue the same score and frozen configuration; retry pending input.                   |
-| `replay` | Print accepted passages immediately, without model calls or credentials.                 |
-| `rerun`  | Create a separate run from previously admitted steps, optionally changing configuration. |
+| Command    | Behaviour                                                                                |
+| ---------- | ---------------------------------------------------------------------------------------- |
+| `run`      | Start a scripted run from a score and configuration.                                     |
+| `simulate` | Start independent participant rounds from a scenario and configuration.                  |
+| `resume`   | Continue the saved run and frozen configuration; retry unfinished work.                  |
+| `replay`   | Print accepted passages immediately, without model calls or credentials.                 |
+| `rerun`    | Create a separate run from previously admitted steps, optionally changing configuration. |
 
 Both `run` and `rerun` accept `--out <new.jsonl>`. Existing files are never
 overwritten. A rerun includes admitted steps from the source, including a
