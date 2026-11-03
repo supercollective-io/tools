@@ -1,0 +1,17 @@
+name: checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v3
+      - run: mise exec -- pnpm install --frozen-lockfile
+      - run: mise exec -- pnpm run check
+      - run: mise exec -- pnpm run typecheck
+      - run: mise exec -- pnpm test
+      - run: mise exec -- pnpm run build
