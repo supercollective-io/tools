@@ -1,14 +1,17 @@
 # Collective Microphone
 
+This staged roadmap includes historical decisions and future work. For the
+implemented workspace, use [the live guide](live-rehearsal.md); for development
+commands and source entry points, use [CONTRIBUTING.md](../CONTRIBUTING.md).
+
 ## Delivery agreement
 
 Build a tool that turns many contributions into one evolving collective voice.
-Use successive functional experiments. Complete and commit each stage, then
+Use successive functional experiments. Complete each stage, then
 rehearse it with the operator before starting the next stage. Stage 2B is now
 authorised. Complete continuous co-writing and its local operator workspace,
 then stop for operator feedback before Stage 3 performance projection. Keep
-Stage 1 and Stage 2A available. Work directly on
-`main` in this checkout.
+Stage 1 and Stage 2A available.
 
 Artistic quality is a rehearsal judgement, not an exact-text automated test.
 Keep writing append-only. Live writing is saved as it arrives; publication
@@ -22,11 +25,14 @@ Keep model integrations, composition, interfaces and storage separate.
 - One private TypeScript ESM package, with strict type checking.
 - Node LTS and current stable pnpm, pinned exactly by mise. Mirror pnpm in
   `packageManager`, commit the lockfile, and use frozen installs in CI.
-- Biome, Vitest and Lefthook. Add Playwright and `svelte-check` with the browser.
+- Biome, Vitest and Lefthook. The current browser uses plain JavaScript, HTML
+  and CSS. Playwright and Svelte tooling are future options for Stage 3.
 - pnpm project policy in `pnpm-workspace.yaml`; registry/auth settings belong in
   `.npmrc`. Default-deny dependency scripts, with narrow `allowBuilds` decisions.
 - Modular LangChain integrations for OpenAI and Ollama, plus Zod validation.
-  No cloud fallback, automatic model downloads, agent framework or hosted tracing.
+  No cloud fallback, agent framework or hosted tracing. Historical CLI runs
+  require installed models; the current launcher prepares Qwen on demand when
+  the operator starts a session, as described in the live guide.
 - Credentials stay in the environment, outside source material and run records.
 
 ## Stage 1: scripted terminal composition

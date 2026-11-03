@@ -203,6 +203,7 @@ pnpm cli rerun --run runs/session.jsonl --config runs/cloud-config.json
 | `simulate-continuous` | Continue live co-writing in the terminal.                                                |
 | `resume`              | Continue the saved run and frozen configuration; retry unfinished work.                  |
 | `replay`              | Print saved writing immediately, without model calls or credentials.                     |
+| `inspect`             | Summarise recorded status, saved writing, progress and failures offline.                 |
 | `rerun`               | Create a separate run from previously admitted steps, optionally changing configuration. |
 
 `run`, `simulate`, `simulate-continuous` and `rerun` accept `--out <new.jsonl>`.
@@ -286,12 +287,25 @@ local credentials are ignored by Git.
 
 ## Develop and verify
 
+To inspect the outcome of a rehearsal without reading its whole journal:
+
 ```sh
-pnpm run check
-pnpm run typecheck
-pnpm test
-pnpm run build
-node dist/cli.js --help
+mise exec -- pnpm inspect
+mise exec -- pnpm inspect --run runs/session.jsonl --json
+mise exec -- pnpm inspect --run runs/session.jsonl --full
+```
+
+The first command selects the most recently modified JSONL run. Use an actual
+saved path in the other commands. Default output gives bounded writing excerpts;
+`--full` includes complete saved writing. Inspection never resumes a run or calls
+a model. See [run inspection](docs/run-inspection.md) for fields and limitations.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for task-specific checks, source entry
+points and the documentation map. Coding agents start with [AGENTS.md](AGENTS.md).
+
+```sh
+mise exec -- pnpm run verify
+mise exec -- node dist/cli.js --help
 ```
 
 `pnpm run fmt` applies formatting; `pnpm run lint` runs lint checks. Lefthook

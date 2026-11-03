@@ -1,0 +1,88 @@
+# Development guide
+
+## Set up and verify
+
+Follow [repository setup](README.md#set-up). `mise.toml` pins the runtime and
+package manager; `package.json` supplies commands; `pnpm-workspace.yaml` supplies
+dependency-build policy. Use the committed `pnpm-lock.yaml` for installations.
+Git hooks are optional for an ephemeral agent checkout; CI runs independently.
+
+Run commands from the repository root:
+
+| Purpose                                  | Command                                                  |
+| ---------------------------------------- | -------------------------------------------------------- |
+| Same checks as CI                        | `mise exec -- pnpm run verify`                           |
+| Biome checks without rewriting           | `mise exec -- pnpm run check`                            |
+| Type checking                            | `mise exec -- pnpm run typecheck`                        |
+| One test file                            | `mise exec -- pnpm test tests/live.test.ts`              |
+| One named test                           | `mise exec -- pnpm test tests/live.test.ts -t 'refresh'` |
+| Build TypeScript and copy browser assets | `mise exec -- pnpm run build`                            |
+| Compiled CLI smoke check                 | `mise exec -- node dist/cli.js --help`                   |
+
+`verify` is the canonical CI sequence. `fmt` rewrites formatting across the
+repository; prefer `mise exec -- pnpm exec biome format --write <files>` when
+only changed files need formatting. Biome and TypeScript configuration define
+the mechanical code conventions. Source imports use `.ts` extensions; the
+build rewrites them for compiled ESM execution.
+
+Tests are in `tests/` and `src/models.test.ts`. They use deterministic model
+doubles and fake providers. HTTP/subprocess tests need permission to bind
+loopback sockets and create disposable files. `listen EPERM` indicates an
+environment restriction, not evidence that Ollama is missing. Report blocked
+checks separately from failing assertions. Do not use personal run logs as test
+fixtures: create minimal fictional data in temporary directories.
+
+For changes to runtime behaviour, add or update tests at the affected boundary.
+Use focused tests while editing, then run `verify`. For documentation-only
+changes, run the Biome check and verify the commands, links and claims that
+changed. Browser rendering still needs visual inspection when layout or
+interaction changes; HTTP tests alone do not establish visual quality. The
+TypeScript check covers `.ts` files, not the browser's plain JavaScript.
+
+## Find the implementation
+
+The application is one Node process, with plain browser assets and versioned
+JSONL storage. It has no Svelte application or database yet.
+
+| Task                                          | Source entry points                                      | Test entry points                                                 |
+| --------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------- |
+| Launcher, model setup and shutdown            | `src/start.ts`, `src/local-models.ts`                    | `tests/start.test.ts`                                             |
+| Session selection and browser controls        | `src/workspace.ts`, `src/live-server.ts`, `src/web/`     | `tests/workspace.test.ts`, `tests/live-server.test.ts`            |
+| Current scheduling, prompts and continuations | `src/live.ts`, `src/live-schema.ts`                      | `tests/live.test.ts`, `tests/modes.test.ts`                       |
+| Live event contracts and state reconstruction | `src/live-runs.ts`                                       | `tests/live-runs.test.ts`                                         |
+| Journal locking, ordered writes and recovery  | `src/journal.ts`                                         | `tests/journal.test.ts` and affected mode's run tests             |
+| Model adapters and native prefill             | `src/models.ts`                                          | `src/models.test.ts`, `tests/native-prefill.test.ts`              |
+| Focused offline run outcomes                  | `src/inspect.ts`, `src/cli.ts`                           | `tests/inspect.test.ts`                                           |
+| Scripted Stage 1 and percentage slicing       | `src/controller.ts`, `src/composition.ts`, `src/runs.ts` | `tests/core.test.ts`, `tests/slices.test.ts`, `tests/cli.test.ts` |
+| Round-based Stage 2A                          | `src/simulation.ts`, `src/simulation-runs.ts`            | `tests/simulation.test.ts`, `tests/simulation-cli.test.ts`        |
+| Historical bounded-turn compatibility         | `src/continuous.ts`, `src/continuous-runs.ts`            | `tests/continuous.test.ts`, `tests/continuous-cli.test.ts`        |
+
+`src/cli.ts` dispatches to mode-specific CLI modules. New
+`simulate-continuous` runs use `live-*`; the similarly named `continuous-*`
+modules retain historical log support. Input schemas live in `src/schema.ts`,
+`src/live-schema.ts` and `src/continuous-schema.ts`; event schemas live beside
+their state reconstruction in the run modules. If a persisted shape changes,
+check its reader, recovery, CLI and public projection together.
+
+## Inspect outcomes
+
+Use [run inspection](docs/run-inspection.md) for concise text, machine-readable
+JSON and full saved writing. Inspection is read-only and offline. Use an
+explicit run path when comparing changes; the default newest-file selection
+is a convenience, not a reproducible experiment identifier.
+
+## Find the relevant documentation
+
+| Need                                      | Document                                                               |
+| ----------------------------------------- | ---------------------------------------------------------------------- |
+| Current operator workflow                 | [README](README.md), [live rehearsal](docs/live-rehearsal.md)          |
+| Artistic intent and example source        | [Rehearsing We](docs/rehearsing-we.md), [examples](examples/README.md) |
+| Supported historical CLI procedures       | [Stage 1](docs/rehearsal.md), [Stage 2A](docs/stage-2a.md)             |
+| Superseded bounded-turn design            | [Historical Stage 2B](docs/stage-2b.md)                                |
+| Future stages and delivery scope          | [Roadmap](docs/plan.md)                                                |
+| Observations from particular local runs   | Dated `docs/*-2026-11-03.md` reports                                   |
+| Why the agent guidance has this structure | [Agent-readiness research](docs/agent-readiness.md)                    |
+
+Keep observed rehearsal results distinct from software guarantees. Update the
+current user guide and relevant examples when behaviour changes; preserve dated
+reports as historical evidence rather than rewriting their observations.

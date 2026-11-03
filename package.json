@@ -11,12 +11,14 @@
     "start": "node src/start.ts",
     "replay": "node src/start.ts replay",
     "cli": "node --env-file-if-exists=.env src/cli.ts",
+    "inspect": "node src/cli.ts inspect",
     "fmt": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').cpSync('src/web', 'dist/web', { recursive: true })\"",
+    "verify": "pnpm run check && pnpm run typecheck && pnpm test && pnpm run build",
     "hooks:install": "lefthook install"
   },
   "dependencies": {

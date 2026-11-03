@@ -13,7 +13,4 @@ jobs:
           persist-credentials: false
       - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5
       - run: mise exec -- pnpm install --frozen-lockfile
-      - run: mise exec -- pnpm run check
-      - run: mise exec -- pnpm run typecheck
-      - run: mise exec -- pnpm test
-      - run: mise exec -- pnpm run build
+      - run: mise exec -- pnpm run verify

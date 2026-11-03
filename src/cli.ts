@@ -6,6 +6,7 @@ import { contributionsFor, percentageRanges } from "./composition.ts";
 import { handleContinuousCommand } from "./continuous-cli.ts";
 import { isContinuousRun } from "./continuous-runs.ts";
 import { Controller, GenerationError } from "./controller.ts";
+import { formatRunSummary, inspectRun, latestJournal } from "./inspect.ts";
 import { handleLiveCommand } from "./live-cli.ts";
 import type { Generate } from "./models.ts";
 import { RunLog, readRun } from "./runs.ts";
@@ -27,11 +28,13 @@ const help = `Collective Microphone — collective writing rehearsals
   pnpm cli simulate-continuous --scenario <scenario.json> --config <config.json> [--out <new.jsonl>]
   pnpm cli resume --run <run.jsonl> [--auto]
   pnpm cli replay --run <run.jsonl>
+  pnpm cli inspect [--run <run.jsonl>] [--json] [--full]
   pnpm cli rerun --run <run.jsonl> [--config <config.json>] [--out <new.jsonl>]
 
 At the prompt: Enter/next advances one step; retry retries a failed step;
 q/quit pauses the run. Ctrl+C cancels the current attempt. Resume later.
 Replay displays accepted passages immediately without contacting a model.
+Inspect summarises saved outcomes offline; omit --run for the newest JSONL in runs/.
 Rerun composes again from admitted inputs, starting a separate history.
 Simulate generates participant responses in rounds. --auto advances simulation rounds automatically.
 Simulation rerun uses frozen participant contributions; use simulate for fresh contributions.
@@ -190,6 +193,8 @@ async function main(): Promise<void> {
           scenario: { type: "string" },
           auto: { type: "boolean" },
           port: { type: "string" },
+          json: { type: "boolean" },
+          full: { type: "boolean" },
         },
       });
     } catch {
@@ -213,10 +218,11 @@ async function main(): Promise<void> {
       "resume",
       "replay",
       "rerun",
+      "inspect",
     ].includes(command)
   )
     throw new Error(
-      "Expected run, rehearse, simulate, simulate-continuous, resume, replay or rerun. Use --help for usage.",
+      "Expected run, rehearse, simulate, simulate-continuous, resume, replay, rerun or inspect. Use --help for usage.",
     );
   const allowed: Record<string, string[]> = {
     run: ["score", "config", "out"],
@@ -226,12 +232,25 @@ async function main(): Promise<void> {
     resume: ["run", "auto"],
     replay: ["run"],
     rerun: ["run", "config", "out"],
+    inspect: ["run", "json", "full"],
   };
   if (Object.keys(values).some((key) => !allowed[command]?.includes(key)))
     throw new Error(
       "An option is not supported by this command. Use --help for usage.",
     );
 
+  if (command === "inspect") {
+    const summary = await inspectRun(
+      values.run ?? (await latestJournal()),
+      values.full,
+    );
+    process.stdout.write(
+      values.json
+        ? `${JSON.stringify(summary, null, 2)}\n`
+        : formatRunSummary(summary),
+    );
+    return;
+  }
   if (await handleLiveCommand(command, values)) return;
   if (
     ["resume", "replay", "rerun"].includes(command) &&
