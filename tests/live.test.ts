@@ -162,7 +162,12 @@ function controllerFor(log: LiveLog, generate: Generate) {
   return controller;
 }
 
-async function savedWriting(log: LiveLog, actorId: string, text: string) {
+async function savedWriting(
+  log: LiveLog,
+  actorId: string,
+  text: string,
+  reason: "paused" | "eos" = "paused",
+) {
   const attemptId = randomUUID();
   const sourceOffsets =
     actorId === "collective"
@@ -192,7 +197,7 @@ async function savedWriting(log: LiveLog, actorId: string, text: string) {
     type: "generation.finished",
     actorId,
     attemptId,
-    reason: "paused",
+    reason,
   });
 }
 
@@ -248,6 +253,70 @@ describe("one growing participant and collective contribution", () => {
     ).toHaveLength(2);
     expect(log.state.participants).toHaveLength(1);
   }, 3_000);
+
+  it("begins an empty collective text instead of completing a cut-off participant source", async () => {
+    const log = await createLog();
+    await log.append({ type: "session.started" });
+    await savedWriting(log, "participant/a", "I wouldn");
+    const first = buildLivePrompt(log.state, "collective");
+    expect(first.some((message) => message.role === "assistant")).toBe(false);
+    expect(first[0]?.content).toContain(
+      "There is no existing text of yours to continue",
+    );
+    expect(userFrom(first).task).toMatch(/^Begin/);
+    expect(userFrom(first).participants[0].text).toBe("I wouldn");
+    await savedWriting(log, "collective", "We want a say");
+    const next = buildLivePrompt(log.state, "collective");
+    expect(next.at(-1)).toEqual({
+      role: "assistant",
+      content: "We want a say",
+    });
+    expect(userFrom(next).task).toMatch(/^Continue/);
+  });
+
+  it.each([
+    { text: "We need a reliable service.", sentenceEnded: true },
+    { text: "Who can question those figures?", sentenceEnded: true },
+    { text: "We should be able to ask!", sentenceEnded: true },
+    { text: "We said ‘we need a say.’\n", sentenceEnded: true },
+    { text: "We are organis", sentenceEnded: false },
+    { text: "We need someone with the", sentenceEnded: false },
+  ])(
+    "uses the saved grammatical ending when appending after EOS: $text",
+    async ({ text, sentenceEnded }) => {
+      const log = await createLog();
+      await log.append({ type: "session.started" });
+      for (const actorId of ["participant/a", "collective"]) {
+        await savedWriting(log, actorId, text, "eos");
+        const append = buildLivePrompt(log.state, actorId, "append");
+        const data = userFrom(append);
+        expect(data.existingText).toBe(text);
+        if (sentenceEnded) {
+          expect(data.continuationInstruction).toContain(
+            "Start a new grammatical sentence with a capital letter",
+          );
+          expect(data.continuationInstruction).toContain(
+            "Its opening must stand on its own",
+          );
+        } else {
+          expect(data.continuationInstruction).toContain(
+            "Continue from its exact ending",
+          );
+          expect(data.continuationInstruction).toContain(
+            "Do not force a new sentence",
+          );
+          expect(data.continuationInstruction).not.toContain(
+            "Start a new grammatical sentence",
+          );
+        }
+        const prefill = buildLivePrompt(log.state, actorId);
+        expect(prefill.at(-1)).toEqual({ role: "assistant", content: text });
+        expect(JSON.stringify(prefill)).not.toContain(
+          "Start a new grammatical sentence",
+        );
+      }
+    },
+  );
 
   it("provides full own prefixes and published collective context while keeping private participant profiles out of other prompts", async () => {
     const log = await createLog({}, 2);

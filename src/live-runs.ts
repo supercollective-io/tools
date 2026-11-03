@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { z } from "zod";
+import { percentageRanges } from "./composition.ts";
 import { type JournalEvent, journalFor } from "./journal.ts";
 import { type LiveConfig, liveConfigSchema } from "./live-schema.ts";
 import { type SimulationScenario, scenarioSchema } from "./schema.ts";
@@ -41,6 +42,7 @@ const bodySchema = z.discriminatedUnion("type", [
     config: liveConfigSchema,
   }),
   z.strictObject({ type: z.literal("session.started") }),
+  z.strictObject({ type: z.literal("source.revealed"), step: offset }),
   z.strictObject({
     type: z.literal("session.paused"),
     elapsedMs: z.number().nonnegative(),
@@ -132,6 +134,13 @@ export type LiveState = {
   publishedOffset: number;
   publishedAt: string | null;
   pauseReason: string | null;
+  // Serial modes advance this cursor in the same durable event that finishes
+  // an inference. Interrupted requests retain their cursor and saved prefix.
+  scheduler: {
+    cycle: number;
+    participantIndex: number;
+    phase: "participants" | "collective" | "complete";
+  };
 };
 
 function writer(id: string): LiveWriter {
@@ -149,6 +158,20 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
   const first = records[0];
   if (first?.event.type !== "live.created")
     throw new Error("Live log has no valid opening record.");
+  const mode = first.event.config.live.mode ?? "continuous";
+  const score = first.event.config.live.score;
+  const scenario = first.event.scenario;
+  if (
+    mode === "fixed" &&
+    (!score ||
+      score.voices.length !== scenario.voices.length ||
+      score.voices.some(
+        (voice, index) => voice.id !== scenario.voices[index]?.id,
+      ))
+  )
+    throw new Error(
+      "Fixed score and scenario voices must have the same IDs and order.",
+    );
   const state: LiveState = {
     runId: first.runId,
     scenario: first.event.scenario,
@@ -165,6 +188,7 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
     publishedOffset: 0,
     publishedAt: null,
     pauseReason: null,
+    scheduler: { cycle: 0, participantIndex: 0, phase: "participants" },
   };
   const attempts = new Set<string>();
   const writers = [...state.participants, state.composer];
@@ -182,6 +206,31 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
       continue;
     }
     switch (event.type) {
+      case "source.revealed": {
+        if (
+          mode !== "fixed" ||
+          !score ||
+          state.status !== "running" ||
+          state.scheduler.phase !== "participants" ||
+          event.step !== state.scheduler.cycle ||
+          writers.some((writer) => writer.active)
+        )
+          throw new Error(
+            "Fixed sources must advance in score order between requests.",
+          );
+        const range = percentageRanges(score)[event.step];
+        if (!range) throw new Error("Fixed source slice does not exist.");
+        for (const [index, voice] of score.voices.entries()) {
+          const characters = Array.from(voice.text);
+          const participant = state.participants[index];
+          if (!participant) throw new Error("Fixed source has no participant.");
+          participant.text = characters
+            .slice(0, Math.floor((characters.length * range.to) / 100))
+            .join("");
+        }
+        state.scheduler.phase = "collective";
+        break;
+      }
       case "session.started":
         if (state.status !== "ready" && state.status !== "paused")
           throw new Error("Live session is already running.");
@@ -249,7 +298,15 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
           !writer ||
           writer.active ||
           attempts.has(event.attemptId) ||
-          event.contextVersion !== state.collectiveVersion
+          event.contextVersion !== state.collectiveVersion ||
+          (mode !== "continuous" &&
+            (writers.some((candidate) => candidate.active) ||
+              (state.scheduler.phase === "participants"
+                ? mode !== "chunked" ||
+                  event.actorId !==
+                    state.participants[state.scheduler.participantIndex]?.id
+                : state.scheduler.phase !== "collective" ||
+                  event.actorId !== "collective")))
         )
           throw new Error(
             "Invalid live generation attempt or collective context.",
@@ -317,6 +374,25 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
           );
         writer.active = null;
         writer.lastFinishReason = event.reason;
+        if (
+          mode !== "continuous" &&
+          (event.reason === "eos" || event.reason === "budget")
+        ) {
+          if (event.actorId === "collective") {
+            state.scheduler.cycle++;
+            state.scheduler.participantIndex = 0;
+            state.scheduler.phase =
+              mode === "fixed" &&
+              score &&
+              state.scheduler.cycle >= percentageRanges(score).length
+                ? "complete"
+                : "participants";
+          } else {
+            state.scheduler.participantIndex++;
+            if (state.scheduler.participantIndex === state.participants.length)
+              state.scheduler.phase = "collective";
+          }
+        }
         break;
       }
       case "collective.published":
