@@ -13,6 +13,7 @@ export type ModelConfig = {
   temperature?: number;
   think?: boolean;
   numCtx?: number;
+  rawPrefill?: boolean;
   maxOutputTokens: number;
   timeoutMs: number;
 };
@@ -92,6 +93,153 @@ function safeStatus(error: unknown): number | undefined {
     : undefined;
 }
 
+type NativeChunk = {
+  content: string;
+  response_metadata?: { done_reason?: string; finish_reason?: string };
+  usage_metadata?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+  };
+};
+
+/** Continue an open model turn when Ollama's chat renderer closes assistant messages. */
+async function* rawPrefillStream(
+  config: ModelConfig,
+  messages: PromptMessage[],
+  signal: AbortSignal,
+): AsyncGenerator<NativeChunk> {
+  const prefix = messages.at(-1);
+  if (prefix?.role !== "assistant" || !prefix.content)
+    throw new Error("Raw prefill requires a saved assistant prefix.");
+  const baseUrl = (config.baseUrl ?? "http://127.0.0.1:11434").replace(
+    /\/$/u,
+    "",
+  );
+  const options = {
+    num_predict: config.maxOutputTokens,
+    ...(config.temperature === undefined
+      ? {}
+      : { temperature: config.temperature }),
+    ...(config.numCtx === undefined ? {} : { num_ctx: config.numCtx }),
+  };
+  const post = async (path: string, body: object) => {
+    const response = await fetch(`${baseUrl}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      redirect: "error",
+      signal,
+    });
+    if (!response.ok) {
+      await response.body?.cancel();
+      throw Object.assign(new Error("Local model request failed."), {
+        status: response.status,
+      });
+    }
+    return response;
+  };
+  // Ollama's render-only endpoint supplies its own canonical chat template.
+  // Removing the final assistant message leaves an open generation turn; append
+  // the exact saved characters there, without closing it or guessing a join.
+  const rendered: unknown = await (
+    await post("/api/chat", {
+      model: config.model,
+      messages: messages.slice(0, -1),
+      stream: false,
+      _debug_render_only: true,
+      ...(config.think === undefined ? {} : { think: config.think }),
+      options,
+    })
+  ).json();
+  const debug =
+    typeof rendered === "object" &&
+    rendered !== null &&
+    "_debug_info" in rendered
+      ? rendered._debug_info
+      : undefined;
+  const template =
+    typeof debug === "object" && debug !== null && "rendered_template" in debug
+      ? debug.rendered_template
+      : undefined;
+  if (typeof template !== "string" || !template)
+    throw new Error("The local service does not support render-only prefill.");
+  signal.throwIfAborted();
+  const response = await post("/api/generate", {
+    model: config.model,
+    prompt: template + prefix.content,
+    raw: true,
+    stream: true,
+    ...(config.think === undefined ? {} : { think: config.think }),
+    options,
+  });
+  if (!response.body) throw new Error("Local model response has no stream.");
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let pending = "";
+  let done = false;
+  const parseLine = (line: string): NativeChunk => {
+    const value: unknown = JSON.parse(line);
+    if (typeof value !== "object" || value === null || "error" in value)
+      throw new Error("Invalid local model response.");
+    const chunk = value as Record<string, unknown>;
+    if (
+      done ||
+      (chunk.response !== undefined && typeof chunk.response !== "string") ||
+      (chunk.done !== undefined && typeof chunk.done !== "boolean") ||
+      (chunk.done_reason !== undefined && typeof chunk.done_reason !== "string")
+    )
+      throw new Error("Invalid local model stream record.");
+    done = chunk.done === true;
+    const count = (value: unknown): number | undefined =>
+      typeof value === "number" && Number.isSafeInteger(value) && value >= 0
+        ? value
+        : undefined;
+    const input = count(chunk.prompt_eval_count);
+    const output = count(chunk.eval_count);
+    return {
+      content: typeof chunk.response === "string" ? chunk.response : "",
+      ...(typeof chunk.done_reason === "string"
+        ? { response_metadata: { done_reason: chunk.done_reason } }
+        : {}),
+      ...(input !== undefined || output !== undefined
+        ? {
+            usage_metadata: {
+              input_tokens: input,
+              output_tokens: output,
+              total_tokens:
+                input !== undefined && output !== undefined
+                  ? input + output
+                  : undefined,
+            },
+          }
+        : {}),
+    };
+  };
+  try {
+    while (true) {
+      signal.throwIfAborted();
+      const next = await reader.read();
+      pending += next.done
+        ? decoder.decode()
+        : decoder.decode(next.value, { stream: true });
+      let newline = pending.indexOf("\n");
+      while (newline !== -1) {
+        const line = pending.slice(0, newline);
+        pending = pending.slice(newline + 1);
+        if (line.trim()) yield parseLine(line);
+        newline = pending.indexOf("\n");
+      }
+      if (next.done) break;
+    }
+    if (pending.trim()) yield parseLine(pending);
+    if (!done) throw new Error("Local model stream ended before completion.");
+  } finally {
+    await reader.cancel().catch(() => {});
+    reader.releaseLock();
+  }
+}
+
 export const generate: Generate = async (
   { config, messages, signal },
   onToken,
@@ -147,10 +295,18 @@ export const generate: Generate = async (
       if (role === "assistant") return new AIMessage(content);
       return new HumanMessage(content);
     });
-    const stream = await model.stream(prompt, {
-      signal: controller.signal,
-      callbacks: [],
-    });
+    const prefix = messages.at(-1);
+    const nativePrefill =
+      config.provider === "ollama" &&
+      config.rawPrefill === true &&
+      prefix?.role === "assistant" &&
+      prefix.content.length > 0;
+    const stream = nativePrefill
+      ? rawPrefillStream(config, messages, controller.signal)
+      : await model.stream(prompt, {
+          signal: controller.signal,
+          callbacks: [],
+        });
     let text = "";
     let usage: ModelResult["usage"];
     for await (const chunk of stream) {

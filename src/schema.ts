@@ -135,6 +135,7 @@ export const baseConfigSchema = z.strictObject({
       temperature: z.number().min(0).max(2).optional(),
       think: z.boolean().optional(),
       numCtx: z.number().int().min(512).max(131_072).optional(),
+      rawPrefill: z.boolean().optional(),
       maxOutputTokens: z.number().int().min(1).max(32_768),
       timeoutMs: z.number().int().min(100).max(600_000),
     })
@@ -145,6 +146,10 @@ export const baseConfigSchema = z.strictObject({
     .refine(
       (value) => value.provider === "ollama" || value.numCtx === undefined,
       "numCtx is an Ollama-only setting.",
+    )
+    .refine(
+      (value) => value.provider === "ollama" || value.rawPrefill === undefined,
+      "rawPrefill is an Ollama-only setting.",
     ),
   instructions: text,
   history: z.strictObject({
