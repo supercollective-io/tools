@@ -152,3 +152,5 @@ Record run paths, participant and composer models, service concurrency, timing
 settings and observations. Automated doubles establish ordering and recovery;
 real-provider rehearsals assess pacing and writing separately. Stop for operator
 feedback before building Stage 3 projection.
+
+For actual observations, see the [3 November 2026 rehearsal record](stage-2b-rehearsal-2026-11-03.md).
