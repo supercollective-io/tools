@@ -7,6 +7,11 @@ advance one batch at a time, stream a collective passage, and save the run.
 It supports local Ollama and OpenAI through modular LangChain integrations.
 The browser, simulated participants and live speech come in later stages.
 
+The first artistic context is **Rehearsing We**, a participatory performance
+exploring collective power. The [piece brief and topic-design proposal](docs/rehearsing-we.md)
+describe that context; scores and composer instructions remain configurable for
+other topics.
+
 ## Set up
 
 Install [mise](https://mise.jdx.dev/), then run from this checkout:
@@ -46,7 +51,9 @@ than an automatic dependency lifecycle script.
    ```
 
 The CLI prints the absolute path of its new JSONL run file. Press Enter or type
-`next` to admit and compose the next batch. Streamed text is labelled provisional;
+`next` to admit and compose the next batch. An `INPUTS` block shows each
+prewritten contribution with its speaker's name, followed by the generated
+`COLLECTIVE` passage. Streamed text is labelled provisional;
 `[accepted and saved]` confirms it has entered the durable history.
 
 Type `q` to pause at the prompt. Ctrl+C cancels an in-flight generation without
@@ -97,6 +104,11 @@ overwritten. A rerun includes admitted batches from the source, including a
 pending failed batch, but excludes future batches that were never admitted.
 It generates its own collective history and links back to the source run.
 Use `run` again when comparing the entire score, including unadmitted batches.
+
+Replay pairs each accepted passage with its recorded input contributions and
+speaker names. Any pending batch appears with an explicit indication that it has
+no accepted collective passage. This works with existing Stage 1 logs and does
+not contact a model. Retries display the same pending inputs again.
 
 Only one process can own a writable run. After an unclean crash, its lock can
 remain for 10 seconds. Resume reconciles an unfinished generation as interrupted

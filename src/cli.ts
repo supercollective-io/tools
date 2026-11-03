@@ -2,10 +2,17 @@ import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { parseArgs } from "node:util";
+import { contributionsFor } from "./composition.ts";
 import { Controller, GenerationError } from "./controller.ts";
 import type { Generate } from "./models.ts";
 import { RunLog, readRun } from "./runs.ts";
-import { configSchema, readJson, type Score, scoreSchema } from "./schema.ts";
+import {
+  type Contribution,
+  configSchema,
+  readJson,
+  type Score,
+  scoreSchema,
+} from "./schema.ts";
 
 const help = `Collective Microphone — scripted collective writing
 
@@ -20,6 +27,34 @@ Replay displays accepted passages immediately without contacting a model.
 Rerun composes again from admitted inputs, starting a separate history.
 New logs default to runs/<UUID>.jsonl. Existing files are never overwritten.
 `;
+
+function showInputs(
+  score: Score,
+  batchIndex: number,
+  inputs: Contribution[],
+): void {
+  process.stdout.write(
+    `\n[INPUTS — batch ${batchIndex + 1}/${score.batches.length} — scripted/fixed text]\n`,
+  );
+  for (const contribution of inputs) {
+    const participant = score.voices.find(
+      (voice) => voice.id === contribution.participantId,
+    );
+    process.stdout.write(
+      `\n${participant?.name ?? contribution.participantId}:\n${contribution.text}\n`,
+    );
+  }
+}
+
+function showCollectiveLabel(
+  score: Score,
+  batchIndex: number,
+  status: string,
+): void {
+  process.stdout.write(
+    `\n[COLLECTIVE — batch ${batchIndex + 1}/${score.batches.length} — ${status}]\n`,
+  );
+}
 
 async function rehearse(log: RunLog, generate: Generate): Promise<void> {
   const controller = new Controller(log, generate);
@@ -47,8 +82,17 @@ async function rehearse(log: RunLog, generate: Generate): Promise<void> {
     process.stdout.write(
       `Run: ${log.path}\n${log.state.score.title}\nStreamed text is provisional until [accepted].\n`,
     );
-    const last = log.state.passages.at(-1);
-    if (last) process.stdout.write(`\nLast accepted passage:\n${last.text}\n`);
+    const initial = log.state;
+    const last = initial.passages.at(-1);
+    if (last) {
+      showInputs(
+        initial.score,
+        last.batchIndex,
+        initial.admitted[last.batchIndex] ?? [],
+      );
+      showCollectiveLabel(initial.score, last.batchIndex, "accepted and saved");
+      process.stdout.write(`\nLast accepted passage:\n${last.text}\n`);
+    }
     prompt();
     for await (const line of input) {
       if (cancellation.signal.aborted) break;
@@ -59,7 +103,17 @@ async function rehearse(log: RunLog, generate: Generate): Promise<void> {
         prompt();
         continue;
       }
-      process.stdout.write("\n[provisional]\n");
+      const state = log.state;
+      const batchIndex = state.passages.length;
+      const inputs =
+        state.pending ??
+        contributionsFor(
+          state.score,
+          batchIndex,
+          state.passages.at(-1)?.id ?? null,
+        );
+      showInputs(state.score, batchIndex, inputs);
+      showCollectiveLabel(state.score, batchIndex, "provisional");
       try {
         await controller.advance(cancellation.signal, (token) =>
           process.stdout.write(token),
@@ -155,8 +209,20 @@ async function main(): Promise<void> {
     );
   if (command === "replay") {
     process.stdout.write(`${read.state.score.title}\n`);
-    for (const [index, passage] of read.state.passages.entries())
-      process.stdout.write(`\n[${index + 1}]\n${passage.text}\n`);
+    for (const [index, passage] of read.state.passages.entries()) {
+      showInputs(read.state.score, index, read.state.admitted[index] ?? []);
+      showCollectiveLabel(read.state.score, index, "accepted and saved");
+      process.stdout.write(`${passage.text}\n`);
+    }
+    if (read.state.pending) {
+      const batchIndex = read.state.passages.length;
+      showInputs(read.state.score, batchIndex, read.state.pending);
+      showCollectiveLabel(
+        read.state.score,
+        batchIndex,
+        "pending — no accepted collective passage",
+      );
+    }
     process.stdout.write(
       `\n${read.state.passages.length} accepted passages; ${read.state.complete ? "complete" : "paused or interrupted"}.\n`,
     );

@@ -101,9 +101,20 @@ async function fixtures(baseUrl: string) {
             { id: "second", text: "Let the neighbours sleep." },
           ],
         },
+        {
+          id: "caretaker",
+          name: "Caretaker",
+          fragments: [{ id: "repairs", text: "The heating needs repairs." }],
+        },
       ],
       batches: [
-        { id: "one", fragments: [{ voiceId: "voice", fragmentId: "first" }] },
+        {
+          id: "one",
+          fragments: [
+            { voiceId: "voice", fragmentId: "first" },
+            { voiceId: "caretaker", fragmentId: "repairs" },
+          ],
+        },
         { id: "two", fragments: [{ voiceId: "voice", fragmentId: "second" }] },
       ],
     }),
@@ -182,6 +193,33 @@ function runArgs(f: Awaited<ReturnType<typeof fixtures>>) {
   return ["run", "--score", f.score, "--config", f.config, "--out", f.out];
 }
 
+function expectBatchPresentation(
+  output: string,
+  batch: number,
+  passage: string,
+) {
+  const inputs = output.indexOf(
+    `[INPUTS — batch ${batch}/2 — scripted/fixed text]`,
+  );
+  const contribution = output.indexOf(
+    batch === 1 ? "Keep the hall open." : "Let the neighbours sleep.",
+    inputs,
+  );
+  const collective = output.indexOf(
+    `[COLLECTIVE — batch ${batch}/2`,
+    contribution,
+  );
+  const text = output.indexOf(passage, collective);
+  expect(inputs).toBeGreaterThanOrEqual(0);
+  expect(contribution).toBeGreaterThan(inputs);
+  expect(collective).toBeGreaterThan(contribution);
+  expect(text).toBeGreaterThan(collective);
+  expect(output).toContain("Neighbour:");
+  if (batch === 1) {
+    expect(output).toContain("Caretaker:\nThe heating needs repairs.");
+  }
+}
+
 describe("CLI subprocess integration", () => {
   it("streams and saves a complete run, then replays offline without credentials", async () => {
     const ollama = await fakeOllama();
@@ -189,10 +227,12 @@ describe("CLI subprocess integration", () => {
     const result = await cli(runArgs(f), ["next", "next"]);
     expect(result.code, result.stderr).toBe(0);
     expect(result.stdout).toContain(
-      "[provisional]\nWe share the hall, passage 1.",
+      "[COLLECTIVE — batch 1/2 — provisional]\nWe share the hall, passage 1.",
     );
     expect(result.stdout.match(/\[accepted and saved\]/g)).toHaveLength(2);
     expect(result.stdout).toContain("Run complete.");
+    expectBatchPresentation(result.stdout, 1, "We share the hall, passage 1.");
+    expectBatchPresentation(result.stdout, 2, "We share the hall, passage 2.");
     expect(ollama.requests).toHaveLength(2);
     const saved = await readRun(f.out);
     expect(saved.state.complete).toBe(true);
@@ -216,8 +256,8 @@ describe("CLI subprocess integration", () => {
     await closeServer(ollama.server);
     const replay = await cli(["replay", "--run", f.out]);
     expect(replay.code, replay.stderr).toBe(0);
-    expect(replay.stdout).toContain("[1]\nWe share the hall, passage 1.");
-    expect(replay.stdout).toContain("[2]\nWe share the hall, passage 2.");
+    expectBatchPresentation(replay.stdout, 1, "We share the hall, passage 1.");
+    expectBatchPresentation(replay.stdout, 2, "We share the hall, passage 2.");
     expect(replay.stdout).toContain("2 accepted passages; complete.");
     expect(await readFile(f.out, "utf8")).toBe(original);
   }, 30000);
@@ -228,12 +268,17 @@ describe("CLI subprocess integration", () => {
     const paused = await cli(runArgs(f), ["next", "q"]);
     expect(paused.code, paused.stderr).toBe(0);
     expect(paused.stdout).toContain("Paused. Resume with:");
+    expectBatchPresentation(paused.stdout, 1, "We share the hall, passage 1.");
+    expect(paused.stdout).not.toContain("Let the neighbours sleep.");
+    expect(paused.stdout).not.toContain("[INPUTS — batch 2/2");
     expect((await readRun(f.out)).state.passages).toHaveLength(1);
     const resumed = await cli(["resume", "--run", f.out], ["next"]);
     expect(resumed.code, resumed.stderr).toBe(0);
     expect(resumed.stdout).toContain(
       "Last accepted passage:\nWe share the hall, passage 1.",
     );
+    expectBatchPresentation(resumed.stdout, 1, "We share the hall, passage 1.");
+    expectBatchPresentation(resumed.stdout, 2, "We share the hall, passage 2.");
     expect(ollama.requests).toHaveLength(2);
     const source = await readRun(f.out);
     expect(source.state.complete).toBe(true);
@@ -245,6 +290,8 @@ describe("CLI subprocess integration", () => {
       ["next", "next"],
     );
     expect(rerun.code, rerun.stderr).toBe(0);
+    expectBatchPresentation(rerun.stdout, 1, "We share the hall, passage 3.");
+    expectBatchPresentation(rerun.stdout, 2, "We share the hall, passage 4.");
     const fresh = await readRun(rerunPath);
     expect(fresh.state.complete).toBe(true);
     expect(fresh.state.runId).not.toBe(source.state.runId);
@@ -265,6 +312,11 @@ describe("CLI subprocess integration", () => {
     const result = await cli(runArgs(f), ["next", "retry", "q"]);
     expect(result.code, result.stderr).toBe(0);
     expect(result.stderr).toContain("[not accepted]");
+    expect(
+      result.stdout.match(/\[INPUTS — batch 1\/2 — scripted\/fixed text\]/g),
+    ).toHaveLength(2);
+    expect(result.stdout.match(/Keep the hall open\./g)).toHaveLength(2);
+    expect(result.stdout).not.toContain("Let the neighbours sleep.");
     expect(ollama.requests).toHaveLength(2);
     expect(ollama.requests[1]).toEqual(ollama.requests[0]);
     const saved = await readRun(f.out);
@@ -282,6 +334,42 @@ describe("CLI subprocess integration", () => {
         (record) => record.event.type === "generation.failed",
       ),
     ).toHaveLength(1);
+  }, 30000);
+
+  it("replays pending admitted inputs offline without showing future fragments", async () => {
+    const ollama = await fakeOllama(true);
+    const f = await fixtures(ollama.baseUrl);
+    const failed = await cli(runArgs(f), ["next", "q"]);
+    expect(failed.code).toBe(1);
+    const original = await readFile(f.out, "utf8");
+    // The frozen score, not a subsequently edited source file, supplies names.
+    await writeFile(f.score, "{}");
+    await closeServer(ollama.server);
+    const replay = await cli(["replay", "--run", f.out]);
+    expect(replay.code, replay.stderr).toBe(0);
+    expectBatchPresentation(
+      replay.stdout,
+      1,
+      "pending — no accepted collective passage",
+    );
+    expect(replay.stdout).not.toContain("Let the neighbours sleep.");
+    expect(replay.stdout).toContain(
+      "0 accepted passages; paused or interrupted.",
+    );
+    expect(await readFile(f.out, "utf8")).toBe(original);
+  }, 30000);
+
+  it("shows the same pending inputs when resuming a failed batch", async () => {
+    const ollama = await fakeOllama(true);
+    const f = await fixtures(ollama.baseUrl);
+    const failed = await cli(runArgs(f), ["next", "q"]);
+    expect(failed.code).toBe(1);
+    const resumed = await cli(["resume", "--run", f.out], ["retry", "q"]);
+    expect(resumed.code, resumed.stderr).toBe(0);
+    expectBatchPresentation(resumed.stdout, 1, "We share the hall, passage 1.");
+    expect(resumed.stdout).not.toContain("Let the neighbours sleep.");
+    expect(ollama.requests[1]).toEqual(ollama.requests[0]);
+    expect((await readRun(f.out)).state.admitted).toHaveLength(1);
   }, 30000);
 
   it("rejects invalid configuration before creating an output file", async () => {
