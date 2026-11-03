@@ -4,14 +4,20 @@ import { createInterface } from "node:readline";
 import { parseArgs } from "node:util";
 import { Controller, GenerationError } from "./controller.ts";
 import type { Generate } from "./models.ts";
-import { RunLog } from "./runs.ts";
-import { configSchema, readJson, scoreSchema } from "./schema.ts";
+import { RunLog, readRun } from "./runs.ts";
+import { configSchema, readJson, type Score, scoreSchema } from "./schema.ts";
 
 const help = `Collective Microphone — scripted collective writing
 
   pnpm cli run --score <score.json> --config <config.json> [--out <new.jsonl>]
+  pnpm cli resume --run <run.jsonl>
+  pnpm cli replay --run <run.jsonl>
+  pnpm cli rerun --run <run.jsonl> [--config <config.json>] [--out <new.jsonl>]
 
-Press Enter/next to compose a batch, retry after failure, or q to stop.
+At the prompt: Enter/next advances one batch; retry retries a failed batch;
+q/quit pauses the run. Ctrl+C cancels the current attempt. Resume later.
+Replay displays accepted passages immediately without contacting a model.
+Rerun composes again from admitted inputs, starting a separate history.
 New logs default to runs/<UUID>.jsonl. Existing files are never overwritten.
 `;
 
@@ -107,8 +113,14 @@ async function main(): Promise<void> {
     return;
   }
   const command = positionals[0];
-  if (positionals.length !== 1 || !command || !["run"].includes(command))
-    throw new Error("Expected run. Use --help for usage.");
+  if (
+    positionals.length !== 1 ||
+    !command ||
+    !["run", "resume", "replay", "rerun"].includes(command)
+  )
+    throw new Error(
+      "Expected run, resume, replay or rerun. Use --help for usage.",
+    );
   const allowed: Record<string, string[]> = {
     run: ["score", "config", "out"],
     resume: ["run"],
@@ -134,6 +146,60 @@ async function main(): Promise<void> {
     await rehearse(log, generate);
     return;
   }
+  if (!values.run) throw new Error(`${command} requires --run.`);
+  const path = resolve(values.run);
+  const read = await readRun(path);
+  if (read.tail.length)
+    process.stderr.write(
+      "Warning: ignored an interrupted final log line. Resume preserves that fragment before recovery.\n",
+    );
+  if (command === "replay") {
+    process.stdout.write(`${read.state.score.title}\n`);
+    for (const [index, passage] of read.state.passages.entries())
+      process.stdout.write(`\n[${index + 1}]\n${passage.text}\n`);
+    process.stdout.write(
+      `\n${read.state.passages.length} accepted passages; ${read.state.complete ? "complete" : "paused or interrupted"}.\n`,
+    );
+    return;
+  }
+  if (command === "resume") {
+    if (read.state.complete) {
+      process.stdout.write(
+        "Run already complete. Use replay to display it or rerun to compose anew.\n",
+      );
+      return;
+    }
+    if (read.state.passages.length === read.state.score.batches.length) {
+      const log = await RunLog.resume(path);
+      try {
+        await log.append({ type: "run.completed" });
+      } finally {
+        await log.close();
+      }
+      process.stdout.write("Run complete.\n");
+      return;
+    }
+    const { generate, validateModelEnvironment } = await import("./models.ts");
+    validateModelEnvironment(read.state.config.composer);
+    await rehearse(await RunLog.resume(path), generate);
+    return;
+  }
+  if (!read.state.admitted.length)
+    throw new Error("This run has no admitted contributions to rerun.");
+  const config = values.config
+    ? await readJson(values.config, configSchema, "Configuration")
+    : read.state.config;
+  const score: Score = {
+    ...read.state.score,
+    batches: read.state.score.batches.slice(0, read.state.admitted.length),
+  };
+  const { generate, validateModelEnvironment } = await import("./models.ts");
+  validateModelEnvironment(config.composer);
+  const log = await RunLog.create(
+    resolve(values.out ?? `runs/${randomUUID()}.jsonl`),
+    { type: "run.created", score, config, sourceRunId: read.state.runId },
+  );
+  await rehearse(log, generate);
 }
 
 main().catch((error: unknown) => {
