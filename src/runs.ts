@@ -1,19 +1,9 @@
-import { randomUUID } from "node:crypto";
-import {
-  type FileHandle,
-  mkdir,
-  open,
-  readFile,
-  writeFile,
-} from "node:fs/promises";
-import { dirname } from "node:path";
-import lockfile from "proper-lockfile";
 import { z } from "zod";
 import { contributionsFor, type Passage, stepCount } from "./composition.ts";
+import { type JournalEvent, journalFor } from "./journal.ts";
 import {
   type Contribution,
   configSchema,
-  parse,
   storedScoreSchema,
 } from "./schema.ts";
 
@@ -71,14 +61,7 @@ const bodySchema = z.discriminatedUnion("type", [
   }),
   z.strictObject({ type: z.literal("run.completed") }),
 ]);
-const eventSchema = z.strictObject({
-  schemaVersion: z.literal(1),
-  runId: z.uuid(),
-  sequence: z.number().int().positive(),
-  at: z.iso.datetime(),
-  event: bodySchema,
-});
-export type RunEvent = z.infer<typeof eventSchema>;
+export type RunEvent = JournalEvent<z.infer<typeof bodySchema>>;
 export type EventBody = z.infer<typeof bodySchema>;
 export type RunState = {
   runId: string;
@@ -182,185 +165,16 @@ function rebuild(events: RunEvent[]): RunState {
   return state;
 }
 
-export async function readRun(path: string): Promise<{
-  events: RunEvent[];
-  state: RunState;
-  validBytes: number;
-  tail: Buffer;
-  needsNewline: boolean;
-}> {
-  let data: Buffer;
-  try {
-    data = await readFile(path);
-  } catch {
-    throw new Error("Cannot read run log.");
-  }
-  const events: RunEvent[] = [];
-  let offset = 0;
-  let validBytes = 0;
-  let needsNewline = false;
-  while (offset < data.length) {
-    const newline = data.indexOf(10, offset);
-    const end = newline === -1 ? data.length : newline;
-    const line = data.subarray(offset, end).toString("utf8");
-    let value: unknown;
-    try {
-      value = JSON.parse(line);
-    } catch {
-      if (newline === -1) break;
-      throw new Error(
-        `Run log contains invalid JSON on line ${events.length + 1}.`,
-      );
-    }
-    events.push(parse(eventSchema, value, `Run log line ${events.length + 1}`));
-    validBytes = newline === -1 ? end : end + 1;
-    needsNewline = newline === -1;
-    offset = validBytes;
-  }
-  return {
-    events,
-    state: rebuild(events),
-    validBytes,
-    tail: data.subarray(validBytes),
-    needsNewline,
-  };
-}
-
-export class RunLog {
-  readonly path: string;
-  private handle: FileHandle;
-  private release: () => Promise<void>;
-  private isCompromised: () => boolean;
-  private events: RunEvent[];
-  private constructor(
-    path: string,
-    handle: FileHandle,
-    release: () => Promise<void>,
-    isCompromised: () => boolean,
-    events: RunEvent[],
-  ) {
-    this.path = path;
-    this.handle = handle;
-    this.release = release;
-    this.isCompromised = isCompromised;
-    this.events = events;
-  }
-
-  get state(): RunState {
-    return rebuild(this.events);
-  }
-
-  private static async acquire(
-    path: string,
-  ): Promise<{ release: () => Promise<void>; isCompromised: () => boolean }> {
-    let compromised = false;
-    try {
-      const release = await lockfile.lock(path, {
-        stale: 10_000,
-        update: 2_000,
-        retries: 0,
-        onCompromised: () => {
-          compromised = true;
-        },
-      });
-      return { release, isCompromised: () => compromised };
-    } catch {
-      throw new Error(
-        "Run is locked by another process. After a crash, wait 10 seconds before resuming.",
-      );
-    }
-  }
-
-  static async create(
-    path: string,
-    event: Extract<EventBody, { type: "run.created" }>,
-  ): Promise<RunLog> {
-    parse(bodySchema, event, "New run");
-    await mkdir(dirname(path), { recursive: true, mode: 0o700 });
-    let handle: FileHandle;
-    try {
-      handle = await open(path, "ax", 0o600);
-    } catch {
-      throw new Error(
-        "Cannot create run log; choose a new writable path. Existing files are never overwritten.",
-      );
-    }
-    let log: RunLog | undefined;
-    try {
-      const lease = await RunLog.acquire(path);
-      log = new RunLog(path, handle, lease.release, lease.isCompromised, []);
-      await log.append(event);
-      return log;
-    } catch (error) {
-      if (log) await log.close();
-      else await handle.close();
-      throw error;
-    }
-  }
-
-  static async resume(path: string): Promise<RunLog> {
-    const lease = await RunLog.acquire(path);
-    let handle: FileHandle | undefined;
-    try {
-      const read = await readRun(path);
-      handle = await open(path, "a");
-      if (read.tail.length) {
-        await writeFile(`${path}.interrupted-${randomUUID()}`, read.tail, {
-          flag: "wx",
-          mode: 0o600,
-        });
-        await handle.truncate(read.validBytes);
-      }
-      if (read.needsNewline) await handle.write("\n");
-      await handle.sync();
-      const log = new RunLog(
-        path,
-        handle,
-        lease.release,
-        lease.isCompromised,
-        read.events,
-      );
-      if (read.state.attemptId)
-        await log.append({
+export const RunLog = journalFor(bodySchema, rebuild, (state): EventBody[] =>
+  state.attemptId
+    ? [
+        {
           type: "generation.failed",
-          attemptId: read.state.attemptId,
+          attemptId: state.attemptId,
           reason: "interrupted",
-        });
-      return log;
-    } catch (error) {
-      await handle?.close();
-      await lease.release();
-      throw error;
-    }
-  }
-
-  async append(event: EventBody): Promise<void> {
-    if (this.isCompromised())
-      throw new Error(
-        "Run lock was lost; stop and resume this run in a single process.",
-      );
-    const record = parse(
-      eventSchema,
-      {
-        schemaVersion: 1,
-        runId: this.events[0]?.runId ?? randomUUID(),
-        sequence: this.events.length + 1,
-        at: new Date().toISOString(),
-        event,
-      },
-      "Run event",
-    );
-    rebuild([...this.events, record]);
-    await this.handle.writeFile(`${JSON.stringify(record)}\n`);
-    await this.handle.sync();
-    this.events.push(record);
-  }
-
-  async close(): Promise<void> {
-    try {
-      await this.handle.close();
-    } finally {
-      await this.release();
-    }
-  }
-}
+        },
+      ]
+    : [],
+);
+export type RunLog = Awaited<ReturnType<typeof RunLog.create>>;
+export const readRun = (path: string) => RunLog.read(path);
