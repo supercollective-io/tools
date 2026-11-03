@@ -7,6 +7,15 @@ const elements = {
   start: byId("start"),
   pause: byId("pause"),
   end: byId("end"),
+  new: byId("new"),
+  saved: byId("saved"),
+  savedLabel: byId("saved-label"),
+  setup: byId("setup"),
+  workspace: byId("workspace"),
+  mode: byId("mode"),
+  model: byId("model"),
+  participantCount: byId("participant-count"),
+  modeHint: byId("mode-hint"),
   error: byId("error"),
   collectivePhase: byId("collective-phase"),
   participants: byId("participants"),
@@ -18,6 +27,10 @@ let connected = false;
 let pendingAction = null;
 let commandError = "";
 const cards = new Map();
+let runKey = null;
+let setupInitialised = false;
+let catalogKey = "";
+let sessionsKey = "";
 
 function textFollower(pane, button, placeholder) {
   let following = true;
@@ -39,7 +52,7 @@ function textFollower(pane, button, placeholder) {
     button.hidden = true;
     pane.focus({ preventScroll: true });
   });
-  return (text, seen) => {
+  const update = (text, seen) => {
     const offset = Math.max(0, Math.min(text.length, seen ?? 0));
     if (text === previousText && offset === previousSeen) return;
     const position = pane.scrollTop;
@@ -62,6 +75,14 @@ function textFollower(pane, button, placeholder) {
     previousText = text;
     previousSeen = offset;
   };
+  update.reset = () => {
+    following = true;
+    previousText = null;
+    previousSeen = null;
+    pane.scrollTop = 0;
+    button.hidden = true;
+  };
+  return update;
 }
 const collectiveText = textFollower(
   byId("collective-text"),
@@ -77,12 +98,20 @@ function clock(ms) {
 function actorFor(id) {
   return snapshot?.runtime?.actors?.[id] ?? null;
 }
-function phase(actor) {
+function phase(actor, participant = false) {
+  if (participant && snapshot.state.config?.live?.mode === "fixed")
+    return ["Fixed", "idle"];
   const status = snapshot.state.status;
   if (status === "ended") return ["Ended", "idle"];
-  if (!snapshot.runtime.running)
+  if (!snapshot.runtime?.running)
     return [status === "ready" ? "Ready" : "Paused", "idle"];
   if (actor?.phase === "receiving") return ["Writing", "receiving"];
+  if (
+    actor?.phase === "idle" &&
+    snapshot.state.config?.live?.mode !== "continuous" &&
+    snapshot.state.config?.live?.mode
+  )
+    return ["Queued", "waiting"];
   return ["Waiting", "waiting"];
 }
 function setPhase(node, value) {
@@ -120,16 +149,32 @@ function reconcileCards(voices) {
   }
 }
 function updateControls() {
-  const available =
-    Boolean(snapshot) && connected && !pendingAction && !snapshot.runtime.fatal;
+  const setup = Boolean(snapshot?.workspace) && !snapshot.state;
+  const busy = snapshot?.workspace?.busy;
+  const available = Boolean(snapshot) && connected && !pendingAction && !busy;
+  const writable = available && !snapshot?.runtime?.fatal;
   const ended = snapshot?.state?.status === "ended";
   const running = snapshot?.runtime?.running;
-  elements.start.disabled = !available || ended || running;
-  elements.pause.disabled = !available || ended || !running;
-  elements.end.disabled = !available || ended;
+  elements.start.disabled =
+    !writable || ended || running || (setup && !elements.model.value);
+  elements.pause.disabled = !writable || ended || !running;
+  elements.end.disabled = !writable || ended;
+  elements.pause.hidden = setup;
+  elements.end.hidden = setup;
+  elements.new.hidden = !snapshot?.workspace || setup;
+  elements.new.disabled = !available;
+  elements.new.textContent = pendingAction === "new" ? "Opening…" : "New";
+  elements.saved.disabled = !available;
+  for (const select of [
+    elements.mode,
+    elements.model,
+    elements.participantCount,
+  ])
+    select.disabled = !available;
+  elements.elapsed.hidden = setup;
   elements.start.textContent =
-    pendingAction === "start"
-      ? "Starting…"
+    busy || pendingAction === "start"
+      ? "Preparing model…"
       : snapshot?.state?.status === "paused"
         ? "Resume"
         : "Start";
@@ -139,9 +184,87 @@ function updateControls() {
   elements.error.textContent = error;
   elements.error.hidden = !error;
 }
+function option(value, label) {
+  const node = document.createElement("option");
+  node.value = String(value);
+  node.textContent = label;
+  return node;
+}
+function updateModels(preferred = elements.model.value) {
+  const models = (snapshot?.workspace?.models ?? []).filter((model) =>
+    model.modes.includes(elements.mode.value),
+  );
+  elements.model.replaceChildren(
+    ...models.map((model) => option(model.id, model.label)),
+  );
+  if (models.some((model) => model.id === preferred))
+    elements.model.value = preferred;
+  elements.modeHint.textContent =
+    elements.mode.value === "chunked"
+      ? "One writer at a time."
+      : elements.mode.value === "fixed"
+        ? "Participants contribute the same written texts each time."
+        : "";
+}
+function renderWorkspace() {
+  const workspace = snapshot.workspace;
+  const setup = Boolean(workspace) && !snapshot.state;
+  elements.setup.hidden = !setup;
+  elements.workspace.hidden = setup;
+  const sessions = workspace?.sessions ?? [];
+  elements.saved.hidden = !workspace || !sessions.length;
+  elements.savedLabel.hidden = elements.saved.hidden;
+  const nextSessionsKey = JSON.stringify(sessions);
+  if (nextSessionsKey !== sessionsKey) {
+    elements.saved.replaceChildren(
+      option("", "Open saved…"),
+      ...sessions.map((session) =>
+        option(
+          session.id,
+          `${new Date(session.updatedAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · ${session.mode === "fixed" ? "Fixed text" : session.mode === "chunked" ? "Chunked" : "Continuous"} · ${workspace.models.find((model) => model.id === session.model)?.label ?? session.model} · ${session.status}`,
+        ),
+      ),
+    );
+    sessionsKey = nextSessionsKey;
+  }
+  if (!setup) {
+    setupInitialised = false;
+    return;
+  }
+  const nextCatalogKey = JSON.stringify([
+    workspace.models,
+    workspace.participantCounts,
+  ]);
+  if (!setupInitialised || nextCatalogKey !== catalogKey) {
+    const settings = workspace.settings;
+    const selectedCount = setupInitialised
+      ? elements.participantCount.value
+      : String(settings.participants);
+    if (!setupInitialised) elements.mode.value = settings.mode;
+    const counts = workspace.participantCounts ?? [2, 8];
+    elements.participantCount.replaceChildren(
+      ...counts.map((count) => option(count, String(count))),
+    );
+    if (counts.some((count) => String(count) === selectedCount))
+      elements.participantCount.value = selectedCount;
+    updateModels(setupInitialised ? elements.model.value : settings.model);
+    setupInitialised = true;
+    catalogKey = nextCatalogKey;
+  }
+}
 function render() {
   if (!snapshot) return;
   const { state, runtime } = snapshot;
+  renderWorkspace();
+  if (!state) {
+    elements.invitation.textContent = "";
+    elements.status.textContent =
+      snapshot.workspace?.busy || "Ready for a new rehearsal";
+    elements.elapsed.textContent = "00:00";
+    document.title = "Collective Microphone";
+    updateControls();
+    return;
+  }
   const voices = state.scenario?.voices ?? [];
   reconcileCards(voices);
   const scenario = state.scenario;
@@ -166,7 +289,7 @@ function render() {
     const actor = actorFor(`participant/${voice.id}`);
     const value = writer?.text ?? "";
     card.updateText(value, composer?.seenOffsets?.[voice.id] ?? 0);
-    setPhase(card.phase, phase(actor));
+    setPhase(card.phase, phase(actor, true));
   }
   elements.status.textContent = pendingAction
     ? "Updating rehearsal…"
@@ -184,14 +307,28 @@ function render() {
 }
 function updateClock() {
   if (!snapshot) return;
-  const base = snapshot.runtime.elapsedMs ?? snapshot.state.elapsedMs ?? 0;
+  const base = snapshot.runtime?.elapsedMs ?? snapshot.state?.elapsedMs ?? 0;
   elements.elapsed.textContent = clock(
-    base + (snapshot.runtime.running ? performance.now() - receivedAt : 0),
+    base + (snapshot.runtime?.running ? performance.now() - receivedAt : 0),
   );
 }
 function accept(payload) {
-  if (!payload?.state || !payload?.runtime)
+  if (
+    (!payload?.state || !payload?.runtime) &&
+    !(payload?.workspace && payload.state === null)
+  )
     throw new Error("The server returned an incomplete rehearsal state.");
+  const nextRunKey =
+    payload.state?.runId ??
+    payload.workspace?.activeSessionId ??
+    payload.path ??
+    null;
+  if (nextRunKey !== runKey) {
+    cards.clear();
+    elements.participants.replaceChildren();
+    collectiveText.reset();
+    runKey = nextRunKey;
+  }
   snapshot = payload;
   receivedAt = performance.now();
   render();
@@ -203,7 +340,7 @@ function connectionStatus(ok, label) {
   elements.connection.className = `connection ${ok ? "connected" : "reconnecting"}`;
   updateControls();
 }
-async function command(action) {
+async function command(action, body = {}) {
   if (pendingAction) return;
   pendingAction = action;
   commandError = "";
@@ -212,7 +349,7 @@ async function command(action) {
     const response = await fetch(`/api/${action}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: "{}",
+      body: JSON.stringify(body),
     });
     const payload = await response.json();
     if (!response.ok || payload.error)
@@ -233,9 +370,31 @@ async function command(action) {
     updateControls();
   }
 }
-elements.start.addEventListener("click", () => command("start"));
+elements.start.addEventListener("click", () =>
+  command(
+    "start",
+    snapshot?.workspace && !snapshot.state
+      ? {
+          mode: elements.mode.value,
+          model: elements.model.value,
+          participants: Number(elements.participantCount.value),
+        }
+      : {},
+  ),
+);
 elements.pause.addEventListener("click", () => command("pause"));
 elements.end.addEventListener("click", () => command("end"));
+elements.new.addEventListener("click", () => command("new"));
+elements.saved.addEventListener("change", () => {
+  const id = elements.saved.value;
+  elements.saved.value = "";
+  if (id) command("open", { id });
+});
+elements.mode.addEventListener("change", () => {
+  updateModels();
+  updateControls();
+});
+elements.model.addEventListener("change", updateControls);
 
 async function connect() {
   try {

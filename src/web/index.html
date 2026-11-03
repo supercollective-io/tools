@@ -13,16 +13,26 @@
     <header class="masthead">
       <h1><a href="#main">Collective Microphone</a></h1>
       <div class="session-controls">
+        <label id="saved-label" class="visually-hidden" for="saved" hidden>Open a saved rehearsal</label>
+        <select id="saved" class="compact-select" aria-labelledby="saved-label" hidden><option value="">Open saved…</option></select>
         <span id="session-status" class="visually-hidden" role="status">Waiting for session</span>
         <span class="visually-hidden">Rehearsal elapsed time:</span><time id="elapsed" title="Rehearsal elapsed time">00:00</time>
-        <fieldset class="controls" aria-label="Rehearsal controls"><button type="button" id="start" class="button primary" disabled>Start</button><button type="button" id="pause" class="button" disabled>Pause</button><button type="button" id="end" class="button" disabled>End</button></fieldset>
+        <fieldset class="controls" aria-label="Rehearsal controls"><button type="button" id="new" class="button" hidden>New</button><button type="button" id="start" class="button primary" disabled>Start</button><button type="button" id="pause" class="button" disabled>Pause</button><button type="button" id="end" class="button" disabled>End</button></fieldset>
       </div>
     </header>
     <main id="main">
       <p id="invitation" class="invitation"></p>
       <p id="connection" class="connection" role="status">Connecting…</p>
       <div id="error" class="error" role="alert" hidden></div>
-      <div class="workspace">
+      <section id="setup" class="setup" aria-label="New rehearsal" hidden>
+        <div class="setup-fields">
+          <label>Mode<select id="mode"><option value="continuous">Continuous</option><option value="chunked">Chunked</option><option value="fixed">Fixed text</option></select></label>
+          <label>Model<select id="model"></select></label>
+          <label>Participants<select id="participant-count"></select></label>
+        </div>
+        <p id="mode-hint" class="mode-hint"></p>
+      </section>
+      <div id="workspace" class="workspace">
         <section class="collective-column" aria-labelledby="collective-title">
           <div class="section-heading"><h2 id="collective-title">Collective</h2><span id="collective-phase" class="phase">Waiting</span></div>
           <!-- biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll the growing text. -->

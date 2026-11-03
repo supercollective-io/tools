@@ -38,26 +38,41 @@ Install [Ollama](https://ollama.com/download), then:
 pnpm start
 ```
 
-This prepares a separate local model service, downloads Qwen 3B if needed
-(about 1.9 GB, once), and opens the browser. Press **Start** to begin the default
-one-minute rehearsal with two participants. Ctrl+C stops the app and its model
-service; the writing is saved automatically. Your existing Ollama service stays
-unchanged. If mise is not activated in your shell, use `mise exec -- pnpm start`.
+Choose a mode, model and participant count in the browser, then press **Start**.
+The workspace opens without starting inference or creating a run. If mise is not
+activated in your shell, use `mise exec -- pnpm start`.
 
-```sh
-pnpm start --all   # Eight participants
-pnpm resume       # Latest unfinished rehearsal
-pnpm replay       # Read the latest saved rehearsal; no model service needed
-```
+- **Continuous:** independent writers run together, refreshing collective feedback
+  during writing. Qwen 3B is the lightweight local default.
+- **Chunked:** each participant extends their existing contribution in sequence,
+  then the composer writes. One model request runs at a time.
+- **Fixed text:** reveal successive percentage slices of the same complete written
+  contributions. Only the composer uses a model, so comparisons use identical inputs.
 
-The small local model is useful for trying the interaction; its composition
-quality is still limited, especially with eight participants. See the
-[actual rehearsal results](docs/live-rehearsal-2026-11-03.md).
+Installed **Gemma 12B** is offered for chunked and fixed-text modes. Its local MLX
+backend is serial, so it is not offered for continuous writing. Model size is not
+proof of composition quality; compare the same fixed inputs to judge it.
 
-Optional overrides: `--scenario`, `--config`, `--run`, `--port`, `--no-open`.
-A custom configuration uses the model services you specify. `pnpm start --help`
-lists the options. The [guide](docs/live-rehearsal.md) covers configuration,
-feedback and recovery; the historical experiments below remain available.
+**Pause/Resume**, **New** and **Open saved…** are in the browser. Saved sessions
+keep their mode, model, inputs and existing writing. Ended sessions remain readable.
+Ctrl+C saves and closes the workspace and any model service it started. Your
+existing Ollama service is left running. `pnpm replay` reads the latest saved live
+session offline; there is no separate `pnpm resume` command.
+
+The default continuous session lasts one minute. Chunked sessions have a five-minute
+active-time ceiling; fixed-text sessions finish after all slices are composed. All writing stays in `runs/`.
+
+Qwen is downloaded on first use if missing (about 1.9 GB), then runs in a separate
+local-only Ollama service with the required number of inference slots. Gemma uses
+your existing local service. Nothing switches to a cloud provider automatically.
+
+Optional overrides: `--all`, `--scenario`, `--score`, `--config`, `--run`, `--port`,
+`--no-open`. A custom configuration can use different models or providers for the
+participants and composer, and preserves its duration and context settings.
+`pnpm start --help` lists the options. See the [guide](docs/live-rehearsal.md) for
+scheduling and recovery, the [mode comparison](docs/workspace-modes-2026-11-03.md)
+for observed model failures and fixes, and the historical experiments below for
+their original terminal commands.
 
 ## Run a scripted Stage 1 rehearsal
 

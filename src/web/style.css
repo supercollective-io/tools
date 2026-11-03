@@ -19,7 +19,8 @@ body {
 a {
   color: inherit;
 }
-button {
+button,
+select {
   font: inherit;
 }
 button:disabled {
@@ -30,12 +31,14 @@ button:not(:disabled) {
   cursor: pointer;
 }
 button:focus-visible,
+select:focus-visible,
 a:focus-visible,
 [tabindex]:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
 }
 [hidden],
+.workspace[hidden],
 .follow[hidden] {
   display: none;
 }
@@ -74,7 +77,50 @@ h1 a {
   align-items: center;
 }
 .session-controls {
-  gap: 22px;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.compact-select {
+  max-width: 200px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+}
+.setup {
+  margin: 16px 0 32px;
+}
+.setup-fields {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.setup-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.setup-fields select {
+  min-width: 110px;
+  max-width: 100%;
+  padding: 7px 28px 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #faf9f4;
+  color: #292933;
+  font-size: 14px;
+}
+.mode-hint {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.mode-hint:empty {
+  display: none;
 }
 time {
   color: var(--muted);
@@ -240,6 +286,9 @@ h3 {
   }
   .session-controls {
     gap: 14px;
+  }
+  .compact-select {
+    max-width: 150px;
   }
   main {
     padding: 18px 20px 24px;

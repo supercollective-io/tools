@@ -14,9 +14,29 @@ export type LiveServerOptions = {
   beforeStart?: () => void;
 };
 
-/** A single local rehearsal. The server owns the controller and its journal. */
-export async function startLiveServer(options: LiveServerOptions) {
-  const { log, controller } = options;
+/** Only deliberately public control failures cross the local HTTP boundary. */
+export class LocalControlError extends Error {
+  status: number;
+  constructor(message: string, status = 409) {
+    super(message);
+    this.status = status;
+  }
+}
+
+type LocalServerOptions<Snapshot> = {
+  port?: number;
+  snapshot: () => Snapshot;
+  subscribe: (listener: () => void) => () => void;
+  paths: string[];
+  validate: (path: string, body: Record<string, unknown>) => void;
+  control: (path: string, body: Record<string, unknown>) => Promise<void>;
+  close: () => Promise<void>;
+};
+
+/** Shared loopback transport; controls and shutdown are always serialised. */
+export async function startLocalRehearsalServer<Snapshot>(
+  options: LocalServerOptions<Snapshot>,
+) {
   const port = options.port ?? 3000;
   if (!Number.isInteger(port) || port < 0 || port > 65535)
     throw new Error("Port must be an integer between 0 and 65535.");
@@ -24,39 +44,7 @@ export async function startLiveServer(options: LiveServerOptions) {
   let changing: ReturnType<typeof setTimeout> | undefined;
   let closing = false;
   let controls: Promise<unknown> = Promise.resolve();
-  const snapshot = () => {
-    const state = log.state;
-    return {
-      path: log.path,
-      state: {
-        ...state,
-        scenario: {
-          schemaVersion: state.scenario.schemaVersion,
-          title: state.scenario.title,
-          openingInvitation: state.scenario.openingInvitation,
-          voices: state.scenario.voices.map(({ id, name }) => ({ id, name })),
-        },
-        config: {
-          schemaVersion: state.config.schemaVersion,
-          composer: {
-            provider: state.config.composer.provider,
-            model: state.config.composer.model,
-          },
-          live: {
-            participants: {
-              provider: state.config.live.participants.provider,
-              model: state.config.live.participants.model,
-            },
-            maxDurationMs: state.config.live.maxDurationMs,
-            feedbackIntervalMs: state.config.live.feedbackIntervalMs,
-            refreshIntervalMs: state.config.live.refreshIntervalMs,
-            maxContextCharacters: state.config.live.maxContextCharacters,
-          },
-        },
-      },
-      runtime: controller.snapshot(),
-    };
-  };
+  const snapshot = options.snapshot;
   const writeEvent = (response: ServerResponse, event: string) => {
     // A browser can reconnect for a fresh snapshot. Never let a slow monitor
     // accumulate an unlimited queue or delay journalled model output.
@@ -73,13 +61,14 @@ export async function startLiveServer(options: LiveServerOptions) {
       `event: state\ndata: ${JSON.stringify(snapshot())}\n\n`,
     );
   };
-  const unsubscribe = controller.onChange(() => {
+  const notify = () => {
     if (changing || closing) return;
     changing = setTimeout(() => {
       changing = undefined;
       for (const client of clients) sendState(client);
     }, 60);
-  });
+  };
+  const unsubscribe = options.subscribe(notify);
   const heartbeat = setInterval(() => {
     for (const client of clients) writeEvent(client, ": keep-alive\n\n");
   }, 15000);
@@ -137,10 +126,7 @@ export async function startLiveServer(options: LiveServerOptions) {
         sendState(response);
         return;
       }
-      if (
-        request.method === "POST" &&
-        ["/api/start", "/api/pause", "/api/end"].includes(url.pathname)
-      ) {
+      if (request.method === "POST" && options.paths.includes(url.pathname)) {
         if (
           request.headers.origin !== undefined &&
           request.headers.origin !==
@@ -177,35 +163,48 @@ export async function startLiveServer(options: LiveServerOptions) {
           json(response, 400, { error: "Send a JSON object: {}." });
           return;
         }
-        if (
-          !parsed ||
-          typeof parsed !== "object" ||
-          Array.isArray(parsed) ||
-          Object.keys(parsed).length
-        ) {
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
           json(response, 400, {
-            error: "Controls accept only an empty JSON object: {}.",
+            error: "Controls require a JSON object.",
+          });
+          return;
+        }
+        try {
+          options.validate(url.pathname, parsed as Record<string, unknown>);
+        } catch (error) {
+          json(response, 400, {
+            error:
+              error instanceof LocalControlError
+                ? error.message
+                : "Invalid control settings.",
           });
           return;
         }
         const action = async () => {
           if (closing) throw new Error("Closing");
-          if (url.pathname === "/api/start") {
-            options.beforeStart?.();
-            await controller.start();
-          } else if (url.pathname === "/api/pause") await controller.pause();
-          else await controller.end();
+          await options.control(
+            url.pathname,
+            parsed as Record<string, unknown>,
+          );
+          notify();
         };
         const operation = controls.then(action);
         controls = operation.catch(() => {});
         try {
           await operation;
           json(response, 200, snapshot());
-        } catch {
-          json(response, 409, {
-            error:
-              "The control could not be applied. Check the rehearsal status and model configuration.",
-          });
+        } catch (error) {
+          notify();
+          json(
+            response,
+            error instanceof LocalControlError ? error.status : 409,
+            {
+              error:
+                error instanceof LocalControlError
+                  ? error.message
+                  : "The control could not be applied. Check the rehearsal status and model configuration.",
+            },
+          );
         }
         return;
       }
@@ -256,7 +255,7 @@ export async function startLiveServer(options: LiveServerOptions) {
         if (changing) clearTimeout(changing);
         await controls;
         try {
-          await controller.close();
+          await options.close();
         } finally {
           for (const client of clients) client.end();
           clients.clear();
@@ -264,10 +263,76 @@ export async function startLiveServer(options: LiveServerOptions) {
             server.close((error) => (error ? reject(error) : resolve()));
             server.closeAllConnections();
           });
-          await log.close();
         }
       })();
       return shutdown;
     },
   };
+}
+
+/** Public browser state excludes prompts, participant backgrounds and endpoints. */
+export function publicLiveState(state: import("./live-runs.ts").LiveState) {
+  return {
+    ...state,
+    scenario: {
+      schemaVersion: state.scenario.schemaVersion,
+      title: state.scenario.title,
+      openingInvitation: state.scenario.openingInvitation,
+      voices: state.scenario.voices.map(({ id, name }) => ({ id, name })),
+    },
+    config: {
+      schemaVersion: state.config.schemaVersion,
+      composer: {
+        provider: state.config.composer.provider,
+        model: state.config.composer.model,
+      },
+      live: {
+        mode: state.config.live.mode ?? "continuous",
+        participants: {
+          provider: state.config.live.participants.provider,
+          model: state.config.live.participants.model,
+        },
+        maxDurationMs: state.config.live.maxDurationMs,
+        feedbackIntervalMs: state.config.live.feedbackIntervalMs,
+        refreshIntervalMs: state.config.live.refreshIntervalMs,
+        maxContextCharacters: state.config.live.maxContextCharacters,
+      },
+    },
+  };
+}
+
+/** A single local rehearsal. The server owns the controller and its journal. */
+export async function startLiveServer(options: LiveServerOptions) {
+  const { log, controller } = options;
+  return startLocalRehearsalServer({
+    port: options.port,
+    snapshot: () => ({
+      path: log.path,
+      state: publicLiveState(log.state),
+      runtime: controller.snapshot(),
+    }),
+    subscribe: (listener) => controller.onChange(listener),
+    paths: ["/api/start", "/api/pause", "/api/end"],
+    validate: (_path, body) => {
+      if (Object.keys(body).length)
+        throw new LocalControlError(
+          "Controls accept only an empty JSON object: {}.",
+          400,
+        );
+    },
+    control: async (path) => {
+      if (path === "/api/start") {
+        options.beforeStart?.();
+        await controller.start();
+      } else if (path === "/api/pause") await controller.pause();
+      else await controller.end();
+    },
+    close: async () => {
+      try {
+        await controller.close();
+      } finally {
+        await log.close();
+      }
+    },
+  });
 }
