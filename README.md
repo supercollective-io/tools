@@ -60,9 +60,12 @@ Type `q` to pause at the prompt. Ctrl+C cancels an in-flight generation without
 accepting its provisional output. A failed attempt leaves the batch pending;
 press Enter or type `retry` to try that same batch again.
 
-The example score is original demonstration writing, not the theatre piece's
-actual source material. See [the examples](examples/README.md) and replace them
-with your own eight voices when ready. The format also accepts other voice counts.
+The example score uses eight fictional people speaking about having a say over
+things they depend on: shifts, housing, transport, care and other everyday
+decisions. Their contributions are prewritten, not real participant recordings.
+See [the examples](examples/README.md) for the questions and six-batch progression.
+Start a new run to use the current score; old logs retain their original material.
+The format also accepts other topics and voice counts.
 
 ## Use a cloud model
 

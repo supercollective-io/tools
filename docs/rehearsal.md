@@ -6,6 +6,12 @@ Complete the README setup. Select an installed Ollama model and, for a cloud
 comparison, an available OpenAI model and API key. Replace both configuration
 placeholders. The example contains eight voices, 24 fragments and six batches.
 
+The topic is **what would it take for us to have a real say over the things we
+depend on?** Read the [participant invitations and score guide](../examples/README.md).
+Batches 1–2 introduce everyday experiences, 3–4 explore acting together, and 5–6
+describe the terms on which people would participate or delegate decisions.
+The contributions are fictional and prewritten throughout.
+
 ## Rehearse
 
 1. Run the example score locally. Advance each batch and read each passage aloud.
@@ -32,7 +38,7 @@ composition is worth developing and what the responsive participants should test
 Stop here for feedback. Stage 2 adds independent AI participants only after this
 rehearsal; projection, phone input, speech and Coolify follow later.
 
-The [Rehearsing We topic proposal](rehearsing-we.md) provides criteria for choosing
-the next subject and assessing composition. The hall score remains an engineering
-demonstration; the proposal is not yet a replacement score or a change to the
-composer's instructions.
+The [Rehearsing We design notes](rehearsing-we.md) explain the topic criteria and
+possible later invitations. The current example uses the selected topic and a
+plain-language composer instruction. Start a new run for this material; replay
+and rerun preserve the source contributions of the selected existing session.

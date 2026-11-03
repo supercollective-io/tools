@@ -20,10 +20,14 @@ and configuration rather than in the composition engine.
 
 ## Status and central recommendation
 
-This is a **proposal for discussion and rehearsal**, not an agreed performance
-script or a replacement for the existing example score. The criteria and prompts
-below are design judgements informed by the piece's purpose and the sources at
-the end. They are not a validated recipe for collective intelligence.
+The topic below has been selected for the next Stage 1 rehearsal. The current
+[example score](../examples/README.md) contains eight fictional people speaking
+plainly about everyday decisions, acting together and the terms on which they
+would participate. The example composer instructions also ask for plain spoken
+language. The wider progression and detailed composer draft below remain options
+for rehearsal, not a fixed performance script. The criteria and prompts are
+design judgements informed by the piece's purpose and the sources at the end;
+they are not a validated recipe for collective intelligence.
 
 The broad theme is collective power. The first experiment needs a more concrete
 shared question:
@@ -150,9 +154,9 @@ make these changing relationships possible rather than cast permanent opposing
 characters. A later invitation is: "What did the collective just say that you
 want to correct, resist or make more concrete?"
 
-## Designing the next scripted score
+## Designing scripted scores
 
-Once the opening is chosen, write plainly spoken, explicitly fictional rehearsal
+For this and future topics, write plainly spoken, explicitly fictional rehearsal
 contributions. Use contrasting experiences and unequal room to act; avoid one
 character per ideology or eight equally polished miniature manifestos.
 

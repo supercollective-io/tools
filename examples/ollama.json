@@ -7,7 +7,7 @@
     "maxOutputTokens": 256,
     "timeoutMs": 120000
   },
-  "instructions": "Write in British English. Compose one or two sentences in a collective voice that holds the contradictions between the admitted fragments. Do not erase dissent or claim consensus.",
+  "instructions": "Write in British English using plain, spoken language. Compose one or two sentences in a collective voice from the admitted contributions. Keep the concrete experiences, practical proposals and limits people describe. Preserve disagreement without pretending everyone agrees. Let new contributions move the conversation on. Avoid poetic metaphors, slogans and detached commentary about the group.",
   "history": {
     "maxPassages": 6,
     "maxCharacters": 12000

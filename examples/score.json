@@ -1,148 +1,148 @@
 {
   "schemaVersion": 1,
-  "title": "The hall we share — original demonstration writing",
+  "title": "Rehearsing We — what would it take for us to have a real say over the things we depend on?",
   "voices": [
     {
-      "id": "caretaker",
-      "name": "The caretaker",
+      "id": "sam",
+      "name": "Sam",
       "fragments": [
         {
-          "id": "caretaker_1",
-          "text": "I unlock the hall before dawn; someone must remember where the spare key lives."
+          "id": "sam_1",
+          "text": "At work they put next week's shifts up on Friday. I've got to sort out childcare before that. I've asked the manager twice and she says it's the system, but someone chose that system, didn't they?"
         },
         {
-          "id": "caretaker_2",
-          "text": "A floor can carry a hundred dancers, but it still needs someone to sweep it."
+          "id": "sam_2",
+          "text": "A few of us want the rota two weeks ahead. I think they'd listen if we asked together. But I'm on extra hours at the moment and I need them. I don't want to be the person who gets their shifts cut."
         },
         {
-          "id": "caretaker_3",
-          "text": "Keep the door open, you say. Tell me who will stay to close it."
+          "id": "sam_3",
+          "text": "I'd be happy for someone to talk to the manager for us. I can't go to meetings all the time. I just want them to check with us before saying we've agreed to something."
         }
       ]
     },
     {
-      "id": "newcomer",
-      "name": "The newcomer",
+      "id": "leah",
+      "name": "Leah",
       "fragments": [
         {
-          "id": "newcomer_1",
-          "text": "Your circle has a gap in it, but I cannot tell whether it is meant for me."
+          "id": "leah_1",
+          "text": "There's damp in my flat and the letting agent keeps telling me to open the windows. Then I found out the people upstairs have the same problem. Until we actually spoke, I thought it was just me getting fobbed off."
         },
         {
-          "id": "newcomer_2",
-          "text": "I have a story ready. First I need to know how long I am allowed to speak."
+          "id": "leah_2",
+          "text": "We could put all the repair requests in one email and copy everyone in. That's something I would do. People keep saying we should all stop paying rent, but I don't know what happens after that. I can't risk having to move again."
         },
         {
-          "id": "newcomer_3",
-          "text": "Do not call this belonging if I must leave my accent outside."
+          "id": "leah_3",
+          "text": "If we get someone to speak for the building, it shouldn't just be whoever talks most in the group chat. There's a woman downstairs who doesn't use it. She still needs to be asked."
         }
       ]
     },
     {
-      "id": "performer",
-      "name": "The performer",
+      "id": "chris",
+      "name": "Chris",
       "fragments": [
         {
-          "id": "performer_1",
-          "text": "Under the work lights I can become anybody; in the meeting I am always the difficult one."
+          "id": "chris_1",
+          "text": "They've cut the evening bus where I live. I can get to my dad's, but I can't get home afterwards unless I pay for a taxi. There was a consultation, apparently. I only heard about it once they'd decided."
         },
         {
-          "id": "performer_2",
-          "text": "I want a stage large enough for the parts of us that disagree."
+          "id": "chris_2",
+          "text": "We sent a petition about the bus and got a polite reply. I don't know what we're meant to do next. People suggest boycotting it, but we're the ones who need it. How do you put pressure on someone when you can't just walk away?"
         },
         {
-          "id": "performer_3",
-          "text": "Let the silence stay in the scene. It has learnt its lines too."
+          "id": "chris_3",
+          "text": "I don't really want to run a bus service with my neighbours. I want the people whose job it is to run it to answer to us. I'd help collect people's journeys and go to a meeting. I don't want that becoming another unpaid job."
         }
       ]
     },
     {
-      "id": "neighbour",
-      "name": "The neighbour",
+      "id": "nadia",
+      "name": "Nadia",
       "fragments": [
         {
-          "id": "neighbour_1",
-          "text": "Your applause comes through my bedroom wall after the last bus has gone."
+          "id": "nadia_1",
+          "text": "Our school moved the after-school club to a different site. They said most parents were happy with it. Nobody asked me, and it adds half an hour to my day. I would have liked a say before they booked everything."
         },
         {
-          "id": "neighbour_2",
-          "text": "I love that the hall is alive. I also need my child to sleep."
+          "id": "nadia_2",
+          "text": "We did get them to change the collection time once. A few parents got together and showed how many people couldn't make it. So it can work. It was mostly two mums chasing everyone, though, and one of them has had enough now."
         },
         {
-          "id": "neighbour_3",
-          "text": "Invite me before you make my complaint into a character."
+          "id": "nadia_3",
+          "text": "Everyone says we should share the work. Fine, but which work? If you're asking me to make phone calls, say how many and by when. I can do a couple. I can't agree to be available whenever something comes up."
         }
       ]
     },
     {
-      "id": "volunteer",
-      "name": "The volunteer",
+      "id": "ben",
+      "name": "Ben",
       "fragments": [
         {
-          "id": "volunteer_1",
-          "text": "I said I could help on Saturday; somehow my name now covers every empty shift."
+          "id": "ben_1",
+          "text": "I do deliveries and the app changed what it pays for longer trips. There wasn't anyone to ask about it. I just got a notification. I don't even know most of the other riders, so I wouldn't know where to start."
         },
         {
-          "id": "volunteer_2",
-          "text": "We share the credit more easily than we share the washing-up."
+          "id": "ben_2",
+          "text": "If enough of us logged off at the same time, maybe they'd notice. But people need the money that day. Could we put some money aside to cover that? I like the idea, but I haven't got much spare either."
         },
         {
-          "id": "volunteer_3",
-          "text": "My no is part of what I bring to this place."
+          "id": "ben_3",
+          "text": "I'd want to know who can take money out of a shared fund. I don't need to vote on every little thing, but I do want to see where it's gone. And who decides if somebody needs help more than somebody else?"
         }
       ]
     },
     {
-      "id": "organiser",
-      "name": "The organiser",
+      "id": "rosa",
+      "name": "Rosa",
       "fragments": [
         {
-          "id": "organiser_1",
-          "text": "The grant asks how many people we reached, not who felt able to return."
+          "id": "rosa_1",
+          "text": "I live in a housing co-op, so we do get a vote. That's good, but the same three people have been on the committee for years. When I asked about the service charges, they sent me a spreadsheet I couldn't understand."
         },
         {
-          "id": "organiser_2",
-          "text": "There is room in the programme, but the budget has already taken its seat."
+          "id": "rosa_2",
+          "text": "We replaced our cleaning company after people kept complaining, and it's better now. We could actually change the contract. But I'm not convinced voting on everything is the answer. Choosing someone to fix the boiler took us weeks."
         },
         {
-          "id": "organiser_3",
-          "text": "I can publish the minutes. I cannot make the argument disappear."
+          "id": "rosa_3",
+          "text": "I'd let someone who knows about boilers choose the contractor, within a budget we agree. If they do a bad job, we need a way to replace them. I don't want another three meetings about pipework."
         }
       ]
     },
     {
-      "id": "elder",
-      "name": "The elder",
+      "id": "alex",
+      "name": "Alex",
       "fragments": [
         {
-          "id": "elder_1",
-          "text": "We built these flats from borrowed timber and an argument that lasted all winter."
+          "id": "alex_1",
+          "text": "My mum's care visits keep changing time, and I end up filling the gaps. When I phone, I get passed between the council and the company. I want to know who's actually able to change it, because everyone says it isn't them."
         },
         {
-          "id": "elder_2",
-          "text": "Do not preserve my memories so carefully that nobody can move the chairs."
+          "id": "alex_2",
+          "text": "Other families must be dealing with this too. I'd like us to compare what's happening. But please don't make the answer that we should all take turns doing the care ourselves. I'm already doing more than I can manage."
         },
         {
-          "id": "elder_3",
-          "text": "I want this place to outlive my version of it."
+          "id": "alex_3",
+          "text": "I could come to a meeting if someone stayed with my mum. That's the sort of help I'd need. Sending me more information doesn't give me another free evening."
         }
       ]
     },
     {
-      "id": "young_maker",
-      "name": "The young maker",
+      "id": "mo",
+      "name": "Mo",
       "fragments": [
         {
-          "id": "young_maker_1",
-          "text": "You tell me the hall is ours, then ask who gave me permission to paint the wall."
+          "id": "mo_1",
+          "text": "I joined a local campaign to stop the library hours being cut. There were loads of messages, but I couldn't work out who was deciding what we'd do. After a while I stopped reading them. I still wanted the library open."
         },
         {
-          "id": "young_maker_2",
-          "text": "I can repair the speaker, but I cannot make an invitation out of a locked cupboard."
+          "id": "mo_2",
+          "text": "I don't think we all have to agree about everything to do one thing together. I'd help with the library even if I didn't like someone's politics. But I would want to know what we were actually asking for before putting my name on it."
         },
         {
-          "id": "young_maker_3",
-          "text": "Leave a little unfinished. We need somewhere to begin."
+          "id": "mo_3",
+          "text": "I'd give it another go if there was a specific job and I could see what happened afterwards. Even if we lost, just tell us. Last time it all went quiet and I never found out whether anyone had met the council."
         }
       ]
     }
@@ -152,20 +152,20 @@
       "id": "batch_1",
       "fragments": [
         {
-          "voiceId": "caretaker",
-          "fragmentId": "caretaker_1"
+          "voiceId": "sam",
+          "fragmentId": "sam_1"
         },
         {
-          "voiceId": "newcomer",
-          "fragmentId": "newcomer_1"
+          "voiceId": "leah",
+          "fragmentId": "leah_1"
         },
         {
-          "voiceId": "performer",
-          "fragmentId": "performer_1"
+          "voiceId": "chris",
+          "fragmentId": "chris_1"
         },
         {
-          "voiceId": "neighbour",
-          "fragmentId": "neighbour_1"
+          "voiceId": "nadia",
+          "fragmentId": "nadia_1"
         }
       ]
     },
@@ -173,20 +173,20 @@
       "id": "batch_2",
       "fragments": [
         {
-          "voiceId": "volunteer",
-          "fragmentId": "volunteer_1"
+          "voiceId": "ben",
+          "fragmentId": "ben_1"
         },
         {
-          "voiceId": "organiser",
-          "fragmentId": "organiser_1"
+          "voiceId": "rosa",
+          "fragmentId": "rosa_1"
         },
         {
-          "voiceId": "elder",
-          "fragmentId": "elder_1"
+          "voiceId": "alex",
+          "fragmentId": "alex_1"
         },
         {
-          "voiceId": "young_maker",
-          "fragmentId": "young_maker_1"
+          "voiceId": "mo",
+          "fragmentId": "mo_1"
         }
       ]
     },
@@ -194,20 +194,20 @@
       "id": "batch_3",
       "fragments": [
         {
-          "voiceId": "volunteer",
-          "fragmentId": "volunteer_2"
+          "voiceId": "sam",
+          "fragmentId": "sam_2"
         },
         {
-          "voiceId": "caretaker",
-          "fragmentId": "caretaker_2"
+          "voiceId": "ben",
+          "fragmentId": "ben_2"
         },
         {
-          "voiceId": "elder",
-          "fragmentId": "elder_2"
+          "voiceId": "leah",
+          "fragmentId": "leah_2"
         },
         {
-          "voiceId": "performer",
-          "fragmentId": "performer_2"
+          "voiceId": "chris",
+          "fragmentId": "chris_2"
         }
       ]
     },
@@ -215,20 +215,20 @@
       "id": "batch_4",
       "fragments": [
         {
-          "voiceId": "young_maker",
-          "fragmentId": "young_maker_2"
+          "voiceId": "nadia",
+          "fragmentId": "nadia_2"
         },
         {
-          "voiceId": "neighbour",
-          "fragmentId": "neighbour_2"
+          "voiceId": "rosa",
+          "fragmentId": "rosa_2"
         },
         {
-          "voiceId": "newcomer",
-          "fragmentId": "newcomer_2"
+          "voiceId": "alex",
+          "fragmentId": "alex_2"
         },
         {
-          "voiceId": "organiser",
-          "fragmentId": "organiser_2"
+          "voiceId": "mo",
+          "fragmentId": "mo_2"
         }
       ]
     },
@@ -236,20 +236,20 @@
       "id": "batch_5",
       "fragments": [
         {
-          "voiceId": "neighbour",
-          "fragmentId": "neighbour_3"
+          "voiceId": "sam",
+          "fragmentId": "sam_3"
         },
         {
-          "voiceId": "organiser",
-          "fragmentId": "organiser_3"
+          "voiceId": "rosa",
+          "fragmentId": "rosa_3"
         },
         {
-          "voiceId": "newcomer",
-          "fragmentId": "newcomer_3"
+          "voiceId": "leah",
+          "fragmentId": "leah_3"
         },
         {
-          "voiceId": "young_maker",
-          "fragmentId": "young_maker_3"
+          "voiceId": "ben",
+          "fragmentId": "ben_3"
         }
       ]
     },
@@ -257,20 +257,20 @@
       "id": "batch_6",
       "fragments": [
         {
-          "voiceId": "performer",
-          "fragmentId": "performer_3"
+          "voiceId": "nadia",
+          "fragmentId": "nadia_3"
         },
         {
-          "voiceId": "elder",
-          "fragmentId": "elder_3"
+          "voiceId": "alex",
+          "fragmentId": "alex_3"
         },
         {
-          "voiceId": "caretaker",
-          "fragmentId": "caretaker_3"
+          "voiceId": "mo",
+          "fragmentId": "mo_3"
         },
         {
-          "voiceId": "volunteer",
-          "fragmentId": "volunteer_3"
+          "voiceId": "chris",
+          "fragmentId": "chris_3"
         }
       ]
     }
