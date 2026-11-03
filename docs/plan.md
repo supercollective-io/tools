@@ -34,7 +34,9 @@ source order and make mechanical cuts, including inside words or sentences;
 do not select complete thoughts or align themes. Count Unicode code points,
 preserve whitespace and round percentage positions down. Include the final
 remainder, skip globally empty intervals and retain individual empty slices.
-Compose one or two sentences using only the new slices and a bounded window of recent accepted collective
+Compose approximately one participant's speaking turn. Make this a principle of
+the composer's role, without enforcing a word-count limit. Synthesise a connected
+thought rather than concatenating contributions. Use only the new slices and a bounded window of recent accepted collective
 passages. Do not resend earlier raw slices or reveal future source text. Stream
 output to the terminal.
 
@@ -42,6 +44,8 @@ Save versioned JSONL events containing source/configuration snapshots, ordered
 contributions, exact prompts, model identifiers, attempts, accepted passages,
 timing, available usage and sanitised failures. Retain failed admitted slices
 for explicit retry. Recover an interrupted final line; reject corruption in earlier records.
+Reject provider-reported token-limit cutoffs before accepting
+a passage. Preserve the admitted inputs for explicit retry.
 
 Provide `run`, `resume`, `replay` and `rerun`. Replay never calls models. Rerun
 creates a new run from recorded contributions and settings without changing the

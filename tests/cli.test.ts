@@ -47,7 +47,9 @@ afterEach(async () => {
   directories.clear();
 });
 
-async function fakeOllama(failFirst = false) {
+async function fakeOllama(
+  options: { failFirst?: boolean; truncateFirst?: boolean } = {},
+) {
   const requests: unknown[] = [];
   let successes = 0;
   const server = createServer(async (request, response) => {
@@ -58,7 +60,7 @@ async function fakeOllama(failFirst = false) {
     let body = "";
     for await (const chunk of request) body += chunk;
     requests.push(JSON.parse(body));
-    if (failFirst && requests.length === 1) {
+    if (options.failFirst && requests.length === 1) {
       response.writeHead(503, { "Content-Type": "application/json" });
       response.end(JSON.stringify({ error: "Temporary rehearsal outage" }));
       return;
@@ -66,13 +68,15 @@ async function fakeOllama(failFirst = false) {
     successes += 1;
     const base = { model: "fixture-model", created_at: "2026-11-03T12:00:00Z" };
     response.writeHead(200, { "Content-Type": "application/x-ndjson" });
-    for (const content of ["We share the hall, ", `passage ${successes}.`]) {
+    const truncated = requests.length === 1 && options.truncateFirst;
+    const chunks = ["We share the hall, ", `passage ${successes}.`];
+    for (const content of chunks) {
       response.write(
         `${JSON.stringify({ ...base, message: { role: "assistant", content }, done: false })}\n`,
       );
     }
     response.end(
-      `${JSON.stringify({ ...base, message: { role: "assistant", content: "" }, done: true, done_reason: "stop", prompt_eval_count: 12, eval_count: 7 })}\n`,
+      `${JSON.stringify({ ...base, message: { role: "assistant", content: "" }, done: true, done_reason: truncated ? "length" : "stop", prompt_eval_count: 12, eval_count: 7 })}\n`,
     );
   });
   servers.add(server);
@@ -302,7 +306,7 @@ describe("CLI subprocess integration", () => {
   }, 30000);
 
   it("retries HTTP 503 without admitting the same contributions twice", async () => {
-    const ollama = await fakeOllama(true);
+    const ollama = await fakeOllama({ failFirst: true });
     const f = await fixtures(ollama.baseUrl);
     const result = await cli(runArgs(f), ["next", "retry", "q"]);
     expect(result.code, result.stderr).toBe(0);
@@ -399,7 +403,7 @@ describe("CLI subprocess integration", () => {
   }, 30000);
 
   it("replays pending admitted inputs offline without showing future fragments", async () => {
-    const ollama = await fakeOllama(true);
+    const ollama = await fakeOllama({ failFirst: true });
     const f = await fixtures(ollama.baseUrl);
     const failed = await cli(runArgs(f), ["next", "q"]);
     expect(failed.code).toBe(1);
@@ -422,7 +426,7 @@ describe("CLI subprocess integration", () => {
   }, 30000);
 
   it("shows the same pending inputs when resuming a failed batch", async () => {
-    const ollama = await fakeOllama(true);
+    const ollama = await fakeOllama({ failFirst: true });
     const f = await fixtures(ollama.baseUrl);
     const failed = await cli(runArgs(f), ["next", "q"]);
     expect(failed.code).toBe(1);
@@ -432,6 +436,52 @@ describe("CLI subprocess integration", () => {
     expect(resumed.stdout).not.toContain(secondSlice);
     expect(ollama.requests[1]).toEqual(ollama.requests[0]);
     expect((await readRun(f.out)).state.admitted).toHaveLength(1);
+  }, 30000);
+
+  it("keeps truncated output provisional and retries the same pending inputs explicitly", async () => {
+    const ollama = await fakeOllama({ truncateFirst: true });
+    const f = await fixtures(ollama.baseUrl);
+    const failed = await cli(runArgs(f), ["next", "q"]);
+    expect(failed.code, failed.stderr).toBe(1);
+    expect(failed.stderr).toContain("[not accepted]");
+    expect(failed.stderr).toContain("cut off the passage at its token limit");
+    expect(failed.stdout).not.toContain("[accepted and saved]");
+    expect(failed.stdout).toContain("We share the hall, passage 1.");
+    expect(ollama.requests).toHaveLength(1);
+    const pending = await readRun(f.out);
+    expect(pending.state.passages).toHaveLength(0);
+    expect(pending.state.pending).toEqual(pending.state.admitted[0]);
+    expect(
+      pending.events
+        .filter((record) => record.event.type === "generation.failed")
+        .map((record) => record.event),
+    ).toEqual([expect.objectContaining({ code: "truncated" })]);
+    const original = await readFile(f.out, "utf8");
+    const replay = await cli(["replay", "--run", f.out]);
+    expect(replay.code, replay.stderr).toBe(0);
+    expectBatchPresentation(
+      replay.stdout,
+      1,
+      "pending — no accepted collective passage",
+    );
+    expect(replay.stdout).not.toContain("We share the hall, passage 1.");
+    expect(replay.stdout).toContain(
+      "0 accepted passages; paused or interrupted.",
+    );
+    expect(await readFile(f.out, "utf8")).toBe(original);
+    expect(ollama.requests).toHaveLength(1);
+
+    const retried = await cli(["resume", "--run", f.out], ["retry", "q"]);
+    expect(retried.code, retried.stderr).toBe(0);
+    expectBatchPresentation(retried.stdout, 1, "We share the hall, passage 2.");
+    expect(ollama.requests).toHaveLength(2);
+    expect(ollama.requests[1]).toEqual(ollama.requests[0]);
+    const saved = await readRun(f.out);
+    expect(saved.state.admitted).toHaveLength(1);
+    expect(saved.state.passages.map((passage) => passage.text)).toEqual([
+      "We share the hall, passage 2.",
+    ]);
+    expect(saved.state.pending).toBeNull();
   }, 30000);
 
   it("rejects invalid configuration before creating an output file", async () => {

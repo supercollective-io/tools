@@ -208,6 +208,99 @@ describe("model adapter", () => {
     });
   });
 
+  it.each([
+    { provider: "openai" as const, field: "finish_reason" },
+    { provider: "ollama" as const, field: "done_reason" },
+  ])(
+    "rejects $provider token-limit cutoffs after streaming provisional text",
+    async ({ provider, field }) => {
+      mocks.stream.mockImplementation(async function* () {
+        yield { content: "An unfinished passage that" };
+        yield {
+          content: "",
+          response_metadata: {
+            [field]: "length",
+            private_detail: "test-secret-key",
+          },
+        };
+        // OpenAI may emit usage after its finish reason; do not lose the cutoff.
+        yield {
+          content: "",
+          usage_metadata: {
+            input_tokens: 12,
+            output_tokens: 100,
+            total_tokens: 112,
+          },
+        };
+      });
+      const onToken = vi.fn();
+      const error = await generate(
+        {
+          config: { ...config, provider },
+          messages: [],
+          signal: new AbortController().signal,
+        },
+        onToken,
+      ).catch((value: unknown) => value);
+      expect(error).toMatchObject({
+        code: "truncated",
+        message: `${provider} response reached the output token limit and was not accepted.`,
+      });
+      expect(onToken).toHaveBeenCalledExactlyOnceWith(
+        "An unfinished passage that",
+      );
+      expect(error).not.toHaveProperty("cause");
+      expect(error).not.toHaveProperty("text");
+      expect(String(error)).not.toContain("test-secret-key");
+    },
+  );
+
+  it.each([
+    { provider: "openai" as const, field: "finish_reason" },
+    { provider: "ollama" as const, field: "done_reason" },
+  ])(
+    "accepts $provider normal stop metadata even at the configured token count",
+    async ({ provider, field }) => {
+      mocks.stream.mockImplementation(async function* () {
+        yield { content: "A complete passage." };
+        yield {
+          content: "",
+          response_metadata: { [field]: "stop" },
+          usage_metadata: {
+            input_tokens: 12,
+            output_tokens: 100,
+            total_tokens: 112,
+          },
+        };
+      });
+      await expect(
+        generate(
+          {
+            config: { ...config, provider },
+            messages: [],
+            signal: new AbortController().signal,
+          },
+          vi.fn(),
+        ),
+      ).resolves.toEqual({
+        text: "A complete passage.",
+        usage: { inputTokens: 12, outputTokens: 100, totalTokens: 112 },
+      });
+    },
+  );
+
+  it("reports a token-limit cutoff rather than empty output when no visible text was produced", async () => {
+    mocks.stream.mockImplementation(async function* () {
+      yield { content: "", response_metadata: { done_reason: "length" } };
+    });
+    await expect(
+      generate(
+        { config, messages: [], signal: new AbortController().signal },
+        vi.fn(),
+      ),
+    ).rejects.toMatchObject({ code: "truncated" });
+  });
+
   it("retains a validated HTTP status without upstream bodies, credentials, or causes", async () => {
     mocks.stream.mockRejectedValue(
       Object.assign(new Error("test-secret-key upstream body"), {

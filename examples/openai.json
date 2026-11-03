@@ -6,7 +6,7 @@
     "maxOutputTokens": 1024,
     "timeoutMs": 120000
   },
-  "instructions": "Write in British English using plain, spoken language. Compose one or two sentences in a collective voice from the admitted contributions. Keep the concrete experiences, practical proposals and limits people describe. Preserve disagreement without pretending everyone agrees. Let new contributions move the conversation on. Avoid poetic metaphors, slogans and detached commentary about the group.",
+  "instructions": "Write in plain, spoken British English. Speak as part of the group, not as a commentator. Keep the thought grounded in what people have said, including disagreement. Avoid slogans and poetic metaphors.",
   "history": {
     "maxPassages": 6,
     "maxCharacters": 12000

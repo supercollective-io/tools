@@ -155,6 +155,11 @@ are complete templates.
 - The composer receives only the new character slices and that recent history.
   Earlier raw slices and future source text are not sent to it. Longer source
   texts contribute more characters per percentage step.
+- The collective speaks for about as long as one participant, rather than
+  taking a separate turn for every voice it hears. The prompt asks for one
+  connected thought that preserves a real tension, instead of a catalogue of
+  speakers or topics. This is a compositional principle, not a word-count limit:
+  passages are not cropped or rejected for their length.
 
 Percentage steps simulate finite prerecorded contributions whose full lengths
 are known. The live interfaces planned for later stages will admit rough text in
@@ -165,8 +170,13 @@ Configuration and source material are frozen when a run starts. Changing an
 input file does not change an existing run. Use `rerun --config` for changes.
 Thinking models may consume their output budget before producing visible text;
 increase `maxOutputTokens`, or disable thinking where supported. The composition
-instruction still controls the requested passage length. Context limits vary by
+instruction controls the voice, emphasis and natural passage length. Context limits vary by
 model; reduce `chunkPercent` or the history bounds if a provider rejects the prompt.
+
+Provider-reported token-limit cutoffs remain provisional and are rejected.
+Incomplete text never enters accepted history. The same input stays pending for
+an explicit retry. The existing token setting is a provider resource ceiling,
+not a way to force the collective to stop speaking mid-sentence.
 
 Run records contain the source snapshot, instructions, exact prompts, ordered
 contributions, accepted output, timings, usage when supplied, and sanitised

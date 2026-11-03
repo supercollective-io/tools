@@ -50,7 +50,9 @@ const bodySchema = z.discriminatedUnion("type", [
     type: z.literal("generation.failed"),
     attemptId: z.uuid(),
     reason: z.enum(["failed", "aborted", "interrupted"]),
-    code: z.enum(["timeout", "aborted", "empty", "provider"]).optional(),
+    code: z
+      .enum(["timeout", "aborted", "empty", "provider", "truncated"])
+      .optional(),
     status: z.number().int().min(100).max(599).optional(),
   }),
   z.strictObject({

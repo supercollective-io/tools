@@ -1,5 +1,8 @@
 # Stage 1 rehearsal
 
+See the [3 November local rehearsal results](rehearsal-2026-11-03.md) for the
+natural speaking-space check, saved run references and observed limitations.
+
 ## Before starting
 
 Complete the README setup. Select an installed Ollama model and, for a cloud
@@ -38,6 +41,19 @@ no shared theme. The contributions are fictional and prewritten throughout.
    an existing version-1 log too; its recorded fragments must remain unchanged.
 
 ## Record the decision
+
+Before handing a composition change back for artistic rehearsal, run the whole
+score with the actual local configuration. Read every accepted passage alongside
+its inputs. Check that the collective speaks about as much as one individual,
+connects concerns rather than concatenating them, and develops across the run.
+Reject generic repetition and invented connections between different people's
+experiences. Mocked tests alone cannot establish these properties.
+
+The automated acceptance checks reject provider-reported token cutoffs. Confirm that rejected output never becomes
+accepted history, and that a retry keeps the same inputs. These checks protect against accepting
+known-incomplete responses; they do not judge length, quality or faithfulness.
+Judge the amount of speaking over whole runs, rather than imposing a hard word
+limit on individual passages.
 
 Record the run paths, model identifiers, the settings you changed and a few
 observations about voice, contradiction and continuity. Decide whether scripted

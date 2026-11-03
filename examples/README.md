@@ -35,7 +35,15 @@ The contributions include things that worked, failed attempts, practical proposa
 
 ## Choose a composer
 
-Both configuration files use the same instructions: write one or two sentences in plain, spoken British English; keep concrete experiences, proposals and limits; preserve disagreement; let new input move the conversation on; avoid poetic metaphors, slogans and detached commentary.
+Both configuration files use the same style instructions: plain, spoken British English; speak as part of the group; stay grounded in what people said, including disagreement; avoid slogans and poetic metaphors. The composer's role supplies the synthesis and speaking-space guidance below.
+
+The application adds synthesis instructions to that style prompt. The collective
+has the speaking space of one participant: if eight people each offer a sentence,
+it should answer with about one sentence of collective speech. It should find a
+connection or tension that carries their concerns together, rather than giving
+each speaker a sentence or clause. This is a natural-length aim, with no
+word-count enforcement. Provider-reported token cutoffs are still rejected as
+unfinished responses, leaving the inputs available for retry.
 
 - In `ollama.json`, replace `REPLACE_WITH_INSTALLED_MODEL` with the exact name of a model already installed in your Ollama service. The default service address is `http://127.0.0.1:11434`; add `composer.baseUrl` if your service uses another address.
 - In `openai.json`, replace `REPLACE_WITH_CLOUD_MODEL` with a model available to your OpenAI account. Set `OPENAI_API_KEY` in your environment.

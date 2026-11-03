@@ -69,7 +69,10 @@ export class Controller {
             ? error.code
             : undefined;
         const code =
-          rawCode === "timeout" || rawCode === "aborted" || rawCode === "empty"
+          rawCode === "timeout" ||
+          rawCode === "aborted" ||
+          rawCode === "empty" ||
+          rawCode === "truncated"
             ? rawCode
             : "provider";
         const detail =
@@ -77,7 +80,9 @@ export class Controller {
             ? "Provider request timed out"
             : code === "empty"
               ? "Provider returned no passage; increase maxOutputTokens or configure the model's thinking setting"
-              : "Generation failed";
+              : code === "truncated"
+                ? "Provider cut off the passage at its token limit; incomplete text was not accepted"
+                : "Generation failed";
         await this.log.append({
           type: "generation.failed",
           attemptId,
@@ -93,7 +98,7 @@ export class Controller {
         throw new GenerationError(
           signal.aborted
             ? "Generation interrupted; batch remains pending."
-            : `${detail}${typeof status === "number" ? ` (HTTP ${status})` : ""}; batch remains pending. Check provider availability and model configuration, then retry.`,
+            : `${detail}${typeof status === "number" ? ` (HTTP ${status})` : ""}; batch remains pending. ${code === "truncated" ? "Retry to compose a fresh passage from the same inputs." : "Check provider availability and model configuration, then retry."}`,
         );
       }
       // Storage failure is fatal: do not append a second record to a potentially

@@ -37,7 +37,12 @@ export type Generate = (
   onToken: (token: string) => void,
 ) => Promise<ModelResult>;
 
-export type ModelErrorCode = "timeout" | "aborted" | "empty" | "provider";
+export type ModelErrorCode =
+  | "timeout"
+  | "aborted"
+  | "empty"
+  | "truncated"
+  | "provider";
 
 // An empty callbacks array does not override LangChain's environment tracing.
 // Refuse it explicitly rather than risk sending prompts to a hosted tracer.
@@ -97,6 +102,7 @@ export const generate: Generate = async (
   if (signal.aborted) abort();
   let timedOut = false;
   let emptyResponse = false;
+  let truncated = false;
   const timer = setTimeout(() => {
     timedOut = true;
     controller.abort();
@@ -147,6 +153,13 @@ export const generate: Generate = async (
     let usage: ModelResult["usage"];
     for await (const chunk of stream) {
       controller.signal.throwIfAborted();
+      // Completion metadata may precede a separate final usage-only chunk.
+      // Keep a detected cutoff rather than replacing it with later metadata.
+      const finishReason =
+        config.provider === "openai"
+          ? chunk.response_metadata?.finish_reason
+          : chunk.response_metadata?.done_reason;
+      if (finishReason === "length") truncated = true;
       const token = textContent(chunk.content);
       if (token) {
         text += token;
@@ -161,6 +174,8 @@ export const generate: Generate = async (
       }
     }
     controller.signal.throwIfAborted();
+    if (truncated)
+      throw new Error("Model response reached its output token limit");
     if (!text.trim()) {
       emptyResponse = true;
       throw new Error("Empty model response");
@@ -172,16 +187,20 @@ export const generate: Generate = async (
       ? "timeout"
       : signal.aborted
         ? "aborted"
-        : emptyResponse
-          ? "empty"
-          : "provider";
+        : truncated
+          ? "truncated"
+          : emptyResponse
+            ? "empty"
+            : "provider";
     const message = timedOut
       ? `${config.provider} request timed out.`
       : signal.aborted
         ? `${config.provider} request aborted.`
-        : emptyResponse
-          ? `${config.provider} returned an empty model response.`
-          : `${config.provider} generation failed${status ? ` (HTTP ${status})` : ""}.`;
+        : truncated
+          ? `${config.provider} response reached the output token limit and was not accepted.`
+          : emptyResponse
+            ? `${config.provider} returned an empty model response.`
+            : `${config.provider} generation failed${status ? ` (HTTP ${status})` : ""}.`;
     // Do not attach the upstream error as a cause: it may contain credentials,
     // request headers, or a response body. Expose only a validated HTTP status.
     throw Object.assign(
