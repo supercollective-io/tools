@@ -13,6 +13,7 @@ export type LiveActorRuntime = {
 };
 export type LiveRuntime = {
   running: boolean;
+  fatal: boolean;
   now: number;
   error: string | null;
   actors: Record<string, LiveActorRuntime>;
@@ -192,6 +193,7 @@ export class LiveController {
     }
     return {
       running: this.session !== null && !this.session.signal.aborted,
+      fatal: this.fatal !== null,
       now,
       error: this.error,
       actors,
@@ -418,8 +420,9 @@ export class LiveController {
   }
 
   private async write(actorId: string, signal: AbortSignal): Promise<void> {
-    let previousReason = "eos";
-    let appendNext = false;
+    const initial = writerFor(this.log.state, actorId);
+    let previousReason = initial.lastFinishReason ?? "eos";
+    let appendNext = initial.lastFinishReason === "eos";
     while (!signal.aborted) {
       const observed = this.revision;
       const state = this.log.state;

@@ -263,6 +263,12 @@ describe("one growing contribution per writer", () => {
       "participant/b",
     ]);
     expect(log.state.composer.id).toBe("collective");
+    expect(
+      log.state.participants.every(
+        (writer) => writer.lastFinishReason === null,
+      ),
+    ).toBe(true);
+    expect(log.state.composer.lastFinishReason).toBeNull();
     await log.append({ type: "session.started" });
     await begin(log, "participant/a");
     await append(log, "participant/a", "An unfinished ");
@@ -273,6 +279,7 @@ describe("one growing contribution per writer", () => {
     expect(actor(log.state, "participant/a").text).toBe(
       "An unfinished thought.",
     );
+    expect(actor(log.state, "participant/a").lastFinishReason).toBe("eos");
     expect(log.state.participants).toHaveLength(2);
     expect((await readLiveRun(log.path)).state).toEqual(log.state);
   });
@@ -580,6 +587,11 @@ describe("session lifecycle and interruption recovery", () => {
     ).toBe(true);
     expect(log.state.composer.active).toBeNull();
     expect(log.state.composer.text).toBe("A shared thought");
+    expect(actor(log.state, "participant/a").lastFinishReason).toBe(
+      "interrupted",
+    );
+    expect(actor(log.state, "participant/b").lastFinishReason).toBeNull();
+    expect(log.state.composer.lastFinishReason).toBe("interrupted");
     expect(log.state.collectiveVersion).toBe(0);
     expect((await readLiveRun(path)).events.at(-1)?.event).toEqual({
       type: "session.recovered",

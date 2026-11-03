@@ -179,7 +179,29 @@ function cli(
       key.startsWith("LANGSMITH_")
     )
       delete env[key];
-  const child = spawn(process.execPath, ["src/cli.ts", ...args], {
+  // Seed historical journals through the preserved legacy implementation. New
+  // CLI creation rejects version 1; resume/replay below still use the real CLI.
+  const invocation =
+    args[0] === "legacy-fixture"
+      ? [
+          "--input-type=module",
+          "-e",
+          `
+      import { parseArgs } from 'node:util';
+      import { handleContinuousCommand } from './src/continuous-cli.ts';
+      const { values } = parseArgs({ args: process.argv.slice(1), options: {
+        scenario: { type: 'string' }, config: { type: 'string' }, out: { type: 'string' }
+      }});
+      handleContinuousCommand('simulate-continuous', values).catch(error => {
+        process.stderr.write('Error: ' + error.message + '\\n');
+        process.exitCode = 1;
+      });
+    `,
+          "--",
+          ...args.slice(1),
+        ]
+      : ["src/cli.ts", ...args];
+  const child = spawn(process.execPath, invocation, {
     cwd: root,
     env,
     stdio: ["ignore", "pipe", "pipe"],
@@ -214,7 +236,7 @@ function cli(
 }
 function simulate(f: Awaited<ReturnType<typeof fixtures>>) {
   return [
-    "simulate-continuous",
+    "legacy-fixture",
     "--scenario",
     f.scenario,
     "--config",
@@ -224,7 +246,7 @@ function simulate(f: Awaited<ReturnType<typeof fixtures>>) {
   ];
 }
 
-describe("continuous CLI", () => {
+describe("historical continuous CLI compatibility", () => {
   it("composes while participant streams are still active and replays named saved portions offline", async () => {
     const model = await provider();
     const f = await fixtures(model.baseUrl);

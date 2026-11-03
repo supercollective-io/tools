@@ -5,12 +5,15 @@
 Build a tool that turns many contributions into one evolving collective voice.
 Use successive functional experiments. Complete and commit each stage, then
 rehearse it with the operator before starting the next stage. Stage 2B is now
-authorised. Complete continuous terminal admission and stop for operator feedback
-before Stage 3 projection. Keep Stage 1 and Stage 2A available. Work directly on
+authorised. Complete continuous co-writing and its local operator workspace,
+then stop for operator feedback before Stage 3 performance projection. Keep
+Stage 1 and Stage 2A available. Work directly on
 `main` in this checkout.
 
 Artistic quality is a rehearsal judgement, not an exact-text automated test.
-Keep completed passages append-only. Streamed text is provisional until saved.
+Keep writing append-only. Live writing is saved as it arrives; publication
+marks collective feedback availability. Stage 1 and Stage 2A retain their
+complete-passage acceptance rules.
 One process owns each run, and only one collective generation runs at a time.
 Keep model integrations, composition, interfaces and storage separate.
 
@@ -105,49 +108,42 @@ checks actually passed and stop for feedback after this stage. The range from
 independent threads to direct replies is a rehearsal hypothesis, not a research
 finding or a parameter with a forced rate.
 
-## Stage 2B: continuous participant admission
+## Stage 2B: continuous co-writing and local workspace
 
-Provide `simulate-continuous` with the existing private participant scenario and
-separate `continuous` configuration. Participants independently generate
-successive turns. At each turn's start, freeze the latest accepted collective
-passage as optional context alongside their own bounded history. Do not expose
-peers' raw input or private perspectives. These are simulated model turns, not
-live phone speech. There is no round barrier or compulsory collective reply.
+Each participant and the collective have one growing text for the whole session.
+Inference requests continue that text; they are not participant turns. Save all
+incoming writing, including interrupted prefixes. Budget boundaries and context
+refreshes continue the same contribution without a semantic acceptance gate.
+Preserve Stage 1 and Stage 2A. The previous bounded-turn experiment remains
+historical documentation in [stage-2b.md](stage-2b.md).
 
-Persist each incoming token before making its text available. Admit rough
-sequential prefixes before participant generation completes. Preserve each
-person's oldest unadmitted turn first; do not wait for all voices, complete
-words, semantic boundaries or a known final length. Percentage cuts remain a
-Stage 1 simulation for finite prerecorded texts only.
+Give each writer its full saved prefix. Give the composer every participant's
+full text and `newFrom` offsets identifying newly available source. Keep private
+participant background and perspective out of composer and public browser data.
+Participants receive the published collective prefix as optional context, while
+primarily developing independent positions. Do not force replies or agreement.
 
-The examples allow three turns per participant and eight concurrent participant
-requests, separate from one composer call. Service parallelism determines actual
-overlap; reduce concurrency if a local service overloads. Permit separate models
-and providers for the two roles. Bound admitted chunks at 240 characters and
-pending buffers at 12,000 characters per participant. A full buffer applies
-backpressure until consumption, without dropping text. These are input bounds,
-not output word counts. Pace composition with 3000 ms after the preceding
-composer attempt finishes; keep at most one composer call in flight.
+Publish collective feedback at `live.feedbackIntervalMs`, even inside words or
+sentences. Refresh requests only after their first output and the minimum
+`live.refreshIntervalMs` when newer context exists. Preserve every saved prefix
+and continue at its exact join. Never repeatedly cancel before the first token.
+One request per writer may be active; actual service parallelism remains a
+provider-dependent rehearsal observation.
 
-A failed, interrupted or truncated participant turn retains its saved prefix as
-input and in its own partial history, with an explicit status. It consumes a
-turn slot; resume starts the next turn instead of regenerating its prefix.
-A failed composer keeps the identical admitted batch for retry. Collective
-provider cutoffs remain provisional and are not accepted. Drain whitespace-only
-buffers without a composer call. Complete only when all allowed participant
-turns have started and settled and buffered text has been drained and composed.
+Provide `rehearse` with a local browser monitor, Start/Resume, Pause and End.
+Show full growing texts, source prefixes sent to the composer, newer available
+context, first-token waits and recent output age. “Sent” records request input,
+not a guarantee of semantic representation. Pause drains writes and retains text;
+End is permanent. End automatically at the configured active duration. Context
+capacity pauses all writers with an explicit reason rather than dropping full
+prefixes. Resume the browser with `rehearse --run`; retain terminal resume and
+offline replay. Frozen rerun is not implemented for live journals.
 
-Ctrl+C stops requests and drains journal writes before closing. Recover torn
-final journal lines and mark open attempts interrupted. Resume and offline
-replay route by run type, showing admitted contributions, accepted collective
-passages and pending participant text. Frozen rerun is not implemented for
-continuous runs; use a fresh continuous rehearsal. Preserve Stage 1 and Stage 2A.
-
-Acceptance: deterministic tests cover available-prefix admission, per-person
-ordering, fairness without a slow-voice barrier, backpressure, partial failures,
-composer retry, cancellation, crash recovery and complete buffer drainage.
-Follow [the Stage 2B procedure](stage-2b.md); record actual real-provider checks
-separately from mocked evidence. Stop for feedback before Stage 3 projection.
+Acceptance: test refresh starvation, exact prefix joins, cancellation, concurrent
+controls, publication offsets, context capacity, crash recovery and public-data
+redaction. Follow [the live rehearsal guide](live-rehearsal.md). Record actual
+provider and browser observations separately from deterministic checks. Stop for
+feedback before performance projection, phone participation or deployment.
 
 ## Stage 3: projected rehearsal
 

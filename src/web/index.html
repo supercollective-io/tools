@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f3ec" />
+    <meta name="description" content="A live workspace for rehearsing a collective voice." />
+    <title>Rehearsing We · Live rehearsal</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="identity" href="#main"><span class="identity-mark" aria-hidden="true">rw</span><span>Rehearsing We</span></a>
+      <div class="session-meta"><span class="rehearsal-badge">Live rehearsal</span><span id="connection" class="connection" role="status">Connecting…</span></div>
+    </header>
+    <main id="main">
+      <section class="session-heading" aria-labelledby="page-title">
+        <div><h1 id="page-title">Continuous rehearsal</h1><p id="invitation" class="invitation">Connecting to your rehearsal…</p></div>
+        <div class="operator-panel">
+          <div class="session-readout"><span id="session-status">Waiting for session</span><time id="elapsed" title="Rehearsal elapsed time">00:00</time></div>
+          <fieldset class="controls" aria-label="Rehearsal controls"><button type="button" id="start" class="button primary" disabled>Start rehearsal</button><button type="button" id="pause" class="button" disabled>Pause</button><button type="button" id="end" class="button end" disabled>End</button></fieldset>
+        </div>
+      </section>
+      <div id="error" class="error" role="alert" hidden></div>
+      <div class="workspace">
+        <section class="collective-column" aria-labelledby="collective-title">
+          <div class="section-heading"><div><p class="eyebrow">The shared voice</p><h2 id="collective-title">Collective</h2></div><span id="collective-version" class="version">Not published yet</span></div>
+          <article class="collective-card">
+            <div class="card-topline"><span id="collective-phase" class="phase">Waiting</span><span id="collective-age" class="age">No text received</span></div>
+            <!-- biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll the growing text. -->
+            <section id="collective-text" class="collective-text text-scroll" tabindex="0" aria-label="Full growing collective text"><p class="empty">The collective voice will grow here as the rehearsal unfolds.</p></section>
+            <button type="button" id="collective-follow" class="follow" hidden>Follow latest text ↓</button>
+            <div class="collective-footer"><span class="legend"><i class="legend-mark" aria-hidden="true"></i>Published to participants</span><span class="legend"><i class="legend-mark pending" aria-hidden="true"></i>Not yet published</span></div>
+          </article>
+          <p id="collective-context" class="context-note">Participants can develop their own thoughts and draw on the collective when useful.</p>
+        </section>
+        <section class="participants-column" aria-labelledby="participants-title">
+          <div class="section-heading"><div><p class="eyebrow">Independent threads</p><h2 id="participants-title">Participants <span id="participant-count" class="count"></span></h2></div><span id="activity" class="activity">Waiting for activity</span></div>
+          <div class="reading-key"><span><i class="seen-key" aria-hidden="true"></i>Sent to the composer</span><span><i class="unseen-key" aria-hidden="true"></i>Not yet sent</span></div>
+          <p class="input-note">Highlighted text has not yet been sent to the composer.</p>
+          <div id="participants" class="participant-grid"><p class="loading-note">The participant workspace will appear when the session connects.</p></div>
+        </section>
+      </div>
+      <footer class="page-footer"><span>Develop a thought. Keep the differences.</span><span id="session-note">Your rehearsal stays on this server.</span></footer>
+    </main>
+    <template id="participant-template">
+      <article class="participant-card">
+        <div class="participant-header"><div class="person"><span class="avatar" aria-hidden="true"></span><h3>Participant</h3></div><span class="phase"></span></div>
+        <!-- biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll the growing text. -->
+        <section class="participant-text text-scroll" aria-label="Participant contribution" tabindex="0"></section>
+        <button type="button" class="follow" hidden>Follow latest text ↓</button>
+        <div class="participant-detail"><p class="recent"></p><p class="context-line"></p><div class="timing"><span class="wait-time"></span><span class="token-age"></span></div></div>
+      </article>
+    </template>
+  </body>
+</html>

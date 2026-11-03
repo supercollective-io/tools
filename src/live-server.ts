@@ -1,0 +1,273 @@
+import { readFile } from "node:fs/promises";
+import {
+  createServer,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
+import type { LiveController } from "./live.ts";
+import type { LiveLog } from "./live-runs.ts";
+
+export type LiveServerOptions = {
+  log: LiveLog;
+  controller: LiveController;
+  port?: number;
+  beforeStart?: () => void;
+};
+
+/** A single local rehearsal. The server owns the controller and its journal. */
+export async function startLiveServer(options: LiveServerOptions) {
+  const { log, controller } = options;
+  const port = options.port ?? 3000;
+  if (!Number.isInteger(port) || port < 0 || port > 65535)
+    throw new Error("Port must be an integer between 0 and 65535.");
+  const clients = new Set<ServerResponse>();
+  let changing: ReturnType<typeof setTimeout> | undefined;
+  let closing = false;
+  let controls: Promise<unknown> = Promise.resolve();
+  const snapshot = () => {
+    const state = log.state;
+    return {
+      path: log.path,
+      state: {
+        ...state,
+        scenario: {
+          schemaVersion: state.scenario.schemaVersion,
+          title: state.scenario.title,
+          openingInvitation: state.scenario.openingInvitation,
+          voices: state.scenario.voices.map(({ id, name }) => ({ id, name })),
+        },
+        config: {
+          schemaVersion: state.config.schemaVersion,
+          composer: {
+            provider: state.config.composer.provider,
+            model: state.config.composer.model,
+          },
+          live: {
+            participants: {
+              provider: state.config.live.participants.provider,
+              model: state.config.live.participants.model,
+            },
+            maxDurationMs: state.config.live.maxDurationMs,
+            feedbackIntervalMs: state.config.live.feedbackIntervalMs,
+            refreshIntervalMs: state.config.live.refreshIntervalMs,
+            maxContextCharacters: state.config.live.maxContextCharacters,
+          },
+        },
+      },
+      runtime: controller.snapshot(),
+    };
+  };
+  const writeEvent = (response: ServerResponse, event: string) => {
+    // A browser can reconnect for a fresh snapshot. Never let a slow monitor
+    // accumulate an unlimited queue or delay journalled model output.
+    if (response.destroyed || response.writableLength > 1024 * 1024) {
+      clients.delete(response);
+      response.destroy();
+      return;
+    }
+    response.write(event);
+  };
+  const sendState = (response: ServerResponse) => {
+    writeEvent(
+      response,
+      `event: state\ndata: ${JSON.stringify(snapshot())}\n\n`,
+    );
+  };
+  const unsubscribe = controller.onChange(() => {
+    if (changing || closing) return;
+    changing = setTimeout(() => {
+      changing = undefined;
+      for (const client of clients) sendState(client);
+    }, 60);
+  });
+  const heartbeat = setInterval(() => {
+    for (const client of clients) writeEvent(client, ": keep-alive\n\n");
+  }, 15000);
+  heartbeat.unref();
+  const json = (response: ServerResponse, status: number, body: unknown) => {
+    response.writeHead(status, {
+      "Content-Type": "application/json; charset=utf-8",
+    });
+    response.end(JSON.stringify(body));
+  };
+  const assets: Record<string, { file: string; type: string }> = {
+    "/": { file: "index.html", type: "text/html; charset=utf-8" },
+    "/index.html": { file: "index.html", type: "text/html; charset=utf-8" },
+    "/app.js": { file: "app.js", type: "text/javascript; charset=utf-8" },
+    "/style.css": { file: "style.css", type: "text/css; charset=utf-8" },
+  };
+  let actualPort = port;
+  const validHost = (request: IncomingMessage) =>
+    request.headers.host === `127.0.0.1:${actualPort}` ||
+    request.headers.host === `localhost:${actualPort}` ||
+    (actualPort === 80 &&
+      ["127.0.0.1", "localhost"].includes(request.headers.host ?? ""));
+  const server = createServer(async (request, response) => {
+    response.setHeader("Cache-Control", "no-store");
+    response.setHeader("X-Content-Type-Options", "nosniff");
+    response.setHeader("Referrer-Policy", "no-referrer");
+    response.setHeader(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+    );
+    try {
+      if (!validHost(request)) {
+        json(response, 403, {
+          error: "This rehearsal accepts local requests only.",
+        });
+        return;
+      }
+      if (closing) {
+        json(response, 503, { error: "The rehearsal is closing." });
+        return;
+      }
+      const url = new URL(request.url ?? "/", `http://${request.headers.host}`);
+      if (request.method === "GET" && url.pathname === "/api/state") {
+        json(response, 200, snapshot());
+        return;
+      }
+      if (request.method === "GET" && url.pathname === "/api/events") {
+        response.writeHead(200, {
+          "Content-Type": "text/event-stream; charset=utf-8",
+          Connection: "keep-alive",
+          "X-Accel-Buffering": "no",
+        });
+        clients.add(response);
+        response.on("close", () => clients.delete(response));
+        sendState(response);
+        return;
+      }
+      if (
+        request.method === "POST" &&
+        ["/api/start", "/api/pause", "/api/end"].includes(url.pathname)
+      ) {
+        if (
+          request.headers.origin !== undefined &&
+          request.headers.origin !==
+            new URL(`http://${request.headers.host}`).origin
+        ) {
+          json(response, 403, {
+            error: "Controls require the rehearsal's own origin.",
+          });
+          return;
+        }
+        if (
+          request.headers["content-type"]
+            ?.split(";", 1)[0]
+            ?.trim()
+            .toLowerCase() !== "application/json"
+        ) {
+          json(response, 415, {
+            error: "Controls require an application/json body.",
+          });
+          return;
+        }
+        let body = "";
+        for await (const chunk of request) {
+          body += chunk.toString();
+          if (Buffer.byteLength(body) > 1024) {
+            json(response, 413, { error: "The control body is too large." });
+            return;
+          }
+        }
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(body);
+        } catch {
+          json(response, 400, { error: "Send a JSON object: {}." });
+          return;
+        }
+        if (
+          !parsed ||
+          typeof parsed !== "object" ||
+          Array.isArray(parsed) ||
+          Object.keys(parsed).length
+        ) {
+          json(response, 400, {
+            error: "Controls accept only an empty JSON object: {}.",
+          });
+          return;
+        }
+        const action = async () => {
+          if (closing) throw new Error("Closing");
+          if (url.pathname === "/api/start") {
+            options.beforeStart?.();
+            await controller.start();
+          } else if (url.pathname === "/api/pause") await controller.pause();
+          else await controller.end();
+        };
+        const operation = controls.then(action);
+        controls = operation.catch(() => {});
+        try {
+          await operation;
+          json(response, 200, snapshot());
+        } catch {
+          json(response, 409, {
+            error:
+              "The control could not be applied. Check the rehearsal status and model configuration.",
+          });
+        }
+        return;
+      }
+      if (request.method === "GET" && assets[url.pathname]) {
+        const asset = assets[url.pathname];
+        if (!asset) return;
+        const content = await readFile(
+          new URL(`./web/${asset.file}`, import.meta.url),
+        );
+        response.writeHead(200, { "Content-Type": asset.type });
+        response.end(content);
+        return;
+      }
+      json(response, 404, { error: "Unknown rehearsal route." });
+    } catch {
+      if (!response.headersSent)
+        json(response, 500, { error: "The local rehearsal request failed." });
+      else response.end();
+    }
+  });
+  try {
+    await new Promise<void>((resolve, reject) => {
+      server.once("error", reject);
+      server.listen(port, "127.0.0.1", () => {
+        server.off("error", reject);
+        resolve();
+      });
+    });
+  } catch (error) {
+    unsubscribe();
+    clearInterval(heartbeat);
+    throw error;
+  }
+  const address = server.address();
+  if (!address || typeof address === "string")
+    throw new Error("Missing local server address.");
+  actualPort = address.port;
+  let shutdown: Promise<void> | undefined;
+  return {
+    url: `http://127.0.0.1:${actualPort}`,
+    server,
+    snapshot,
+    close(): Promise<void> {
+      shutdown ??= (async () => {
+        closing = true;
+        unsubscribe();
+        clearInterval(heartbeat);
+        if (changing) clearTimeout(changing);
+        await controls;
+        try {
+          await controller.close();
+        } finally {
+          for (const client of clients) client.end();
+          clients.clear();
+          await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+            server.closeAllConnections();
+          });
+          await log.close();
+        }
+      })();
+      return shutdown;
+    },
+  };
+}

@@ -1,4 +1,9 @@
-# Stage 2B: continuous terminal rehearsal
+# Stage 2B: historical streamed-turn experiment
+
+> Superseded: this document records the earlier bounded-turn design. For the
+> current no-turn co-writing model and local workspace, use the
+> [live rehearsal guide](live-rehearsal.md). The commands and configurations below
+> describe historical runs, not the recommended way to start a rehearsal.
 
 ## Purpose
 

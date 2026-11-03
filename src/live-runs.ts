@@ -114,6 +114,9 @@ export type LiveWriter = {
   active: LiveAttempt | null;
   lastContextVersion: number;
   seenOffsets: Record<string, number>;
+  lastFinishReason:
+    | Extract<LiveEvent, { type: "generation.finished" }>["reason"]
+    | null;
 };
 export type LiveState = {
   runId: string;
@@ -138,6 +141,7 @@ function writer(id: string): LiveWriter {
     active: null,
     lastContextVersion: 0,
     seenOffsets: Object.create(null),
+    lastFinishReason: null,
   };
 }
 
@@ -213,7 +217,10 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
           );
         // One record interrupts all active requests and pauses the session. A
         // second crash cannot count downtime via separately saved finish times.
-        for (const writer of writers) writer.active = null;
+        for (const writer of writers) {
+          if (writer.active) writer.lastFinishReason = "interrupted";
+          writer.active = null;
+        }
         state.status = "paused";
         state.elapsedMs = event.elapsedMs;
         state.sessionStartedAt = null;
@@ -309,6 +316,7 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
             "Live generation completion refers to an inactive request.",
           );
         writer.active = null;
+        writer.lastFinishReason = event.reason;
         break;
       }
       case "collective.published":

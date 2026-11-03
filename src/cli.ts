@@ -4,7 +4,9 @@ import { createInterface } from "node:readline";
 import { parseArgs } from "node:util";
 import { contributionsFor, percentageRanges } from "./composition.ts";
 import { handleContinuousCommand } from "./continuous-cli.ts";
+import { isContinuousRun } from "./continuous-runs.ts";
 import { Controller, GenerationError } from "./controller.ts";
+import { handleLiveCommand } from "./live-cli.ts";
 import type { Generate } from "./models.ts";
 import { RunLog, readRun } from "./runs.ts";
 import {
@@ -20,6 +22,8 @@ const help = `Collective Microphone — collective writing rehearsals
 
   pnpm cli run --score <score.json> --config <config.json> [--out <new.jsonl>]
   pnpm cli simulate --scenario <scenario.json> --config <config.json> [--out <new.jsonl>] [--auto]
+  pnpm cli rehearse --scenario <scenario.json> --config <config.json> [--out <new.jsonl>] [--port <3000>]
+  pnpm cli rehearse --run <run.jsonl> [--port <3000>]
   pnpm cli simulate-continuous --scenario <scenario.json> --config <config.json> [--out <new.jsonl>]
   pnpm cli resume --run <run.jsonl> [--auto]
   pnpm cli replay --run <run.jsonl>
@@ -31,7 +35,8 @@ Replay displays accepted passages immediately without contacting a model.
 Rerun composes again from admitted inputs, starting a separate history.
 Simulate generates participant responses in rounds. --auto advances simulation rounds automatically.
 Simulation rerun uses frozen participant contributions; use simulate for fresh contributions.
-Simulate-continuous runs overlapping participant streams and compositions; Ctrl+C pauses it.
+Rehearse opens a local live monitor in Ready state; press Start in the browser.
+Simulate-continuous co-writes in the terminal with schemaVersion 2 live configuration; Ctrl+C pauses it.
 New logs default to runs/<UUID>.jsonl. Existing files are never overwritten.
 `;
 
@@ -184,6 +189,7 @@ async function main(): Promise<void> {
           out: { type: "string" },
           scenario: { type: "string" },
           auto: { type: "boolean" },
+          port: { type: "string" },
         },
       });
     } catch {
@@ -201,6 +207,7 @@ async function main(): Promise<void> {
     !command ||
     ![
       "run",
+      "rehearse",
       "simulate",
       "simulate-continuous",
       "resume",
@@ -209,10 +216,11 @@ async function main(): Promise<void> {
     ].includes(command)
   )
     throw new Error(
-      "Expected run, simulate, simulate-continuous, resume, replay or rerun. Use --help for usage.",
+      "Expected run, rehearse, simulate, simulate-continuous, resume, replay or rerun. Use --help for usage.",
     );
   const allowed: Record<string, string[]> = {
     run: ["score", "config", "out"],
+    rehearse: ["scenario", "config", "run", "out", "port"],
     simulate: ["scenario", "config", "out", "auto"],
     "simulate-continuous": ["scenario", "config", "out", "auto"],
     resume: ["run", "auto"],
@@ -224,6 +232,15 @@ async function main(): Promise<void> {
       "An option is not supported by this command. Use --help for usage.",
     );
 
+  if (await handleLiveCommand(command, values)) return;
+  if (
+    ["resume", "replay", "rerun"].includes(command) &&
+    values.run &&
+    (await isContinuousRun(resolve(values.run)))
+  )
+    process.stderr.write(
+      "Warning: this historical continuous log uses legacy turns and batches. New live rehearsals use schemaVersion 2.\n",
+    );
   if (await handleContinuousCommand(command, values)) return;
   if (await handleSimulationCommand(command, values)) return;
   if (values.auto)

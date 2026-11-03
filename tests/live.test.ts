@@ -434,6 +434,137 @@ describe("one growing participant and collective contribution", () => {
 });
 
 describe("live session lifetime and saved failures", () => {
+  it.each(["paused", "interrupted"] as const)(
+    "resumes a %s collective prefix after reopening without waiting for new participant text",
+    async (reason) => {
+      const log = await createLog({
+        feedbackIntervalMs: 60_000,
+        refreshIntervalMs: 60_000,
+      });
+      const source = "Unchanged participant writing";
+      const existing = "We are organis";
+      await log.append({ type: "session.started" });
+      await savedWriting(log, "participant/a", source);
+      const attemptId = randomUUID();
+      await log.append({
+        type: "generation.started",
+        actorId: "collective",
+        attemptId,
+        contextVersion: 0,
+        sourceOffsets: { a: source.length },
+        messages: [{ role: "user", content: "Original context" }],
+      });
+      await log.append({
+        type: "text.appended",
+        actorId: "collective",
+        attemptId,
+        offset: 0,
+        text: existing,
+      });
+      if (reason === "paused") {
+        await log.append({
+          type: "generation.finished",
+          actorId: "collective",
+          attemptId,
+          reason,
+        });
+        await log.append({
+          type: "session.paused",
+          elapsedMs: 10,
+          reason: "Operator pause",
+        });
+      }
+      await log.close();
+      logs.splice(logs.indexOf(log), 1);
+      const resumed = await LiveLog.resume(log.path);
+      logs.push(resumed);
+      expect(resumed.state.composer.lastFinishReason).toBe(reason);
+      expect(resumed.state.composer.seenOffsets).toEqual({ a: source.length });
+      let composerCalls = 0;
+      const generate = vi.fn<Generate>(async (request, onToken) => {
+        if (request.config.model === "participant") return hold(request.signal);
+        composerCalls++;
+        expect(prefix(request)).toBe(existing);
+        expect(userFrom(request.messages)).not.toHaveProperty("existingText");
+        expect(userFrom(request.messages).participants[0].text).toBe(source);
+        await onToken("ing together");
+        return hold(request.signal);
+      });
+      const controller = controllerFor(resumed, generate);
+      await controller.start();
+      await eventually(() =>
+        expect(resumed.state.composer.text).toBe("We are organising together"),
+      );
+      expect(composerCalls).toBe(1);
+      expect(writer(resumed.state, "participant/a").text).toBe(source);
+      expect(controller.snapshot().actors["participant/a"]?.phase).toBe(
+        "waiting",
+      );
+      await controller.pause();
+      expect((await readLiveRun(resumed.path)).state.composer.text).toBe(
+        "We are organising together",
+      );
+    },
+  );
+
+  it("retains append mode for a completed participant contribution after reopening", async () => {
+    const log = await createLog({
+      feedbackIntervalMs: 60_000,
+      refreshIntervalMs: 60_000,
+    });
+    const existing = "An existing thought.";
+    await log.append({ type: "session.started" });
+    const attemptId = randomUUID();
+    await log.append({
+      type: "generation.started",
+      actorId: "participant/a",
+      attemptId,
+      contextVersion: 0,
+      sourceOffsets: {},
+      messages: [{ role: "user", content: "Original context" }],
+    });
+    await log.append({
+      type: "text.appended",
+      actorId: "participant/a",
+      attemptId,
+      offset: 0,
+      text: existing,
+    });
+    await log.append({
+      type: "generation.finished",
+      actorId: "participant/a",
+      attemptId,
+      reason: "eos",
+    });
+    await log.append({
+      type: "session.paused",
+      elapsedMs: 10,
+      reason: "Operator pause",
+    });
+    await log.close();
+    logs.splice(logs.indexOf(log), 1);
+    const resumed = await LiveLog.resume(log.path);
+    logs.push(resumed);
+    expect(writer(resumed.state, "participant/a").lastFinishReason).toBe("eos");
+    const generate = vi.fn<Generate>(async (request, onToken) => {
+      if (request.config.model === "composer") return hold(request.signal);
+      expect(prefix(request)).toBe("");
+      expect(userFrom(request.messages).existingText).toBe(existing);
+      await onToken("More follows.");
+      return hold(request.signal);
+    });
+    const controller = controllerFor(resumed, generate);
+    await controller.start();
+    await eventually(() =>
+      expect(writer(resumed.state, "participant/a").text).toBe(
+        `${existing} More follows.`,
+      ),
+    );
+    await controller.pause();
+    expect(resumed.state.participants).toHaveLength(1);
+    expect(controller.snapshot().error).toBeNull();
+  });
+
   it.each([
     ["Alpha", "Beta", "Alpha Beta"],
     ["Alpha", "42", "Alpha 42"],

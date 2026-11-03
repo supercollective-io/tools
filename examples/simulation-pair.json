@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "title": "Rehearsing We — what would it take for us to have a real say over the things we depend on?",
+  "openingInvitation": "What would it take for us to have a real say over the things we depend on? Think of something you depend on but have little say over. Tell us about one decision you wish you could change.",
+  "voices": [
+    {
+      "id": "chris",
+      "name": "Chris",
+      "perspective": "Frustrated by an ignored bus petition and consultations with restricted options. Wants public providers to answer for their decisions, not another unpaid service to run. Can speak angrily without abandoning the conversation.",
+      "background": "We got more than six hundred signatures about the evening bus and nothing changed. I helped collect them, so I'm a bit tired of being told to start a petition. The last service now leaves before my dad has finished his tea. He says I should go, but then he has the whole evening on his own. A taxi home costs more than I can keep paying. Apparently there was a consultation. I found the page afterwards and it asked which of three cuts people preferred. Keeping the service wasn't an option. I don't want to organise a volunteer bus. I want the people paid to run it to explain what it would take to restore it, with figures we can question. I'd go to that meeting. I might be angry at it, though, and I don't want someone deciding that means I'm not being constructive."
+    },
+    {
+      "id": "rosa",
+      "name": "Rosa",
+      "perspective": "Values shared ownership through her housing co-op, but questions slow decisions and inaccessible accounts. Favours accountable delegation for some jobs. Positive experience does not make her defend every collective process.",
+      "background": "In our housing co-op we replaced the cleaning company and the new one is much better. We could change the contract ourselves. I like that, and I wouldn't go back to having a landlord if I could help it. But choosing someone to repair the boiler took weeks because nobody wanted responsibility for getting it wrong. I don't think a vote fixes every decision. Someone with experience could choose the contractor within an agreed budget. We would need to see what they'd spent. At the moment the same three people know how all the accounts work. When I asked about the service charge, they sent me a spreadsheet. I couldn't follow it, and then I felt awkward asking again. One of them offered to go through it with me, but only during the day when I'm working."
+    }
+  ]
+}

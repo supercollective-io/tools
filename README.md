@@ -2,12 +2,11 @@
 
 Combine many contributions into one evolving collective voice.
 
-Stage 1 is a terminal rehearsal tool: gradually admit continuous texts from eight
-voices, advance one percentage step at a time, stream a collective passage, and
-save the run.
-It supports local Ollama and OpenAI through modular LangChain integrations.
-Stage 2A adds round-based simulated participants; Stage 2B admits their streamed
-text continuously. The browser and live phone speech come in later stages.
+The current live rehearsal gives every participant and the collective one
+growing text, with context refreshed during writing. A local browser workspace
+shows their progress. It supports local Ollama and OpenAI through modular
+LangChain integrations. Stage 1 scripts and Stage 2A round-based simulation remain
+available; performance projection and live phone speech come later.
 
 The first artistic context is **Rehearsing We**, a participatory performance
 exploring collective power. The [piece brief and topic-design proposal](docs/rehearsing-we.md)
@@ -31,7 +30,43 @@ are locked. pnpm policy lives in `pnpm-workspace.yaml`; unknown dependency
 build scripts fail installation. Lefthook installation is explicit rather
 than an automatic dependency lifecycle script.
 
-## Run a local rehearsal
+## Open the live rehearsal workspace
+
+For the tested local Qwen setup, follow the
+[parallel Ollama instructions](docs/live-rehearsal.md#isolated-local-pair-setup)
+and use `examples/live-local-pair.json`. To configure another model:
+
+```sh
+mkdir -p runs
+cp examples/live-ollama.json runs/live-config.json
+```
+
+Replace both model placeholders in `composer.model` and `live.participants.model`,
+and set each role's `baseUrl` for your model service when required. Then run:
+
+```sh
+pnpm cli rehearse --scenario examples/simulation-pair.json --config runs/live-config.json
+```
+
+Open the printed local URL and select **Start rehearsal**. Each participant and
+the collective continue one growing text across inference requests. Request
+boundaries are continuations, not participant turns. All writing is saved;
+feedback publication can happen inside a word or sentence. Highlighted source
+text has not yet been sent to the composer, which does not imply whether the
+model will represent it. Use **Pause**, **Resume rehearsal** and **End** to
+control the session. Reopen a saved workspace with
+`pnpm cli rehearse --run runs/session.jsonl`, or use standard terminal `resume`
+and offline `replay`.
+
+The pair scenario keeps the first rehearsal small; `examples/simulation.json`
+provides eight participants. For cloud calls, copy `examples/live-openai.json`,
+replace both model placeholders and supply `OPENAI_API_KEY` through the environment.
+There is no automatic provider switch. See the [live rehearsal guide](docs/live-rehearsal.md)
+for feedback timing, first-token waits, context capacity and recovery. This is a
+local operator workspace; projection, live phone speech and deployment remain
+separate work.
+
+## Run a scripted Stage 1 rehearsal
 
 1. Start an existing Ollama service and inspect its models with `ollama list`.
    The application never downloads a model.
@@ -73,7 +108,10 @@ thoughts. See [the examples](examples/README.md) for the topic and source materi
 Start a new run to use the current score; old logs retain their original material.
 The format also accepts other topics and voice counts.
 
-## Rehearse responsive participants
+## Historical Stage 2A rehearsal
+
+This earlier round-based experiment is retained for comparison. Use the live
+workspace above for continuous co-writing.
 
 Stage 2A uses eight independent fictional participants who share and develop
 their own positions. The previous accepted collective passage is available
@@ -111,47 +149,15 @@ contributions in the context of its own collective history.
 Use `examples/simulation-openai.json` for cloud models and provide
 `OPENAI_API_KEY` through the environment. See the [Stage 2A procedure](docs/stage-2a.md)
 for private context, bounded history, recovery and rehearsal checks. Stage 2A
-keeps its complete-round behaviour alongside Stage 2B continuous admission.
+keeps its complete-round behaviour alongside live co-writing.
 
-## Rehearse continuous participant input
+## Historical streamed-turn experiment
 
-Stage 2B admits participant text while generation is still running. It has no
-round barrier: saved prefixes can enter composition before a turn finishes.
-Participants develop their own positions, with collective context frozen at each
-turn's start and optional engagement with it. This simulates model turns; it does
-not implement people speaking into phones.
-
-```sh
-cp examples/continuous-ollama.json runs/continuous-config.json
-```
-
-Replace both model placeholders in `composer.model` and
-`continuous.participants.model`, then run:
-
-```sh
-pnpm cli simulate-continuous --scenario examples/simulation.json --config runs/continuous-config.json
-```
-
-Continuous mode advances automatically; Ctrl+C pauses and preserves saved input.
-Use standard `resume --run` to continue and `replay --run` to inspect offline.
-A failed or interrupted participant turn keeps its saved prefix and consumes a
-turn slot; resume starts the next turn. A failed composer retries the same
-pending batch. Frozen rerun is not implemented for continuous logs; start a new
-continuous run for another rehearsal.
-
-The examples allow three turns per participant and eight concurrent participant
-requests, plus one separate composer request. Actual parallelism depends on the
-service. Reduce `continuous.concurrency` if a local service is overloaded; the
-two roles can use different models or providers. Use
-`examples/continuous-openai.json` for cloud calls.
-
-The composer takes at most 240 available characters per participant, without
-waiting for slow voices or complete words. Unadmitted buffers are bounded at
-12,000 characters per participant; a full buffer makes the producer wait without
-dropping text. Composition is paced by a 3000 ms interval after the preceding
-composer attempt finishes. These bounds govern input, not output word counts.
-See the [Stage 2B procedure](docs/stage-2b.md) for recovery, pacing and rehearsal
-checks. Projection remains a separate Stage 3.
+The earlier bounded-turn Stage 2B design is superseded by the
+[live co-writing model](docs/live-rehearsal.md). Existing historical logs remain
+readable. Its [design notes](docs/stage-2b.md) are retained for that history;
+new `simulate-continuous` runs use schema-version-2 live configuration and the
+same continuous writer model as the browser workspace.
 
 ## Use a cloud model
 
@@ -183,21 +189,22 @@ pnpm cli rerun --run runs/session.jsonl --config runs/cloud-config.json
 
 | Command               | Behaviour                                                                                |
 | --------------------- | ---------------------------------------------------------------------------------------- |
+| `rehearse`            | Open the local live workspace from a scenario or saved live journal.                     |
 | `run`                 | Start a scripted run from a score and configuration.                                     |
 | `simulate`            | Start independent participant rounds from a scenario and configuration.                  |
-| `simulate-continuous` | Admit streamed participant text without a round barrier.                                 |
+| `simulate-continuous` | Continue live co-writing in the terminal.                                                |
 | `resume`              | Continue the saved run and frozen configuration; retry unfinished work.                  |
-| `replay`              | Print accepted passages immediately, without model calls or credentials.                 |
+| `replay`              | Print saved writing immediately, without model calls or credentials.                     |
 | `rerun`               | Create a separate run from previously admitted steps, optionally changing configuration. |
 
 `run`, `simulate`, `simulate-continuous` and `rerun` accept `--out <new.jsonl>`.
 Existing files are never overwritten. A rerun includes admitted steps from the source, including a
 pending failed step, but excludes future steps that were never admitted.
 It generates its own collective history and links back to the source run.
-Continuous logs support resume and replay, but not frozen rerun.
+Live logs support resume and replay, but not frozen rerun.
 Use `run` again when comparing the entire score, including unadmitted steps.
 
-Replay pairs each accepted passage with its recorded input contributions and
+For Stage 1 and Stage 2A, replay pairs each accepted passage with its recorded input contributions and
 speaker names. Any pending input appears with an explicit indication that it has
 no accepted collective passage. Existing version-1 logs retain their original
 fragment-based inputs and remain replayable without a model. They are not
@@ -212,9 +219,9 @@ log. Corrupt complete records are reported rather than silently discarded.
 Exit status is `0` for completion or an intentional pause, `1` for invalid input,
 storage failure or a failed attempt left pending, and `130` for cancellation.
 
-## Input and history settings
+## Scripted input and history settings
 
-Inputs are UTF-8 JSON; unknown properties are rejected. Scores use
+Stage 1 inputs are UTF-8 JSON; unknown properties are rejected. Scores use
 `schemaVersion: 2`; configuration retains `schemaVersion: 1`. The example files
 are complete templates.
 
@@ -245,7 +252,7 @@ are complete templates.
   passages are not cropped or rejected for their length.
 
 Percentage steps simulate finite prerecorded contributions whose full lengths
-are known. Stage 2B admits model-generated text as it becomes available, without
+are known. Live co-writing uses saved full prefixes and refreshed context, without
 assuming a known final length. The live phone interfaces remain future work;
 Stage 1 percentage slicing and Stage 2A complete rounds remain available.
 
@@ -256,12 +263,15 @@ increase `maxOutputTokens`, or disable thinking where supported. The composition
 instruction controls the voice, emphasis and natural passage length. Context limits vary by
 model; reduce `chunkPercent` or the history bounds if a provider rejects the prompt.
 
-Provider-reported token-limit cutoffs remain provisional and are rejected.
+In Stage 1 and Stage 2A, provider-reported token-limit cutoffs remain provisional
+and are rejected.
 Incomplete text never enters accepted history. The same input stays pending for
 an explicit retry. The existing token setting is a provider resource ceiling,
-not a way to force the collective to stop speaking mid-sentence.
+not a way to force the collective to stop speaking mid-sentence. Live co-writing
+instead retains every saved prefix and continues across inference budgets; see
+the live guide for its publication model and full-context capacity.
 
-Run records contain the source snapshot, instructions, exact prompts, ordered
+Stage 1 and Stage 2A run records contain the source snapshot, instructions, exact prompts, ordered
 contributions, accepted output, timings, usage when supplied, and sanitised
 failures. They do not store raw provider errors or thinking traces. Run data and
 local credentials are ignored by Git.
