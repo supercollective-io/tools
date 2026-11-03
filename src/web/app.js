@@ -8,15 +8,9 @@ const elements = {
   pause: byId("pause"),
   end: byId("end"),
   error: byId("error"),
-  collectiveVersion: byId("collective-version"),
   collectivePhase: byId("collective-phase"),
-  collectiveAge: byId("collective-age"),
-  collectiveContext: byId("collective-context"),
-  count: byId("participant-count"),
-  activity: byId("activity"),
   participants: byId("participants"),
   template: byId("participant-template"),
-  note: byId("session-note"),
 };
 let snapshot = null;
 let receivedAt = performance.now();
@@ -72,104 +66,40 @@ function textFollower(pane, button, placeholder) {
 const collectiveText = textFollower(
   byId("collective-text"),
   byId("collective-follow"),
-  "The collective voice will grow here as the rehearsal unfolds.",
+  "Waiting for text…",
 );
 
-function seconds(ms) {
-  const total = Math.max(0, Math.floor(ms / 1000));
-  if (total < 60) return `${total}s`;
-  return `${Math.floor(total / 60)}m ${total % 60}s`;
-}
 function clock(ms) {
   const total = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(total / 60);
   return `${String(minutes).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }
-function timestamp(value) {
-  if (typeof value === "number") return value;
-  if (!value) return null;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-function serverNow() {
-  return (
-    (snapshot?.runtime?.now ?? Date.now()) + performance.now() - receivedAt
-  );
-}
-function age(value) {
-  const at = timestamp(value);
-  return at === null ? null : seconds(serverNow() - at);
-}
 function actorFor(id) {
   return snapshot?.runtime?.actors?.[id] ?? null;
 }
-function phase(writer, actor) {
+function phase(actor) {
   const status = snapshot.state.status;
-  if (status === "ended") return ["Finished", "idle"];
+  if (status === "ended") return ["Ended", "idle"];
   if (!snapshot.runtime.running)
     return [status === "ready" ? "Ready" : "Paused", "idle"];
-  if (actor?.phase === "refreshing")
-    return ["Refreshing context", "refreshing"];
-  if (actor?.phase === "waiting") return ["Waiting for model", "waiting"];
-  if (actor?.phase === "receiving")
-    return [
-      actor.refreshPending ? "Receiving · refresh due" : "Receiving",
-      "receiving",
-    ];
-  if (writer?.active) return ["Waiting for model", "waiting"];
-  return [
-    writer?.id === "collective"
-      ? "Waiting for participant text"
-      : "Awaiting continuation",
-    "idle",
-  ];
+  if (actor?.phase === "receiving") return ["Writing", "receiving"];
+  return ["Waiting", "waiting"];
 }
 function setPhase(node, value) {
   node.textContent = value[0];
   node.className = `phase ${value[1]}`;
 }
-function timing(writer, actor) {
-  const active = writer?.active;
-  const start = timestamp(active?.startedAt ?? actor?.startedAt);
-  const first = timestamp(active?.firstTokenAt);
-  const last = actor?.lastTokenAt ?? active?.firstTokenAt;
-  const waiting =
-    start === null
-      ? ""
-      : first === null
-        ? snapshot.runtime.running
-          ? `First text wait ${seconds(serverNow() - start)}`
-          : "First text pending"
-        : `First text in ${seconds(first - start)}`;
-  return {
-    waiting,
-    last: last
-      ? `Last text ${age(last)} ago`
-      : writer?.text
-        ? "Writing saved earlier"
-        : "No text received yet",
-  };
-}
 function createCard(voice) {
   const node = elements.template.content.firstElementChild.cloneNode(true);
   node.querySelector("h3").textContent = voice.name;
-  node.querySelector(".avatar").textContent = Array.from(voice.name)[0] ?? "";
   const pane = node.querySelector(".participant-text");
   pane.setAttribute("aria-label", `${voice.name}: full growing contribution`);
   const button = node.querySelector(".follow");
   button.setAttribute("aria-label", `Follow ${voice.name}'s latest text`);
   const card = {
     node,
-    updateText: textFollower(
-      pane,
-      button,
-      "Their contribution will appear here.",
-    ),
+    updateText: textFollower(pane, button, "Waiting for text…"),
     phase: node.querySelector(".phase"),
-    recent: node.querySelector(".recent"),
-    context: node.querySelector(".context-line"),
-    waiting: node.querySelector(".wait-time"),
-    last: node.querySelector(".token-age"),
   };
   cards.set(voice.id, card);
   return card;
@@ -189,22 +119,6 @@ function reconcileCards(voices) {
     if (!existing) elements.participants.append(card.node);
   }
 }
-function contextLine(writer, actor, version) {
-  const delivered =
-    actor?.contextVersion ??
-    writer?.active?.contextVersion ??
-    writer?.lastContextVersion ??
-    0;
-  const current =
-    delivered > 0
-      ? `Context sent · ${delivered}`
-      : actor?.startedAt || writer?.active
-        ? "Opening context sent"
-        : "Opening context";
-  return version > delivered
-    ? `${current} · ${version} now available`
-    : `${current} · latest available`;
-}
 function updateControls() {
   const available =
     Boolean(snapshot) && connected && !pendingAction && !snapshot.runtime.fatal;
@@ -217,8 +131,8 @@ function updateControls() {
     pendingAction === "start"
       ? "Starting…"
       : snapshot?.state?.status === "paused"
-        ? "Resume rehearsal"
-        : "Start rehearsal";
+        ? "Resume"
+        : "Start";
   elements.pause.textContent = pendingAction === "pause" ? "Pausing…" : "Pause";
   elements.end.textContent = pendingAction === "end" ? "Ending…" : "End";
   const error = commandError || snapshot?.runtime?.error || "";
@@ -230,27 +144,20 @@ function render() {
   const { state, runtime } = snapshot;
   const voices = state.scenario?.voices ?? [];
   reconcileCards(voices);
+  const scenario = state.scenario;
+  const topic = scenario?.title?.replace(
+    /^(?:Rehearsing We|Collective Microphone)\s*[—–:·-]?\s*/i,
+    "",
+  );
+  const invitation = topic || scenario?.openingInvitation || "";
   elements.invitation.textContent =
-    state.scenario?.openingInvitation || state.scenario?.title || "";
-  elements.invitation.title = elements.invitation.textContent;
-  document.title = `Rehearsing We · ${state.status === "ended" ? "Ended" : "Live rehearsal"}`;
-  elements.count.textContent = String(voices.length);
+    invitation.charAt(0).toUpperCase() + invitation.slice(1);
+  elements.invitation.title = scenario?.openingInvitation || topic || "";
+  document.title = `Collective Microphone${state.status === "ended" ? " · Ended" : ""}`;
   const composer = state.composer;
-  const version = state.collectiveVersion ?? 0;
   const composerActor = actorFor("collective");
   collectiveText(composer?.text ?? "", state.publishedOffset ?? 0);
-  elements.collectiveVersion.textContent = version
-    ? `Update ${version}`
-    : "No update yet";
-  setPhase(elements.collectivePhase, phase(composer, composerActor));
-  elements.collectiveAge.textContent = composerActor?.lastTokenAt
-    ? `Last text ${age(composerActor.lastTokenAt)} ago`
-    : composer?.text
-      ? "Writing saved earlier"
-      : "No text received";
-  elements.collectiveContext.textContent = version
-    ? `Collective ${version} is available to participants. Context is sent when a model request starts or refreshes; this does not mean the model has used it.`
-    : "Participants can develop their own thoughts and draw on the collective when useful.";
+  setPhase(elements.collectivePhase, phase(composerActor));
   for (const voice of voices) {
     const card = cards.get(voice.id);
     const writer = state.participants?.find(
@@ -259,32 +166,8 @@ function render() {
     const actor = actorFor(`participant/${voice.id}`);
     const value = writer?.text ?? "";
     card.updateText(value, composer?.seenOffsets?.[voice.id] ?? 0);
-    setPhase(card.phase, phase(writer, actor));
-    card.node.dataset.active = String(
-      Boolean(runtime.running && actor?.phase === "receiving"),
-    );
-    const latest = value.trim().slice(-130).replace(/\s+/g, " ");
-    card.recent.textContent = latest
-      ? `Latest · ${latest}`
-      : "Waiting for a first contribution";
-    card.recent.title = latest;
-    card.context.textContent = contextLine(writer, actor, version);
-    const times = timing(writer, actor);
-    card.waiting.textContent = times.waiting;
-    card.last.textContent = times.last;
+    setPhase(card.phase, phase(actor));
   }
-  const actors = Object.values(runtime.actors ?? {});
-  const receiving = actors.filter(
-    (actor) => actor.phase === "receiving",
-  ).length;
-  const waiting = actors.filter((actor) => actor.phase === "waiting").length;
-  elements.activity.textContent = runtime.running
-    ? receiving === 0 && waiting > 0
-      ? `Waiting for model service · ${waiting} requests`
-      : `${receiving} receiving · ${waiting} waiting`
-    : state.status === "ended"
-      ? "Rehearsal ended"
-      : "No active requests";
   elements.status.textContent = pendingAction
     ? "Updating rehearsal…"
     : runtime.fatal
@@ -296,13 +179,6 @@ function render() {
           : state.status === "paused"
             ? "Rehearsal paused"
             : "Ready when you are";
-  elements.note.textContent = runtime.fatal
-    ? "Check storage, then reopen this saved rehearsal to recover."
-    : state.pauseReason
-      ? `Paused · ${state.pauseReason}`
-      : state.status === "ended"
-        ? "Saved text remains available to read."
-        : "Activity reflects the requests reporting now.";
   updateControls();
   updateClock();
 }
@@ -323,6 +199,7 @@ function accept(payload) {
 function connectionStatus(ok, label) {
   connected = ok;
   elements.connection.textContent = label;
+  elements.connection.hidden = ok;
   elements.connection.className = `connection ${ok ? "connected" : "reconnecting"}`;
   updateControls();
 }
@@ -381,8 +258,7 @@ async function connect() {
     );
   } catch {
     connectionStatus(false, "Reconnecting…");
-    elements.invitation.textContent =
-      "Waiting for the rehearsal server. This page will reconnect automatically.";
+    if (!snapshot) elements.invitation.textContent = "";
     setTimeout(connect, 3000);
   }
 }
