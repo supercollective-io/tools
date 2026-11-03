@@ -26,32 +26,46 @@ Keep model integrations, composition, interfaces and storage separate.
 
 ## Stage 1: scripted terminal composition
 
-Load eight voices and their fragments, a score grouping fragments into batches,
-and separate composition settings from JSON. Let the operator advance each
-batch. Compose one or two sentences using only admitted contributions and a
-bounded window of recent accepted passages. Stream output to the terminal.
+Load a version-2 JSON score with eight voices, each with one continuous `text`,
+and a `chunkPercent` setting. Keep composition settings in separate JSON. Let
+the operator advance one percentage step at a time. With `chunkPercent: 20`,
+five steps each admit the next 20% of the characters of every voice. Preserve
+source order and make mechanical cuts, including inside words or sentences;
+do not select complete thoughts or align themes. Count Unicode code points,
+preserve whitespace and round percentage positions down. Include the final
+remainder, skip globally empty intervals and retain individual empty slices.
+Compose one or two sentences using only the new slices and a bounded window of recent accepted collective
+passages. Do not resend earlier raw slices or reveal future source text. Stream
+output to the terminal.
 
 Save versioned JSONL events containing source/configuration snapshots, ordered
 contributions, exact prompts, model identifiers, attempts, accepted passages,
-timing, available usage and sanitised failures. Retain a failed batch for explicit
-retry. Recover an interrupted final line; reject corruption in earlier records.
+timing, available usage and sanitised failures. Retain failed admitted slices
+for explicit retry. Recover an interrupted final line; reject corruption in earlier records.
 
 Provide `run`, `resume`, `replay` and `rerun`. Replay never calls models. Rerun
 creates a new run from recorded contributions and settings without changing the
-original. Include clearly labelled demonstration material, not the actual piece.
+original. Preserve replay of version-1 logs with their recorded fragment-based
+inputs. Include clearly labelled demonstration material, not the actual piece.
 
 Acceptance: the same score works with cloud or Ollama by changing configuration;
 invalid inputs fail before generation; earlier passages survive interruptions;
 replay needs neither credentials nor a provider. Test with deterministic model
 doubles and separately verify real providers when available.
 
-Rehearsal: compare writing across models, prompts, fragment order and memory.
+Rehearsal: compare writing across models, prompts, percentage sizes and memory.
+Verify that admitted slices reconstruct every original text exactly. Percentages
+simulate finite prerecorded contributions; they are not a live-stream protocol.
 
 ## Stage 2: responsive terminal participants
 
 Make independent model calls for eight participants, each with private voice,
 position, source text and bounded history. Responses answer actual collective
 passages and enter the existing contribution path; silence creates no contribution.
+Admit available text sequentially, preserving participant order even when slices
+are rough or unfinished. Do not require curated thematic fragments. Use
+percentage cuts only for finite prerecorded material with known full lengths;
+responsive or live streams do not have known final lengths.
 The composer never receives private source material. Allow stepped/automatic
 rounds, configurable pauses and maximum rounds, default concurrency one, and
 separate composer/participant model selection. Preserve completed responses
@@ -74,7 +88,9 @@ Capture the answered passage when typing begins. Introduce SQLite, Drizzle and
 `better-sqlite3` for live sessions, retaining JSONL import/export and CLI runs.
 Deduplicate participant-scoped submission IDs and acknowledge only saved input.
 Select bounded batches round-robin across participants, preserving per-person
-order. Configure interval/batch limits and do not compose from empty input.
+order. Admit rough available sequential text without waiting for a complete
+thematic statement. Use interval and character limits, not percentages of an
+unknown final text. Do not compose from empty input.
 Protect operator controls with a server credential and secure session cookie;
 scope participant access to a performance join token. Closing ends submissions.
 Restart restores accepted data but requires explicit operator resumption.
@@ -85,8 +101,10 @@ Rehearse with 5–10 people before introducing audio.
 Use OpenAI browser WebRTC transcription and short-lived server-issued credentials.
 Protect and rate-limit credential issuance. Keep permanent keys server-side.
 Show explicit start/stop and provisional transcripts; only finalised segments
-become contributions. Deduplicate by connection/item IDs and attach the passage
-visible at segment start. Retain typing after microphone denial or disconnect.
+become contributions. Preserve rough sequential wording rather than assembling
+curated complete themes; finalised transcription segments can still be incomplete
+thoughts. Do not assume a known final stream length. Deduplicate by
+connection/item IDs and attach the passage visible at segment start. Retain typing after microphone denial or disconnect.
 Store transcripts, not raw audio. Test real iOS/Android devices and venue noise.
 
 ## Stage 6: Coolify and performance readiness

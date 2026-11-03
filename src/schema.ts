@@ -4,7 +4,8 @@ import { z } from "zod";
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/);
 const text = z.string().trim().min(1).max(12_000);
 const fragment = z.strictObject({ id, text });
-export const scoreSchema = z
+// Historical scores remain readable so saved rehearsals keep their exact inputs.
+export const legacyScoreSchema = z
   .strictObject({
     schemaVersion: z.literal(1),
     title: z.string().trim().min(1).max(200),
@@ -71,6 +72,40 @@ export const scoreSchema = z
     }
   });
 
+export const scoreSchema = z
+  .strictObject({
+    schemaVersion: z.literal(2),
+    title: z.string().trim().min(1).max(200),
+    chunkPercent: z.number().int().min(1).max(100),
+    voices: z
+      .array(
+        z.strictObject({
+          id,
+          name: text,
+          // Whitespace belongs to the contribution and must survive slicing/replay.
+          text: z
+            .string()
+            .min(1)
+            .max(120_000)
+            .refine(
+              (value) => value.trim().length > 0,
+              "A contribution must contain text.",
+            ),
+        }),
+      )
+      .min(1)
+      .max(100),
+  })
+  .superRefine((score, ctx) => {
+    if (
+      new Set(score.voices.map((voice) => voice.id)).size !==
+      score.voices.length
+    )
+      ctx.addIssue({ code: "custom", message: "Voice IDs must be unique." });
+  });
+
+export const storedScoreSchema = z.union([scoreSchema, legacyScoreSchema]);
+
 const baseUrl = z.url().refine((value) => {
   const url = new URL(value);
   return (
@@ -113,7 +148,9 @@ export const configSchema = z.strictObject({
   }),
 });
 
-export type Score = z.infer<typeof scoreSchema>;
+export type ContinuousScore = z.infer<typeof scoreSchema>;
+export type LegacyScore = z.infer<typeof legacyScoreSchema>;
+export type Score = z.infer<typeof storedScoreSchema>;
 export type Config = z.infer<typeof configSchema>;
 export type Contribution = {
   id: string;

@@ -11,8 +11,8 @@ import {
   type Config,
   configSchema,
   parse,
-  type Score,
-  scoreSchema,
+  type LegacyScore as Score,
+  legacyScoreSchema as scoreSchema,
 } from "../src/schema.ts";
 
 function score(): Score {

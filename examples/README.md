@@ -21,17 +21,17 @@ The opening invitation is:
 | Alex        | Care visits changing and responsibility passed between organisations.   |
 | Mo          | A library campaign that became hard to follow or influence.             |
 
-Each participant has three contributions. Six batches admit four contributions each; every contribution appears exactly once. This score introduces everyone's first fragment before anyone's second, then introduces the third fragments. The composer never sees future fragments or a participant's complete source text. Previous raw fragments are not resent; recent collective passages provide continuity. The engine follows the batch order in the score, so other scores can choose a different sequence.
+Each participant has one continuous prewritten text, with a different length and internal order. These are original demonstration texts, not the user's actual eight source pieces. The writing starts from different places: a proposal about shift rotas, discovering a shared damp problem, a failed bus petition, a successful school-club change, and other everyday experiences. The texts do not follow a shared sequence of themes.
 
-The score moves through three invitations:
+The score uses `schemaVersion: 2` and `chunkPercent: 20`. At each operator advance, the engine admits the next 20% of the characters of **every** participant's text. Five steps reach 20%, 40%, 60%, 80% and 100% of all eight texts. The cuts are mechanical: a slice can start or end in the middle of a word or sentence. Longer texts contribute more characters per step. The engine does not move the boundaries to make complete thoughts or align topics.
 
-1. **Batches 1–2 — experience:** the opening invitation above.
-2. **Batches 3–4 — acting together:** what have people tried, or what might they do together? What could make a difference, and what gets in the way?
-3. **Batches 5–6 — terms of participation:** what would you need before joining in or letting someone act for you? Who should decide, do the work and account for the result?
+`chunkPercent` accepts an integer from 1 to 100. Characters mean Unicode code points, counted with `Array.from`; original whitespace is preserved. A boundary at `p`% of a text of length `N` uses `floor(N * p / 100)`. The final boundary is 100%, so any remainder is admitted. An interval that contributes no characters from any voice is skipped. If only one voice's slice is empty, that voice still appears with an empty-slice label.
 
-These invitations explain how the fixed material was written. Stage 1 admits the next batch when the operator advances it; the scripted participants do not hear or respond to the collective passage. The composer receives only the admitted contributions and its configured recent history. The CLI shows the overall topic and named inputs; these rehearsal notes explain the progression.
+The composer receives the newly admitted slices and a bounded window of recent accepted collective passages. It does not receive future source text or the earlier raw slices again. The terminal shows each named slice before the collective passage. The composer must work with partial, uneven material; it should not invent the missing part of a sentence.
 
-The contributions include things that worked, failed attempts, practical proposals, disagreement and limits on participation. They are not a representative survey, and each participant has more than one concern. The source score and composer settings remain separate from application code so other topics can use the same tool.
+These percentages simulate the gradual availability of finite prerecorded contributions. Stage 1 participants do not hear or respond to the collective passage. Later stages will admit rough sequential text as it becomes available. Live participants' final text lengths are unknown, so live admission cannot depend on a percentage of an eventual total.
+
+The contributions include things that worked, failed attempts, practical proposals, disagreement and limits on participation. They are not a representative survey. The source score and composer settings remain separate from application code so other topics can use the same tool.
 
 ## Choose a composer
 
@@ -46,4 +46,4 @@ The local example limits output to 256 tokens and explicitly sets `think: false`
 
 Keep credentials out of these files, scores and run records. The examples contain no credentials.
 
-Start a new `run` to use this score. Existing logs preserve their original source material and configuration: replaying or rerunning an earlier hall session will still use its recorded hall contributions.
+Start a new `run` to use this score. Existing logs preserve their original source material and configuration: replaying or rerunning an earlier session will still use its recorded contributions, including the curated fragments in version-1 logs. Existing logs are not resliced using the current score.

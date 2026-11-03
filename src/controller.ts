@@ -25,7 +25,7 @@ export class Controller {
     try {
       let state = this.log.state;
       if (state.complete) return;
-      if (state.passages.length === state.score.batches.length) {
+      if (state.passages.length === state.totalSteps) {
         await this.log.append({ type: "run.completed" });
         return;
       }
@@ -106,7 +106,7 @@ export class Controller {
         durationMs: performance.now() - started,
         ...(result.usage ? { usage: result.usage } : {}),
       });
-      if (this.log.state.passages.length === state.score.batches.length)
+      if (this.log.state.passages.length === state.totalSteps)
         await this.log.append({ type: "run.completed" });
     } finally {
       this.busy = false;

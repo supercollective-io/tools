@@ -82,6 +82,13 @@ what the room talks about before it has begun.
 
 ## A proposed progression
 
+These are optional facilitation prompts for a room, not synchronised stages of
+the scripted texts. Each Stage 1 participant has one continuous text with its
+own internal order. Percentage steps admit rough character slices from every
+text; they do not switch everyone to the next theme together. Future responsive
+and live stages will admit available sequential text without assuming known
+final lengths or waiting for complete thematic statements.
+
 ### 1. Experience: what do we want a say over?
 
 Start with the recommended opening. After a first exchange, invite the room to
@@ -169,9 +176,12 @@ claims about real participants.
 
 Include at least one concrete success, failed attempt, practical proposal,
 constraint and refusal. Allow agreement where it arises; do not manufacture
-opposition to make the output appear lively. Give the score's opening question
-and each change of invitation an explicit place in the rehearsal notes so that
-inputs and outputs can be interpreted against the same purpose.
+opposition to make the output appear lively. Give the score's shared topic and
+any optional facilitation prompts an explicit
+place in the rehearsal notes. Write each participant's continuous text with its
+own order and length. Do not arrange matching thematic sections around the
+percentage boundaries. The composer must work with whatever sequential text has
+arrived, including incomplete words or thoughts.
 
 ## How to judge the experiment
 

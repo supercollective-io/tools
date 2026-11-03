@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { parseArgs } from "node:util";
-import { contributionsFor } from "./composition.ts";
+import { contributionsFor, percentageRanges } from "./composition.ts";
 import { Controller, GenerationError } from "./controller.ts";
 import type { Generate } from "./models.ts";
 import { RunLog, readRun } from "./runs.ts";
@@ -21,7 +21,7 @@ const help = `Collective Microphone — scripted collective writing
   pnpm cli replay --run <run.jsonl>
   pnpm cli rerun --run <run.jsonl> [--config <config.json>] [--out <new.jsonl>]
 
-At the prompt: Enter/next advances one batch; retry retries a failed batch;
+At the prompt: Enter/next advances one step; retry retries a failed step;
 q/quit pauses the run. Ctrl+C cancels the current attempt. Resume later.
 Replay displays accepted passages immediately without contacting a model.
 Rerun composes again from admitted inputs, starting a separate history.
@@ -31,28 +31,37 @@ New logs default to runs/<UUID>.jsonl. Existing files are never overwritten.
 function showInputs(
   score: Score,
   batchIndex: number,
+  totalSteps: number,
   inputs: Contribution[],
 ): void {
   process.stdout.write(
-    `\n[INPUTS — batch ${batchIndex + 1}/${score.batches.length} — scripted/fixed text]\n`,
+    `\n[INPUTS — ${stepLabel(score, batchIndex, totalSteps)} — scripted/fixed text]\n`,
   );
   for (const contribution of inputs) {
     const participant = score.voices.find(
       (voice) => voice.id === contribution.participantId,
     );
     process.stdout.write(
-      `\n${participant?.name ?? contribution.participantId}:\n${contribution.text}\n`,
+      `\n${participant?.name ?? contribution.participantId}:\n${contribution.text}${contribution.text.length === 0 ? "(no new characters in this interval)" : ""}\n`,
     );
   }
+}
+
+function stepLabel(score: Score, index: number, totalSteps: number): string {
+  if (score.schemaVersion === 1) return `batch ${index + 1}/${totalSteps}`;
+  const range = percentageRanges(score)[index];
+  if (!range) throw new Error("Score step has no percentage range.");
+  return `step ${index + 1}/${totalSteps} — ${range.from}–${range.to}%`;
 }
 
 function showCollectiveLabel(
   score: Score,
   batchIndex: number,
+  totalSteps: number,
   status: string,
 ): void {
   process.stdout.write(
-    `\n[COLLECTIVE — batch ${batchIndex + 1}/${score.batches.length} — ${status}]\n`,
+    `\n[COLLECTIVE — ${stepLabel(score, batchIndex, totalSteps)} — ${status}]\n`,
   );
 }
 
@@ -75,7 +84,7 @@ async function rehearse(log: RunLog, generate: Generate): Promise<void> {
   const prompt = () => {
     const state = log.state;
     process.stdout.write(
-      `\n[${state.passages.length}/${state.score.batches.length} accepted] Enter: ${state.pending ? "retry" : "next"}; q: pause > `,
+      `\n[${state.passages.length}/${state.totalSteps} accepted] Enter: ${state.pending ? "retry" : "next"}; q: pause > `,
     );
   };
   try {
@@ -88,9 +97,15 @@ async function rehearse(log: RunLog, generate: Generate): Promise<void> {
       showInputs(
         initial.score,
         last.batchIndex,
+        initial.totalSteps,
         initial.admitted[last.batchIndex] ?? [],
       );
-      showCollectiveLabel(initial.score, last.batchIndex, "accepted and saved");
+      showCollectiveLabel(
+        initial.score,
+        last.batchIndex,
+        initial.totalSteps,
+        "accepted and saved",
+      );
       process.stdout.write(`\nLast accepted passage:\n${last.text}\n`);
     }
     prompt();
@@ -112,8 +127,13 @@ async function rehearse(log: RunLog, generate: Generate): Promise<void> {
           batchIndex,
           state.passages.at(-1)?.id ?? null,
         );
-      showInputs(state.score, batchIndex, inputs);
-      showCollectiveLabel(state.score, batchIndex, "provisional");
+      showInputs(state.score, batchIndex, state.totalSteps, inputs);
+      showCollectiveLabel(
+        state.score,
+        batchIndex,
+        state.totalSteps,
+        "provisional",
+      );
       try {
         await controller.advance(cancellation.signal, (token) =>
           process.stdout.write(token),
@@ -210,16 +230,32 @@ async function main(): Promise<void> {
   if (command === "replay") {
     process.stdout.write(`${read.state.score.title}\n`);
     for (const [index, passage] of read.state.passages.entries()) {
-      showInputs(read.state.score, index, read.state.admitted[index] ?? []);
-      showCollectiveLabel(read.state.score, index, "accepted and saved");
+      showInputs(
+        read.state.score,
+        index,
+        read.state.totalSteps,
+        read.state.admitted[index] ?? [],
+      );
+      showCollectiveLabel(
+        read.state.score,
+        index,
+        read.state.totalSteps,
+        "accepted and saved",
+      );
       process.stdout.write(`${passage.text}\n`);
     }
     if (read.state.pending) {
       const batchIndex = read.state.passages.length;
-      showInputs(read.state.score, batchIndex, read.state.pending);
+      showInputs(
+        read.state.score,
+        batchIndex,
+        read.state.totalSteps,
+        read.state.pending,
+      );
       showCollectiveLabel(
         read.state.score,
         batchIndex,
+        read.state.totalSteps,
         "pending — no accepted collective passage",
       );
     }
@@ -235,7 +271,7 @@ async function main(): Promise<void> {
       );
       return;
     }
-    if (read.state.passages.length === read.state.score.batches.length) {
+    if (read.state.passages.length === read.state.totalSteps) {
       const log = await RunLog.resume(path);
       try {
         await log.append({ type: "run.completed" });
@@ -255,15 +291,17 @@ async function main(): Promise<void> {
   const config = values.config
     ? await readJson(values.config, configSchema, "Configuration")
     : read.state.config;
-  const score: Score = {
-    ...read.state.score,
-    batches: read.state.score.batches.slice(0, read.state.admitted.length),
-  };
   const { generate, validateModelEnvironment } = await import("./models.ts");
   validateModelEnvironment(config.composer);
   const log = await RunLog.create(
     resolve(values.out ?? `runs/${randomUUID()}.jsonl`),
-    { type: "run.created", score, config, sourceRunId: read.state.runId },
+    {
+      type: "run.created",
+      score: read.state.score,
+      config,
+      sourceRunId: read.state.runId,
+      stepLimit: read.state.admitted.length,
+    },
   );
   await rehearse(log, generate);
 }

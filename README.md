@@ -2,8 +2,9 @@
 
 Combine many contributions into one evolving collective voice.
 
-Stage 1 is a terminal rehearsal tool: feed scored fragments from eight voices,
-advance one batch at a time, stream a collective passage, and save the run.
+Stage 1 is a terminal rehearsal tool: gradually admit continuous texts from eight
+voices, advance one percentage step at a time, stream a collective passage, and
+save the run.
 It supports local Ollama and OpenAI through modular LangChain integrations.
 The browser, simulated participants and live speech come in later stages.
 
@@ -51,19 +52,23 @@ than an automatic dependency lifecycle script.
    ```
 
 The CLI prints the absolute path of its new JSONL run file. Press Enter or type
-`next` to admit and compose the next batch. An `INPUTS` block shows each
-prewritten contribution with its speaker's name, followed by the generated
+`next` to admit and compose the next percentage step. An `INPUTS` block shows
+the next character slice of every participant's prewritten text with its
+speaker's name, followed by the generated
 `COLLECTIVE` passage. Streamed text is labelled provisional;
 `[accepted and saved]` confirms it has entered the durable history.
 
 Type `q` to pause at the prompt. Ctrl+C cancels an in-flight generation without
-accepting its provisional output. A failed attempt leaves the batch pending;
-press Enter or type `retry` to try that same batch again.
+accepting its provisional output. A failed attempt leaves the admitted slices
+pending;
+press Enter or type `retry` to try those same slices again.
 
 The example score uses eight fictional people speaking about having a say over
 things they depend on: shifts, housing, transport, care and other everyday
 decisions. Their contributions are prewritten, not real participant recordings.
-See [the examples](examples/README.md) for the questions and six-batch progression.
+With `chunkPercent: 20`, five steps each admit the next 20% of every text.
+The cuts can fall inside words or sentences; they do not align themes or complete
+thoughts. See [the examples](examples/README.md) for the topic and source material.
 Start a new run to use the current score; old logs retain their original material.
 The format also accepts other topics and voice counts.
 
@@ -95,27 +100,29 @@ pnpm cli replay --run runs/session.jsonl
 pnpm cli rerun --run runs/session.jsonl --config runs/cloud-config.json
 ```
 
-| Command  | Behaviour                                                                                  |
-| -------- | ------------------------------------------------------------------------------------------ |
-| `run`    | Start a new run from a score and configuration.                                            |
-| `resume` | Continue the same score and frozen configuration; retry pending input.                     |
-| `replay` | Print accepted passages immediately, without model calls or credentials.                   |
-| `rerun`  | Create a separate run from previously admitted batches, optionally changing configuration. |
+| Command  | Behaviour                                                                                |
+| -------- | ---------------------------------------------------------------------------------------- |
+| `run`    | Start a new run from a score and configuration.                                          |
+| `resume` | Continue the same score and frozen configuration; retry pending input.                   |
+| `replay` | Print accepted passages immediately, without model calls or credentials.                 |
+| `rerun`  | Create a separate run from previously admitted steps, optionally changing configuration. |
 
 Both `run` and `rerun` accept `--out <new.jsonl>`. Existing files are never
-overwritten. A rerun includes admitted batches from the source, including a
-pending failed batch, but excludes future batches that were never admitted.
+overwritten. A rerun includes admitted steps from the source, including a
+pending failed step, but excludes future steps that were never admitted.
 It generates its own collective history and links back to the source run.
-Use `run` again when comparing the entire score, including unadmitted batches.
+Use `run` again when comparing the entire score, including unadmitted steps.
 
 Replay pairs each accepted passage with its recorded input contributions and
-speaker names. Any pending batch appears with an explicit indication that it has
-no accepted collective passage. This works with existing Stage 1 logs and does
-not contact a model. Retries display the same pending inputs again.
+speaker names. Any pending input appears with an explicit indication that it has
+no accepted collective passage. Existing version-1 logs retain their original
+fragment-based inputs and remain replayable without a model. They are not
+resliced from current example files. Retries display the same pending inputs again.
 
 Only one process can own a writable run. After an unclean crash, its lock can
 remain for 10 seconds. Resume reconciles an unfinished generation as interrupted
-before offering its batch again. If the final JSONL line was torn, resume saves
+before offering its pending input again. If the final JSONL line was torn,
+resume saves
 the fragment to a neighbouring `.interrupted-<UUID>` file before repairing the
 log. Corrupt complete records are reported rather than silently discarded.
 
@@ -124,12 +131,20 @@ storage failure or a failed attempt left pending, and `130` for cancellation.
 
 ## Input and history settings
 
-Inputs are UTF-8 JSON with `schemaVersion: 1`; unknown properties are rejected.
-The example files are complete templates.
+Inputs are UTF-8 JSON; unknown properties are rejected. Scores use
+`schemaVersion: 2`; configuration retains `schemaVersion: 1`. The example files
+are complete templates.
 
-- A score contains `title`, `voices` and ordered `batches`. Each voice has an
-  `id`, `name` and `fragments` of `{ id, text }`. Each batch has an `id` and ordered
-  `{ voiceId, fragmentId }` references. References must exist and cannot repeat.
+- A version-2 score contains `title`, `chunkPercent` and `voices`. Each voice has
+  an `id`, `name` and one continuous `text`. `chunkPercent` is an integer from
+  1 to 100. Voice IDs are unique. Every step admits the next `chunkPercent` of each text by character position, including
+  all voices. Cuts can fall inside words and sentences. The final step admits
+  all remaining characters. The example uses 20%, producing five steps.
+  Characters are Unicode code points (`Array.from`), preserving original
+  whitespace. For a text of length `N`, a percentage boundary `p` falls at
+  `floor(N * p / 100)`. The last boundary is 100%, including any remainder.
+  Intervals empty for every voice are skipped. Individual empty slices remain
+  included and labelled when another voice has new text in that interval.
 - Configuration contains `composer`, `instructions` and `history`. Composer
   requires `provider`, explicit `model`, `maxOutputTokens` and `timeoutMs`.
   Optional `baseUrl` and `temperature` allow endpoint and sampling changes.
@@ -137,15 +152,21 @@ The example files are complete templates.
 - `history.maxPassages` and `history.maxCharacters` jointly bound the most recent
   contiguous complete passages included in the prompt. Passages are not cut in
   the middle. Set either bound to zero to omit previous passages.
-- The composer receives only admitted contributions and that recent history.
-  Future fragments, names and private source material are not sent to it.
+- The composer receives only the new character slices and that recent history.
+  Earlier raw slices and future source text are not sent to it. Longer source
+  texts contribute more characters per percentage step.
+
+Percentage steps simulate finite prerecorded contributions whose full lengths
+are known. The live interfaces planned for later stages will admit rough text in
+participant order as it becomes available. They cannot measure a percentage of
+an unknown final text. Stage 1 does not implement live participation.
 
 Configuration and source material are frozen when a run starts. Changing an
 input file does not change an existing run. Use `rerun --config` for changes.
 Thinking models may consume their output budget before producing visible text;
 increase `maxOutputTokens`, or disable thinking where supported. The composition
 instruction still controls the requested passage length. Context limits vary by
-model; reduce the batch or history bounds if a provider rejects the prompt.
+model; reduce `chunkPercent` or the history bounds if a provider rejects the prompt.
 
 Run records contain the source snapshot, instructions, exact prompts, ordered
 contributions, accepted output, timings, usage when supplied, and sanitised

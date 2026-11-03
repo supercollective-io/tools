@@ -9,12 +9,12 @@ import {
 import { dirname } from "node:path";
 import lockfile from "proper-lockfile";
 import { z } from "zod";
-import { contributionsFor, type Passage } from "./composition.ts";
+import { contributionsFor, type Passage, stepCount } from "./composition.ts";
 import {
   type Contribution,
   configSchema,
   parse,
-  scoreSchema,
+  storedScoreSchema,
 } from "./schema.ts";
 
 const contributionSchema = z.strictObject({
@@ -31,9 +31,10 @@ const messageSchema = z.strictObject({
 const bodySchema = z.discriminatedUnion("type", [
   z.strictObject({
     type: z.literal("run.created"),
-    score: scoreSchema,
+    score: storedScoreSchema,
     config: configSchema,
     sourceRunId: z.uuid().optional(),
+    stepLimit: z.number().int().positive().optional(),
   }),
   z.strictObject({
     type: z.literal("batch.admitted"),
@@ -79,7 +80,8 @@ export type RunEvent = z.infer<typeof eventSchema>;
 export type EventBody = z.infer<typeof bodySchema>;
 export type RunState = {
   runId: string;
-  score: z.infer<typeof scoreSchema>;
+  score: z.infer<typeof storedScoreSchema>;
+  totalSteps: number;
   config: z.infer<typeof configSchema>;
   passages: (Passage & { batchIndex: number })[];
   admitted: Contribution[][];
@@ -92,9 +94,14 @@ function rebuild(events: RunEvent[]): RunState {
   const first = events[0];
   if (first?.event.type !== "run.created")
     throw new Error("Run log has no valid opening record.");
+  const availableSteps = stepCount(first.event.score);
+  const totalSteps = first.event.stepLimit ?? availableSteps;
+  if (totalSteps > availableSteps)
+    throw new Error("Run step limit exceeds its score.");
   const state: RunState = {
     runId: first.runId,
     score: first.event.score,
+    totalSteps,
     config: first.event.config,
     passages: [],
     admitted: [],
@@ -118,7 +125,11 @@ function rebuild(events: RunEvent[]): RunState {
           throw new Error("Run log contains multiple opening records.");
         break;
       case "batch.admitted": {
-        if (state.pending || event.batchIndex !== state.passages.length)
+        if (
+          state.pending ||
+          event.batchIndex !== state.passages.length ||
+          event.batchIndex >= state.totalSteps
+        )
           throw new Error("Run log has an out-of-order batch.");
         const expected = contributionsFor(
           state.score,
@@ -160,10 +171,7 @@ function rebuild(events: RunEvent[]): RunState {
         state.attemptId = null;
         break;
       case "run.completed":
-        if (
-          state.pending ||
-          state.passages.length !== state.score.batches.length
-        )
+        if (state.pending || state.passages.length !== state.totalSteps)
           throw new Error("Run log completes before all batches are accepted.");
         state.complete = true;
         break;
