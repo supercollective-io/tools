@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 1,
+  "title": "The hall we share — original demonstration writing",
+  "voices": [
+    {
+      "id": "caretaker",
+      "name": "The caretaker",
+      "fragments": [
+        {
+          "id": "caretaker_1",
+          "text": "I unlock the hall before dawn; someone must remember where the spare key lives."
+        },
+        {
+          "id": "caretaker_2",
+          "text": "A floor can carry a hundred dancers, but it still needs someone to sweep it."
+        },
+        {
+          "id": "caretaker_3",
+          "text": "Keep the door open, you say. Tell me who will stay to close it."
+        }
+      ]
+    },
+    {
+      "id": "newcomer",
+      "name": "The newcomer",
+      "fragments": [
+        {
+          "id": "newcomer_1",
+          "text": "Your circle has a gap in it, but I cannot tell whether it is meant for me."
+        },
+        {
+          "id": "newcomer_2",
+          "text": "I have a story ready. First I need to know how long I am allowed to speak."
+        },
+        {
+          "id": "newcomer_3",
+          "text": "Do not call this belonging if I must leave my accent outside."
+        }
+      ]
+    },
+    {
+      "id": "performer",
+      "name": "The performer",
+      "fragments": [
+        {
+          "id": "performer_1",
+          "text": "Under the work lights I can become anybody; in the meeting I am always the difficult one."
+        },
+        {
+          "id": "performer_2",
+          "text": "I want a stage large enough for the parts of us that disagree."
+        },
+        {
+          "id": "performer_3",
+          "text": "Let the silence stay in the scene. It has learnt its lines too."
+        }
+      ]
+    },
+    {
+      "id": "neighbour",
+      "name": "The neighbour",
+      "fragments": [
+        {
+          "id": "neighbour_1",
+          "text": "Your applause comes through my bedroom wall after the last bus has gone."
+        },
+        {
+          "id": "neighbour_2",
+          "text": "I love that the hall is alive. I also need my child to sleep."
+        },
+        {
+          "id": "neighbour_3",
+          "text": "Invite me before you make my complaint into a character."
+        }
+      ]
+    },
+    {
+      "id": "volunteer",
+      "name": "The volunteer",
+      "fragments": [
+        {
+          "id": "volunteer_1",
+          "text": "I said I could help on Saturday; somehow my name now covers every empty shift."
+        },
+        {
+          "id": "volunteer_2",
+          "text": "We share the credit more easily than we share the washing-up."
+        },
+        {
+          "id": "volunteer_3",
+          "text": "My no is part of what I bring to this place."
+        }
+      ]
+    },
+    {
+      "id": "organiser",
+      "name": "The organiser",
+      "fragments": [
+        {
+          "id": "organiser_1",
+          "text": "The grant asks how many people we reached, not who felt able to return."
+        },
+        {
+          "id": "organiser_2",
+          "text": "There is room in the programme, but the budget has already taken its seat."
+        },
+        {
+          "id": "organiser_3",
+          "text": "I can publish the minutes. I cannot make the argument disappear."
+        }
+      ]
+    },
+    {
+      "id": "elder",
+      "name": "The elder",
+      "fragments": [
+        {
+          "id": "elder_1",
+          "text": "We built these flats from borrowed timber and an argument that lasted all winter."
+        },
+        {
+          "id": "elder_2",
+          "text": "Do not preserve my memories so carefully that nobody can move the chairs."
+        },
+        {
+          "id": "elder_3",
+          "text": "I want this place to outlive my version of it."
+        }
+      ]
+    },
+    {
+      "id": "young_maker",
+      "name": "The young maker",
+      "fragments": [
+        {
+          "id": "young_maker_1",
+          "text": "You tell me the hall is ours, then ask who gave me permission to paint the wall."
+        },
+        {
+          "id": "young_maker_2",
+          "text": "I can repair the speaker, but I cannot make an invitation out of a locked cupboard."
+        },
+        {
+          "id": "young_maker_3",
+          "text": "Leave a little unfinished. We need somewhere to begin."
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "id": "batch_1",
+      "fragments": [
+        {
+          "voiceId": "caretaker",
+          "fragmentId": "caretaker_1"
+        },
+        {
+          "voiceId": "newcomer",
+          "fragmentId": "newcomer_1"
+        },
+        {
+          "voiceId": "performer",
+          "fragmentId": "performer_1"
+        },
+        {
+          "voiceId": "neighbour",
+          "fragmentId": "neighbour_1"
+        }
+      ]
+    },
+    {
+      "id": "batch_2",
+      "fragments": [
+        {
+          "voiceId": "volunteer",
+          "fragmentId": "volunteer_1"
+        },
+        {
+          "voiceId": "organiser",
+          "fragmentId": "organiser_1"
+        },
+        {
+          "voiceId": "elder",
+          "fragmentId": "elder_1"
+        },
+        {
+          "voiceId": "young_maker",
+          "fragmentId": "young_maker_1"
+        }
+      ]
+    },
+    {
+      "id": "batch_3",
+      "fragments": [
+        {
+          "voiceId": "volunteer",
+          "fragmentId": "volunteer_2"
+        },
+        {
+          "voiceId": "caretaker",
+          "fragmentId": "caretaker_2"
+        },
+        {
+          "voiceId": "elder",
+          "fragmentId": "elder_2"
+        },
+        {
+          "voiceId": "performer",
+          "fragmentId": "performer_2"
+        }
+      ]
+    },
+    {
+      "id": "batch_4",
+      "fragments": [
+        {
+          "voiceId": "young_maker",
+          "fragmentId": "young_maker_2"
+        },
+        {
+          "voiceId": "neighbour",
+          "fragmentId": "neighbour_2"
+        },
+        {
+          "voiceId": "newcomer",
+          "fragmentId": "newcomer_2"
+        },
+        {
+          "voiceId": "organiser",
+          "fragmentId": "organiser_2"
+        }
+      ]
+    },
+    {
+      "id": "batch_5",
+      "fragments": [
+        {
+          "voiceId": "neighbour",
+          "fragmentId": "neighbour_3"
+        },
+        {
+          "voiceId": "organiser",
+          "fragmentId": "organiser_3"
+        },
+        {
+          "voiceId": "newcomer",
+          "fragmentId": "newcomer_3"
+        },
+        {
+          "voiceId": "young_maker",
+          "fragmentId": "young_maker_3"
+        }
+      ]
+    },
+    {
+      "id": "batch_6",
+      "fragments": [
+        {
+          "voiceId": "performer",
+          "fragmentId": "performer_3"
+        },
+        {
+          "voiceId": "elder",
+          "fragmentId": "elder_3"
+        },
+        {
+          "voiceId": "caretaker",
+          "fragmentId": "caretaker_3"
+        },
+        {
+          "voiceId": "volunteer",
+          "fragmentId": "volunteer_3"
+        }
+      ]
+    }
+  ]
+}
