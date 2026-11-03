@@ -47,9 +47,9 @@ and status, and opens their saved text. **Resume** continues paused writing.
 
 Mode and model remain visible during a session. **New run** unlocks these choices
 for the next session. Prewritten participant cards show the complete source:
-green highlighting marks text already sent to the composer, and a labelled
-boundary separates the unsent remainder. The percentage follows the composer's
-recorded input position, including an in-flight request; it does not mean that
+green highlighting marks text already sent to the composer; the rest is muted.
+The highlight follows the composer's recorded input position, including an
+in-flight request; it does not mean that
 the collective has represented or agreed with that text. Showing the remaining
 source in the browser does not send it to the model early.
 
@@ -103,7 +103,7 @@ a maximum 96-token computation budget; reaching it advances the scheduler and
 preserves unfinished words for that writer's next continuation. A five-minute
 active-time ceiling stops the default session. End can stop it earlier.
 
-**Fixed text** admits successive percentage slices from the complete frozen score,
+**Prewritten** (stored as `fixed` in configuration) admits successive percentage slices from the complete frozen score,
 using its `chunkPercent` (20 in the demonstration). Cuts need not align words,
 sentences or themes. Every participant's revealed prefix remains visible beside
 the collective. Participant models are never called. The composer continues after

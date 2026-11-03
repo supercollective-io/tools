@@ -16,7 +16,6 @@ const elements = {
   model: byId("model"),
   participantCount: byId("participant-count"),
   modeHint: byId("mode-hint"),
-  sourceKey: byId("source-key"),
   error: byId("error"),
   collectivePhase: byId("collective-phase"),
   participants: byId("participants"),
@@ -69,12 +68,7 @@ function textFollower(pane, button, placeholder, fixed = false) {
       const unread = document.createElement("span");
       unread.className = fixed ? "source-pending" : "unseen";
       unread.textContent = text.slice(offset);
-      if (fixed && offset < text.length) {
-        const boundary = document.createElement("span");
-        boundary.className = "source-boundary";
-        boundary.textContent = "Not sent yet";
-        pane.replaceChildren(read, boundary, unread);
-      } else pane.replaceChildren(read, unread);
+      pane.replaceChildren(read, unread);
     }
     pane.scrollTop = !fixed && following ? pane.scrollHeight : position;
     button.hidden = fixed || following || bottom();
@@ -222,7 +216,6 @@ function renderWorkspace() {
   const setup = Boolean(workspace) && !snapshot.state;
   elements.setup.hidden = !workspace;
   elements.workspace.hidden = setup;
-  elements.sourceKey.hidden = snapshot.state?.config?.live?.mode !== "fixed";
   const sessions = workspace?.sessions ?? [];
   elements.saved.hidden = !workspace || !sessions.length;
   elements.savedLabel.hidden = elements.saved.hidden;
@@ -233,7 +226,7 @@ function renderWorkspace() {
       ...sessions.map((session) =>
         option(
           session.id,
-          `${new Date(session.updatedAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · ${session.mode === "fixed" ? "Fixed text" : session.mode === "chunked" ? "Chunked" : "Continuous"} · ${workspace.models.find((model) => model.id === session.model)?.label ?? session.model} · ${session.status}`,
+          `${new Date(session.updatedAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · ${session.mode === "fixed" ? "Prewritten" : session.mode === "chunked" ? "Chunked" : "Continuous"} · ${workspace.models.find((model) => model.id === session.model)?.label ?? session.model} · ${session.status}`,
         ),
       ),
     );
@@ -254,7 +247,7 @@ function renderWorkspace() {
       elements.participantCount.replaceChildren(
         option(settings.participants, String(settings.participants)),
       );
-      elements.modeHint.textContent = "New run to change mode or model.";
+      elements.modeHint.textContent = "";
     }
     return;
   }
@@ -320,15 +313,7 @@ function render() {
       : (writer?.text ?? "");
     const sent = composer?.seenOffsets?.[voice.id] ?? 0;
     card.updateText(value, sent);
-    setPhase(
-      card.phase,
-      fixed
-        ? [
-            `Prewritten · ${value.length ? Math.round((100 * sent) / value.length) : 0}% sent`,
-            "idle",
-          ]
-        : phase(actor, true),
-    );
+    setPhase(card.phase, phase(actor, true));
   }
   elements.status.textContent = pendingAction
     ? "Updating rehearsal…"

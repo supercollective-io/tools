@@ -26,7 +26,7 @@
       <div id="error" class="error" role="alert" hidden></div>
       <section id="setup" class="setup" aria-label="New rehearsal" hidden>
         <div class="setup-fields">
-          <label>Mode<select id="mode"><option value="continuous">Continuous</option><option value="chunked">Chunked</option><option value="fixed">Fixed text</option></select></label>
+          <label>Mode<select id="mode"><option value="continuous">Continuous</option><option value="chunked">Chunked</option><option value="fixed">Prewritten</option></select></label>
           <label>Model<select id="model"></select></label>
           <label>Participants<select id="participant-count"></select></label>
         </div>
@@ -40,7 +40,6 @@
           <button type="button" id="collective-follow" class="follow" hidden>Follow latest ↓</button>
         </section>
         <section class="participants-column" aria-label="Participants">
-          <p id="source-key" class="source-key" hidden><span class="source-sent">Sent to composer</span> · <span>Not sent yet</span></p>
           <div id="participants" class="participant-grid"></div>
         </section>
       </div>
