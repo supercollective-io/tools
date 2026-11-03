@@ -45,6 +45,14 @@ Starting a session freezes those choices in its journal; use **New** to compare
 another combination. **Open saved…** lists previous sessions by time, mode, model
 and status, and opens their saved text. **Resume** continues paused writing.
 
+Mode and model remain visible during a session. **New run** unlocks these choices
+for the next session. Prewritten participant cards show the complete source:
+green highlighting marks text already sent to the composer, and a labelled
+boundary separates the unsent remainder. The percentage follows the composer's
+recorded input position, including an in-flight request; it does not mean that
+the collective has represented or agreed with that text. Showing the remaining
+source in the browser does not send it to the model early.
+
 The default Qwen 3B choice is prepared on demand. The launcher starts its own
 local-only Ollama service on port 11435 and downloads the model if necessary.
 Continuous mode uses one inference slot per writer; chunked and fixed-text modes

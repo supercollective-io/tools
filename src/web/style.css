@@ -252,6 +252,31 @@ h3 {
 .unseen {
   color: #292933;
 }
+.source-key {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: #77766f;
+}
+.fixed-source .participant-text {
+  height: 250px;
+}
+.source-sent {
+  color: #294f42;
+  background: #e5eee7;
+}
+.source-pending {
+  color: #77766f;
+}
+.source-boundary {
+  display: block;
+  margin: 8px 0;
+  border-top: 1px dashed #aaa89e;
+  padding-top: 5px;
+  font:
+    11px / 1.5 ui-sans-serif,
+    sans-serif;
+  color: #77766f;
+}
 .follow {
   display: block;
   margin: 8px 0 0 auto;

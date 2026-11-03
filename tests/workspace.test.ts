@@ -169,6 +169,19 @@ describe("browser workspace", () => {
     expect(publicText).not.toMatch(
       /PRIVATE|baseUrl|instructions|perspective|background/,
     );
+    await vi.waitFor(() => expect(f.generate).toHaveBeenCalledOnce());
+    const visible = f.snapshot().state;
+    expect(visible?.participants.map((writer) => writer.sourceText)).toEqual([
+      "Frozen source chris",
+      "Frozen source rosa",
+    ]);
+    expect(visible?.participants.map((writer) => writer.text)).toEqual([
+      "F",
+      "F",
+    ]);
+    expect(visible?.composer.seenOffsets).toEqual({ chris: 1, rosa: 1 });
+    const prompt = JSON.stringify(f.generate.mock.calls[0]?.[0].messages);
+    expect(prompt).not.toContain("Frozen source");
     expect((await post(f.url, "start", selected)).status).toBe(409);
   });
 

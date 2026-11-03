@@ -274,6 +274,12 @@ export async function startLocalRehearsalServer<Snapshot>(
 export function publicLiveState(state: import("./live-runs.ts").LiveState) {
   return {
     ...state,
+    participants: state.participants.map((writer, index) => ({
+      ...writer,
+      ...(state.config.live.mode === "fixed"
+        ? { sourceText: state.config.live.score?.voices[index]?.text }
+        : {}),
+    })),
     scenario: {
       schemaVersion: state.scenario.schemaVersion,
       title: state.scenario.title,
