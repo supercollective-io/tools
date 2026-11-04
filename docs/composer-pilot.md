@@ -20,7 +20,7 @@ table is a work sequence, not a claim that those experiments have run.
 | Luna qualification           | Complete, provisional Terra retained | [50 responses, costs, paired outcomes and reassessment](composer-luna-results-2026-11-04.md). Fixed scripts show a grounding difference; they do not settle the participant experience.                            |
 | Timed baseline               | Complete                             | [Five requests and reconciled measurements](composer-delivery-baseline-2026-11-04.md), using four original voices. No composer cancellation occurred in this run.                                                  |
 | Delivery comparison          | Complete, no policy winner           | [Nine completed pairs, two actual cancellations and working native steering](composer-delivery-findings-2026-11-04.md). Natural completion is the fixed representation control; browser behaviour stays unchanged. |
-| Typed evidence               | Pending                              | Full prefixes and bounded rotating excerpts as controls; attributed extraction with exact source spans. Evaluate experience, questions and uncertainty as well as proposals and refusals.                          |
+| Typed evidence               | In progress                          | Full prefixes and bounded rotating excerpts as controls; attributed extraction with exact source spans. Evaluate experience, questions and uncertainty as well as proposals and refusals.                          |
 | Supported relationships      | Pending                              | Identical selected evidence with and without supported relationship edges. Ordinary records; no graph database.                                                                                                    |
 | Diverse excerpts             | Pending                              | Select varied original passages under the same packet allowance; retain original wording and provenance.                                                                                                           |
 | Global summary               | Pending                              | A generated summary with source references and recorded omissions; assess whether shared themes erase distinctions.                                                                                                |
@@ -36,9 +36,22 @@ edges are a separate intervention on the same evidence. Use an 800-token packet
 allowance for bounded comparisons, with shared instructions and collective
 prefixes outside it. Keep input sets identical where isolating a representation.
 
-Sentence-boundary cancellation is conditional follow-up work: investigate it
-if current cancellation damages joins and natural completion creates excessive
-delay. Do not implement it merely to expand the list of alternatives.
+The initial plan made sentence-boundary cancellation conditional on damaged
+joins alongside excessive completion delay. The delivery screen did not expose
+that combination; it did expose waiting at output-item boundaries.
+
+The creator also proposed more frequent output boundaries after the delivery
+screen. That screen tested the existing passage length and does not settle
+generation granularity. A focused follow-up can compare one short thought per
+natural completion with ordinary passages, and sentence-boundary cancellation
+when new context is pending. Compare native steering and ordinary completion
+under identical short-output instructions to separate length effects from
+transport effects. Measure useful uptake, pauses, continuity and cost at equal
+total speaking space. The current API documentation exposes no punctuation-based
+output-item boundary setting; a full stop in streamed text is not itself a
+provider item boundary. Tool-based emission checkpoints are a more involved
+alternative, requiring additional orchestration. These modifications remain
+unimplemented and untested.
 
 ## Resource and evidence controls
 
