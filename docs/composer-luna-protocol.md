@@ -15,6 +15,9 @@ post-observation change of assessment purpose, not statistical equivalence or
 fresh confirmation. The implementation below reproduces the historical source
 schedule; it does not define an artistic acceptance gate.
 
+The [screening results](composer-luna-results-2026-11-04.md) record all paired
+outcomes, costs, reviewer corrections and the provisional decision.
+
 ## Frozen design
 
 - Development and confirmation cases for later slices remain separate. These
