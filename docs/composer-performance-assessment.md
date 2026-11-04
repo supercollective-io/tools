@@ -97,6 +97,12 @@ rehearsal to test transfer to the audience.
 
 ## Changes to later slices
 
+The creator subsequently paused the remaining live representation slices. The
+[revised pilot](composer-pilot.md) records a separate larger-scale offline study,
+with quality first and no initial latency, 800-token or 25% compression gate.
+The preprocessing guidance below records the earlier controlled comparisons;
+it does not reinstate those constraints for that future study.
+
 - **Delivery:** test whether new context reaches generation, and compare joins,
   pacing and development. Include a traceable later change as a diagnostic,
   not a rule that the next words must acknowledge it. Report non-uptake rather

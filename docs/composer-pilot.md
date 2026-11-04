@@ -15,26 +15,27 @@ bounded real calls, saved-outcome inspection and a findings commit. Keep failed
 and interrupted outcomes. Later slices depend on the preceding findings; this
 table is a work sequence, not a claim that those experiments have run.
 
-| Slice                        | Status                               | Question and evidence                                                                                                                                                                                              |
-| ---------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Luna qualification           | Complete, provisional Terra retained | [50 responses, costs, paired outcomes and reassessment](composer-luna-results-2026-11-04.md). Fixed scripts show a grounding difference; they do not settle the participant experience.                            |
-| Timed baseline               | Complete                             | [Five requests and reconciled measurements](composer-delivery-baseline-2026-11-04.md), using four original voices. No composer cancellation occurred in this run.                                                  |
-| Delivery comparison          | Complete, no policy winner           | [Nine completed pairs, two actual cancellations and working native steering](composer-delivery-findings-2026-11-04.md). Natural completion is the fixed representation control; browser behaviour stays unchanged. |
-| Typed evidence               | Complete, no compression gain        | [Eight completed outputs and one rejected extraction](composer-extraction-findings-2026-11-04.md). Both bounded formats increase input at this small scale; keep full text as the reference.                       |
-| Supported relationships      | Complete, no clear added benefit     | [Four matched compositions and seven inspected edges](composer-relationships-findings-2026-11-04.md). No clear benefit; added reader delay and two problematic relationships.                                      |
-| Diverse excerpts             | Deferred                             | Select varied original passages under the same packet allowance; retain original wording and provenance.                                                                                                           |
-| Global summary               | Paused                               | A generated summary with source references and recorded omissions; assess whether shared themes erase distinctions.                                                                                                |
-| Per-participant summaries    | Paused                               | Preserve distinct perspectives before combining them; assess cost and whether the composer makes connections rather than enumerating.                                                                              |
-| Hierarchical issue synthesis | Paused                               | Group related material, then synthesise; assess the added reader cost, delay and interpretive losses.                                                                                                              |
-| Combined confirmation        | Paused                               | Baseline versus the selected combination on fresh exchanges, including responsive AI participants and participant-level assessments. Include actual preparation delay and cost.                                    |
+| Slice                        | Status                                                  | Question and evidence                                                                                                                                                                                              |
+| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Luna qualification           | Complete, provisional Terra retained                    | [50 responses, costs, paired outcomes and reassessment](composer-luna-results-2026-11-04.md). Fixed scripts show a grounding difference; they do not settle the participant experience.                            |
+| Timed baseline               | Complete                                                | [Five requests and reconciled measurements](composer-delivery-baseline-2026-11-04.md), using four original voices. No composer cancellation occurred in this run.                                                  |
+| Delivery comparison          | Complete, no policy winner                              | [Nine completed pairs, two actual cancellations and working native steering](composer-delivery-findings-2026-11-04.md). Natural completion is the fixed representation control; browser behaviour stays unchanged. |
+| Focused delivery boundaries  | Complete, short natural opening preferred provisionally | [Twelve pairs across three cases](composer-boundary-findings-2026-11-04.md). Earlier useful boundaries without less total writing; no consistent steering advantage. Browser unchanged.                            |
+| Typed evidence               | Complete, no compression gain                           | [Eight completed outputs and one rejected extraction](composer-extraction-findings-2026-11-04.md). Both bounded formats increase input at this small scale; keep full text as the reference.                       |
+| Supported relationships      | Complete, no clear added benefit                        | [Four matched compositions and seven inspected edges](composer-relationships-findings-2026-11-04.md). No clear benefit; added reader delay and two problematic relationships.                                      |
+| Diverse excerpts             | Deferred                                                | Select varied original passages under the same packet allowance; retain original wording and provenance.                                                                                                           |
+| Global summary               | Paused                                                  | A generated summary with source references and recorded omissions; assess whether shared themes erase distinctions.                                                                                                |
+| Per-participant summaries    | Paused                                                  | Preserve distinct perspectives before combining them; assess cost and whether the composer makes connections rather than enumerating.                                                                              |
+| Hierarchical issue synthesis | Paused                                                  | Group related material, then synthesise; assess the added reader cost, delay and interpretive losses.                                                                                                              |
+| Combined confirmation        | Paused                                                  | Baseline versus the selected combination on fresh exchanges, including responsive AI participants and participant-level assessments. Include actual preparation delay and cost.                                    |
 
 ## Current scope: finish delivery, then study representation offline
 
 On 4 November the creator paused further representation implementations.
-Finish the focused delivery investigation with unchanged full source text.
-Compare short natural completions with ordinary passages and hold overall
-speaking opportunity constant. The [boundary protocol](composer-boundary-protocol.md)
-defines the next experiment. Keep browser behaviour unchanged until evidence
+The focused delivery investigation is now complete, using unchanged full source
+text within each case and equal requested overall speaking opportunity. The
+[boundary findings](composer-boundary-findings-2026-11-04.md) support shorter
+natural openings provisionally, without a consistent benefit from steering. Keep browser behaviour unchanged until evidence
 justifies a separate integration decision.
 
 Diverse excerpts are deferred until source material substantially exceeds the
