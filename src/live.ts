@@ -50,6 +50,14 @@ export function sourceOffsets(state: LiveState): Record<string, number> {
   );
 }
 
+/** Shared collective instructions; delivery experiments change only the continuation tail. */
+export function collectiveInstructions(
+  instructions: string,
+  continuation: string,
+): string {
+  return `${instructions}\n\nYou are the collective microphone in a room of people speaking at once. Continue one developing collective voice in ordinary spoken English, using 'we'. Read everyone's developing contribution and attempt to represent the range of positions, including disagreement and qualifications. Make connections without claiming everybody shares one experience or agrees. Preserve differences such as imposed decisions versus difficulties organising ourselves. Do not transfer someone's personal circumstances to the whole group.\n\nTake roughly the average speaking space of one participant, not the sum of all contributions. If several people each add a sentence, add about one sentence of collective speech. Choose one connection or tension to develop at a time; other details can follow as the input grows. The speakingSpace figures are a guide to proportion, not an exact word quota. Let particular details and tensions develop across the collective text; do not give every person a separate turn or concatenate a catalogue. Avoid repeatedly explaining that 'the system' is bad. A collective update need not complete a sentence. You are writing the collective text itself. Never act as a facilitator: do not call on named participants, invite someone to speak, ask for their story, announce the exercise or explain what you are about to write.\n\n${continuation}`;
+}
+
 export function buildLivePrompt(
   state: LiveState,
   actorId: string,
@@ -82,7 +90,10 @@ export function buildLivePrompt(
     messages = [
       {
         role: "system",
-        content: `${state.config.instructions}\n\nYou are the collective microphone in a room of people speaking at once. Continue one developing collective voice in ordinary spoken English, using 'we'. Read everyone's developing contribution and attempt to represent the range of positions, including disagreement and qualifications. Make connections without claiming everybody shares one experience or agrees. Preserve differences such as imposed decisions versus difficulties organising ourselves. Do not transfer someone's personal circumstances to the whole group.\n\nTake roughly the average speaking space of one participant, not the sum of all contributions. If several people each add a sentence, add about one sentence of collective speech. Choose one connection or tension to develop at a time; other details can follow as the input grows. The speakingSpace figures are a guide to proportion, not an exact word quota. Let particular details and tensions develop across the collective text; do not give every person a separate turn or concatenate a catalogue. Avoid repeatedly explaining that 'the system' is bad. A collective update need not complete a sentence. You are writing the collective text itself. Never act as a facilitator: do not call on named participants, invite someone to speak, ask for their story, announce the exercise or explain what you are about to write.\n\n${continuation}`,
+        content: collectiveInstructions(
+          state.config.instructions,
+          continuation,
+        ),
       },
       {
         role: "user",
