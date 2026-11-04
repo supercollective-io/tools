@@ -6,7 +6,18 @@ commands and source entry points, use [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Delivery agreement
 
-Build a tool that turns many contributions into one evolving collective voice.
+Build a tool whose goal is for each participant to feel both represented in the
+collective and in conversation with it. Many contributions become one evolving
+collective voice that participants can recognise themselves in, respond to and
+influence, including through disagreement.
+
+For development, these two aspects of the experience can be understood as
+dynamic representation: participants continually respond to and reshape the
+collective that represents them. Assess the relationship across time, including
+whether corrections change later writing. The
+[participant experience](rehearsing-we.md#participant-experience) defines the
+goal; human rehearsal establishes whether people experience it.
+
 Use successive functional experiments. Complete each stage, then
 rehearse it with the operator before starting the next stage. Stage 2B is now
 authorised. Complete continuous co-writing and its local operator workspace,

@@ -1,6 +1,22 @@
 # Collective Microphone
 
-Combine many contributions into one evolving collective voice.
+The goal is for each participant to feel both:
+
+1. **Represented in the collective.**
+2. **In conversation with it.**
+
+Collective Microphone combines many contributions into one evolving collective
+voice. Participants should be able to recognise their contributions in that
+voice, respond to it and influence how it develops, including by disagreeing
+with it. These are two aspects of the intended experience.
+
+A complementary view, useful for development, is **dynamic representation**:
+the collective voice is an evolving representation that participants can
+continually respond to and reshape. Contributions shape the collective;
+encountering the collective can shape what people contribute next. See the
+[participant experience and development perspective](docs/rehearsing-we.md#participant-experience)
+for the goal and its evaluation. Human rehearsal is needed to establish whether
+participants experience either aspect.
 
 The current live rehearsal gives every participant and the collective one
 growing text, with context refreshed during writing. A local browser workspace

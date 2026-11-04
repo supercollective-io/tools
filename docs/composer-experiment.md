@@ -1,5 +1,12 @@
 # Evaluate the performance composer
 
+The goal is for each participant to feel both **represented in the collective**
+and **in conversation with it**. Evaluate composition in service of both aspects
+of that experience. The complementary development perspective is dynamic
+representation: participants can continually respond to and reshape the
+collective voice that represents them. See the [participant experience](rehearsing-we.md#participant-experience)
+for the full framing.
+
 The composer is the only model intended for the final performance. Human
 participants supply the writing. Generated participants are development fixtures;
 improve them only when that makes a composer failure easier to investigate.
@@ -87,6 +94,13 @@ Use one row per request, plus a whole-run judgement. A useful note names the
 source, the collective wording and the consequence; an unanchored numerical
 quality score is insufficient.
 
+Read the criteria below across the developing exchange. Representation includes
+recognisable positions, conditions and refusals. Conversation includes something
+specific to answer and a response that can change what follows. Check whether a
+correction remains consequential in later additions, as well as whether the
+first response acknowledges it. These observations support the two experiential
+goals; they do not establish how a participant feels.
+
 | Criterion      | Evidence to record                                                                                                                                                                                                             |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Proportion     | Whole-run collective words divided by mean admitted participant words; individual request counts are diagnostics. Read aloud for speaking space.                                                                               |
@@ -142,10 +156,19 @@ exercise feedback delivery; do not optimise personas for their own sake or force
 them to agree or disagree. Synthetic convergence can arise in either role and
 cannot establish how a human room will respond.
 
-Finally, rehearse with a small group of people. Ask whether they recognise their
-contribution, can contest the collective wording, and continue developing their
-own positions. This requires actual participants; automated checks and synthetic
-rehearsals cannot complete that evaluation.
+Finally, rehearse with a small group of people. Ask each participant about both
+aspects of the experience:
+
+1. **Being represented:** Where did they recognise their contribution, and where
+   was their position, condition or refusal lost or misrepresented?
+2. **Having a conversation:** What did the collective give them to respond to,
+   and where did their response change what followed? Could they correct the
+   collective's wording and continue developing their own position?
+
+Ask for specific moments, including failures, and compare those accounts with
+the saved exchange. Check whether corrections remained consequential later.
+This requires actual participants; automated checks and synthetic rehearsals
+cannot complete that evaluation.
 
 ## Command reference
 

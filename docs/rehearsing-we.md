@@ -1,5 +1,45 @@
 # Rehearsing We: choosing the first experiment
 
+## Participant experience
+
+The goal of Collective Microphone is for each participant to feel both:
+
+1. **Represented in the collective:** they can recognise their experience,
+   position or concern in the collective voice, including where they differ
+   from others.
+2. **In conversation with it:** they can respond to what the collective says,
+   and their response can influence how it develops.
+
+The distinction describes the experience from the individual's perspective.
+Someone can feel represented without feeling an exchange, or receive a response
+without feeling understood. Representation does not require mentioning everyone
+in every passage or implying that everyone agrees. Conversation gives people
+something to answer, question, resist or develop. Participation does not require
+a reply to every passage.
+
+### A unified perspective for development
+
+Both aspects can arise from **dynamic representation**: the collective voice is
+an evolving representation that participants can continually respond to and
+reshape. People contribute; the collective takes shape; people encounter it and
+respond; those contributions change the collective. A correction, refusal or
+change of mind becomes part of what the collective must represent next. Its
+previous words matter because participants can be responding to those words.
+
+This perspective directs development towards the relationship between
+contributions and the collective over time. Assess whether new contributions
+change the developing thought, whether people can correct their representation,
+and whether those corrections remain consequential later. The composer also
+needs to articulate connections, tensions or possibilities that people can
+answer; updating a summary alone may not create a conversational experience.
+
+The two experiential goals remain the human test of this process. Input delivery
+and text generation alone do not establish either experience. Synthetic
+rehearsals can test composition and feedback behaviour; human rehearsal is
+needed to learn whether each participant feels represented and in conversation
+with the collective. In Rehearsing We, this experience serves the wider artistic
+ambition of collective power described below.
+
 ## Piece brief
 
 The following description was supplied by the creator of the performance:
@@ -185,11 +225,19 @@ arrived, including incomplete words or thoughts.
 
 ## How to judge the experiment
 
+Start with the two experiential goals. Ask each participant whether they felt
+represented in the collective and whether they felt in conversation with it.
+Ask for moments that supported or undermined each experience, including whose
+contributions disappeared or could not change the direction. Assess the
+developing exchange as well as individual passages.
+
 - Can a newcomer understand the invitation and start speaking without a political vocabulary lesson?
 - Do the answers contain different situations and constraints, rather than the same desired outcome in different wording?
 - Can we identify a decision or resource and explain how collective action might change its control?
 - When an objection arrives, does the collective passage change, or merely add another abstract phrase?
 - Can someone recognise a relationship to their contribution and also contest the synthesis?
+- Does the collective give someone something specific to answer, question or develop?
+- When someone corrects their representation, does the correction affect subsequent writing and remain consequential later?
 - Are a connection, possible coalition, unresolved disagreement and actual decision kept distinct?
 - Does the discussion expose the distribution of work and risk as well as the ambition to act?
 

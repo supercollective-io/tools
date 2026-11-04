@@ -1,5 +1,13 @@
 # Live co-writing rehearsal
 
+The intended experience is for each participant to feel both **represented in
+the collective** and **in conversation with it**. The writing and feedback loop
+rehearses a unified process of dynamic representation: contributions shape the
+collective voice, which participants can encounter, respond to and reshape.
+See the [participant experience](rehearsing-we.md#participant-experience) for the
+goal. The mechanisms below make feedback available; human rehearsal is needed
+to assess whether the experience follows.
+
 ## Writing model
 
 Each participant and the collective have one growing text for the whole
