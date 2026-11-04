@@ -2,6 +2,12 @@
 
 ## Recommendation
 
+The assessment framing was revised after the creator clarified that individual
+corrections need not appear in a theatre performance. Use the current
+[performance criteria](composer-experiment.md#record-the-judgement). The model
+research and observations below remain dated evidence, not a requirement for
+explicit uptake of each change.
+
 The [subsequent measured comparison](composer-comparison-2026-11-04.md) now
 includes Terra, Sol and Astra High, with three repetitions per prompt and a
 correction holdout. It supports using Terra for fast development, with Sol as an
@@ -12,8 +18,8 @@ those calls.
 
 Start with **GPT-6.1 Terra at `none` reasoning effort** and **GPT-6.1 Sol at
 `low` effort**. Terra tests whether fast, inexpensive writing is sufficient;
-Sol tests whether additional reasoning improves consequential selection and
-correction. Both fit the existing OpenAI adapter. These are experimental
+Sol tests whether additional reasoning improves selection, connections and
+coherent development. Both fit the existing OpenAI adapter. These are experimental
 candidates, not established artistic winners.
 
 Use Claude Opus 5.5 as a cross-provider quality challenger and Gemini 3.8 Flash
@@ -34,19 +40,21 @@ These priorities follow from the [piece brief](rehearsing-we.md), current
 [live-writing contract](live-rehearsal.md), and the decision that only the
 composer will be a model in the performance.
 
-| Priority    | Composer requirement                                                                  | Evidence needed                                                                              |
-| ----------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Essential   | Connect contributions without erasing refusals, disagreement or material constraints. | Exact available inputs beside each addition; inspect lost conditions and invented agreement. |
-| Essential   | Develop a coherent spoken contribution, including correction of earlier framing.      | Complete sequence, not isolated attractive passages.                                         |
-| Essential   | Take about one person's speaking space without facilitating or enumerating everyone.  | Whole-run proportion and reading aloud; count repetition as a failure.                       |
-| Essential   | Continue saved text across refreshes, natural stops and interruptions.                | Real-provider joins and empty/repeated-prefix failures.                                      |
-| Essential   | Deliver useful text while the room continues speaking.                                | First visible text and useful continuation latency at growing input sizes.                   |
-| Operational | Read all admitted prefixes within context and cost limits.                            | Long-duration rehearsals, aggregate usage, cache hits and explicit capacity failures.        |
+| Priority    | Composer requirement                                                                   | Evidence needed                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Essential   | Make grounded connections while retaining meaningful differences in the material used. | Available sources beside the writing; distinguish selective omission from altered meaning.       |
+| Essential   | Develop a coherent spoken contribution with concrete detail and evolving tensions.     | Complete sequence, not isolated attractive passages.                                             |
+| Essential   | Take about one person's speaking space without facilitating or enumerating everyone.   | Whole-run proportion and reading aloud; distinguish purposeful recurrence from empty repetition. |
+| Essential   | Continue saved text across refreshes, natural stops and interruptions.                 | Real-provider joins and empty/repeated-prefix failures.                                          |
+| Essential   | Deliver useful text while the room continues speaking.                                 | First visible text and useful continuation latency at growing input sizes.                       |
+| Operational | Supply selected source material within context and cost limits, with provenance.       | Long-duration rehearsals, aggregate usage, cache hits and explicit capacity failures.            |
 
-Synthetic participants need only produce useful test cases: a correction, a
-refusal, an added constraint, uneven arrival or independent writing. Their
-realism is not a performance requirement. They cannot establish whether people
-feel represented or respond independently.
+Synthetic participants serve two purposes: controlled source cases and
+responsive rehearsals of the participant experience. For the latter, preserve
+distinct perspectives and independent responses, and inspect participants’
+assessments alongside the exchange. These can provide strong evidence about
+representation and conversation. Control for leading prompts and shared model
+bias; human rehearsal tests transfer to the audience.
 
 ## Official model and price evidence
 

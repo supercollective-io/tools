@@ -134,6 +134,14 @@ supporting evidence, not independent human validation or a statistical result.
 
 ## Corrections, refusals and practical limits
 
+Interpretation updated after the creator’s clarification: the observations below
+are a narrow changing-input diagnostic. Explicit correction or withdrawal is
+not a central performance criterion, and an individual change need not appear.
+Keep these recorded outcomes, but use the current
+[performance criteria](composer-experiment.md#record-the-judgement) for model
+selection. The candidate prompt used here is the version frozen in these runs;
+the current example now makes selective uptake explicit.
+
 `examples/composer-corrections.json` contains four fictional contributions,
 averaging 127 words. Joan retracts an offer of weekly Saturday opening; Emil
 offers translation without attendance or organiser responsibility; Saira withdraws

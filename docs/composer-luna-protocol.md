@@ -1,15 +1,19 @@
-# Luna composer screen — frozen protocol
+# Luna composer screen — recorded design and revised assessment
 
-## Question and decision
+## Status and current decision rule
 
-Can GPT-6 Luna screen composer architectures without its own failures obscuring
-their effects? This is a small paired screen, not a statistical equivalence test.
+The initial 40-response screen and ten-response follow-up are complete. Their
+original frozen protocols and assessments remain in the ignored run manifests
+and Git history (`cc9b686` and `71bd1af`). The original rule required explicit
+correction of a withdrawn offer in the next addition. The creator rejected that
+emphasis: individual changes may or may not appear in this theatre performance.
+That rule is superseded, including its proposed automatic rejection of Luna.
 
-Use Luna provisionally only if it introduces no critical distortion absent from
-the paired Terra trajectories and remains usable for coherent composition. If
-results conflict, run one additional paired repetition of the affected score.
-Otherwise retain Terra. If both models fail, investigate the case, instructions
-or architecture rather than treating Terra as ground truth.
+Use the [revised performance assessment](composer-performance-assessment.md) to
+reassess the saved trajectories and guide subsequent slices. This is a
+post-observation change of assessment purpose, not statistical equivalence or
+fresh confirmation. The implementation below reproduces the historical source
+schedule; it does not define an artistic acceptance gate.
 
 ## Frozen design
 
@@ -34,67 +38,30 @@ or architecture rather than treating Terra as ground truth.
   directory and records the previous attempt; never overwrite or resume an
   experimental trajectory. The shared ledger includes all attempts.
 
-## Assessment key (never supplied to the composer)
+## Assessment and historical follow-up
 
-Assess complete anonymised trajectories against each request's available source
-prefix, not against text that arrived later. Record request number, exact output
-and source evidence for each consequential failure. An omission is critical
-only if it changes a consequential claim or prevents a required correction.
+Assess coherent development, concrete grounding, connections and differences,
+responsiveness across the exchange, and speaking space. Use the revised rubric
+linked above. Keep assessment material out of composer inputs and assess each
+addition against its actual available source prefix.
 
-The eight-person score tests bounded offers, disagreement and speaking space:
-Sam cannot attend after work; Leah's named repair request is conditional on
-permission; Chris refuses a volunteer bus; Nadia refuses the permanent contact
-role; Ben's participation depends on financial cover and trust; Rosa's delegated
-decision requires a budget and accountability; Alex refuses substituting family
-care and cannot organise; Mo's permission does not extend to unrelated slogans.
+The initial screen included an eight-person score about collective power and a
+four-person score dominated by changed offers and permissions. Preserve both
+for reproducibility. The latter is a narrow diagnostic, not an equally weighted
+artistic requirement or an unseen confirmation case. Future cases must broaden
+beyond that administrative emphasis.
 
-The correction score tests Joan's withdrawal of weekly opening while retaining
-the first session; Emil's translation without attendance, organiser status or
-maintenance responsibility; Saira's withdrawn signature and requirement to
-approve revised wording; Tom's independent access and direct say. Track whether
-a correction persists in subsequent writing. Earlier published words remain
-visible; assess subsequent repair without silently rewriting them.
+The original anonymous review and source check recorded one unrepaired recurring
+Saturday-opening offer in Luna's second correction trajectory. A third paired
+correction repetition was then completed under the original protocol. Missing
+explicit correction remains an observation; it no longer disqualifies a model.
+Do not run another repetition merely to satisfy the superseded rule.
 
-For every trajectory record refusal/condition preservation, permission
-withdrawal, correction persistence, invented agreement, repetition, coherent
-continuation and speaking space. A short output need not mention everyone in
-every passage. Label automated reviewers as model assessments. These assessments
-cannot establish whether real participants recognise themselves.
-
-A critical distortion asserts or implies a commitment that its source refuses,
-removes an operative condition from a commitment the composer actually makes,
-attributes a restricted position to everyone, or keeps withdrawn permission in
-force. After a complete corrective statement is available, a trajectory must
-repair any conflicting commitment it previously made in its next addition and
-must not reinstate that commitment later. Silence about an offer the composer
-never adopted is not automatically a critical omission. Do not judge a partial
-source as if its unavailable ending had already been supplied.
-
-For coherence, record unrecoverable sentence joins, fresh introductions that
-restart the piece, and repetitions that add no changed condition or detail. A
-trajectory is unusable if it contains an unrecoverable join, or at least two of
-its four continuations merely restart or repeat earlier writing. Speaking-space
-ratios are descriptive; there is no new automatic length rejection criterion.
-
-One subscription-backed Luna reviewer receives only anonymous trajectories and
-this rubric. The primary agent verifies consequential judgements against exact
-sources before unblinding. Save both the model assessment and the primary
-assessment, including disagreements. The repeat rule applies when a critical
-Luna-only failure or unusable Luna trajectory occurs in one paired repetition
-but not the other; otherwise apply the retention rule directly. Additional
-repetitions require a separately frozen, linked invocation, never an automatic
-retry or replacement of an unsuccessful run.
-
-### Frozen follow-up after the initial screen
-
-The initial screen found a Luna-only unrepaired recurring-opening offer in
-correction repetition two; repetition one passed the critical-distortion rule.
-Run one additional paired repetition of the correction score only, Luna then
-Terra. Keep every setting unchanged. Pass the original attempt path followed
-by `correction` to the command below. This creates two new trajectories, ten
-requests, within the existing US$0.50 slice cap. Do not run a fourth repetition.
-The additional evidence cannot erase the observed failure: retain Terra if the
-Luna-only critical distortion remains valid after source-level adjudication.
+Reviewers receive only anonymous source/trajectory bundles. Preserve model
+assessments, primary checks and disagreements. The primary agent saw labelled
+aggregate metrics during the original screen, so only the independent model
+reviewer was fully blinded. Model assessments cannot establish participant
+recognition or the quality of a theatre experience.
 
 ## Verification and record
 

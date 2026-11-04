@@ -13,10 +13,13 @@ influence, including through disagreement.
 
 For development, these two aspects of the experience can be understood as
 dynamic representation: participants continually respond to and reshape the
-collective that represents them. Assess the relationship across time, including
-whether corrections change later writing. The
+collective that represents them. Assess coherent development, concrete
+connections and tensions, responsiveness across the exchange, and speaking
+space. Individual changes may or may not appear; explicit correction of every
+withdrawn offer is not a requirement. The
 [participant experience](rehearsing-we.md#participant-experience) defines the
-goal; human rehearsal establishes whether people experience it.
+goal. Responsive AI-participant rehearsals assess both aspects of the
+experience; human rehearsal tests transfer to the audience.
 
 Use successive functional experiments. Complete each stage, then
 rehearse it with the operator before starting the next stage. Stage 2B is now

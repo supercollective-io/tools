@@ -7,9 +7,19 @@ representation: participants can continually respond to and reshape the
 collective voice that represents them. See the [participant experience](rehearsing-we.md#participant-experience)
 for the full framing.
 
-The composer is the only model intended for the final performance. Human
-participants supply the writing. Generated participants are development fixtures;
-improve them only when that makes a composer failure easier to investigate.
+Evaluate these two goals for each person, rather than substituting the quality
+of the prose or a room-wide average. Topic mentions are not proof of feeling
+represented; rapid input delivery is not proof of feeling in conversation.
+Fixed-script comparisons provide partial indicators and failure cases.
+Responsive AI-participant rehearsals can provide strong evidence for both
+experiential goals; human rehearsal tests transfer to the audience. See the
+[pilot assessment](composer-performance-assessment.md) for the revised criteria
+and the limits of engineering measures.
+
+Human participants supply the writing in the final performance. During
+development, AI participants supply both controlled cases and responsive
+experiential evidence. Improve them when this makes the exchange and its
+assessment more informative, without instructing them to confirm success.
 
 ## Prepare
 
@@ -21,7 +31,9 @@ The command does not start services, download models or select a fallback.
 
 Use [model selection](composer-models-2026-11-04.md) for the initial cloud
 comparison and cost assumptions. Choose a spending allowance before paid runs.
-The application has request token budgets, but no monetary spending limiter.
+Ordinary application commands have request token budgets but no monetary spending
+limiter. The dedicated [Luna screen](composer-luna-protocol.md) has a persistent
+reservation ledger and enforced experiment spending caps.
 See the [measured comparison](composer-comparison-2026-11-04.md) for the completed
 Terra, Sol and Astra High experiment and its limitations.
 
@@ -94,20 +106,27 @@ Use one row per request, plus a whole-run judgement. A useful note names the
 source, the collective wording and the consequence; an unanchored numerical
 quality score is insufficient.
 
-Read the criteria below across the developing exchange. Representation includes
-recognisable positions, conditions and refusals. Conversation includes something
-specific to answer and a response that can change what follows. Check whether a
-correction remains consequential in later additions, as well as whether the
-first response acknowledges it. These observations support the two experiential
-goals; they do not establish how a participant feels.
+Read the criteria below across the developing exchange. This is a theatre
+performance: the composer selects and connects material from many voices. It
+need not acknowledge every contribution, repeat every refusal or explicitly
+correct an earlier passage whenever one person changes their mind. At hundreds
+of voices, a single change may or may not shape the collective. Omission by
+itself is not a failure. These observations support the experiential goals;
+they do not establish how a participant feels.
 
-| Criterion      | Evidence to record                                                                                                                                                                                                             |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Proportion     | Whole-run collective words divided by mean admitted participant words; individual request counts are diagnostics. Read aloud for speaking space.                                                                               |
-| Representation | A connection that retains a consequential disagreement, refusal or practical constraint; or the exact distinction lost. Selection is necessary, but omitting a constraint must not turn a conditional proposal into agreement. |
-| Development    | What new material changed, qualified or corrected the developing thought; any repetition, disconnected restart or persistence with a contradicted framing.                                                                     |
-| Authority      | Whether a desire, proposal, possible coalition and authorised decision remain distinct. Identify invented shared experience or agreement.                                                                                      |
-| Live delivery  | Time to first saved text, finish reason, empty output, broken joins, copied prefixes and time spent producing unusable text. Provider latency and artistic pacing are separate judgements.                                     |
+| Criterion                   | Evidence to record                                                                                                                                                                                       |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Development and continuity  | A developing thought across additions; specific new directions, connections and questions; repeated abstractions, disconnected restarts or broken joins.                                                 |
+| Concrete grounding          | Particular experiences, images or details used from the available contributions; generic language that could fit almost any room; invented circumstances presented as shared experience.                 |
+| Connections and differences | A meaningful relationship between contributions, including unresolved tensions; differences flattened into one position. Selective use is expected; inspect the meaning of material actually used.       |
+| Responsiveness              | How changing input influences the trajectory as a whole. Record possible influences and unexplored material without requiring a reply to every person or treating acknowledgement as semantic influence. |
+| Proportion and pacing       | Collective words divided by mean admitted participant words, plus a reading for speaking space and rhythm. Counts are descriptive, not a quota.                                                          |
+| Live delivery               | Time to first saved text, response boundaries, empty output, broken joins and copied prefixes. Provider latency, input availability and artistic responsiveness are separate judgements.                 |
+
+Faithfulness concerns the positions and experiences the composer actually uses.
+It should not repeatedly turn differences into invented unanimity. This is
+different from requiring it to preserve every detail or maintain current offers,
+signatures and permissions as if the text authorised group decisions.
 
 Copy this record into local rehearsal notes:
 
@@ -123,8 +142,8 @@ Copy this record into local rehearsal notes:
 | ----------------------- | ------------------ | ------------------- | ------------------------- |
 
 - Best preserved difference:
-- Most consequential omission or invented agreement:
-- Later correction and response:
+- Concrete grounding or generic abstraction:
+- Changing input and subsequent development (including material not selected):
 - Repetition or facilitator behaviour:
 - Delivery observations and cost basis (measured usage or explicit estimate):
 - Decision: retain, revise, or reject; next controlled change:
@@ -136,25 +155,33 @@ failures and link local journals without reproducing participant material.
 
 ## Test feedback after the fixed comparison
 
-First use controlled later contributions to isolate the composer's response:
+Use controlled later contributions to investigate how available material can
+change the developing voice. Include new experiences, contrasting images,
+connections between previously separate concerns, shifts in emphasis and
+individual changes of mind. Record what the composer selects, what it develops
+and what it leaves out. Do not prescribe an exact response or require each new
+contribution to appear.
 
-| Test               | Later input                                                                          | Observable composer behaviour                                                                                                                  |
-| ------------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Correct a claim    | A participant says an earlier collective statement misrepresented their position.    | The next addition qualifies or corrects that framing without rewriting saved words or claiming everyone agrees with the correction.            |
-| Preserve a refusal | A participant supports the aim but refuses the proposed action or use of their name. | The collective retains the refusal while allowing willing participants' proposal to develop.                                                   |
-| Change feasibility | A participant adds a care, time, money or access constraint.                         | The proposal changes or its limitation becomes explicit; merely mentioning the constraint beside an unchanged universal claim is insufficient. |
+`examples/composer-corrections.json` is a narrow four-person diagnostic about
+changed offers, permission and practical limits. Its slice boundaries are useful
+for tracing available input. It is not a central artistic assessment or a
+requirement that every individual change receive explicit uptake. Keep the
+frozen score for reproducibility and use other topics and fresh cases before
+making performance claims. It is an existing development case, not an unseen
+confirmation case for subsequent experiments.
 
-Use `examples/composer-corrections.json` as a separate four-person holdout for
-these tests and inspect its actual slice boundaries. It introduces a corrected
-Saturday offer, withdrawn permission to use a name, and limits on translation,
-maintenance and access work. Run it with each cloud configuration and a fresh
-output path. Keep it separate from the primary eight-person comparison.
-They test response to specified contributions, not spontaneous human feedback.
+A deliberately targeted change can probe whether a delivery mechanism makes new
+context usable. Report whether it appeared, including non-uptake, without
+calling every non-uptake a compositional failure. Compare complete trajectories
+with the same inputs; separate transport faults from artistic selection.
+
 If generated participants expose another useful case, save their output and
 turn it into a controlled source for composer comparison. Use chunked mode to
 exercise feedback delivery; do not optimise personas for their own sake or force
-them to agree or disagree. Synthetic convergence can arise in either role and
-cannot establish how a human room will respond.
+them to agree or disagree. Synthetic convergence can arise in either role. Examine it as a possible
+simulation bias rather than treating agreement as a successful conversation;
+responsive AI-participant evidence remains valuable, with human rehearsal
+testing transfer.
 
 Finally, rehearse with a small group of people. Ask each participant about both
 aspects of the experience:
@@ -162,13 +189,17 @@ aspects of the experience:
 1. **Being represented:** Where did they recognise their contribution, and where
    was their position, condition or refusal lost or misrepresented?
 2. **Having a conversation:** What did the collective give them to respond to,
-   and where did their response change what followed? Could they correct the
-   collective's wording and continue developing their own position?
+   and how did the developing voice relate to their subsequent contributions?
+   Did they have room to disagree or develop their own position?
 
 Ask for specific moments, including failures, and compare those accounts with
-the saved exchange. Check whether corrections remained consequential later.
-This requires actual participants; automated checks and synthetic rehearsals
-cannot complete that evaluation.
+the saved exchange. Look for patterns of inclusion, exclusion and development;
+do not turn an individual missing response into an automatic failure.
+Use responsive AI participants as well as human participants for this evaluation.
+Keep participant assessments grounded in specific moments, and control for
+leading prompts, automatic agreement and shared model biases. Distinguish that
+evidence from an external review of fixed scripts. Human rehearsal checks how
+the findings transfer to the actual audience.
 
 ## Command reference
 

@@ -10,13 +10,19 @@ voice. Participants should be able to recognise their contributions in that
 voice, respond to it and influence how it develops, including by disagreeing
 with it. These are two aspects of the intended experience.
 
+This is a participatory theatre performance. The collective selects and connects
+material; it does not need to acknowledge every contribution or announce each
+individual change of mind. At hundreds of voices, omissions are inevitable.
+Judge the developing voice, its grounding and differences, and what it gives
+people to respond to, rather than treating it as a record of group commitments.
+
 A complementary view, useful for development, is **dynamic representation**:
 the collective voice is an evolving representation that participants can
 continually respond to and reshape. Contributions shape the collective;
 encountering the collective can shape what people contribute next. See the
 [participant experience and development perspective](docs/rehearsing-we.md#participant-experience)
-for the goal and its evaluation. Human rehearsal is needed to establish whether
-participants experience either aspect.
+for the goal and its evaluation. Responsive AI-participant rehearsals provide
+evidence about both aspects; human rehearsal tests transfer to the audience.
 
 The current live rehearsal gives every participant and the collective one
 growing text, with context refreshed during writing. A local browser workspace
@@ -92,8 +98,9 @@ their original terminal commands.
 
 ## Develop the composer
 
-The final performance uses a model composer with human participants. Generated
-participants are development fixtures. Use the [composer experiment](docs/composer-experiment.md)
+The final performance uses a model composer with human participants. AI
+participants support both controlled fixtures and responsive experiential
+evaluation. Use the [composer experiment](docs/composer-experiment.md)
 to compare all eight prewritten contributions, inspect each request against its
 actual inputs, and test proportion, consequential differences and development.
 The [model comparison](docs/composer-models-2026-11-04.md) separates composer
@@ -103,6 +110,11 @@ an M1 Pro laptop with 16 GB unified memory.
 The [measured comparison](docs/composer-comparison-2026-11-04.md) records repeated
 Terra, Sol and Astra High runs, correction tests, delivery, costs and the
 OpenAI interrupted-continuation fix.
+
+The [assessment amendment](docs/composer-performance-assessment.md) centres the
+two per-person goals and distinguishes fixed-script and responsive evidence.
+The [criteria audit](docs/composer-criteria-audit-2026-11-04.md) records changes
+to the evaluation and the remaining assumptions in prompts, fixtures and metrics.
 
 ```sh
 mise exec -- pnpm cli compose --score examples/score.json --config examples/composer-baseline.json --out runs/composer-baseline.jsonl

@@ -22,23 +22,38 @@ a reply to every passage.
 Both aspects can arise from **dynamic representation**: the collective voice is
 an evolving representation that participants can continually respond to and
 reshape. People contribute; the collective takes shape; people encounter it and
-respond; those contributions change the collective. A correction, refusal or
-change of mind becomes part of what the collective must represent next. Its
-previous words matter because participants can be responding to those words.
+respond; those contributions can change the collective. A correction, refusal or
+change of mind becomes available material for the developing performance. It
+need not appear in the next passage, or appear explicitly at all. Previous words
+matter because participants can be responding to them.
 
 This perspective directs development towards the relationship between
 contributions and the collective over time. Assess whether new contributions
-change the developing thought, whether people can correct their representation,
-and whether those corrections remain consequential later. The composer also
-needs to articulate connections, tensions or possibilities that people can
-answer; updating a summary alone may not create a conversational experience.
+change the developing thought and whether the voice articulates connections,
+tensions or possibilities that people can answer. Assess the whole developing
+exchange, rather than requiring uptake of each individual contribution. With
+hundreds of people, selection is essential: one person's change of mind may or
+may not influence the collective. Neither exhaustive coverage nor maintaining
+a record of commitments is the artistic objective.
 
-The two experiential goals remain the human test of this process. Input delivery
-and text generation alone do not establish either experience. Synthetic
-rehearsals can test composition and feedback behaviour; human rehearsal is
-needed to learn whether each participant feels represented and in conversation
-with the collective. In Rehearsing We, this experience serves the wider artistic
-ambition of collective power described below.
+Judge coherent development, concrete grounding, meaningful connections,
+differences and tensions, responsiveness across the exchange, and proportionate
+speaking space as supporting indicators for the two experiential goals, not
+replacements for them. Examine each person's experience and patterns of
+exclusion; a good average or polished prose can conceal people feeling unheard.
+When the composer uses a position, inspect whether it changes
+its meaning or turns differences into invented unanimity. Omission alone does
+not establish misrepresentation, and explicit correction after withdrawal is
+not a central criterion or a requirement for selecting a model.
+
+The two experiential goals guide evaluation of this process. Input delivery
+alone does not establish either experience. Responsive AI-participant rehearsals
+can provide strong evidence through participants' assessments and the developing
+exchange, while fixed scripts test only part of that loop. Control for leading
+instructions, automatic agreement and shared model biases. Human rehearsal tests
+how these findings transfer to the actual audience. In Rehearsing We, this
+experience serves the wider artistic ambition of collective power described
+below.
 
 ## Piece brief
 
@@ -234,18 +249,19 @@ developing exchange as well as individual passages.
 - Can a newcomer understand the invitation and start speaking without a political vocabulary lesson?
 - Do the answers contain different situations and constraints, rather than the same desired outcome in different wording?
 - Can we identify a decision or resource and explain how collective action might change its control?
-- When an objection arrives, does the collective passage change, or merely add another abstract phrase?
+- Across changing contributions, does the collective develop specific new thoughts or merely add abstract phrases?
 - Can someone recognise a relationship to their contribution and also contest the synthesis?
 - Does the collective give someone something specific to answer, question or develop?
-- When someone corrects their representation, does the correction affect subsequent writing and remain consequential later?
+- Which contributions, connections or tensions shape later writing, and which possibilities does the composer leave unexplored? An individual change need not receive an explicit response.
 - Are a connection, possible coalition, unresolved disagreement and actual decision kept distinct?
 - Does the discussion expose the distribution of work and risk as well as the ambition to act?
 
 For a small prompt pilot, ask people with differing amounts of organising
 experience to respond to the invitation without further explanation. Listen for
 requests for clarification, repeated abstract answers and examples that do not
-connect. Treat that as evidence for revising the invitation. Synthetic text can
-test composition behaviour but cannot establish how a human audience will react.
+connect. Treat that as evidence for revising the invitation. Fixed scripts test
+composition; responsive AI-participant rehearsals can provide strong evidence
+about the experience. Human rehearsal tests transfer to the audience.
 
 ## Sources informing the design
 

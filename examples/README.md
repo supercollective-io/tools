@@ -71,6 +71,10 @@ saves every streamed addition, including interrupted text. See the
   Sol with low reasoning, and Astra with high reasoning. They require
   `OPENAI_API_KEY`; there is no automatic cloud fallback.
 - `composer-corrections.json` is a separate four-person fixed score about a
-  community room. Later text changes an offer and withdraws permission. It tests
-  whether the developing collective responds to corrections and preserves
-  practical limits, with no generated participants.
+  community room. Later text changes an offer and withdraws permission. It is
+  a narrow diagnostic for changing input, with no generated participants.
+  Explicit uptake of each change is not a composer qualification requirement:
+  the performance selects from many voices, rather than keeping a record of
+  commitments. Use varied cases to assess development, concrete connections,
+  differences, continuity and speaking space. Retain this score unchanged for
+  historical comparisons; do not make its administrative topic the main test.

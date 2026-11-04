@@ -5,8 +5,13 @@ the collective** and **in conversation with it**. The writing and feedback loop
 rehearses a unified process of dynamic representation: contributions shape the
 collective voice, which participants can encounter, respond to and reshape.
 See the [participant experience](rehearsing-we.md#participant-experience) for the
-goal. The mechanisms below make feedback available; human rehearsal is needed
-to assess whether the experience follows.
+goal. The mechanisms below make feedback available; responsive AI-participant
+and human rehearsals assess the resulting experience. Human rehearsal tests
+transfer to the actual audience.
+
+Context refresh makes contributions available for selection. It does not oblige
+the composer to acknowledge each contribution or each change of mind. Judge
+responsiveness across the evolving performance, rather than per-person uptake.
 
 ## Writing model
 
