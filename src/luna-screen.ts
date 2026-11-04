@@ -17,7 +17,13 @@ const scoreHashes: Record<string, string> = {
     "95303ede80e442b41953ae7587049cb03e8b905c05898226c05a18b40b22fbdd",
 };
 
-export function screeningOrder() {
+export function screeningOrder(extraScore?: "eight" | "correction") {
+  if (extraScore)
+    return ["luna", "terra"].map((model) => ({
+      repetition: 3,
+      score: extraScore,
+      model,
+    }));
   return [1, 2].flatMap((repetition) =>
     ["eight", "correction"].flatMap((score) =>
       (repetition === 1 ? ["luna", "terra"] : ["terra", "luna"]).map(
@@ -28,7 +34,12 @@ export function screeningOrder() {
 }
 
 /** One process, one new attempt; all attempts share the same spending ledger. */
-export async function screenLuna(previousAttempt?: string) {
+export async function screenLuna(
+  previousAttempt?: string,
+  extraScore?: "eight" | "correction",
+) {
+  if (extraScore && !previousAttempt)
+    throw new Error("A follow-up must link its original attempt.");
   await mkdir(root, { recursive: true });
   const directory = resolve(root, `luna-${randomUUID()}`);
   await mkdir(directory);
@@ -36,7 +47,7 @@ export async function screenLuna(previousAttempt?: string) {
   await mkdir(reviewDirectory);
   const protocol = await readFile("docs/composer-luna-protocol.md", "utf8");
   const inputs = await Promise.all(
-    screeningOrder().map(async (condition) => {
+    screeningOrder(extraScore).map(async (condition) => {
       const scoreText = await readFile(
         condition.score === "eight"
           ? "examples/score.json"
@@ -89,7 +100,7 @@ export async function screenLuna(previousAttempt?: string) {
   // Save the complete design before the first dispatch, separately from prompts.
   await writeFile(
     `${directory}/manifest.json`,
-    `${JSON.stringify({ schemaVersion: 1, previousAttempt, reviewDirectory, protocol, protocolFingerprint: hash(protocol), inputs }, null, 2)}\n`,
+    `${JSON.stringify({ schemaVersion: 1, previousAttempt, extraScore, reviewDirectory, protocol, protocolFingerprint: hash(protocol), inputs }, null, 2)}\n`,
     { flag: "wx" },
   );
   console.log(`Attempt: ${directory}`);
@@ -191,7 +202,13 @@ export async function screenLuna(previousAttempt?: string) {
 }
 
 if (import.meta.main) {
-  if (process.argv.length > 3)
-    throw new Error("Expected optional previous attempt path.");
-  await screenLuna(process.argv[2]);
+  const score = process.argv[3];
+  if (
+    process.argv.length > 4 ||
+    (score !== undefined && score !== "eight" && score !== "correction")
+  )
+    throw new Error(
+      "Expected optional previous attempt path and follow-up score: eight or correction.",
+    );
+  await screenLuna(process.argv[2], score);
 }

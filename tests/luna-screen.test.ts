@@ -26,4 +26,8 @@ it("changes only the composer model and alternates paired model order", async ()
     "luna",
   ]);
   expect(screeningOrder()).toHaveLength(8);
+  expect(screeningOrder("correction")).toEqual([
+    { repetition: 3, score: "correction", model: "luna" },
+    { repetition: 3, score: "correction", model: "terra" },
+  ]);
 });

@@ -85,6 +85,17 @@ but not the other; otherwise apply the retention rule directly. Additional
 repetitions require a separately frozen, linked invocation, never an automatic
 retry or replacement of an unsuccessful run.
 
+### Frozen follow-up after the initial screen
+
+The initial screen found a Luna-only unrepaired recurring-opening offer in
+correction repetition two; repetition one passed the critical-distortion rule.
+Run one additional paired repetition of the correction score only, Luna then
+Terra. Keep every setting unchanged. Pass the original attempt path followed
+by `correction` to the command below. This creates two new trajectories, ten
+requests, within the existing US$0.50 slice cap. Do not run a fourth repetition.
+The additional evidence cannot erase the observed failure: retain Terra if the
+Luna-only critical distortion remains valid after source-level adjudication.
+
 ## Verification and record
 
 Run focused tests and `mise exec -- pnpm run verify` before paid trials. Inspect
