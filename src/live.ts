@@ -133,9 +133,15 @@ export function buildLivePrompt(
       },
     ];
   }
-  if (writer.text && mode === "append") {
+  const model =
+    actorId === "collective"
+      ? state.config.composer
+      : state.config.live.participants;
+  if (writer.text && (mode === "append" || model.provider === "openai")) {
     // An assistant prefix that already reached EOS can immediately stop again.
-    // Keep the same saved contribution as data when requesting words after EOS.
+    // OpenAI chat messages also treat a final assistant message as a prior turn,
+    // not a native unfinished prefix. Supply the exact text as append data.
+    // The controller still preserves interrupted joins without inserting spaces.
     const joinInstruction = /[.!?][\p{Pe}\p{Pf}"']*\s*$/u.test(writer.text)
       ? "Your saved text ends with sentence-ending punctuation. Start a new grammatical sentence with a capital letter. Its opening must stand on its own, rather than depend on the preceding sentence. Keep developing the same contribution."
       : "Your saved text ends inside a word or sentence. Continue from its exact ending, including any necessary space or punctuation. Do not force a new sentence.";

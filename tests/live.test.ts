@@ -274,6 +274,52 @@ describe("one growing participant and collective contribution", () => {
     expect(userFrom(next).task).toMatch(/^Continue/);
   });
 
+  it("resumes an interrupted OpenAI word from explicit text data without inserting a join space", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "fixture-key");
+    const settings = config({
+      mode: "fixed",
+      score: {
+        schemaVersion: 2,
+        title: "Fictional source",
+        chunkPercent: 100,
+        voices: [
+          { id: "a", name: "Voice a", text: "We could organise a meeting." },
+        ],
+      },
+    });
+    settings.composer.provider = "openai";
+    const log = await LiveLog.create(
+      join(directory, `run-${nextPath++}.jsonl`),
+      {
+        type: "live.created",
+        scenario: scenario(),
+        config: settings,
+      },
+    );
+    logs.push(log);
+    await log.append({ type: "session.started" });
+    await log.append({ type: "source.revealed", step: 0 });
+    await savedWriting(log, "collective", "We are organis", "paused");
+    await log.append({ type: "session.paused", elapsedMs: 10, reason: "user" });
+    const generate = vi.fn<Generate>(async (request, onToken) => {
+      expect(
+        request.messages.some((message) => message.role === "assistant"),
+      ).toBe(false);
+      expect(userFrom(request.messages).existingText).toBe("We are organis");
+      expect(userFrom(request.messages).continuationInstruction).toContain(
+        "Continue from its exact ending",
+      );
+      expect(JSON.stringify(request.messages)).not.toContain("PRIVATE_a");
+      await onToken("ing a meeting.");
+      return { text: "ing a meeting." };
+    });
+    const controller = controllerFor(log, generate);
+    await controller.start();
+    await eventually(() => expect(log.state.status).toBe("ended"));
+    expect(log.state.composer.text).toBe("We are organising a meeting.");
+    expect(generate).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     { text: "We need a reliable service.", sentenceEnded: true },
     { text: "Who can question those figures?", sentenceEnded: true },
