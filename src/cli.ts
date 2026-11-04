@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { parseArgs } from "node:util";
+import { formatComposerAudit, inspectComposer } from "./composer-audit.ts";
 import { contributionsFor, percentageRanges } from "./composition.ts";
 import { handleContinuousCommand } from "./continuous-cli.ts";
 import { isContinuousRun } from "./continuous-runs.ts";
@@ -21,6 +22,7 @@ import { handleSimulationCommand } from "./simulation-cli.ts";
 
 const help = `Collective Microphone — collective writing rehearsals
 
+  pnpm cli compose --score <score.json> --config <config.json> [--out <new.jsonl>]
   pnpm cli run --score <score.json> --config <config.json> [--out <new.jsonl>]
   pnpm cli simulate --scenario <scenario.json> --config <config.json> [--out <new.jsonl>] [--auto]
   pnpm cli rehearse --scenario <scenario.json> --config <config.json> [--out <new.jsonl>] [--port <3000>]
@@ -28,13 +30,15 @@ const help = `Collective Microphone — collective writing rehearsals
   pnpm cli simulate-continuous --scenario <scenario.json> --config <config.json> [--out <new.jsonl>]
   pnpm cli resume --run <run.jsonl> [--auto]
   pnpm cli replay --run <run.jsonl>
-  pnpm cli inspect [--run <run.jsonl>] [--json] [--full]
+  pnpm cli inspect [--run <run.jsonl>] [--json] [--full] [--composer]
   pnpm cli rerun --run <run.jsonl> [--config <config.json>] [--out <new.jsonl>]
 
 At the prompt: Enter/next advances one step; retry retries a failed step;
 q/quit pauses the run. Ctrl+C cancels the current attempt. Resume later.
 Replay displays accepted passages immediately without contacting a model.
 Inspect summarises saved outcomes offline; omit --run for the newest JSONL in runs/.
+Inspect --composer shows complete per-request source and output evidence for live journals.
+Compose runs only the live composer against every prewritten voice and slice, then ends.
 Rerun composes again from admitted inputs, starting a separate history.
 Simulate generates participant responses in rounds. --auto advances simulation rounds automatically.
 Simulation rerun uses frozen participant contributions; use simulate for fresh contributions.
@@ -195,6 +199,7 @@ async function main(): Promise<void> {
           port: { type: "string" },
           json: { type: "boolean" },
           full: { type: "boolean" },
+          composer: { type: "boolean" },
         },
       });
     } catch {
@@ -212,6 +217,7 @@ async function main(): Promise<void> {
     !command ||
     ![
       "run",
+      "compose",
       "rehearse",
       "simulate",
       "simulate-continuous",
@@ -222,9 +228,10 @@ async function main(): Promise<void> {
     ].includes(command)
   )
     throw new Error(
-      "Expected run, rehearse, simulate, simulate-continuous, resume, replay, rerun or inspect. Use --help for usage.",
+      "Expected compose, run, rehearse, simulate, simulate-continuous, resume, replay, rerun or inspect. Use --help for usage.",
     );
   const allowed: Record<string, string[]> = {
+    compose: ["score", "config", "out"],
     run: ["score", "config", "out"],
     rehearse: ["scenario", "config", "run", "out", "port"],
     simulate: ["scenario", "config", "out", "auto"],
@@ -232,7 +239,7 @@ async function main(): Promise<void> {
     resume: ["run", "auto"],
     replay: ["run"],
     rerun: ["run", "config", "out"],
-    inspect: ["run", "json", "full"],
+    inspect: ["run", "json", "full", "composer"],
   };
   if (Object.keys(values).some((key) => !allowed[command]?.includes(key)))
     throw new Error(
@@ -240,6 +247,17 @@ async function main(): Promise<void> {
     );
 
   if (command === "inspect") {
+    if (values.composer) {
+      const audit = await inspectComposer(
+        values.run ?? (await latestJournal()),
+      );
+      process.stdout.write(
+        values.json
+          ? `${JSON.stringify(audit, null, 2)}\n`
+          : formatComposerAudit(audit),
+      );
+      return;
+    }
     const summary = await inspectRun(
       values.run ?? (await latestJournal()),
       values.full,

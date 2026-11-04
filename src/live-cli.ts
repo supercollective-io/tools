@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { z } from "zod";
+import { fixedComposerExperiment } from "./composer-experiment.ts";
 import { LiveController } from "./live.ts";
 import {
   isLiveRun,
@@ -11,9 +12,16 @@ import {
 import { type LiveConfig, liveConfigSchema } from "./live-schema.ts";
 import { startLiveServer } from "./live-server.ts";
 import { generate, validateModelEnvironment } from "./models.ts";
-import { parse, readJson, scenarioSchema } from "./schema.ts";
+import {
+  configSchema,
+  parse,
+  readJson,
+  scenarioSchema,
+  scoreSchema,
+} from "./schema.ts";
 
 type Options = {
+  score?: string;
   scenario?: string;
   config?: string;
   run?: string;
@@ -24,7 +32,8 @@ type Options = {
 
 function validateModels(config: LiveConfig): void {
   validateModelEnvironment(config.composer);
-  validateModelEnvironment(config.live.participants);
+  if (config.live.mode !== "fixed")
+    validateModelEnvironment(config.live.participants);
 }
 
 async function readConfig(path: string): Promise<LiveConfig> {
@@ -96,7 +105,7 @@ async function runTerminal(log: LiveLog): Promise<void> {
   process.on("SIGTERM", interrupt);
   try {
     process.stdout.write(
-      `Live rehearsal: ${log.path}\n${log.state.scenario.title}\nAll writers co-write continuously. Appended text is saved immediately. Ctrl+C pauses.\n`,
+      `Live rehearsal: ${log.path}\n${log.state.scenario.title}\nMode: ${log.state.config.live.mode ?? "continuous"}. Appended text is saved immediately. Ctrl+C pauses.\n`,
     );
     show();
     begun = true;
@@ -173,6 +182,21 @@ export async function handleLiveCommand(
   command: string,
   values: Options,
 ): Promise<boolean> {
+  if (command === "compose") {
+    if (!values.score || !values.config)
+      throw new Error("compose requires --score and --config.");
+    const score = await readJson(values.score, scoreSchema, "Score");
+    const config = await readJson(values.config, configSchema, "Configuration");
+    validateModelEnvironment(config.composer);
+    const inputs = fixedComposerExperiment(score, config);
+    await runTerminal(
+      await LiveLog.create(
+        resolve(values.out ?? `runs/${randomUUID()}.jsonl`),
+        { type: "live.created", ...inputs },
+      ),
+    );
+    return true;
+  }
   if (command === "rehearse") {
     if (values.run) {
       if (values.scenario || values.config || values.out)

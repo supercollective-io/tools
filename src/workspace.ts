@@ -269,6 +269,11 @@ export async function startWorkspace(options: WorkspaceOptions) {
           : {}),
         ...(selected.mode === "fixed"
           ? {
+              serialRequestTokens:
+                live.serialRequestTokens ??
+                (options.useDefaults !== false
+                  ? 96
+                  : model.composer.maxOutputTokens),
               score: {
                 ...options.score,
                 voices: voices.map((voice) => {

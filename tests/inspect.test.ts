@@ -497,6 +497,21 @@ describe("offline run inspection", () => {
     });
     expect(stderr).toBe("");
     expect(await readFile(log.path)).toEqual(before);
+    const audit = await promisify(execFile)(
+      process.execPath,
+      ["src/cli.ts", "inspect", "--run", log.path, "--composer", "--json"],
+      {
+        cwd: root,
+        env: { ...process.env, OPENAI_API_KEY: "", LANGSMITH_TRACING: "true" },
+      },
+    );
+    expect(JSON.parse(audit.stdout)).toMatchObject({
+      path: log.path,
+      status: "ready",
+      requests: [],
+    });
+    expect(audit.stdout).not.toContain("PRIVATE");
+    expect(await readFile(log.path)).toEqual(before);
     await expect(
       promisify(execFile)(
         process.execPath,

@@ -589,7 +589,10 @@ export class LiveController {
             return single
               ? {
                   ...configured,
-                  maxOutputTokens: Math.min(configured.maxOutputTokens, 96),
+                  maxOutputTokens: Math.min(
+                    configured.maxOutputTokens,
+                    current.config.live.serialRequestTokens ?? 96,
+                  ),
                 }
               : configured;
           })(),

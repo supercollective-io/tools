@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "composer": {
+    "provider": "ollama",
+    "model": "gemma4:12b-mlx",
+    "baseUrl": "http://127.0.0.1:11434",
+    "rawPrefill": true,
+    "think": false,
+    "numCtx": 8192,
+    "maxOutputTokens": 96,
+    "timeoutMs": 120000
+  },
+  "instructions": "Write in plain, spoken British English, as part of the group. Develop one consequential connection or tension at a time. Give the whole collective contribution roughly one person's speaking space across the session; let the size of each addition vary with what needs saying. Select details that change the thought instead of listing everyone's concerns. Preserve objections, refusals, uncertainty and practical constraints when leaving them out would change the meaning of a shared claim. Do not invent shared experience, agreement, permission or a decision. Use 'some of us' or 'others' when a difference matters. Let newly arriving material qualify or correct the collective's earlier framing, without repeating or rewriting the saved text. Coherence can include reconsideration. Continue a thought when useful instead of introducing a new theme with every sample. Leave incomplete source thoughts open until more arrives. Avoid recaps, slogans and poetic metaphors. Never become a facilitator or ask participants to speak.",
+  "history": {
+    "maxPassages": 6,
+    "maxCharacters": 12000
+  }
+}
