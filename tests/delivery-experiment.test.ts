@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, it } from "vitest";
 import {
+  boundaryInputs,
   deliveryInputs,
   pairReservation,
   runDeliveryExperiment,
@@ -144,3 +145,89 @@ it("keeps partial output and the reservation, skips unsupported steering, and st
   expect(ledger.at(-1)).toMatchObject({ outcome: "failure" });
   expect(ledger.at(-1)).not.toHaveProperty("actualUsd");
 });
+
+it("changes only the opening task while keeping source spans and the common total allowance", async () => {
+  const base = await inputs();
+  const short = boundaryInputs(base, "short");
+  const regular = boundaryInputs(base, "regular");
+  expect(short.update).toEqual(regular.update);
+  expect(short.sources).toEqual(regular.sources);
+  expect(short.initial[0]).toEqual(regular.initial[0]);
+  const firstShort = short.initial[1];
+  const firstRegular = regular.initial[1];
+  if (!firstShort || !firstRegular) throw new Error("Missing packet.");
+  const a = JSON.parse(firstShort.content);
+  const b = JSON.parse(firstRegular.content);
+  expect(a.task).toContain("20–30");
+  expect(b.task).toContain("110");
+  expect(a.task).toContain("140");
+  expect(b.task).toContain("140");
+  delete a.task;
+  delete b.task;
+  expect(a).toEqual(b);
+});
+
+it("freezes and runs the four boundary cells without sending assessment material", async () => {
+  directory = await mkdtemp(join(tmpdir(), "boundary-experiment-"));
+  const seen: string[] = [];
+  const result = await runDeliveryExperiment({
+    boundaryCase: "services",
+    outputDir: join(directory, "run"),
+    ledgerPath: join(directory, "ledger.jsonl"),
+    pair: async (options) => {
+      expect(options.phase).toBe("during");
+      expect(JSON.stringify(options.initial)).not.toContain("assessment");
+      seen.push(options.policy);
+      await options.onRecord({ kind: "delta", delta: "We continue." });
+      return {
+        text: "We continue.",
+        usage: { inputTokens: 50, outputTokens: 5, totalTokens: 55 },
+      };
+    },
+  });
+  expect(seen).toEqual(["complete", "steer", "complete", "steer"]);
+  expect(result.outcomes).toHaveLength(4);
+  const manifest = JSON.parse(
+    await readFile(join(result.directory, "frozen-inputs.json"), "utf8"),
+  );
+  expect(manifest.boundaryCase).toBe("services");
+  expect(manifest.conditionInputs).toHaveLength(4);
+  expect(manifest.protocol).toContain("140");
+});
+
+it.each(["courtyard-laundry", "summer-nights"])(
+  "loads fresh case %s with isolated exact source prefixes",
+  async (boundaryCase) => {
+    directory = await mkdtemp(join(tmpdir(), "boundary-confirmation-"));
+    const result = await runDeliveryExperiment({
+      boundaryCase,
+      outputDir: join(directory, "run"),
+      ledgerPath: join(directory, "ledger.jsonl"),
+      pair: async (options) => {
+        const initial = options.initial[1];
+        if (!initial) throw new Error("Missing initial packet.");
+        const first = JSON.parse(initial.content);
+        const next = JSON.parse(options.update.content);
+        for (const source of next.participants) {
+          const earlier = first.participants.find(
+            (p: { id: string }) => p.id === source.id,
+          );
+          expect(source.text).toBe(earlier.text + source.newText);
+          expect(source.newFrom).toBe(earlier.text.length);
+          expect(initial.content).not.toContain(source.newText);
+        }
+        await options.onRecord({ kind: "delta", delta: "We continue." });
+        return {
+          text: "We continue.",
+          usage: { inputTokens: 50, outputTokens: 5, totalTokens: 55 },
+        };
+      },
+    });
+    expect(result.outcomes).toHaveLength(4);
+    expect(result.outcomes[0]?.label).toBe(
+      boundaryCase === "courtyard-laundry"
+        ? "regular-during-steer"
+        : "regular-during-complete",
+    );
+  },
+);

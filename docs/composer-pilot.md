@@ -22,36 +22,39 @@ table is a work sequence, not a claim that those experiments have run.
 | Delivery comparison          | Complete, no policy winner           | [Nine completed pairs, two actual cancellations and working native steering](composer-delivery-findings-2026-11-04.md). Natural completion is the fixed representation control; browser behaviour stays unchanged. |
 | Typed evidence               | Complete, no compression gain        | [Eight completed outputs and one rejected extraction](composer-extraction-findings-2026-11-04.md). Both bounded formats increase input at this small scale; keep full text as the reference.                       |
 | Supported relationships      | Complete, no clear added benefit     | [Four matched compositions and seven inspected edges](composer-relationships-findings-2026-11-04.md). No clear benefit; added reader delay and two problematic relationships.                                      |
-| Diverse excerpts             | Pending                              | Select varied original passages under the same packet allowance; retain original wording and provenance.                                                                                                           |
-| Global summary               | Pending                              | A generated summary with source references and recorded omissions; assess whether shared themes erase distinctions.                                                                                                |
-| Per-participant summaries    | Pending                              | Preserve distinct perspectives before combining them; assess cost and whether the composer makes connections rather than enumerating.                                                                              |
-| Hierarchical issue synthesis | Pending                              | Group related material, then synthesise; assess the added reader cost, delay and interpretive losses.                                                                                                              |
-| Combined confirmation        | Pending                              | Baseline versus the selected combination on fresh exchanges, including responsive AI participants and participant-level assessments. Include actual preparation delay and cost.                                    |
+| Diverse excerpts             | Deferred                             | Select varied original passages under the same packet allowance; retain original wording and provenance.                                                                                                           |
+| Global summary               | Paused                               | A generated summary with source references and recorded omissions; assess whether shared themes erase distinctions.                                                                                                |
+| Per-participant summaries    | Paused                               | Preserve distinct perspectives before combining them; assess cost and whether the composer makes connections rather than enumerating.                                                                              |
+| Hierarchical issue synthesis | Paused                               | Group related material, then synthesise; assess the added reader cost, delay and interpretive losses.                                                                                                              |
+| Combined confirmation        | Paused                               | Baseline versus the selected combination on fresh exchanges, including responsive AI participants and participant-level assessments. Include actual preparation delay and cost.                                    |
 
-Implement each alternative preprocessing method only after completing the
-preceding method's run and assessment. The five experimental packet approaches
-are typed evidence, diverse excerpts, global summaries, participant summaries
-and hierarchical synthesis. Rotating excerpts are a bounded control; relationship
-edges are a separate intervention on the same evidence. Use an 800-token packet
-allowance for bounded comparisons, with shared instructions and collective
-prefixes outside it. Keep input sets identical where isolating a representation.
+## Current scope: finish delivery, then study representation offline
 
-The initial plan made sentence-boundary cancellation conditional on damaged
-joins alongside excessive completion delay. The delivery screen did not expose
-that combination; it did expose waiting at output-item boundaries.
+On 4 November the creator paused further representation implementations.
+Finish the focused delivery investigation with unchanged full source text.
+Compare short natural completions with ordinary passages and hold overall
+speaking opportunity constant. The [boundary protocol](composer-boundary-protocol.md)
+defines the next experiment. Keep browser behaviour unchanged until evidence
+justifies a separate integration decision.
 
-The creator also proposed more frequent output boundaries after the delivery
-screen. That screen tested the existing passage length and does not settle
-generation granularity. A focused follow-up can compare one short thought per
-natural completion with ordinary passages, and sentence-boundary cancellation
-when new context is pending. Compare native steering and ordinary completion
-under identical short-output instructions to separate length effects from
-transport effects. Measure useful uptake, pauses, continuity and cost at equal
-total speaking space. The current API documentation exposes no punctuation-based
-output-item boundary setting; a full stop in streamed text is not itself a
-provider item boundary. Tool-based emission checkpoints are a more involved
-alternative, requiring additional orchestration. These modifications remain
-unimplemented and untested.
+Diverse excerpts are deferred until source material substantially exceeds the
+available context allowance. The four short accounts already fit in full.
+Unfinished, untested draft code is preserved under ignored
+`runs/composer-pilot/deferred-diverse-2026-11-04/` and is not part of the build.
+
+A separate representation study will use approximately 100 varied participant
+accounts, initially without a live deadline. Quality comes first: the earlier
+800-token packet and 25% prompt-reduction targets are not gates for that study.
+Record preparation time and cost, then investigate incremental updates after a
+useful representation approach exists. Offline responsive AI-participant rounds
+can test both recognition and conversation without a latency constraint. Its
+implementation and trials remain future work, not part of this delivery slice.
+
+Sentence-boundary cancellation remains conditional on broken cancellation joins
+alongside excessive natural-completion delay. A punctuation mark in streamed
+text is not itself a provider output-item boundary. Tool-based emission
+checkpoints require more orchestration and remain deferred. The boundary probe
+will test shorter natural completion, not forced provider segmentation.
 
 ## Resource and evidence controls
 
