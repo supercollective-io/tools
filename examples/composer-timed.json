@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "title": "Timed replay: four original score voices",
+  "invitation": "Rehearsing We — what would it take for us to have a real say over the things we depend on?",
+  "durationMs": 24000,
+  "voices": [
+    {
+      "id": "chris",
+      "name": "Chris"
+    },
+    {
+      "id": "rosa",
+      "name": "Rosa"
+    },
+    {
+      "id": "alex",
+      "name": "Alex"
+    },
+    {
+      "id": "mo",
+      "name": "Mo"
+    }
+  ],
+  "events": [
+    {
+      "id": "chris-1",
+      "atMs": 0,
+      "participantId": "chris",
+      "text": "We got more than six hundred signatures about the evening bus and nothing changed. I helped collect them, so I'm a bit tired of being told to start a peti"
+    },
+    {
+      "id": "rosa-1",
+      "atMs": 0,
+      "participantId": "rosa",
+      "text": "In our housing co-op we replaced the cleaning company and the new one is much better. We could change the contract ourselves. I like that, and I wouldn"
+    },
+    {
+      "id": "alex-1",
+      "atMs": 0,
+      "participantId": "alex",
+      "text": "Please don't make the answer that families should take turns doing the care. I'm already filling in when my mum's visits a"
+    },
+    {
+      "id": "mo-1",
+      "atMs": 0,
+      "participantId": "mo",
+      "text": "I'd help with the library again if there was a clear job. Last time there were hundreds of messages and then everything went quiet. I never found out whether anyone m"
+    },
+    {
+      "id": "chris-2",
+      "atMs": 4000,
+      "participantId": "chris",
+      "text": "tion. The last service now leaves before my dad has finished his tea. He says I should go, but then he has the whole evening on his own. A taxi home costs"
+    },
+    {
+      "id": "rosa-2",
+      "atMs": 4000,
+      "participantId": "rosa",
+      "text": "'t go back to having a landlord if I could help it. But choosing someone to repair the boiler took weeks because nobody wanted responsibility for getti"
+    },
+    {
+      "id": "alex-2",
+      "atMs": 4000,
+      "participantId": "alex",
+      "text": "re late. She needs help getting up, so a different time isn't a small change. I've had to leave work twice this month. Whe"
+    },
+    {
+      "id": "mo-2",
+      "atMs": 4000,
+      "participantId": "mo",
+      "text": "et the council. I still go on Tuesdays to use the computers, so I could ask people there about the proposed hours. That would feel useful. I don't want to join three m"
+    },
+    {
+      "id": "chris-3",
+      "atMs": 8000,
+      "participantId": "chris",
+      "text": " more than I can keep paying. Apparently there was a consultation. I found the page afterwards and it asked which of three cuts people preferred. Keeping "
+    },
+    {
+      "id": "rosa-3",
+      "atMs": 8000,
+      "participantId": "rosa",
+      "text": "ng it wrong. I don't think a vote fixes every decision. Someone with experience could choose the contractor within an agreed budget. We would need to se"
+    },
+    {
+      "id": "alex-3",
+      "atMs": 8000,
+      "participantId": "alex",
+      "text": "n I phone the company they say the council hasn't paid for enough time, and the council tells me to speak to the company. "
+    },
+    {
+      "id": "mo-3",
+      "atMs": 8000,
+      "participantId": "mo",
+      "text": "ore chats. There was an argument about putting another campaign's slogan on our leaflets, and after that I couldn't tell what my name was being used to support. I agre"
+    },
+    {
+      "id": "chris-4",
+      "atMs": 12000,
+      "participantId": "chris",
+      "text": "the service wasn't an option. I don't want to organise a volunteer bus. I want the people paid to run it to explain what it would take to restore it, with"
+    },
+    {
+      "id": "rosa-4",
+      "atMs": 12000,
+      "participantId": "rosa",
+      "text": "e what they'd spent. At the moment the same three people know how all the accounts work. When I asked about the service charge, they sent me a spreadsh"
+    },
+    {
+      "id": "alex-4",
+      "atMs": 12000,
+      "participantId": "alex",
+      "text": "I'd like to compare notes with other families, but I can't take on organising a group. If someone could stay with Mum, I c"
+    },
+    {
+      "id": "mo-4",
+      "atMs": 12000,
+      "participantId": "mo",
+      "text": "ed about keeping the library open. I didn't agree with everything everyone said, and I don't think I have to. Maybe the people doing most of the work felt they should "
+    },
+    {
+      "id": "chris-5",
+      "atMs": 16000,
+      "participantId": "chris",
+      "text": " figures we can question. I'd go to that meeting. I might be angry at it, though, and I don't want someone deciding that means I'm not being constructive."
+    },
+    {
+      "id": "rosa-5",
+      "atMs": 16000,
+      "participantId": "rosa",
+      "text": "eet. I couldn't follow it, and then I felt awkward asking again. One of them offered to go through it with me, but only during the day when I'm working."
+    },
+    {
+      "id": "alex-5",
+      "atMs": 16000,
+      "participantId": "alex",
+      "text": "ould come to a meeting. She should have a say as well. People keep asking me what she needs when she's sitting right there."
+    },
+    {
+      "id": "mo-5",
+      "atMs": 16000,
+      "participantId": "mo",
+      "text": "decide. I can understand that, but then tell us what the decision is and let us say whether we're part of it. Even if we lose, I want someone to tell me what happened."
+    }
+  ]
+}
