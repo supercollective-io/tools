@@ -55,3 +55,22 @@ The local example limits output to 256 tokens and explicitly sets `think: false`
 Keep credentials out of these files, scores and run records. The examples contain no credentials.
 
 Start a new `run` to use this score. Existing logs preserve their original source material and configuration: replaying or rerunning an earlier session will still use its recorded contributions, including the curated fragments in version-1 logs. Existing logs are not resliced using the current score.
+
+## Live composer experiments
+
+The descriptions above cover the earlier `run` command. The automatic `compose`
+command uses the live append-only engine, supplies full admitted prefixes, and
+saves every streamed addition, including interrupted text. See the
+[experiment procedure](../docs/composer-experiment.md).
+
+- `composer-baseline.json` and `composer-candidate.json` compare instructions on
+  the installed Gemma model. Their 96-token budgets reproduce earlier rehearsals;
+  raise the budget equally when assessing natural length.
+- `composer-terra.json`, `composer-sol.json` and `composer-astra.json` keep the
+  baseline instructions with explicit cloud choices: Terra with no reasoning,
+  Sol with low reasoning, and Astra with high reasoning. They require
+  `OPENAI_API_KEY`; there is no automatic cloud fallback.
+- `composer-corrections.json` is a separate four-person fixed score about a
+  community room. Later text changes an offer and withdraws permission. It tests
+  whether the developing collective responds to corrections and preserves
+  practical limits, with no generated participants.

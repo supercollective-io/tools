@@ -74,6 +74,29 @@ scheduling and recovery, the [mode comparison](docs/workspace-modes-2026-11-03.m
 for observed model failures and fixes, and the historical experiments below for
 their original terminal commands.
 
+## Develop the composer
+
+The final performance uses a model composer with human participants. Generated
+participants are development fixtures. Use the [composer experiment](docs/composer-experiment.md)
+to compare all eight prewritten contributions, inspect each request against its
+actual inputs, and test proportion, consequential differences and development.
+The [model comparison](docs/composer-models-2026-11-04.md) separates composer
+requirements from synthetic-participant needs and estimates cloud costs.
+The [local shortlist](docs/local-models-2026-11-04.md) assesses alternatives for
+an M1 Pro laptop with 16 GB unified memory.
+The [measured comparison](docs/composer-comparison-2026-11-04.md) records repeated
+Terra, Sol and Astra High runs, correction tests, delivery, costs and the
+OpenAI interrupted-continuation fix.
+
+```sh
+mise exec -- pnpm cli compose --score examples/score.json --config examples/composer-baseline.json --out runs/composer-baseline.jsonl
+mise exec -- pnpm inspect --run runs/composer-baseline.jsonl --composer
+```
+
+`compose` runs the current append-only composer automatically, without generating
+participants. The local example requires the existing Gemma service. Cloud
+configuration is explicit; there is no automatic fallback.
+
 ## Run a scripted Stage 1 rehearsal
 
 1. Start an existing Ollama service and inspect its models with `ollama list`.

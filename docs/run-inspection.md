@@ -27,6 +27,34 @@ journal internally; the output is focused, not a streaming index for huge logs.
 
 ## Interpret the result
 
+For current live journals, `--composer` selects the complete request evidence
+view instead of the summary:
+
+```sh
+mise exec -- pnpm inspect --run runs/session.jsonl --composer
+mise exec -- pnpm inspect --run runs/session.jsonl --composer --json
+```
+
+This view includes each composer's source prefixes and newly available suffixes,
+the collective text before the request, its saved addition, finish reason,
+publication offsets and whole-run proportion. It verifies recognised source
+fields against recorded offsets; unrecognised or inconsistent prompt evidence is
+marked uncertain. Private starting context and full prompts are omitted.
+Whole-run proportion uses saved/revealed participant writing; in generated modes
+some of that writing may not yet have reached the composer. Each request's
+proportion instead uses only that request's recorded source prefixes.
+`--full` is redundant with `--composer`: source and collective writing are always
+complete. Historical formats require ordinary `inspect`.
+
+Fingerprints support comparisons of inputs, configuration and normalised prompts;
+they are not quality scores or proof of deterministic generation. See the
+[composer experiment](composer-experiment.md) for interpretation. First-text delay
+uses saved journal timestamps, including write overhead. Character counts use
+Unicode code points; recorded source/publication offsets use JavaScript UTF-16
+indices. Whitespace-separated word counts are approximate: a separately emitted
+full stop can count as one fragment-word, while the whole-text count treats it
+as part of the preceding word. Judge proportion over the whole text.
+
 The summary shows identity, model names, last recorded status, progress,
 outstanding attempts, recent failure history and saved writing. Read the
 collective text alongside participant text to assess composition. For long

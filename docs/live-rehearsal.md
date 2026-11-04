@@ -8,17 +8,21 @@ one writer at a time. A model request is an inference
 continuation, not a participant turn: a request ending, reaching its token budget
 or refreshing its context does not finish or replace the contribution.
 
-Each new request receives its writer's complete saved text. After interruption,
-refresh or a token-budget boundary, the text is supplied as an assistant prefill
-so an unfinished word can continue. After a natural end of generation, the full
-text is supplied as `existingText` data with an explicit append task, without an
-assistant prefill that could immediately produce the same end marker again.
+Each new request receives its writer's complete saved text. For Ollama, after
+interruption, refresh or a token-budget boundary, the text is supplied as an
+assistant prefill so an unfinished word can continue. OpenAI receives the exact
+saved text as `existingText` data with an explicit continuation task, including
+after interruption: a final assistant message is not a native unfinished prefix.
+After a natural end of generation, both providers receive `existingText` data
+with an explicit append task, without an assistant prefill that could immediately
+produce the same end marker again.
 If a non-empty saved prefill yields no new output, the controller attempts this
 append mode once; another empty generation pauses with an explicit error.
 
 Append mode can insert one mechanical space at the join when the saved text ends
 in a non-whitespace character and new output starts with a letter or number.
-Prefill mode does not insert that separator. Saved text is never deleted,
+Interrupted continuation does not insert that separator, including OpenAI's
+data-based continuation. Saved text is never deleted,
 rewritten or retrospectively repaired. Inspect joins during rehearsal: a
 continuation instruction does not guarantee that a model will follow it.
 
@@ -109,6 +113,13 @@ sentences or themes. Every participant's revealed prefix remains visible beside
 the collective. Participant models are never called. The composer continues after
 each slice, and the session ends after the final slice is composed. This permits
 comparisons with identical source inputs; generation itself is not deterministic.
+New `compose` runs and custom fixed-mode browser sessions freeze their configured
+composer budget in `live.serialRequestTokens`, including any reasoning tokens.
+The effective ceiling is the smaller of that value and the writer's model budget.
+Older journals without the field retain their original 96-token scheduler ceiling
+on resume; default browser presets and chunked sessions also retain 96 tokens.
+For an automatic composer-only run and per-request assessment,
+use the [composer experiment](composer-experiment.md).
 
 The serial scheduler is journalled. A completed request advances the cursor
 atomically, so reopening does not replay completed participant work. Interrupted

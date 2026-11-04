@@ -44,18 +44,19 @@ TypeScript check covers `.ts` files, not the browser's plain JavaScript.
 The application is one Node process, with plain browser assets and versioned
 JSONL storage. It has no Svelte application or database yet.
 
-| Task                                          | Source entry points                                      | Test entry points                                                 |
-| --------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------- |
-| Launcher, model setup and shutdown            | `src/start.ts`, `src/local-models.ts`                    | `tests/start.test.ts`                                             |
-| Session selection and browser controls        | `src/workspace.ts`, `src/live-server.ts`, `src/web/`     | `tests/workspace.test.ts`, `tests/live-server.test.ts`            |
-| Current scheduling, prompts and continuations | `src/live.ts`, `src/live-schema.ts`                      | `tests/live.test.ts`, `tests/modes.test.ts`                       |
-| Live event contracts and state reconstruction | `src/live-runs.ts`                                       | `tests/live-runs.test.ts`                                         |
-| Journal locking, ordered writes and recovery  | `src/journal.ts`                                         | `tests/journal.test.ts` and affected mode's run tests             |
-| Model adapters and native prefill             | `src/models.ts`                                          | `src/models.test.ts`, `tests/native-prefill.test.ts`              |
-| Focused offline run outcomes                  | `src/inspect.ts`, `src/cli.ts`                           | `tests/inspect.test.ts`                                           |
-| Scripted Stage 1 and percentage slicing       | `src/controller.ts`, `src/composition.ts`, `src/runs.ts` | `tests/core.test.ts`, `tests/slices.test.ts`, `tests/cli.test.ts` |
-| Round-based Stage 2A                          | `src/simulation.ts`, `src/simulation-runs.ts`            | `tests/simulation.test.ts`, `tests/simulation-cli.test.ts`        |
-| Historical bounded-turn compatibility         | `src/continuous.ts`, `src/continuous-runs.ts`            | `tests/continuous.test.ts`, `tests/continuous-cli.test.ts`        |
+| Task                                          | Source entry points                                                      | Test entry points                                                   |
+| --------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| Launcher, model setup and shutdown            | `src/start.ts`, `src/local-models.ts`                                    | `tests/start.test.ts`                                               |
+| Session selection and browser controls        | `src/workspace.ts`, `src/live-server.ts`, `src/web/`                     | `tests/workspace.test.ts`, `tests/live-server.test.ts`              |
+| Current scheduling, prompts and continuations | `src/live.ts`, `src/live-schema.ts`                                      | `tests/live.test.ts`, `tests/modes.test.ts`                         |
+| Live event contracts and state reconstruction | `src/live-runs.ts`                                                       | `tests/live-runs.test.ts`                                           |
+| Journal locking, ordered writes and recovery  | `src/journal.ts`                                                         | `tests/journal.test.ts` and affected mode's run tests               |
+| Model adapters and native prefill             | `src/models.ts`                                                          | `src/models.test.ts`, `tests/native-prefill.test.ts`                |
+| Focused offline run outcomes                  | `src/inspect.ts`, `src/cli.ts`                                           | `tests/inspect.test.ts`                                             |
+| Composer experiments and request evidence     | `src/composer-experiment.ts`, `src/composer-audit.ts`, `src/live-cli.ts` | `tests/composer-experiment.test.ts`, `tests/composer-audit.test.ts` |
+| Scripted Stage 1 and percentage slicing       | `src/controller.ts`, `src/composition.ts`, `src/runs.ts`                 | `tests/core.test.ts`, `tests/slices.test.ts`, `tests/cli.test.ts`   |
+| Round-based Stage 2A                          | `src/simulation.ts`, `src/simulation-runs.ts`                            | `tests/simulation.test.ts`, `tests/simulation-cli.test.ts`          |
+| Historical bounded-turn compatibility         | `src/continuous.ts`, `src/continuous-runs.ts`                            | `tests/continuous.test.ts`, `tests/continuous-cli.test.ts`          |
 
 `src/cli.ts` dispatches to mode-specific CLI modules. New
 `simulate-continuous` runs use `live-*`; the similarly named `continuous-*`
