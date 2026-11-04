@@ -14,6 +14,7 @@ export type ModelConfig = {
   think?: boolean;
   numCtx?: number;
   rawPrefill?: boolean;
+  reasoningEffort?: "none" | "low" | "medium" | "high";
   maxOutputTokens: number;
   timeoutMs: number;
 };
@@ -272,6 +273,9 @@ export const generate: Generate = async (
               ? {}
               : { temperature: config.temperature }),
             maxCompletionTokens: config.maxOutputTokens,
+            ...(config.reasoningEffort === undefined
+              ? {}
+              : { reasoningEffort: config.reasoningEffort }),
             timeout: config.timeoutMs,
             maxRetries: 0,
             streamUsage: true,

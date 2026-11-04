@@ -171,7 +171,13 @@ describe("model adapter", () => {
     });
     await generate(
       {
-        config: { ...config, provider: "openai", think: false, numCtx: 8192 },
+        config: {
+          ...config,
+          provider: "openai",
+          think: false,
+          numCtx: 8192,
+          reasoningEffort: "low",
+        },
         messages: [],
         signal: new AbortController().signal,
       },
@@ -184,11 +190,35 @@ describe("model adapter", () => {
         timeout: 1_000,
         maxRetries: 0,
         streamUsage: true,
+        reasoningEffort: "low",
       }),
     );
     expect(mocks.ollama).not.toHaveBeenCalled();
     expect(mocks.openai.mock.calls[0]?.[0]).not.toHaveProperty("think");
     expect(mocks.openai.mock.calls[0]?.[0]).not.toHaveProperty("numCtx");
+  });
+
+  it("validates explicit reasoning effort without applying it to Ollama", () => {
+    expect(
+      baseConfigSchema.shape.composer.safeParse({
+        ...config,
+        provider: "openai",
+        reasoningEffort: "none",
+      }).success,
+    ).toBe(true);
+    expect(
+      baseConfigSchema.shape.composer.safeParse({
+        ...config,
+        reasoningEffort: "low",
+      }).success,
+    ).toBe(false);
+    expect(
+      baseConfigSchema.shape.composer.safeParse({
+        ...config,
+        provider: "openai",
+        reasoningEffort: "unknown",
+      }).success,
+    ).toBe(false);
   });
 
   it("does not start an already-aborted request", async () => {
