@@ -121,15 +121,29 @@ describe("timed composer replay", () => {
         : [],
     );
     expect(ariRequests.length).toBeGreaterThan(1);
-    expect(
-      ariRequests.some((request) =>
-        request.messages.some(
-          (message) =>
-            message.role === "assistant" &&
-            message.content === "The quiet corner feels lonely ",
-        ),
-      ),
-    ).toBe(true);
+    // Under a loaded test suite, a refresh may occur after the second arrival.
+    // Check the actual saved prefix at every restart instead of assuming that
+    // one restart falls inside a particular wall-clock window.
+    let ariPrefix = "";
+    let verifiedRestarts = 0;
+    for (const { event } of saved.events) {
+      if (event.type === "text.appended" && event.actorId === "participant/ari")
+        ariPrefix += event.text;
+      if (
+        event.type === "generation.started" &&
+        event.actorId === "participant/ari" &&
+        ariPrefix
+      ) {
+        expect(
+          event.messages.some(
+            (message) =>
+              message.role === "assistant" && message.content === ariPrefix,
+          ),
+        ).toBe(true);
+        verifiedRestarts++;
+      }
+    }
+    expect(verifiedRestarts).toBeGreaterThan(0);
     expect(composerInputs.length).toBeGreaterThan(0);
     expect(composerConfigs[0]).toMatchObject({
       model: "gpt-6.1-terra",

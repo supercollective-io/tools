@@ -1,14 +1,16 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, it } from "vitest";
 import {
   fullPacket,
   packetTokens,
+  parseEvidence,
   readerMessages,
 } from "../src/composer-evidence.ts";
 import type { Generate, PromptMessage } from "../src/models.ts";
 import {
+  acceptedEvidence,
   representationCases,
   representationPrompt,
   runRepresentationExperiment,
@@ -156,4 +158,86 @@ it("does not compose an over-budget packet and preserves failures without raw pr
   ).toBe(true);
   const saved = await readFile(join(result.directory, "outcomes.json"), "utf8");
   expect(saved).not.toContain("secret upstream body");
+});
+
+it("compares unchanged nodes and keeps a prior failed extraction unavailable", async () => {
+  directory = await mkdtemp(join(tmpdir(), "relationships-"));
+  const cases = await representationCases();
+  const prior = join(directory, "prior");
+  await mkdir(prior);
+  await writeFile(join(prior, "frozen-inputs.json"), JSON.stringify({ cases }));
+  await writeFile(
+    join(prior, "outcomes.json"),
+    JSON.stringify(
+      cases.map((item) => ({
+        caseId: item.id,
+        method: "typed",
+        status: item.id === "services" ? "failed" : "completed",
+      })),
+    ),
+  );
+  for (const item of cases.filter(({ id }) => id !== "services")) {
+    const records = parseEvidence(
+      JSON.stringify({
+        records: item.sources.map((source) => ({
+          sourceId: source.id,
+          quote: source.text.slice(0, source.availableTo).split(".")[0],
+          kind: "experience",
+          interpretation: "An attributed experience.",
+        })),
+      }),
+      item.sources,
+    );
+    await writeFile(
+      join(prior, `${item.id}-typed.jsonl`),
+      `${JSON.stringify({ kind: "extracted", records })}\n`,
+    );
+  }
+  const evidence = await acceptedEvidence(prior, cases);
+  expect(evidence).not.toHaveProperty("services");
+  await expect(acceptedEvidence(prior, cases.slice(1))).rejects.toThrow(
+    /sources differ/u,
+  );
+  const inputs: string[] = [];
+  const result = await runRepresentationExperiment({
+    slice: "relationships",
+    sourceAttempt: prior,
+    outputDir: join(directory, "run"),
+    ledgerPath: join(directory, "ledger.jsonl"),
+    countTokens: async (text) => packetTokens(text),
+    generate: async (request, onToken) => {
+      const reader = request.config.model === "gpt-6-luna";
+      const text = reader
+        ? JSON.stringify({
+            relationships: [
+              {
+                from: 0,
+                to: 1,
+                kind: "qualification",
+                interpretation:
+                  "A test interpretation, not a semantic validity claim.",
+              },
+            ],
+          })
+        : " We can keep thinking together.";
+      if (!reader) inputs.push(request.messages[2]?.content ?? "{}");
+      await onToken(text);
+      return {
+        text,
+        usage: { inputTokens: 40, outputTokens: 10, totalTokens: 50 },
+      };
+    },
+  });
+  expect(
+    result.outcomes.filter(({ status }) => status === "not_dispatched"),
+  ).toHaveLength(2);
+  expect(
+    result.outcomes.filter(({ status }) => status === "completed"),
+  ).toHaveLength(4);
+  for (let i = 0; i < inputs.length; i += 2) {
+    const left = JSON.parse(inputs[i] ?? "{}");
+    const right = JSON.parse(inputs[i + 1] ?? "{}");
+    expect(left.records).toEqual(right.records);
+    expect(Boolean(left.relationships)).not.toBe(Boolean(right.relationships));
+  }
 });

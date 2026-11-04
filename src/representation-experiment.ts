@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import OpenAI from "openai";
 import { z } from "zod";
 import {
+  type EvidenceRecord,
   evidencePacket,
   fullPacket,
   parseEvidence,
@@ -11,6 +12,11 @@ import {
   rotatingPacket,
   type Source,
 } from "./composer-evidence.ts";
+import {
+  parseRelationships,
+  relationshipMessages,
+  relationshipPacket,
+} from "./composer-relationships.ts";
 import { createBudgetedGenerate } from "./experiment-budget.ts";
 import { collectiveInstructions } from "./live.ts";
 import {
@@ -45,8 +51,7 @@ export type RepresentationCase = {
   prefix: string;
   sources: Source[];
 };
-const methods = ["full", "rotating", "typed"] as const;
-type Method = (typeof methods)[number];
+type Method = "full" | "rotating" | "typed" | "nodes" | "relationships";
 const hash = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const words = (text: string) => text.match(/\S+/gu)?.length ?? 0;
@@ -146,6 +151,55 @@ const providerCount: CountTokens = async (text, config, signal) => {
   return result.input_tokens;
 };
 
+/** Reuse only accepted extractions with exactly the current frozen source cases. */
+export async function acceptedEvidence(
+  directory: string,
+  cases: RepresentationCase[],
+): Promise<Record<string, EvidenceRecord[]>> {
+  const prior = JSON.parse(
+    await readFile(resolve(directory, "frozen-inputs.json"), "utf8"),
+  );
+  if (hash(prior.cases) !== hash(cases))
+    throw new Error("Prior extraction sources differ from this comparison.");
+  const outcomes = JSON.parse(
+    await readFile(resolve(directory, "outcomes.json"), "utf8"),
+  ) as { caseId: string; method: string; status: string }[];
+  const accepted: Record<string, EvidenceRecord[]> = {};
+  for (const item of cases) {
+    if (
+      !outcomes.some(
+        (outcome) =>
+          outcome.caseId === item.id &&
+          outcome.method === "typed" &&
+          outcome.status === "completed",
+      )
+    )
+      continue;
+    const events = (
+      await readFile(resolve(directory, `${item.id}-typed.jsonl`), "utf8")
+    )
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+    const records = events.find((event) => event.kind === "extracted")
+      ?.records as EvidenceRecord[] | undefined;
+    if (!records)
+      throw new Error("Accepted extraction has no evidence records.");
+    accepted[item.id] = parseEvidence(
+      JSON.stringify({
+        records: records.map(({ sourceId, quote, kind, interpretation }) => ({
+          sourceId,
+          quote,
+          kind,
+          interpretation,
+        })),
+      }),
+      item.sources,
+    );
+  }
+  return accepted;
+}
+
 export async function runRepresentationExperiment(
   options: {
     outputDir?: string;
@@ -153,6 +207,10 @@ export async function runRepresentationExperiment(
     ledgerPath?: string;
     generate?: Generate;
     countTokens?: CountTokens;
+    slice?: "typed" | "relationships";
+    sourceAttempt?: string;
+    /** Offline tests inject already-bound records instead of reading personal runs. */
+    evidenceByCase?: Record<string, EvidenceRecord[]>;
   } = {},
 ) {
   const config = configSchema.parse(
@@ -169,13 +227,31 @@ export async function runRepresentationExperiment(
     throw new Error("Representation configuration differs from the protocol.");
   const readerConfig = { ...config.composer, model: "gpt-6-luna" };
   const cases = await representationCases();
+  const relationships = options.slice === "relationships";
+  const methods: Method[] = relationships
+    ? ["nodes", "relationships"]
+    : ["full", "rotating", "typed"];
+  const sliceId = relationships ? "evidence-relationships" : "typed-extraction";
+  const evidenceByCase = relationships
+    ? (options.evidenceByCase ??
+      (options.sourceAttempt
+        ? await acceptedEvidence(options.sourceAttempt, cases)
+        : undefined))
+    : undefined;
+  if (relationships && !evidenceByCase)
+    throw new Error(
+      "Relationship comparison requires an accepted extraction attempt.",
+    );
   const protocol = await readFile(
-    "docs/composer-extraction-protocol.md",
+    relationships
+      ? "docs/composer-relationships-protocol.md"
+      : "docs/composer-extraction-protocol.md",
     "utf8",
   );
   const runId = randomUUID();
   const directory = resolve(
-    options.outputDir ?? `runs/composer-pilot/extraction-${runId}`,
+    options.outputDir ??
+      `runs/composer-pilot/${relationships ? "relationships" : "extraction"}-${runId}`,
   );
   await mkdir(directory, { recursive: false });
   await writeFile(
@@ -185,6 +261,9 @@ export async function runRepresentationExperiment(
         schemaVersion: 1,
         runId,
         previousAttempt: options.previousAttempt ?? null,
+        sourceAttempt: options.sourceAttempt ?? null,
+        slice: options.slice ?? "typed",
+        evidenceByCase,
         protocol,
         config,
         readerConfig,
@@ -193,6 +272,7 @@ export async function runRepresentationExperiment(
           protocol: hash(protocol),
           cases: hash(cases),
           config: hash(config),
+          evidence: hash(evidenceByCase ?? null),
         },
         order: cases.flatMap((item, index) =>
           methods.map((_, n) => ({
@@ -222,6 +302,15 @@ export async function runRepresentationExperiment(
       for (let n = 0; n < methods.length; n++) {
         if (controller.signal.aborted) break;
         const method = methods[(caseIndex + n) % methods.length] as Method;
+        if (relationships && !evidenceByCase?.[item.id]) {
+          outcomes.push({
+            caseId: item.id,
+            method,
+            status: "not_dispatched",
+            reason: "prior_extraction_failed",
+          });
+          continue;
+        }
         const label = `${item.id}-${method}`;
         const trace = await open(resolve(directory, `${label}.jsonl`), "ax");
         const started = performance.now();
@@ -237,7 +326,7 @@ export async function runRepresentationExperiment(
           ledgerPath: options.ledgerPath ?? "runs/composer-pilot/usage.jsonl",
           totalBudgetUsd: 5,
           sliceCapUsd: 0.5,
-          sliceId: "typed-extraction",
+          sliceId,
           runId: `${runId}/${label}/${kind}`,
         });
         const call = async (
@@ -282,12 +371,32 @@ export async function runRepresentationExperiment(
             await record({ kind: "extracted", records });
           }
           stage = "packet_selection";
-          const packet =
+          let packet =
             method === "full"
               ? fullPacket(item.sources)
               : method === "rotating"
                 ? rotatingPacket(item.sources, caseIndex, 760)
-                : evidencePacket(item.sources, records ?? [], 760, caseIndex);
+                : evidencePacket(
+                    item.sources,
+                    relationships
+                      ? (evidenceByCase?.[item.id] ?? [])
+                      : (records ?? []),
+                    relationships ? 560 : 760,
+                    caseIndex,
+                  );
+          if (method === "relationships") {
+            await record({ kind: "selected_nodes", packet });
+            stage = "relationship_reader";
+            const response = await call(
+              "reader",
+              readerConfig,
+              relationshipMessages(packet),
+            );
+            stage = "relationship_validation";
+            const edges = parseRelationships(response.text, packet);
+            await record({ kind: "relationships_extracted", edges });
+            packet = relationshipPacket(packet, edges, 760);
+          }
           const preprocessingMs = performance.now() - started;
           await record({ kind: "packet", packet, preprocessingMs });
           let providerTokens = -1;
@@ -375,7 +484,15 @@ if (
   process.argv[1] &&
   resolve(process.argv[1]) === resolve(import.meta.filename)
 ) {
-  runRepresentationExperiment({ previousAttempt: process.argv[2] })
+  runRepresentationExperiment(
+    process.argv[2] === "relationships"
+      ? {
+          slice: "relationships",
+          sourceAttempt: process.argv[3],
+          previousAttempt: process.argv[4],
+        }
+      : { previousAttempt: process.argv[2] },
+  )
     .then((result) => {
       console.log(
         JSON.stringify(
