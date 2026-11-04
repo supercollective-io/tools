@@ -61,12 +61,49 @@ continuation and speaking space. A short output need not mention everyone in
 every passage. Label automated reviewers as model assessments. These assessments
 cannot establish whether real participants recognise themselves.
 
+A critical distortion asserts or implies a commitment that its source refuses,
+removes an operative condition from a commitment the composer actually makes,
+attributes a restricted position to everyone, or keeps withdrawn permission in
+force. After a complete corrective statement is available, a trajectory must
+repair any conflicting commitment it previously made in its next addition and
+must not reinstate that commitment later. Silence about an offer the composer
+never adopted is not automatically a critical omission. Do not judge a partial
+source as if its unavailable ending had already been supplied.
+
+For coherence, record unrecoverable sentence joins, fresh introductions that
+restart the piece, and repetitions that add no changed condition or detail. A
+trajectory is unusable if it contains an unrecoverable join, or at least two of
+its four continuations merely restart or repeat earlier writing. Speaking-space
+ratios are descriptive; there is no new automatic length rejection criterion.
+
+One subscription-backed Luna reviewer receives only anonymous trajectories and
+this rubric. The primary agent verifies consequential judgements against exact
+sources before unblinding. Save both the model assessment and the primary
+assessment, including disagreements. The repeat rule applies when a critical
+Luna-only failure or unusable Luna trajectory occurs in one paired repetition
+but not the other; otherwise apply the retention rule directly. Additional
+repetitions require a separately frozen, linked invocation, never an automatic
+retry or replacement of an unsuccessful run.
+
 ## Verification and record
 
 Run focused tests and `mise exec -- pnpm run verify` before paid trials. Inspect
 every saved journal with the existing composer audit. Preserve all paired
 outcomes, including failures. Commit aggregate findings and ignored run paths;
 keep full writing and anonymised assessment bundles in `runs/`.
+
+Run the frozen screen with:
+
+```sh
+mise exec -- node --env-file-if-exists=.env src/luna-screen.ts
+```
+
+It creates a new `runs/composer-pilot/luna-<uuid>/` directory and uses
+`runs/composer-pilot/usage.jsonl` across all attempts. To link a replacement,
+pass the preceding attempt directory as the sole argument. The command does
+not resume or overwrite earlier writing. Use the existing `pnpm inspect --run
+<journal> --composer --json` command for each saved journal. Keep
+`blinding-key.json` away from reviewers until their assessments are saved.
 
 The expected charge is approximately US$0.17, not a guaranteed quote. Rates used
 for conservative accounting are Luna US$0.10 input / US$0.50 output and Terra

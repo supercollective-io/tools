@@ -135,6 +135,7 @@ describe("native Ollama prefill", () => {
       expect(prefix + received.join("")).toBe(joined);
       expect(result).toEqual({
         text: tokens.join(""),
+        finishReason: "stop",
         usage: { inputTokens: 12, outputTokens: 5, totalTokens: 17 },
       });
       expect(requests.map((request) => request.path)).toEqual([

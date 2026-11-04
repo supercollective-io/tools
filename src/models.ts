@@ -32,6 +32,7 @@ export type ModelRequest = {
 
 export type ModelResult = {
   text: string;
+  finishReason?: string;
   usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
 };
 
@@ -313,6 +314,7 @@ export const generate: Generate = async (
         });
     let text = "";
     let usage: ModelResult["usage"];
+    let providerFinishReason: string | undefined;
     for await (const chunk of stream) {
       controller.signal.throwIfAborted();
       // Completion metadata may precede a separate final usage-only chunk.
@@ -322,6 +324,7 @@ export const generate: Generate = async (
           ? chunk.response_metadata?.finish_reason
           : chunk.response_metadata?.done_reason;
       if (finishReason === "length") truncated = true;
+      if (typeof finishReason === "string") providerFinishReason = finishReason;
       const token = textContent(chunk.content);
       if (token) {
         text += token;
@@ -342,7 +345,11 @@ export const generate: Generate = async (
       emptyResponse = true;
       throw new Error("Empty model response");
     }
-    return usage ? { text, usage } : { text };
+    return {
+      text,
+      ...(usage ? { usage } : {}),
+      ...(providerFinishReason ? { finishReason: providerFinishReason } : {}),
+    };
   } catch (error) {
     const status = safeStatus(error);
     const code: ModelErrorCode = timedOut

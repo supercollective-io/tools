@@ -365,6 +365,7 @@ describe("model adapter", () => {
         ),
       ).resolves.toEqual({
         text: "A complete passage.",
+        finishReason: "stop",
         usage: { inputTokens: 12, outputTokens: 100, totalTokens: 112 },
       });
     },
