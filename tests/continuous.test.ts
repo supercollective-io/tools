@@ -285,7 +285,11 @@ describe("streamed participant and collective overlap", () => {
           {
             text: `${id}_TURN_0`,
             status: "completed",
-            respondingToPassageId: null,
+            // Earlier participants may publish collective feedback before this
+            // participant starts. History must retain the context it received.
+            respondingToPassageId:
+              sourceFrom(present(participants[index - 3])[0].messages)
+                .latestCollective?.id ?? null,
           },
         ]);
       }
