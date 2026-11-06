@@ -12,6 +12,7 @@
     "replay": "node src/start.ts replay",
     "cli": "node --env-file-if-exists=.env src/cli.ts",
     "inspect": "node src/cli.ts inspect",
+    "corpus": "node --env-file-if-exists=.env src/contribution-cli.ts",
     "fmt": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check .",
