@@ -1,5 +1,9 @@
 # Rehearsing We rehearsal score
 
+This is the earlier Stage 1 fixture. Current static experiments use the
+[agreed question with six human contributions](../docs/human-composition-experiments.md).
+Keep this fixture unchanged for comparisons with existing runs.
+
 `score.json` contains eight fictional participants answering questions about collective power. These are prewritten rehearsal contributions, not recordings of real people or responses generated during the run. The participants use ordinary spoken language, with concrete experiences, uncertainty and practical limits.
 
 The shared topic is:
@@ -78,3 +82,46 @@ saves every streamed addition, including interrupted text. See the
   commitments. Use varied cases to assess development, concrete connections,
   differences, continuity and speaking space. Retain this score unchanged for
   historical comparisons; do not make its administrative topic the main test.
+
+## Static contribution pilot
+
+`contribution-design.json` defines 64 weighted slots with compatibility rules.
+`contribution-generator.json` explicitly selects the participant model. The
+prepared `contribution-pilot/bundle.json` contains all slots and eight isolated
+requests; `contribution-pilot/review.md` is the human-readable inspection copy.
+These are fictional participant-generation inputs, not a composer score. The
+earlier pilot and 64-contribution corpus have been generated and remain historical
+fixtures; they are not substitutes for the current human test. See the
+[preparation and pilot commands](../docs/representation-corpus.md#prepare-and-inspect-the-pilot).
+
+## Human-first composer experiments
+
+`collective-human-variants.json` contains the thinking-aloud reference with its
+regional language qualifier removed, an exact range-instruction ablation, a
+source-language chorus and a long composition followed by adaptation. The
+[human-first protocol](../docs/human-composition-experiments.md) prepares a private
+human-six plan, including an explicit matched Luna reference. All new prompts ask
+for English without imposing a regional dialect. Real contributions and generated
+passages remain in ignored `runs/`.
+
+`collective-direct-voice.txt` is the direct-entry prompt used for the creator's
+preferred recent passage A. `collective-developing-qualifications.txt` preserves
+that prompt and adds two sentences asking qualifications to develop the thought.
+The paired human-six experiment keeps model settings fixed with reasoning off;
+neither prompt prescribes the imagery of a previous successful passage.
+
+## Fixed recognition control
+
+[`recognition-control-v2.txt`](recognition-control-v2.txt) is the current 149-word
+passage written by the main assistant. See its
+[writing research and provenance](../docs/horoscope-control.md), including the
+limitation that the author had already seen two human responses.
+
+The earlier subagent draft is retained:
+
+[`recognition-control-v1.txt`](recognition-control-v1.txt) is a prewritten
+146-word collective passage intended to elicit recognition without using
+participant contributions. It is an experimental comparison text, not participant
+input or a grounded Composer result. Its
+[research and freeze record](../docs/recognition-and-representation.md#fixed-recognition-control-v1)
+describes its construction, provenance and limitations.

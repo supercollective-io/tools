@@ -1,5 +1,11 @@
 # Composer pilot: performance assessment
 
+For the subsequent working proposal on what to assess, see
+[criteria for the collective voice](collective-voice-criteria.md). It includes
+artistic composition and performative quality alongside recognition,
+faithfulness and plurality. The pilot protocols and amendments below retain
+their historical scope; the proposal does not retrospectively change them.
+
 ## Amendment after the initial model screen
 
 On 4 November 2026, after the 40-response screen and its ten-response follow-up,

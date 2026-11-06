@@ -44,19 +44,21 @@ TypeScript check covers `.ts` files, not the browser's plain JavaScript.
 The application is one Node process, with plain browser assets and versioned
 JSONL storage. It has no Svelte application or database yet.
 
-| Task                                          | Source entry points                                                      | Test entry points                                                   |
-| --------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| Launcher, model setup and shutdown            | `src/start.ts`, `src/local-models.ts`                                    | `tests/start.test.ts`                                               |
-| Session selection and browser controls        | `src/workspace.ts`, `src/live-server.ts`, `src/web/`                     | `tests/workspace.test.ts`, `tests/live-server.test.ts`              |
-| Current scheduling, prompts and continuations | `src/live.ts`, `src/live-schema.ts`                                      | `tests/live.test.ts`, `tests/modes.test.ts`                         |
-| Live event contracts and state reconstruction | `src/live-runs.ts`                                                       | `tests/live-runs.test.ts`                                           |
-| Journal locking, ordered writes and recovery  | `src/journal.ts`                                                         | `tests/journal.test.ts` and affected mode's run tests               |
-| Model adapters and native prefill             | `src/models.ts`                                                          | `src/models.test.ts`, `tests/native-prefill.test.ts`                |
-| Focused offline run outcomes                  | `src/inspect.ts`, `src/cli.ts`                                           | `tests/inspect.test.ts`                                             |
-| Composer experiments and request evidence     | `src/composer-experiment.ts`, `src/composer-audit.ts`, `src/live-cli.ts` | `tests/composer-experiment.test.ts`, `tests/composer-audit.test.ts` |
-| Scripted Stage 1 and percentage slicing       | `src/controller.ts`, `src/composition.ts`, `src/runs.ts`                 | `tests/core.test.ts`, `tests/slices.test.ts`, `tests/cli.test.ts`   |
-| Round-based Stage 2A                          | `src/simulation.ts`, `src/simulation-runs.ts`                            | `tests/simulation.test.ts`, `tests/simulation-cli.test.ts`          |
-| Historical bounded-turn compatibility         | `src/continuous.ts`, `src/continuous-runs.ts`                            | `tests/continuous.test.ts`, `tests/continuous-cli.test.ts`          |
+| Task                                          | Source entry points                                                                           | Test entry points                                                                                  |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Launcher, model setup and shutdown            | `src/start.ts`, `src/local-models.ts`                                                         | `tests/start.test.ts`                                                                              |
+| Session selection and browser controls        | `src/workspace.ts`, `src/live-server.ts`, `src/web/`                                          | `tests/workspace.test.ts`, `tests/live-server.test.ts`                                             |
+| Current scheduling, prompts and continuations | `src/live.ts`, `src/live-schema.ts`                                                           | `tests/live.test.ts`, `tests/modes.test.ts`                                                        |
+| Live event contracts and state reconstruction | `src/live-runs.ts`                                                                            | `tests/live-runs.test.ts`                                                                          |
+| Journal locking, ordered writes and recovery  | `src/journal.ts`                                                                              | `tests/journal.test.ts` and affected mode's run tests                                              |
+| Model adapters and native prefill             | `src/models.ts`                                                                               | `src/models.test.ts`, `tests/native-prefill.test.ts`                                               |
+| Focused offline run outcomes                  | `src/inspect.ts`, `src/cli.ts`                                                                | `tests/inspect.test.ts`                                                                            |
+| Composer experiments and request evidence     | `src/composer-experiment.ts`, `src/composer-audit.ts`, `src/live-cli.ts`                      | `tests/composer-experiment.test.ts`, `tests/composer-audit.test.ts`                                |
+| Rapid static prompt screening                 | `src/collective-screen.ts`, `scripts/collective-screen.ts`, `scripts/prepare-human-screen.ts` | `tests/collective-screen.test.ts`, `tests/human-screen.test.ts`, `tests/experiment-budget.test.ts` |
+| Contribution corpus preparation and pilot     | `src/contribution-corpus.ts`, `src/contribution-cli.ts`                                       | `tests/contribution-corpus.test.ts`                                                                |
+| Scripted Stage 1 and percentage slicing       | `src/controller.ts`, `src/composition.ts`, `src/runs.ts`                                      | `tests/core.test.ts`, `tests/slices.test.ts`, `tests/cli.test.ts`                                  |
+| Round-based Stage 2A                          | `src/simulation.ts`, `src/simulation-runs.ts`                                                 | `tests/simulation.test.ts`, `tests/simulation-cli.test.ts`                                         |
+| Historical bounded-turn compatibility         | `src/continuous.ts`, `src/continuous-runs.ts`                                                 | `tests/continuous.test.ts`, `tests/continuous-cli.test.ts`                                         |
 
 `src/cli.ts` dispatches to mode-specific CLI modules. New
 `simulate-continuous` runs use `live-*`; the similarly named `continuous-*`
@@ -64,6 +66,12 @@ modules retain historical log support. Input schemas live in `src/schema.ts`,
 `src/live-schema.ts` and `src/continuous-schema.ts`; event schemas live beside
 their state reconstruction in the run modules. If a persisted shape changes,
 check its reader, recovery, CLI and public projection together.
+
+Offline human reasoning comparisons use `scripts/prepare-human-reasoning-screen.ts`
+and `src/screen-responses.ts`, covered by `tests/screen-responses.test.ts`. The
+explicit Responses transport saves provider reasoning summaries separately from
+spoken text; it does not change the live adapter. See the
+[human experiment protocol](docs/human-composition-experiments.md#creator-feedback-and-reasoning-comparison).
 
 ## Inspect outcomes
 
@@ -74,15 +82,17 @@ is a convenience, not a reproducible experiment identifier.
 
 ## Find the relevant documentation
 
-| Need                                      | Document                                                               |
-| ----------------------------------------- | ---------------------------------------------------------------------- |
-| Current operator workflow                 | [README](README.md), [live rehearsal](docs/live-rehearsal.md)          |
-| Artistic intent and example source        | [Rehearsing We](docs/rehearsing-we.md), [examples](examples/README.md) |
-| Supported historical CLI procedures       | [Stage 1](docs/rehearsal.md), [Stage 2A](docs/stage-2a.md)             |
-| Superseded bounded-turn design            | [Historical Stage 2B](docs/stage-2b.md)                                |
-| Future stages and delivery scope          | [Roadmap](docs/plan.md)                                                |
-| Observations from particular local runs   | Dated `docs/*-2026-11-03.md` reports                                   |
-| Why the agent guidance has this structure | [Agent-readiness research](docs/agent-readiness.md)                    |
+| Need                                      | Document                                                                                                                                                                                                             |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current operator workflow                 | [README](README.md), [live rehearsal](docs/live-rehearsal.md)                                                                                                                                                        |
+| Artistic intent and example source        | [Rehearsing We](docs/rehearsing-we.md), [examples](examples/README.md)                                                                                                                                               |
+| Proposed assessment criteria              | [Collective voice criteria](docs/collective-voice-criteria.md)                                                                                                                                                       |
+| Current test question and corpus design   | [Agreed question](docs/rehearsing-we.md#current-test-question), [human-six experiments](docs/human-composition-experiments.md), [synthetic revision](docs/representation-corpus.md#revision-after-human-comparisons) |
+| Supported historical CLI procedures       | [Stage 1](docs/rehearsal.md), [Stage 2A](docs/stage-2a.md)                                                                                                                                                           |
+| Superseded bounded-turn design            | [Historical Stage 2B](docs/stage-2b.md)                                                                                                                                                                              |
+| Future stages and delivery scope          | [Roadmap](docs/plan.md)                                                                                                                                                                                              |
+| Observations from particular local runs   | Dated `docs/*-2026-11-03.md` reports                                                                                                                                                                                 |
+| Why the agent guidance has this structure | [Agent-readiness research](docs/agent-readiness.md)                                                                                                                                                                  |
 
 Keep observed rehearsal results distinct from software guarantees. Update the
 current user guide and relevant examples when behaviour changes; preserve dated
