@@ -105,6 +105,63 @@ model service. Offline `pnpm replay` reads the most recently modified live journ
 The `pnpm resume` shortcut has been removed; browser Resume and the historical
 `pnpm cli resume --run <file>` remain available.
 
+## Projection rehearsal (slice 1)
+
+Run the explicit Luna preset with reasoning off:
+
+```sh
+mise exec -- pnpm start --config examples/live-projection.json --all --port 3100
+```
+
+This starts with the fictional demonstration score. Add `--score <private-score.json>`
+to use a version-2 score with real contributions. For the current local human-six
+rehearsal, the prepared score is `runs/human-projection-score.json` (ignored by Git).
+Models are called only after Start. Keep the same port when reopening the workspace
+so browser reveal checkpoints retain their origin.
+
+Choose **Open projection**, move that window to the HDMI display, then choose
+**Full screen**. Escape leaves full screen. The audience view contains only the
+published collective text; the full-screen button disappears in full screen.
+The operator workspace retains the sources and session controls. Use an extended
+desktop, with the projection in a separate window rather than a background tab.
+
+For current testing, words appear at a fixed 140 words/minute, independently of
+model streaming. There are no reveal-speed or separate reveal-pause controls.
+Session Pause freezes the reveal; Resume continues. End stops generation but lets
+the remaining published words finish appearing. A disconnected or hidden projection
+freezes its reveal, retaining visible writing and resuming without a catch-up burst.
+Long text scrolls to keep the latest words visible.
+
+The reveal cursor and visible prefix are checkpointed in this browser's local
+storage, keyed by run ID. Reloading the same origin in the same browser restores
+the position; reopening a different run uses its own checkpoint. This is a single
+projection browser, not synchronisation between audience devices. Clearing browser
+storage, using another browser/origin, or unavailable storage loses that checkpoint;
+the journalled writing is unaffected. Reopening the saved session after a server
+restart is still an explicit operator action.
+
+`live.composerStyle: "configured"` uses the preset's artistic instructions with
+only the live speaking-space and continuation contract appended. The preset adapts
+G's prompt by removing the standalone one-minute target and limiting its opening
+instruction to the start of the collective. Older configurations retain their
+previous artistic wrapper. Live generation uses the existing model adapter;
+offline Responses-screen results are not a guarantee of live writing quality.
+
+The layout was inspected at a 3840 × 2160 browser viewport. Actual HDMI projection,
+macOS display scaling and readability from the audience's distance still need
+rehearsal on the 16-inch M1 MacBook Pro and venue projector.
+
+Local evidence, 6 November 2026: the human-six rehearsal in
+`runs/0e9e235b-c5ad-4be2-82a3-25cb8b69a55b.jsonl` completed all five source steps
+with Luna, no failures or unfinished attempts, and all 947 collective characters
+published. Recorded active generation time was 16.756 seconds. Inspection found
+clean continuation joins but recurring corrective qualifications; this is a
+working live preset, not a claim that live artistic quality matches G. Browser
+checks exercised full screen, paced display, reload recovery and the 4K viewport.
+Deterministic tests cover paused/disconnected reveal, bounded resumption, final
+word handling, checkpoint identity and audience-data separation. Physical HDMI
+and audience testing were not performed.
+
 ## Scheduling modes
 
 **Continuous** uses independent concurrent requests. Each writer pauses briefly
@@ -259,5 +316,5 @@ These are operator checks, not a claim that a real-provider audit has passed.
    service settings, elapsed time and any repeated joins or ignored differences.
 
 Keep deterministic lifecycle checks separate from judgement about the writing.
-Record actual provider results in a dated rehearsal report. This local monitor
-does not implement the performance projection, phone participation or deployment.
+Record actual provider results in a dated rehearsal report. The projection rehearsal is described above. Phone participation and deployment
+remain future work.

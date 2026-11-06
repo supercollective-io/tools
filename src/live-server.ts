@@ -41,6 +41,7 @@ export async function startLocalRehearsalServer<Snapshot>(
   if (!Number.isInteger(port) || port < 0 || port > 65535)
     throw new Error("Port must be an integer between 0 and 65535.");
   const clients = new Set<ServerResponse>();
+  const projectionClients = new Set<ServerResponse>();
   let changing: ReturnType<typeof setTimeout> | undefined;
   let closing = false;
   let controls: Promise<unknown> = Promise.resolve();
@@ -58,7 +59,7 @@ export async function startLocalRehearsalServer<Snapshot>(
   const sendState = (response: ServerResponse) => {
     writeEvent(
       response,
-      `event: state\ndata: ${JSON.stringify(snapshot())}\n\n`,
+      `event: state\ndata: ${JSON.stringify(projectionClients.has(response) ? projectionState(snapshot()) : snapshot())}\n\n`,
     );
   };
   const notify = () => {
@@ -80,6 +81,22 @@ export async function startLocalRehearsalServer<Snapshot>(
     response.end(JSON.stringify(body));
   };
   const assets: Record<string, { file: string; type: string }> = {
+    "/projection": {
+      file: "projection.html",
+      type: "text/html; charset=utf-8",
+    },
+    "/projection.js": {
+      file: "projection.js",
+      type: "text/javascript; charset=utf-8",
+    },
+    "/projection-state.js": {
+      file: "projection-state.js",
+      type: "text/javascript; charset=utf-8",
+    },
+    "/projection.css": {
+      file: "projection.css",
+      type: "text/css; charset=utf-8",
+    },
     "/": { file: "index.html", type: "text/html; charset=utf-8" },
     "/index.html": { file: "index.html", type: "text/html; charset=utf-8" },
     "/app.js": { file: "app.js", type: "text/javascript; charset=utf-8" },
@@ -111,18 +128,35 @@ export async function startLocalRehearsalServer<Snapshot>(
         return;
       }
       const url = new URL(request.url ?? "/", `http://${request.headers.host}`);
-      if (request.method === "GET" && url.pathname === "/api/state") {
-        json(response, 200, snapshot());
+      if (
+        request.method === "GET" &&
+        ["/api/state", "/api/projection/state"].includes(url.pathname)
+      ) {
+        json(
+          response,
+          200,
+          url.pathname === "/api/projection/state"
+            ? projectionState(snapshot())
+            : snapshot(),
+        );
         return;
       }
-      if (request.method === "GET" && url.pathname === "/api/events") {
+      if (
+        request.method === "GET" &&
+        ["/api/events", "/api/projection/events"].includes(url.pathname)
+      ) {
         response.writeHead(200, {
           "Content-Type": "text/event-stream; charset=utf-8",
           Connection: "keep-alive",
           "X-Accel-Buffering": "no",
         });
         clients.add(response);
-        response.on("close", () => clients.delete(response));
+        if (url.pathname === "/api/projection/events")
+          projectionClients.add(response);
+        response.on("close", () => {
+          clients.delete(response);
+          projectionClients.delete(response);
+        });
         sendState(response);
         return;
       }
@@ -192,7 +226,13 @@ export async function startLocalRehearsalServer<Snapshot>(
         controls = operation.catch(() => {});
         try {
           await operation;
-          json(response, 200, snapshot());
+          json(
+            response,
+            200,
+            url.pathname === "/api/projection/state"
+              ? projectionState(snapshot())
+              : snapshot(),
+          );
         } catch (error) {
           notify();
           json(
@@ -341,4 +381,23 @@ export async function startLiveServer(options: LiveServerOptions) {
       }
     },
   });
+}
+
+/** Audience transport contains only published collective writing and lifecycle. */
+export function projectionState(snapshot: unknown) {
+  const { state } = snapshot as {
+    state?: {
+      runId: string;
+      status: string;
+      composer: { text: string };
+      publishedOffset: number;
+    } | null;
+  };
+  return state
+    ? {
+        runId: state.runId,
+        status: state.status,
+        text: state.composer.text.slice(0, state.publishedOffset),
+      }
+    : null;
 }

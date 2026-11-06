@@ -125,3 +125,11 @@ participant contributions. It is an experimental comparison text, not participan
 input or a grounded Composer result. Its
 [research and freeze record](../docs/recognition-and-representation.md#fixed-recognition-control-v1)
 describes its construction, provenance and limitations.
+
+## Projection rehearsal
+
+`live-projection.json` is an explicit cloud Luna preset with reasoning off and
+G's artistic instructions adapted for continuation. It uses the fictional score
+by default; a private score can be selected at launch. Older presets and saved
+journals keep their previous prompts. See the
+[projection procedure](../docs/live-rehearsal.md#projection-rehearsal-slice-1).

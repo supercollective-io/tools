@@ -90,10 +90,10 @@ export function buildLivePrompt(
     messages = [
       {
         role: "system",
-        content: collectiveInstructions(
-          state.config.instructions,
-          continuation,
-        ),
+        content:
+          state.config.live.composerStyle === "configured"
+            ? `${state.config.instructions}\n\nTake roughly the average speaking space of one participant, guided by speakingSpace rather than an exact word quota. Develop the existing collective text as new source arrives. A continuation need not complete a sentence.\n\n${continuation}`
+            : collectiveInstructions(state.config.instructions, continuation),
       },
       {
         role: "user",

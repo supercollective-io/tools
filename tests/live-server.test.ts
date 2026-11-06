@@ -326,3 +326,26 @@ describe("local live server", () => {
     expect((await readLiveRun(f.log.path)).state.status).toBe("paused");
   });
 });
+
+it("serves a separate audience page and a minimal reconnect snapshot", async () => {
+  const f = await fixture();
+  const page = await fetch(`${f.url}/projection`);
+  expect(page.status).toBe(200);
+  expect(await page.text()).toContain("/projection.js");
+  const state = await (await fetch(`${f.url}/api/projection/state`)).json();
+  expect(Object.keys(state).sort()).toEqual(["runId", "status", "text"]);
+  expect(state.text).toBe("");
+  const cancellation = new AbortController();
+  const stream = await fetch(`${f.url}/api/projection/events`, {
+    signal: cancellation.signal,
+  });
+  const reader = stream.body?.getReader();
+  if (!reader) throw new Error("Missing projection stream");
+  const initial = new TextDecoder().decode((await reader.read()).value);
+  expect(initial).toContain(state.runId);
+  expect(initial).not.toContain("PRIVATE");
+  expect(initial).not.toContain("participants");
+  cancellation.abort();
+  await reader.cancel().catch(() => {});
+  await f.close();
+});
