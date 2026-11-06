@@ -151,3 +151,97 @@ it("enforces a per-slice cap before dispatch", async () => {
   await expect(budgeted(request(), noTokens)).rejects.toThrow(/per-slice/u);
   expect(generate).not.toHaveBeenCalled();
 });
+
+it("serialises ledger actions while independent wrappers dispatch concurrently", async () => {
+  const path = await ledgerPath();
+  let active = 0;
+  let peak = 0;
+  let release = () => {};
+  const barrier = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let entered = 0;
+  const generate: Generate = async () => {
+    active++;
+    peak = Math.max(peak, active);
+    entered++;
+    if (entered === 2) release();
+    await barrier;
+    active--;
+    return {
+      text: "result",
+      usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
+    };
+  };
+  const options = {
+    ledgerPath: path,
+    totalBudgetUsd: 0.001,
+    sliceId: "shared",
+  };
+  const first = createBudgetedGenerate(generate, {
+    ...options,
+    runId: "first",
+  });
+  const second = createBudgetedGenerate(generate, {
+    ...options,
+    runId: "second",
+  });
+  await Promise.all([first(request(), noTokens), second(request(), noTokens)]);
+
+  expect(peak).toBe(2);
+  const rows = (await readFile(path, "utf8"))
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  expect(rows).toHaveLength(4);
+  for (const runId of ["first", "second"]) {
+    const runRows = rows.filter((row) => row.runId === runId);
+    expect(runRows.map((row) => row.type)).toEqual(["reserved", "finished"]);
+    expect(runRows[1].id).toBe(runRows[0].id);
+  }
+});
+
+it("enforces a shared slice cap across wrappers before a second dispatch", async () => {
+  const path = await ledgerPath();
+  let dispatched = () => {};
+  const started = new Promise<void>((resolve) => {
+    dispatched = resolve;
+  });
+  let finish = () => {};
+  const held = new Promise<void>((resolve) => {
+    finish = resolve;
+  });
+  const generate: Generate = async () => {
+    dispatched();
+    await held;
+    return {
+      text: "result",
+      usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+    };
+  };
+  const options = {
+    ledgerPath: path,
+    totalBudgetUsd: 0.001,
+    sliceCapUsd: 0.00004,
+    sliceId: "shared",
+  };
+  const first = createBudgetedGenerate(generate, {
+    ...options,
+    runId: "first",
+  });
+  const second = createBudgetedGenerate(generate, {
+    ...options,
+    runId: "second",
+  });
+  const pending = first(request(), noTokens);
+  await started;
+  await expect(second(request(), noTokens)).rejects.toThrow(/per-slice/u);
+  finish();
+  await pending;
+  const rows = (await readFile(path, "utf8"))
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  expect(rows).toHaveLength(2);
+  expect(rows.map((row) => row.type)).toEqual(["reserved", "finished"]);
+});

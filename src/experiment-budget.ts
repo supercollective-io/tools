@@ -142,16 +142,31 @@ async function withLedgerLock<T>(
   path: string,
   action: () => Promise<T>,
 ): Promise<T> {
-  await mkdir(dirname(path), { recursive: true });
-  const handle = await open(path, "a");
-  await handle.close();
-  const release = await lockfile.lock(path, { realpath: false, retries: 0 });
+  const previous = ledgerQueues.get(path) ?? Promise.resolve();
+  let releaseQueue = () => {};
+  const turn = new Promise<void>((resolveTurn) => {
+    releaseQueue = resolveTurn;
+  });
+  const queued = previous.then(() => turn);
+  ledgerQueues.set(path, queued);
+  await previous;
   try {
-    return await action();
+    await mkdir(dirname(path), { recursive: true });
+    const handle = await open(path, "a");
+    await handle.close();
+    const release = await lockfile.lock(path, { realpath: false, retries: 0 });
+    try {
+      return await action();
+    } finally {
+      await release();
+    }
   } finally {
-    await release();
+    releaseQueue();
+    if (ledgerQueues.get(path) === queued) ledgerQueues.delete(path);
   }
 }
+
+const ledgerQueues = new Map<string, Promise<void>>();
 
 async function append(path: string, event: LedgerEvent): Promise<void> {
   const handle = await open(path, "a");
