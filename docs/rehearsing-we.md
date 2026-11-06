@@ -1,4 +1,20 @@
-# Rehearsing We: choosing the first experiment
+# Rehearsing We: participant experience and test question
+
+Prompt experimentation is parked as of 6 November 2026. Development now moves
+towards [projected rehearsal](plan.md#stage-3-projected-rehearsal), retaining the
+[human-six composition experiments](human-composition-experiments.md) and their
+preferred passages as references. The [agreed invitation](#current-test-question)
+below replaces the earlier Stage 1 topic. The existing 64 fictional contributions
+remain historical development material; success on them does not establish
+success on the more diverse and specific human inputs. The
+[corpus design](representation-corpus.md#revision-after-human-comparisons)
+records the proposed revision before generating replacement synthetic material.
+
+The [recognition and representation research](recognition-and-representation.md)
+records the distinction between feeling recognised and being faithfully
+represented. The [criteria proposal](collective-voice-criteria.md) sets out five
+core dimensions, supporting diagnostics and exclusions. It remains a working
+proposal rather than a validated scoring rubric.
 
 ## Participant experience
 
@@ -73,19 +89,58 @@ rules are part of the wider artistic brief, not implemented Stage 1 capabilities
 The tool should also work with other subjects: keep topics in scores, invitations
 and configuration rather than in the composition engine.
 
-## Status and central recommendation
+## Current test question
 
-The topic below has been selected for the next Stage 1 rehearsal. The current
-[example score](../examples/README.md) contains eight fictional people speaking
-plainly about everyday decisions, acting together and the terms on which they
-would participate. The example composer instructions also ask for plain spoken
-language. The wider progression and detailed composer draft below remain options
-for rehearsal, not a fixed performance script. The criteria and prompts are
-design judgements informed by the piece's purpose and the sources at the end;
-they are not a validated recipe for collective intelligence.
+Agreed on 4 November 2026:
 
-The broad theme is collective power. The first experiment needs a more concrete
-shared question:
+> What is something you’d like to change, but can’t change on your own?
+
+Optional supporting prompts:
+
+> What would you like to be different?
+>
+> What would you need to make that change?
+
+These three questions are the complete invitation. The main question has
+priority; the supporting prompts are available, not a required sequence. Add no
+examples, prescribed scale, answer structure or reassurance to this wording.
+Participants can interpret the question and choose their own level of detail,
+disclosure and abstraction.
+
+The performance and contributions are in English. The imagined audience is
+mostly German people attending un_ctrl in Germany, with an interest in art and
+technology. This is cultural context, not a German-language requirement or an
+assumption of shared politics, expertise or fluency.
+
+The question connects a desired change with the limits of individual action.
+It serves the piece's interest in collective power without requiring participants
+to propose collective action or endorse joining a group. An answer can concern
+support, institutions, personal relationships, conditions for action or an
+unresolved wish.
+
+For the completed static prompt screen, consider the six human contributions together as complete
+texts. Keep their differences in length, specificity, register and subject; do
+not reshape them into the synthetic corpus's template. Set aside arrival timing,
+continuation and responses to the collective. This isolates aspects of composition
+and representation from the dynamic part of the wider experience. The earlier
+64-contribution synthetic study is complete and remains available for historical
+comparison. Neither corpus establishes participant recognition without feedback.
+
+The invitation follows the preference for a simple, open question in
+[World Café guidance](https://theworldcafe.com/wp-content/uploads/2015/07/Cafe-To-Go-Revised.pdf).
+That guidance informs the design; it does not validate this exact wording for
+the audience. In-person tests will provide that evidence.
+
+## Earlier Stage 1 topic
+
+The topic and progression below belong to the earlier Stage 1 rehearsal. The
+existing [example score](../examples/README.md) retains its eight fictional people
+and original invitation for reproducible comparisons. Its topic is not the
+current test question. The later sections preserve the rationale and options
+developed for that earlier rehearsal, rather than instructions to impose them
+on the new corpus.
+
+The broad theme was collective power, with this shared question:
 
 > What would it take for us to have a real say over the things we depend on?
 
@@ -126,16 +181,17 @@ that force a proposal to account for a previously ignored person or constraint.
 | "Tell us about a time you tried to change something with other people. What helped, or got in the way?"            | Concrete stories reveal organising knowledge, failure and unexpected success.         | Can privilege experienced organisers or imply that everyone has already tried. Permit witnessed examples and reasons for not joining. |
 | "What would you need before you could trust a group to act in your name?"                                          | Directly connects the collective voice to representation, consent and accountability. | Can remain about interpersonal trust unless followed by decisions, resources and enforceable responsibilities.                        |
 
-Use the first invitation for a mixed room of strangers. Offer the second as a
-later invitation to bring practical knowledge into the room. The third becomes
-especially useful after participants have encountered a generated "we".
+For that earlier topic, the first invitation was recommended for a mixed room of
+strangers. The second offered a later invitation to bring practical knowledge
+into the room. The third was intended for after participants had encountered a
+generated "we".
 
 Allow a small, everyday, witnessed or imagined example. Nobody has to identify
 an employer, disclose a personal injury, or demonstrate political commitment.
 Give examples only when people need them; a list of suggested issues can determine
 what the room talks about before it has begun.
 
-## A proposed progression
+## Earlier proposed progression
 
 These are optional facilitation prompts for a room, not synchronised stages of
 the scripted texts. Each Stage 1 participant has one continuous text with its
@@ -194,6 +250,12 @@ the collective have actually said. Stage 1 can only rehearse fixed material.
 
 ## Implications for the collective voice
 
+The collective is the speaker: it speaks as “we”, rather than reporting what
+separate participants think. Its voice can contain differences, contradictions
+and uncertainty. “We” establishes that perspective; it does not certify unanimous
+endorsement. Explicit distinctions are available when the material needs them,
+not a default structure for every contribution.
+
 Keep three distinct layers:
 
 1. **Topic:** the shared field of inquiry.
@@ -203,7 +265,7 @@ Keep three distinct layers:
 Changing the topic alone will not fix a composer that keeps producing an abstract
 third-person synopsis. For the next prompt experiment, try this draft instruction:
 
-> Compose a short utterance the people in the room could answer. Work from the new contributions and use earlier passages only for continuity. Keep concrete actions, constraints and wording that matter. Make the new material change what is being said rather than recapping the whole history. Distinguish a desire, a proposal, a disagreement and a decision; never invent agreement, authorisation or a decision. If using "we", qualify differences where needed: "some of us", "others", or an unresolved question. Do not assign a participant a position they did not express. Return one or two speakable sentences.
+> Speak as the collective, in the first-person plural, in a short utterance the people in the room could answer. Work from the new contributions and use earlier passages only for continuity. Keep concrete actions, constraints and wording that matter. Make the new material change what is being said rather than recapping the whole history. Distinguish a desire, a proposal, a disagreement and a decision; never invent agreement, authorisation or a decision. Let differences remain within the collective voice, making distinctions explicit where the material needs them. Do not assign a participant a position they did not express. Return one or two speakable sentences.
 
 This wording remains a draft. Test it separately from changing the source score
 so that improvements or regressions can be attributed to a particular change.

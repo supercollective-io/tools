@@ -31,9 +31,14 @@ LangChain integrations. Stage 1 scripts and Stage 2A round-based simulation rema
 available; performance projection and live phone speech come later.
 
 The first artistic context is **Rehearsing We**, a participatory performance
-exploring collective power. The [piece brief and topic-design proposal](docs/rehearsing-we.md)
-describe that context; scores and composer instructions remain configurable for
-other topics.
+exploring collective power. The [piece brief and agreed test question](docs/rehearsing-we.md)
+describe that context. Prompt exploration is now parked; the next slice is
+[projected rehearsal](docs/plan.md#stage-3-projected-rehearsal). The
+[human-six experiments](docs/human-composition-experiments.md) retain the candidate
+prompts and artistic findings.
+The earlier fictional corpus remains a historical comparison, with a
+[revision brief](docs/representation-corpus.md#revision-after-human-comparisons).
+Scores and composer instructions remain configurable for other topics.
 
 ## Set up
 

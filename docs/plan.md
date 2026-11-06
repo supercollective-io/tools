@@ -21,11 +21,19 @@ withdrawn offer is not a requirement. The
 goal. Responsive AI-participant rehearsals assess both aspects of the
 experience; human rehearsal tests transfer to the audience.
 
-Use successive functional experiments. Complete each stage, then
-rehearse it with the operator before starting the next stage. Stage 2B is now
-authorised. Complete continuous co-writing and its local operator workspace,
-then stop for operator feedback before Stage 3 performance projection. Keep
-Stage 1 and Stage 2A available.
+Use successive functional experiments and rehearse each with the operator.
+On 6 November 2026, the creator parked prompt experimentation and agreed to move
+on to projected rehearsal. Preserve the prompt candidates and findings for later;
+this does not establish a final production prompt. Stage 1 and Stage 2A remain
+available. The next implementation slice is Stage 3, followed by typed phone
+participation, speech and performance readiness.
+
+Development hardware is a 16-inch MacBook Pro with an M1-family chip. The first
+performance targets a 3840 × 2160 projection over HDMI. Rehearse separate operator
+and audience displays on that setup, including browser scaling, full-screen
+behaviour, reading pace and reconnect recovery. Physical projection size and
+viewing distance remain to be established; pixel dimensions alone do not settle
+readable type size. Actual hardware rehearsal remains necessary.
 
 Artistic quality is a rehearsal judgement, not an exact-text automated test.
 Keep writing append-only. Live writing is saved as it arrives; publication
