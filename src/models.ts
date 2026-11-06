@@ -34,6 +34,12 @@ export type ModelResult = {
   text: string;
   finishReason?: string;
   usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
+  /** Optional offline-screen diagnostics, never part of the spoken text. */
+  reasoning?: {
+    summaryRequested: boolean;
+    summary: string[];
+    tokens?: number;
+  };
 };
 
 export type Generate = (
