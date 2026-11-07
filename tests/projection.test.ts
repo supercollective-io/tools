@@ -25,31 +25,6 @@ it("projects only the published collective prefix and lifecycle", () => {
   ).toEqual({ runId: "one", status: "paused", text: "Visible" });
 });
 
-it("restores reveal per session and never reveals an unfinished word early", async () => {
-  const source = await readFile("src/web/projection-state.js", "utf8");
-  const api = runInNewContext(
-    source.replaceAll("export function", "function") +
-      "\n({nextWord,restoreOffset,saveOffset})",
-  );
-  const storage = new Map();
-  const store = {
-    getItem: (key: string) => storage.get(key),
-    setItem: (key: string, value: string) => storage.set(key, value),
-  };
-  const text = "We 😀 can change";
-  let offset = api.nextWord(text, 0, false);
-  expect(offset).toBe(3);
-  offset = api.nextWord(text, offset, false);
-  expect(text.slice(0, offset)).toBe("We 😀 ");
-  api.saveOffset(store, "a", text, offset);
-  expect(api.restoreOffset(store, "a", `${text} together`)).toBe(offset);
-  expect(api.restoreOffset(store, "b", text)).toBe(0);
-  expect(api.restoreOffset(store, "a", "Changed text")).toBe(0);
-  offset = api.nextWord(text, offset, false);
-  expect(api.nextWord(text, offset, false)).toBe(offset);
-  expect(api.nextWord(text, offset, true)).toBe(text.length);
-});
-
 it("uses the live G preset without the legacy artistic wrapper and preserves continuation", async () => {
   const config = liveConfigSchema.parse(
     JSON.parse(await readFile("examples/live-projection.json", "utf8")),
@@ -92,34 +67,14 @@ it("uses the live G preset without the legacy artistic wrapper and preserves con
   }
 });
 
-it("paces published words, freezes on pause or disconnect, and resumes without a catch-up burst", async () => {
-  const helper = (
-    await readFile("src/web/projection-state.js", "utf8")
-  ).replaceAll("export function", "function");
-  const client = (await readFile("src/web/projection.js", "utf8")).replace(
-    /^import[\s\S]*?from "\/projection-state.js";/u,
-    "",
-  );
-  let tick = () => {};
-  let now = 0;
+it("renders every published snapshot immediately, including reconnects, pause and final partial words", async () => {
   const listeners = new Map<string, (event: { data: string }) => void>();
   const pane = { textContent: "", scrollTop: 0, scrollHeight: 100 };
-  const store = new Map<string, string>();
-  runInNewContext(`${helper}\n${client}`, {
+  runInNewContext(await readFile("src/web/projection.js", "utf8"), {
     document: {
-      hidden: false,
       getElementById: (id: string) =>
         id === "text" ? pane : { addEventListener: () => {} },
       documentElement: {},
-    },
-    localStorage: {
-      getItem: (key: string) => store.get(key),
-      setItem: (key: string, value: string) => store.set(key, value),
-    },
-    window: { addEventListener: () => {} },
-    performance: { now: () => now },
-    setInterval: (fn: () => void) => {
-      tick = fn;
     },
     EventSource: class {
       addEventListener(name: string, fn: (event: { data: string }) => void) {
@@ -127,35 +82,21 @@ it("paces published words, freezes on pause or disconnect, and resumes without a
       }
     },
   });
-  const receive = (status: string) =>
-    listeners.get("state")?.({
-      data: JSON.stringify({
-        runId: "one",
-        status,
-        text: "First second third fourth",
-      }),
-    });
-  const advance = (ms: number) => {
-    for (let n = 0; n < ms; n += 50) {
-      now += 50;
-      tick();
-    }
-  };
-  receive("running");
-  advance(450);
-  expect(pane.textContent).toBe("First ");
-  receive("paused");
-  advance(2000);
-  expect(pane.textContent).toBe("First ");
-  receive("running");
-  advance(450);
-  expect(pane.textContent).toBe("First second ");
-  listeners.get("error")?.({ data: "" });
-  advance(3000);
-  expect(pane.textContent).toBe("First second ");
-  receive("ended");
-  advance(450);
-  expect(pane.textContent).toBe("First second third ");
-  advance(450);
-  expect(pane.textContent).toBe("First second third fourth");
+  const receive = (text: string, status = "running", runId = "one") =>
+    listeners.get("state")?.({ data: JSON.stringify({ runId, status, text }) });
+  receive("First unfinished wor");
+  expect(pane.textContent).toBe("First unfinished wor");
+  receive("First unfinished word", "paused");
+  expect(pane.textContent).toBe("First unfinished word");
+  listeners.get("state")?.({ data: "malformed" });
+  expect(pane.textContent).toBe("First unfinished word");
+  receive("All current writing after reconnect");
+  expect(pane.textContent).toBe("All current writing after reconnect");
+  receive("Final text", "ended");
+  expect(pane.textContent).toBe("Final text");
+  receive("New session", "running", "two");
+  expect(pane.textContent).toBe("New session");
+  expect(pane.scrollTop).toBe(pane.scrollHeight);
+  listeners.get("state")?.({ data: "null" });
+  expect(pane.textContent).toBe("");
 });

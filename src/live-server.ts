@@ -91,10 +91,6 @@ export async function startLocalRehearsalServer<Snapshot>(
       file: "projection.js",
       type: "text/javascript; charset=utf-8",
     },
-    "/projection-state.js": {
-      file: "projection-state.js",
-      type: "text/javascript; charset=utf-8",
-    },
     "/projection.css": {
       file: "projection.css",
       type: "text/css; charset=utf-8",

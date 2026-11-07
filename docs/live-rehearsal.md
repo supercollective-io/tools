@@ -116,8 +116,7 @@ mise exec -- pnpm start --config examples/live-projection.json --all --port 3100
 This starts with the fictional demonstration score. Add `--score <private-score.json>`
 to use a version-2 score with real contributions. For the current local human-six
 rehearsal, the prepared score is `runs/human-projection-score.json` (ignored by Git).
-Models are called only after Start. Keep the same port when reopening the workspace
-so browser reveal checkpoints retain their origin.
+Models are called only after Start.
 
 Choose **Open projection**, move that window to the HDMI display, then choose
 **Full screen**. Escape leaves full screen. The audience view contains only the
@@ -125,20 +124,12 @@ published collective text; the full-screen button disappears in full screen.
 The operator workspace retains the sources and session controls. Use an extended
 desktop, with the projection in a separate window rather than a background tab.
 
-For current testing, words appear at a fixed 140 words/minute, independently of
-model streaming. There are no reveal-speed or separate reveal-pause controls.
-Session Pause freezes the reveal; Resume continues. End stops generation but lets
-the remaining published words finish appearing. A disconnected or hidden projection
-freezes its reveal, retaining visible writing and resuming without a catch-up burst.
-Long text scrolls to keep the latest words visible.
-
-The reveal cursor and visible prefix are checkpointed in this browser's local
-storage, keyed by run ID. Reloading the same origin in the same browser restores
-the position; reopening a different run uses its own checkpoint. This is a single
-projection browser, not synchronisation between audience devices. Clearing browser
-storage, using another browser/origin, or unavailable storage loses that checkpoint;
-the journalled writing is unaffected. Reopening the saved session after a server
-restart is still an explicit operator action.
+The projection displays the complete published collective text immediately on each
+server update, matching the operator's published view. There is no separate pacing
+or reveal cursor. Reloading or reconnecting shows the latest published text without
+replaying it. During disconnection the last received writing remains visible.
+Long text scrolls to keep the latest words visible. Pause and End do not delay text
+already published. Reopening a saved session remains an explicit operator action.
 
 `live.composerStyle: "configured"` uses the preset's artistic instructions with
 only the live speaking-space and continuation contract appended. The preset adapts
@@ -158,7 +149,7 @@ published. Recorded active generation time was 16.756 seconds. Inspection found
 clean continuation joins but recurring corrective qualifications; this is a
 working live preset, not a claim that live artistic quality matches G. Browser
 checks exercised full screen, paced display, reload recovery and the 4K viewport.
-Deterministic tests cover paused/disconnected reveal, bounded resumption, final
+Historical pacing tests covered paused/disconnected reveal, bounded resumption, final
 word handling, checkpoint identity and audience-data separation. Physical HDMI
 and audience testing were not performed.
 

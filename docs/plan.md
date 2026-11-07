@@ -177,8 +177,8 @@ feedback before performance projection, phone participation or deployment.
 
 Slice 1 is implemented using the existing Node server and browser assets, following
 the creator's request for minimal UI. It includes an explicit live Luna/G preset,
-a separate text-only projection, fixed test pacing and browser-local reveal
-checkpoints. No Svelte migration is required for this slice. See the
+a separate text-only projection showing published writing immediately, with
+current-state recovery on reload and reconnect. No Svelte migration is required for this slice. See the
 [projection procedure](live-rehearsal.md#projection-rehearsal-slice-1).
 Physical HDMI rehearsal remains outstanding. The earlier wider plan below is
 context, not additional work required before trying this slice.
