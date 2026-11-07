@@ -101,6 +101,8 @@ function actorFor(id) {
 function phase(actor, participant = false) {
   if (participant && snapshot.state.config?.live?.mode === "fixed")
     return ["Prewritten", "idle"];
+  if (participant && snapshot.state.config?.live?.mode === "typed")
+    return ["Typed", "idle"];
   const status = snapshot.state.status;
   if (status === "ended") return ["Ended", "idle"];
   if (!snapshot.runtime?.running)
@@ -108,7 +110,7 @@ function phase(actor, participant = false) {
   if (actor?.phase === "receiving") return ["Writing", "receiving"];
   if (
     actor?.phase === "idle" &&
-    snapshot.state.config?.live?.mode !== "continuous" &&
+    !["continuous", "typed"].includes(snapshot.state.config?.live?.mode) &&
     snapshot.state.config?.live?.mode
   )
     return ["Queued", "waiting"];
@@ -337,6 +339,14 @@ function updateClock() {
   );
 }
 function accept(payload) {
+  if (payload?.joinUrl) {
+    const url = new URL(payload.joinUrl);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      byId("join-link").href = url.href;
+      byId("join-qr").src = "/join.svg";
+      byId("join").hidden = false;
+    }
+  }
   if (
     (!payload?.state || !payload?.runtime) &&
     !(payload?.workspace && payload.state === null)

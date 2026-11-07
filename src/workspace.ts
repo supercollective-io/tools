@@ -125,7 +125,10 @@ export async function startWorkspace(options: WorkspaceOptions) {
       state.status === "running" && log?.path !== join(runsDirectory, id)
         ? "paused"
         : state.status,
-    mode: state.config.live.mode ?? "continuous",
+    mode:
+      state.config.live.mode === "typed"
+        ? "continuous"
+        : (state.config.live.mode ?? "continuous"),
     model: modelId(state),
     updatedAt: state.updatedAt,
   });
@@ -151,6 +154,7 @@ export async function startWorkspace(options: WorkspaceOptions) {
           log?.path === join(runsDirectory, entry.name)
             ? log.state
             : (await readLiveRun(join(runsDirectory, entry.name))).state;
+        if (state.config.live.mode === "typed") continue;
         if (
           state.status === "ready" &&
           !state.composer.text &&
@@ -207,6 +211,10 @@ export async function startWorkspace(options: WorkspaceOptions) {
       canonical !== join(canonicalDirectory, id)
     )
       throw new LocalControlError("This saved session is unavailable.");
+    if ((await readLiveRun(path)).state.config.live.mode === "typed")
+      throw new LocalControlError(
+        "Reopen typed sessions with the participation command.",
+      );
     if (log?.path === path) return;
     await release();
     try {
@@ -219,7 +227,10 @@ export async function startWorkspace(options: WorkspaceOptions) {
     if (log) {
       const state: LiveState = (log as LiveLog).state;
       settings = {
-        mode: state.config.live.mode ?? "continuous",
+        mode:
+          state.config.live.mode === "typed"
+            ? "continuous"
+            : (state.config.live.mode ?? "continuous"),
         model: modelId(state),
         participants: state.scenario.voices.length,
       };

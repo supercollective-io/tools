@@ -377,3 +377,10 @@ See [the rehearsal procedure](docs/rehearsal.md) for the Stage 1 gate and
 [the implementation plan](docs/plan.md) for later stages. Coolify packaging is
 deliberately deferred until performance readiness; the architecture remains a
 single persistent Node process with durable storage.
+
+## Typed phone rehearsal
+
+Run `mise exec -- pnpm participate` for a local typed session. The operator page
+shows a QR join code; phones on the same trusted Wi-Fi continually share typed contributions. The
+collective appears on the separate projection screen. Start/Resume remains explicit. See [typed participation](docs/typed-participation.md)
+for addresses, persistence, recovery and the limits of this rehearsal slice.

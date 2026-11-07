@@ -152,6 +152,8 @@ export async function start(args: string[]) {
     liveConfigSchema,
     "Live configuration",
   );
+  if (config.live.mode === "typed")
+    throw new Error("Use pnpm participate for typed sessions.");
   const score = values.score
     ? await readJson(resolve(values.score), scoreSchema, "Score")
     : (config.live.score ??

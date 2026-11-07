@@ -36,9 +36,25 @@ const messages = z
   )
   .min(1);
 const bodySchema = z.discriminatedUnion("type", [
+  z.strictObject({ type: z.literal("participant.joined"), id: z.uuid() }),
+  z.strictObject({
+    type: z.literal("input.revised"),
+    id: z.string().min(1).max(200),
+    participantId: z.uuid(),
+    text: z.string().max(4000),
+  }),
+  z.strictObject({
+    type: z.literal("input.admitted"),
+    id: z.string().min(1).max(200),
+    participantId: z.uuid(),
+    text: z.string().min(1).max(4000),
+  }),
+
   z.strictObject({
     type: z.literal("live.created"),
-    scenario: scenarioSchema,
+    scenario: scenarioSchema.safeExtend({
+      voices: z.array(scenarioSchema.shape.voices.element).max(100),
+    }),
     config: liveConfigSchema,
   }),
   z.strictObject({ type: z.literal("session.started") }),
@@ -134,6 +150,7 @@ export type LiveState = {
   publishedOffset: number;
   publishedAt: string | null;
   pauseReason: string | null;
+  admittedIds: string[];
   // Serial modes advance this cursor in the same durable event that finishes
   // an inference. Interrupted requests retain their cursor and saved prefix.
   scheduler: {
@@ -160,7 +177,9 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
     throw new Error("Live log has no valid opening record.");
   const mode = first.event.config.live.mode ?? "continuous";
   const score = first.event.config.live.score;
-  const scenario = first.event.scenario;
+  const scenario = structuredClone(first.event.scenario);
+  if (!scenario.voices.length && mode !== "typed")
+    throw new Error("Only typed sessions may start without participants.");
   if (
     mode === "fixed" &&
     (!score ||
@@ -174,13 +193,13 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
     );
   const state: LiveState = {
     runId: first.runId,
-    scenario: first.event.scenario,
+    scenario,
     config: first.event.config,
     status: "ready",
     elapsedMs: 0,
     sessionStartedAt: null,
     updatedAt: first.at,
-    participants: first.event.scenario.voices.map((voice) =>
+    participants: scenario.voices.map((voice) =>
       writer(`participant/${voice.id}`),
     ),
     composer: writer("collective"),
@@ -188,6 +207,7 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
     publishedOffset: 0,
     publishedAt: null,
     pauseReason: null,
+    admittedIds: [],
     scheduler: { cycle: 0, participantIndex: 0, phase: "participants" },
   };
   const attempts = new Set<string>();
@@ -206,6 +226,43 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
       continue;
     }
     switch (event.type) {
+      case "participant.joined": {
+        if (
+          mode !== "typed" ||
+          scenario.voices.some((v) => v.id === event.id) ||
+          scenario.voices.length >= 100
+        )
+          throw new Error("Invalid participant join.");
+        scenario.voices.push({
+          id: event.id,
+          name: `Participant ${scenario.voices.length + 1}`,
+          perspective: "",
+          background: "",
+        });
+        const participant = writer(`participant/${event.id}`);
+        state.participants.push(participant);
+        writers.push(participant);
+        break;
+      }
+      case "input.revised":
+      case "input.admitted": {
+        const participant = state.participants.find(
+          (p) => p.id === `participant/${event.participantId}`,
+        );
+        if (
+          mode !== "typed" ||
+          !participant ||
+          state.admittedIds.includes(event.id)
+        )
+          throw new Error("Invalid typed admission.");
+        participant.text =
+          event.type === "input.revised"
+            ? event.text
+            : participant.text + event.text;
+        state.admittedIds.push(event.id);
+        break;
+      }
+
       case "source.revealed": {
         if (
           mode !== "fixed" ||
@@ -299,7 +356,7 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
           writer.active ||
           attempts.has(event.attemptId) ||
           event.contextVersion !== state.collectiveVersion ||
-          (mode !== "continuous" &&
+          (!["continuous", "typed"].includes(mode) &&
             (writers.some((candidate) => candidate.active) ||
               (state.scheduler.phase === "participants"
                 ? mode !== "chunked" ||
@@ -375,7 +432,7 @@ function rebuild(records: JournalEvent<LiveEvent>[]): LiveState {
         writer.active = null;
         writer.lastFinishReason = event.reason;
         if (
-          mode !== "continuous" &&
+          !["continuous", "typed"].includes(mode) &&
           (event.reason === "eos" || event.reason === "budget")
         ) {
           if (event.actorId === "collective") {

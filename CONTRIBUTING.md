@@ -97,3 +97,9 @@ is a convenience, not a reproducible experiment identifier.
 Keep observed rehearsal results distinct from software guarantees. Update the
 current user guide and relevant examples when behaviour changes; preserve dated
 reports as historical evidence rather than rewriting their observations.
+
+Typed phone sessions enter through `src/participation-cli.ts`, with the HTTP and
+controller integration in `src/participation.ts` and SQLite admission queue in
+`src/participation-store.ts`. See `tests/participation.test.ts` and the
+[typed rehearsal guide](docs/typed-participation.md). Participant assets are in
+`src/web/participant.*`; the participant server never serves operator assets.

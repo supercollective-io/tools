@@ -193,6 +193,14 @@ Rehearse typography, reading pace and passage length on the projection screen.
 
 ## Stage 4: typed phone participation
 
+Slice 2 now provides local-network typed participation, a separate loopback-only
+operator server, QR joining, automatic SQLite contribution revisions and fair admission into the live
+journal/controller. It uses Node's built-in SQLite driver; the earlier ORM/driver
+proposal below is not a prerequisite for this local slice. See the
+[typed rehearsal guide](typed-participation.md). A 5–10-person human rehearsal and
+venue/device testing remain outstanding; hosted deployment is not implemented.
+
+
 Add QR joining, anonymous session-scoped identities and submission feedback.
 Capture the collective context visible when typing begins. Introduce SQLite, Drizzle and
 `better-sqlite3` for live sessions, retaining JSONL import/export and CLI runs.

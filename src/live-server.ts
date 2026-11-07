@@ -12,6 +12,7 @@ export type LiveServerOptions = {
   controller: LiveController;
   port?: number;
   beforeStart?: () => void;
+  join?: { url: string; svg: string };
 };
 
 /** Only deliberately public control failures cross the local HTTP boundary. */
@@ -24,6 +25,7 @@ export class LocalControlError extends Error {
 }
 
 type LocalServerOptions<Snapshot> = {
+  join?: { url: string; svg: string };
   port?: number;
   snapshot: () => Snapshot;
   subscribe: (listener: () => void) => () => void;
@@ -128,6 +130,15 @@ export async function startLocalRehearsalServer<Snapshot>(
         return;
       }
       const url = new URL(request.url ?? "/", `http://${request.headers.host}`);
+      if (
+        request.method === "GET" &&
+        url.pathname === "/join.svg" &&
+        options.join
+      ) {
+        response.writeHead(200, { "Content-Type": "image/svg+xml" });
+        response.end(options.join.svg);
+        return;
+      }
       if (
         request.method === "GET" &&
         ["/api/state", "/api/projection/state"].includes(url.pathname)
@@ -352,7 +363,9 @@ export async function startLiveServer(options: LiveServerOptions) {
   const { log, controller } = options;
   return startLocalRehearsalServer({
     port: options.port,
+    join: options.join,
     snapshot: () => ({
+      ...(options.join ? { joinUrl: options.join.url } : {}),
       path: log.path,
       state: publicLiveState(log.state),
       runtime: controller.snapshot(),
