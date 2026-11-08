@@ -40,6 +40,14 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   await guest.reload();
   await expect(guest.getByText('Connected', { exact: true })).toBeVisible();
   await expect(page.getByText('2 online')).toBeVisible();
+  const duplicate = await guestContext.newPage();
+  await duplicate.goto(roomUrl);
+  await expect(duplicate.getByText('Connected', { exact: true })).toBeVisible();
+  await expect(guest.getByText('Another tab now controls your magnet.')).toBeVisible();
+  await expect(page.getByText('2 online')).toBeVisible();
+  await duplicate.close();
+  await guest.reload();
+  await expect(guest.getByText('Connected', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Cancel round' }).click();
   await expect(guest.getByRole('heading', { name: 'Round cancelled.' })).toBeVisible();
   await page.getByRole('link', { name: /cancelled.*Replay/ }).click();

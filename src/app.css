@@ -520,7 +520,8 @@ main {
 .target-label {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 92px;
+  width: 26%;
+  max-width: 100px;
   display: grid;
   gap: 5px;
   text-align: center;
@@ -751,7 +752,7 @@ main {
     grid-template-columns: minmax(0, 1fr) 230px;
   }
   .target-label {
-    width: 72px;
+    width: 26%;
     font-size: 12px;
   }
   .board-bottom {
@@ -841,7 +842,7 @@ main {
     min-width: 0;
   }
   .target-label {
-    width: 70px;
+    width: 26%;
     font-size: 12px;
   }
   .target-letter {

@@ -1,6 +1,11 @@
 <script lang="ts">
+import { onMount } from 'svelte';
 import { request } from '../lib/api.ts';
 
+let hydrated = $state(false);
+onMount(() => {
+  hydrated = true;
+});
 let name = $state('');
 let question = $state('What should we focus on next?');
 let options = $state(['Reliability', 'Accessibility', 'New features', 'Lower costs']);
@@ -90,7 +95,7 @@ async function create(event: SubmitEvent) {
       {#if error}
         <p class="error" role="alert">{error}</p>
       {/if}
-      <button type="submit" class="primary full" disabled={busy}>
+      <button type="submit" class="primary full" disabled={busy || !hydrated}>
         {busy ? 'Creating your room…' : 'Create room'} <span aria-hidden="true">↗</span>
       </button>
       <p class="small muted">A 60-second round. Everyone can change their mind.</p>
