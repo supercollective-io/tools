@@ -19,7 +19,8 @@
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc --project tsconfig.server.json",
     "fmt": "biome format --write .",
     "lint": "biome lint .",
-    "hooks:install": "lefthook install"
+    "hooks:install": "lefthook install",
+    "load:smoke": "tsx scripts/load-smoke.ts"
   },
   "dependencies": {
     "@sveltejs/kit": "3.1.1",
