@@ -129,174 +129,129 @@ async function copy() {
 </script>
 <svelte:head><title>{room?.question ?? 'Join a room'} — Puck</title></svelte:head>
 {#if !room}
-  <section class="empty-state">
-    <p>{error || 'Opening your room…'}</p>
-    <a href="/">Back to Puck</a>
-  </section>
+  <p role="status">{error || 'Opening room…'}</p>
 {:else if !room.me}
-  <section class="join-panel">
-    <p class="eyebrow">YOU’RE INVITED</p>
-    <h1>A place at<br>the puck.</h1>
-    <p class="lede">{room.question}</p>
+  <section class="form-page">
+    <h1>{room.question}</h1>
     <form onsubmit={join}>
       <label
-        >Your name<input
-          bind:value={name}
-          required
-          maxlength="32"
-          autocomplete="given-name"
-          placeholder="Enter your name"
-        ></label
+        >Your name<input bind:value={name} required maxlength="32" autocomplete="given-name"></label
       >
       {#if error}
         <p role="alert" class="error">{error}</p>
       {/if}
       <button type="submit" class="primary" disabled={busy}>
         {busy ? 'Joining…' : 'Join the room'}
-        ↗
       </button>
     </form>
-    <p class="small muted">
+    <p class="muted">
       Your magnet is private during the round. Afterwards, participants can replay everyone’s
       movements.
     </p>
   </section>
 {:else}
-  <div class="room-top">
-    <div>
-      <p class="eyebrow">THE QUESTION</p>
-      <h1 class="question-title">{room.question}</h1>
+  <section class="session">
+    <h1>{room.question}</h1>
+    <div class="toolbar">
+      <button type="button" onclick={copy}>{copied ? 'Link copied' : 'Copy invite link'}</button>
+      {#if room.me.host}
+        {#if active}
+          <button type="button" disabled={busy} onclick={() => action('cancel')}>
+            Cancel round
+          </button>
+        {:else}
+          <button
+            type="button"
+            class="primary"
+            disabled={busy || connected < 2 || connection !== 'Connected'}
+            onclick={() => action('start')}
+          >
+            {room.round ? 'Start another round' : 'Start round'}
+          </button>
+        {/if}
+      {/if}
+      <span class="muted" role="status">{connection}</span>
+      {#if active}
+        <span class="timer" role="timer" aria-label="Seconds remaining"
+          >{Math.ceil(Math.max(0, 60000 - (room.round?.state.elapsedMs ?? 0)) / 1000)}s</span
+        >
+      {/if}
     </div>
-    <button type="button" class="secondary" onclick={copy}>
-      {copied ? 'Link copied ✓' : 'Invite someone ↗'}
-    </button>
-  </div>
-  <div class="room-layout">
-    <section class="board-panel">
-      <div class="board-top">
-        <span class="connection" class:online={connection === 'Connected'}
-          ><span></span>{connection}</span
-        ><span class="timer" role="timer" aria-label="Seconds remaining"
-          >{room.round
-            ? `${Math.ceil(Math.max(0, 60000 - room.round.state.elapsedMs) / 1000)}s`
-            : '60-second rounds'}</span
-        >
-      </div>
-      <Arena
-        options={room.options}
-        state={room.round?.state ?? null}
-        enabled={connection === 'Connected'}
-        {magnet}
-        {engaged}
-        oninput={input}
-      />
-      <div class="board-bottom">
-        <span><i class="magnet-key"></i>Your magnet</span
-        ><span
-          >{active
-            ? 'Stay close to the puck to keep your pull strong.'
-            : 'Hold and drag to practise your magnet.'}</span
-        >
-      </div>
-    </section>
-    <aside class="room-sidebar">
-      <section class="round-card" aria-live="polite">
-        <p class="eyebrow">
-          {active ? 'ROUND IN PROGRESS' : status === 'waiting' ? 'YOUR ROOM' : 'ROUND COMPLETE'}
+    <div class="round-status" aria-live="polite">
+      {#if active}
+        <p>Round in progress</p>
+      {:else if status === 'waiting'}
+        <p class="muted">
+          {room.me.host
+            ? 'At least two people must be connected to start.'
+            : 'Waiting for the host to start.'}
         </p>
+      {:else}
         <h2>
           {status === 'selected'
             ? selectedLabel
             : status === 'timed-out'
-              ? 'No decision. Yet.'
+              ? 'Time ran out. No selection.'
               : status === 'cancelled'
                 ? 'Round cancelled.'
-                : status === 'interrupted'
-                  ? 'Round interrupted.'
-                  : active
-                    ? 'Find a direction.'
-                    : 'Gather your people.'}
+                : 'Round interrupted.'}
         </h2>
-        <p class="muted">
-          {status === 'selected'
-            ? 'The puck settled here. That doesn’t mean everyone agrees.'
-            : status === 'timed-out'
-              ? 'The time ran out before the puck settled on an option. You can try another round.'
-              : active
-                ? 'Pull towards an option. Adjust your direction as the group moves.'
-                : status === 'interrupted'
-                  ? 'The connection or server was interrupted. Start a fresh round when everyone is back.'
-                  : 'Share the room link. Start when at least two people are connected.'}
-        </p>
-        {#if room.me.host}
-          {#if active}
-            <button
-              type="button"
-              class="secondary full"
-              disabled={busy}
-              onclick={() => action('cancel')}
-            >
-              Cancel round
-            </button>
-          {:else}
-            <button
-              type="button"
-              class="primary full"
-              disabled={busy || connected < 2 || connection !== 'Connected'}
-              onclick={() => action('start')}
-            >
-              {room.round ? 'Start another round' : 'Start round'} <span aria-hidden="true">→</span>
-            </button>
-          {/if}
-        {:else if !active}
-          <p class="small muted">Your host will start the next round.</p>
-        {/if}
-      </section>
-      <section class="people-panel">
-        <div class="section-heading">
-          <h3>In the room</h3>
-          <span class="pill">{connected} online</span>
-        </div>
+      {/if}
+    </div>
+    {#if error}
+      <p role="alert" class="error">{error}</p>
+    {/if}
+    <Arena
+      options={room.options}
+      state={room.round?.state ?? null}
+      enabled={connection === 'Connected'}
+      {magnet}
+      {engaged}
+      oninput={input}
+    />
+    <p class="arena-hint">
+      <span class="magnet-key"></span>Hold and drag near the puck to pull. Release to stop.
+    </p>
+    <div class="support">
+      <details>
+        <summary>{connected} online</summary>
         <ul>
           {#each room.participants as participant}
             <li>
-              <span class="avatar">{participant.name.slice(0, 1).toUpperCase()}</span
-              ><span
-                >{participant.name}{participant.id === room.me.id ? ' (you)' : ''}<small
-                  >{participant.id === room.me.id && room.me.host
-                    ? 'Host'
-                    : participant.connected
-                      ? 'Ready'
-                      : 'Disconnected'}</small
-                ></span
-              ><span class="person-dot" class:present={participant.connected}></span>
+              {participant.name}{participant.id === room.me.id
+                ? ' (you)'
+                : ''}{!participant.connected ? ' — disconnected' : ''}
             </li>
           {/each}
         </ul>
-      </section>
-      <details class="how-to">
-        <summary>How to pull</summary>
+      </details>
+      <details>
+        <summary>How to play</summary>
         <p>
-          Hold and drag your magnet near the puck. A closer magnet pulls harder. Release to stop.
-          You can change your mind at any time.
+          A closer magnet pulls harder. Keyboard: focus the arena, move with arrow keys and hold
+          Space to pull.
         </p>
-        <p>Keyboard: focus the arena, move with arrow keys and hold Space to pull.</p>
-        <p>A selection needs 1.5 seconds inside a target. A timeout is not agreement.</p>
+        <p>
+          A round lasts 60 seconds. The puck selects an option after 1.5 seconds inside its target;
+          this does not mean everyone agrees.
+        </p>
+        <p>Your magnet is private live. Participants can replay everyone’s movements afterwards.</p>
       </details>
       {#if room.history.some((r) => r.status !== 'active')}
-        <section class="history">
-          <h3>Earlier rounds</h3>
-          {#each room.history.filter((r) => r.status !== 'active') as round}
-            <a href={`/replay/${round.id}`}
-              ><span>{round.selectedLabel ?? round.status.replace('-', ' ')}</span
-              ><span>Replay ↗</span></a
-            >
-          {/each}
-        </section>
+        <details open>
+          <summary>Replays</summary>
+          <ul>
+            {#each room.history.filter((r) => r.status !== 'active') as round}
+              <li>
+                <a href={`/replay/${round.id}`}
+                  >{round.selectedLabel ?? round.status.replace('-', ' ')}
+                  — Replay</a
+                >
+              </li>
+            {/each}
+          </ul>
+        </details>
       {/if}
-      {#if error}
-        <p role="alert" class="error">{error}</p>
-      {/if}
-    </aside>
-  </div>
+    </div>
+  </section>
 {/if}

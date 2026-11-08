@@ -19,7 +19,7 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   await guest.getByRole('button', { name: 'Join the room' }).click();
   await expect(page.getByText('2 online')).toBeVisible();
   await page.getByRole('button', { name: 'Start round', exact: true }).click();
-  await expect(guest.getByText('ROUND IN PROGRESS')).toBeVisible();
+  await expect(guest.getByText('Round in progress')).toBeVisible();
   await expect(page.getByRole('timer')).toHaveText('59s', { timeout: 8000 });
   await page.bringToFront();
   const arena = page.getByRole('application');

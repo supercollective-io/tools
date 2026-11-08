@@ -128,9 +128,6 @@ function key(event: KeyboardEvent) {
   onblur={release}
 >
   <svg viewBox="0 0 1000 1000" aria-hidden="true">
-    <circle cx="500" cy="500" r="370" class="arena-orbit" />
-    <circle cx="500" cy="500" r="240" class="arena-orbit inner" />
-    <path d="M480 500h40M500 480v40" class="centre-cross" />
     {#each options as option}
       <circle
         cx={option.x}
@@ -155,9 +152,7 @@ function key(event: KeyboardEvent) {
         class:pulling={engaged}
       />
     {/if}
-    <circle cx={shown.x} cy={shown.y + 4} r={PUCK_RADIUS + 3} class="puck-shadow" />
     <circle cx={shown.x} cy={shown.y} r={PUCK_RADIUS} class="puck" />
-    <circle cx={shown.x - 6} cy={shown.y - 7} r="5" class="puck-shine" />
     {#if puckState?.targetId && puckState.dwellMs > 0}
       <circle
         cx={shown.x}
@@ -172,15 +167,14 @@ function key(event: KeyboardEvent) {
       <circle cx={magnet.x} cy={magnet.y} r={engaged ? 13 : 10} class="magnet" />
     {/if}
   </svg>
-  {#each options as option, i}
+  {#each options as option}
     <div class="target-label" style:left={`${option.x / 10}%`} style:top={`${option.y / 10}%`}>
-      <span class="target-letter">{String.fromCharCode(65 + i)}</span><span>{option.label}</span>
+      <span>{option.label}</span>
     </div>
   {/each}
   {#if puckState?.phase === 'countdown'}
     <div class="countdown-overlay">
-      <span class="eyebrow">GET READY</span
-      ><strong>{Math.ceil(puckState.countdownMs / 1000)}</strong>
+      <strong>{Math.ceil(puckState.countdownMs / 1000)}</strong>
     </div>
   {/if}
 </div>
