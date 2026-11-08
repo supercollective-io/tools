@@ -3,6 +3,7 @@ import { onMount } from 'svelte';
 import { page } from '$app/state';
 import { request } from '../../../lib/api.ts';
 import Arena from '../../../lib/components/Arena.svelte';
+import InviteQr from '../../../lib/components/InviteQr.svelte';
 import { type Point, terminal } from '../../../lib/core/engine.ts';
 import type { RoomView, ServerMessage } from '../../../lib/core/protocol.ts';
 
@@ -154,6 +155,7 @@ async function copy() {
     <h1>{room.question}</h1>
     <div class="toolbar">
       <button type="button" onclick={copy}>{copied ? 'Link copied' : 'Copy invite link'}</button>
+      <InviteQr />
       {#if room.me.host}
         {#if active}
           <button type="button" disabled={busy} onclick={() => action('cancel')}>

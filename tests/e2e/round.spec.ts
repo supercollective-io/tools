@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import jsQR from 'jsqr';
 
 test('two participants share a round, reconnect, cancel and replay privately', async ({
   page,
@@ -82,4 +83,44 @@ test('mobile create form fits and accepts keyboard input', async ({ page }) => {
   await page.keyboard.press('ArrowRight');
   expect(Number(await page.locator('.magnet').getAttribute('cx'))).toBeGreaterThan(500);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+});
+
+test('invite QR decodes to the room and fits on mobile', async ({ page, browser }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/');
+  await page.getByLabel('Your name', { exact: true }).fill('Host');
+  await page.getByRole('button', { name: 'Create room' }).click();
+  await expect(page.getByText('Connected', { exact: true })).toBeVisible();
+  const roomUrl = page.url();
+  await page.getByRole('button', { name: 'Show QR code' }).click();
+  const qr = page.getByRole('img', { name: 'Scan to join this room' });
+  await expect(qr).toBeVisible();
+  const pixels = await qr.evaluate(async (img: HTMLImageElement) => {
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Canvas unavailable');
+    context.drawImage(img, 0, 0);
+    return {
+      data: Array.from(context.getImageData(0, 0, canvas.width, canvas.height).data),
+      width: canvas.width,
+      height: canvas.height,
+    };
+  });
+  const decoded = jsQR(new Uint8ClampedArray(pixels.data), pixels.width, pixels.height);
+  expect(decoded?.data).toBe(roomUrl);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  const participant = await browser.newContext();
+  try {
+    const guest = await participant.newPage();
+    if (!decoded) throw new Error('QR code could not be decoded');
+    await guest.goto(decoded.data);
+    await expect(guest.getByRole('button', { name: 'Join the room' })).toBeVisible();
+  } finally {
+    await participant.close();
+  }
+  await page.getByRole('button', { name: 'Hide QR code' }).click();
+  await expect(qr).toBeHidden();
 });
