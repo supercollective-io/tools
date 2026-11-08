@@ -7,6 +7,7 @@ import InviteQr from '../../../lib/components/InviteQr.svelte';
 import { type Point, terminal } from '../../../lib/core/engine.ts';
 import type { RoomView, ServerMessage } from '../../../lib/core/protocol.ts';
 
+let inviteUrl = $state('');
 let room = $state<RoomView | null>(null),
   error = $state(''),
   name = $state(''),
@@ -57,6 +58,8 @@ function connect() {
 async function load() {
   try {
     room = await request<RoomView>(`/api/rooms/${roomId}`);
+    const invite = await request<{ origin: string }>('/api/invite-origin');
+    inviteUrl = new URL(`/room/${roomId}`, invite.origin).href;
     if (room.me) connect();
     else connection = 'Not joined';
   } catch (e) {
@@ -120,11 +123,11 @@ async function action(type: 'start' | 'cancel') {
 }
 async function copy() {
   try {
-    await navigator.clipboard.writeText(location.href);
+    await navigator.clipboard.writeText(inviteUrl);
     copied = true;
     setTimeout(() => (copied = false), 2000);
   } catch {
-    error = 'Copy the room address from your browser to invite someone.';
+    error = `Copy this invite link: ${inviteUrl}`;
   }
 }
 </script>
@@ -155,7 +158,7 @@ async function copy() {
     <h1>{room.question}</h1>
     <div class="toolbar">
       <button type="button" onclick={copy}>{copied ? 'Link copied' : 'Copy invite link'}</button>
-      <InviteQr />
+      <InviteQr url={inviteUrl} />
       {#if room.me.host}
         {#if active}
           <button type="button" disabled={busy} onclick={() => action('cancel')}>

@@ -1,15 +1,14 @@
 <script lang="ts">
+let { url }: { url: string } = $props();
 let open = $state(false);
 let image = $state('');
-let url = $state('');
 let error = $state('');
 let localOnly = $state(false);
 
 async function toggle() {
   open = !open;
   if (!open || image) return;
-  url = new URL(location.pathname, location.origin).href;
-  localOnly = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  localOnly = ['localhost', '127.0.0.1', '[::1]'].includes(new URL(url).hostname);
   error = '';
   try {
     const { default: QRCode } = await import('qrcode');
@@ -20,7 +19,13 @@ async function toggle() {
 }
 </script>
 
-<button type="button" onclick={toggle} aria-expanded={open} aria-controls="invite-qr">
+<button
+  type="button"
+  onclick={toggle}
+  disabled={!url}
+  aria-expanded={open}
+  aria-controls="invite-qr"
+>
   {open ? 'Hide QR code' : 'Show QR code'}
 </button>
 <div id="invite-qr" hidden={!open} class="invite-qr">

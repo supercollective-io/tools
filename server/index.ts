@@ -3,13 +3,17 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { WebSocketServer } from 'ws';
 import { createRequest, joinRequest } from '../src/lib/core/protocol.ts';
+import { localNetworkOrigins } from './network.ts';
 import { ClientError, SessionService } from './service.ts';
 import { Store } from './store.ts';
 
 const dev = process.argv.includes('--dev');
 const port = Number(process.env.PORT ?? 3000);
-const host = process.env.HOST ?? '127.0.0.1';
+const host = process.env.HOST ?? (dev ? '0.0.0.0' : '127.0.0.1');
+const networkOrigins = dev && host === '0.0.0.0' ? localNetworkOrigins(port) : [];
 const origin = process.env.PUBLIC_ORIGIN ?? `http://localhost:${port}`;
+const inviteOrigin = process.env.PUBLIC_ORIGIN ?? networkOrigins[0] ?? origin;
+const allowedOrigins = new Set([origin, ...(dev ? networkOrigins : [])]);
 const store = new Store(process.env.DATABASE_PATH ?? 'data/puck.sqlite');
 const service = new SessionService(store);
 const sockets = new WebSocketServer({ noServer: true, maxPayload: 2048, perMessageDeflate: false });
@@ -64,8 +68,13 @@ function rateLimit(req: IncomingMessage) {
 }
 async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
   if (stopping) throw new ClientError('Server is restarting.', 503);
+  if (url.pathname === '/api/invite-origin' && req.method === 'GET') {
+    json(res, { origin: inviteOrigin });
+    return;
+  }
   if (req.method === 'POST') {
-    if (req.headers.origin !== origin) throw new ClientError('Unrecognised request origin.', 403);
+    if (!allowedOrigins.has(req.headers.origin ?? ''))
+      throw new ClientError('Unrecognised request origin.', 403);
     rateLimit(req);
   }
   if (url.pathname === '/api/rooms' && req.method === 'POST') {
@@ -144,7 +153,7 @@ server.on('upgrade', (req, socket, head) => {
   if (!path.startsWith('/ws/')) return; // Leave Vite HMR to Vite's handler.
   try {
     const roomId = /^\/ws\/rooms\/([\w-]+)$/.exec(path)?.[1];
-    if (stopping || !roomId || req.headers.origin !== origin)
+    if (stopping || !roomId || !allowedOrigins.has(req.headers.origin ?? ''))
       throw new ClientError('Forbidden', 403);
     const participant = service.authenticate(roomId, token(req, roomId));
     if (!participant) throw new ClientError('Unauthorised', 401);
@@ -171,7 +180,10 @@ if (dev) {
   const built = await import(pathToFileURL(resolve('build/handler.js')).href);
   webHandler = built.handler;
 }
-server.listen(port, host, () => console.info(`Puck is listening at ${origin}`));
+server.listen(port, host, () => {
+  console.info(`Puck is listening at ${origin}`);
+  if (inviteOrigin !== origin) console.info(`Phone invites: ${inviteOrigin}`);
+});
 async function shutdown() {
   if (stopping) return;
   stopping = true;

@@ -2,7 +2,7 @@
 
 ## Development
 
-Use the mise commands in the README. The default bind address is `127.0.0.1`, port `3000`. The default allowed origin is `http://localhost:3000`; use that exact browser address.
+Use the mise commands in the README. Development mode binds to `0.0.0.0`, port `3000`, and detects private IPv4 addresses for phone invites. Localhost and those detected origins are allowed for mutations and WebSockets. QR codes and copied invitations use the preferred network address, or `PUBLIC_ORIGIN` when set. Production keeps the default bind address `127.0.0.1` and permits only `PUBLIC_ORIGIN`. Set `HOST=127.0.0.1` to keep development local to this device.
 
 For a local network test, select the machine's reachable address and set all corresponding values explicitly:
 
