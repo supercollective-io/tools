@@ -60,8 +60,9 @@ async function load() {
     room = await request<RoomView>(`/api/rooms/${roomId}`);
     const invite = await request<{ origin: string }>('/api/invite-origin');
     inviteUrl = new URL(`/room/${roomId}`, invite.origin).href;
-    if (room.me) connect();
-    else connection = 'Not joined';
+    if (room.me) {
+      if (!socket) connect();
+    } else connection = 'Not joined';
   } catch (e) {
     error = (e as Error).message;
   }
@@ -73,7 +74,7 @@ function input(point: Point, pulling: boolean) {
 onMount(() => {
   void load();
   const interval = setInterval(() => {
-    if (socket?.readyState === WebSocket.OPEN)
+    if (room?.me?.participating && socket?.readyState === WebSocket.OPEN)
       socket.send(
         JSON.stringify({
           type: 'input',
@@ -206,17 +207,35 @@ async function copy() {
     {#if error}
       <p role="alert" class="error">{error}</p>
     {/if}
+    {#if !room.me.participating && !active}
+      <details>
+        <summary>Join as a participant</summary>
+        <form onsubmit={join}>
+          <label
+            >Your name<input
+              bind:value={name}
+              required
+              maxlength="32"
+              autocomplete="given-name"
+            ></label
+          >
+          <button type="submit" disabled={busy}>Join the room</button>
+        </form>
+      </details>
+    {/if}
     <Arena
       options={room.options}
       state={room.round?.state ?? null}
-      enabled={connection === 'Connected'}
+      enabled={connection === 'Connected' && room.me.participating}
       {magnet}
       {engaged}
       oninput={input}
     />
-    <p class="arena-hint">
-      <span class="magnet-key"></span>Hold and drag near the puck to pull. Release to stop.
-    </p>
+    {#if room.me.participating}
+      <p class="arena-hint">
+        <span class="magnet-key"></span>Hold and drag near the puck to pull. Release to stop.
+      </p>
+    {/if}
     <div class="support">
       <details>
         <summary>{connected} online</summary>

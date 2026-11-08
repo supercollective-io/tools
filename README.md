@@ -16,7 +16,7 @@ mise exec -- pnpm hooks:install
 mise exec -- pnpm dev
 ```
 
-Open <http://localhost:3000>. Development mode also listens on the local network. Copy invite link and Show QR code use the detected network address, so phones on the same Wi-Fi can join even when the host uses localhost. The terminal prints that address; set `PUBLIC_ORIGIN` to override it when several networks are connected. Create a room, then open its invitation in a different browser profile or private window. Two tabs in one profile represent the same participant; the latest tab takes control of that participant's magnet.
+Open <http://localhost:3000>. Development mode also listens on the local network. Copy invite link and Show QR code use the detected network address, so phones on the same Wi-Fi can join even when the host uses localhost. The terminal prints that address; set `PUBLIC_ORIGIN` to override it when several networks are connected. Creating a room makes you the host without adding you as a participant. Use “Join as a participant” on the room page if you also want to pull. Open its invitation in a different browser profile or private window. Two tabs in one profile represent the same participant; the latest tab takes control of that participant's magnet.
 
 `mise.toml` pins Node 26 and pnpm. `package.json` enforces the supported Node major and package-manager version. There is no separate runtime version file. All dependencies are exact and `pnpm-lock.yaml` is committed.
 

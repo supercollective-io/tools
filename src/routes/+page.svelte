@@ -6,7 +6,6 @@ let hydrated = $state(false);
 onMount(() => {
   hydrated = true;
 });
-let name = $state('');
 let question = $state('What should we focus on next?');
 let options = $state(['Reliability', 'Accessibility', 'New features', 'Lower costs']);
 let busy = $state(false),
@@ -16,7 +15,7 @@ async function create(event: SubmitEvent) {
   busy = true;
   error = '';
   try {
-    const room = await request<{ id: string }>('/api/rooms', { name, question, options });
+    const room = await request<{ id: string }>('/api/rooms', { question, options });
     window.location.assign(`/room/${room.id}`);
   } catch (e) {
     error = (e as Error).message;
@@ -28,9 +27,6 @@ async function create(event: SubmitEvent) {
 <section class="form-page">
   <h1>Create a room</h1>
   <form onsubmit={create}>
-    <label
-      >Your name<input required maxlength="32" autocomplete="given-name" bind:value={name}></label
-    >
     <label
       >Question<textarea required maxlength="240" rows="2" bind:value={question}></textarea></label
     >

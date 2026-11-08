@@ -13,7 +13,14 @@ it('preserves a completed recording and marks unfinished rounds interrupted on r
     const options = layout(['A', 'B']);
     store.create(
       { id: 'room', question: 'Which?', options, createdAt: 'now' },
-      { id: 'person', roomId: 'room', name: 'Host', tokenHash: 'hash', host: true },
+      {
+        id: 'person',
+        roomId: 'room',
+        name: 'Host',
+        tokenHash: 'hash',
+        host: true,
+        participating: true,
+      },
     );
     store.start('finished', 'room', 'now');
     const config = { ...BASELINE, participantCount: 2 };

@@ -22,13 +22,14 @@ function credential(response: Response) {
   return value;
 }
 const created = await post('/api/rooms', {
-  name: 'Load host',
   question: 'Synthetic load smoke: choose A',
   options: ['A', 'B', 'C', 'D'],
 });
 if (!created.ok) throw new Error(`Create failed: ${await created.text()}`);
 const { id } = (await created.json()) as { id: string };
-const cookies = [credential(created)];
+const hostCookie = credential(created);
+await post(`/api/rooms/${id}/join`, { name: 'Load host' }, hostCookie);
+const cookies = [hostCookie];
 for (let i = 1; i < 32; i++) {
   const response = await post(`/api/rooms/${id}/join`, { name: `Synthetic ${i}` });
   if (!response.ok) throw new Error(`Join failed: ${await response.text()}`);

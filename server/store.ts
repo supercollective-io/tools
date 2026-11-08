@@ -9,6 +9,7 @@ export type Participant = {
   name: string;
   tokenHash: string;
   host: boolean;
+  participating: boolean;
 };
 export class Store {
   db: Database.Database;
@@ -21,7 +22,11 @@ export class Store {
     this.db.exec(`CREATE TABLE IF NOT EXISTS rooms (id TEXT PRIMARY KEY, question TEXT NOT NULL, options TEXT NOT NULL, created_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS participants (id TEXT PRIMARY KEY, room_id TEXT NOT NULL REFERENCES rooms(id), name TEXT NOT NULL, token_hash TEXT UNIQUE NOT NULL, host INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS rounds (id TEXT PRIMARY KEY, room_id TEXT NOT NULL REFERENCES rooms(id), status TEXT NOT NULL, started_at TEXT NOT NULL, selected_label TEXT, recording TEXT);
-      PRAGMA user_version = 1;`);
+`);
+    const columns = this.db.prepare('PRAGMA table_info(participants)').all() as { name: string }[];
+    if (!columns.some((column) => column.name === 'participating'))
+      this.db.exec('ALTER TABLE participants ADD COLUMN participating INTEGER NOT NULL DEFAULT 1');
+    this.db.pragma('user_version = 2');
     this.db.prepare("UPDATE rounds SET status = 'interrupted' WHERE status = 'active'").run();
   }
   create(room: StoredRoom, participant: Participant) {
@@ -47,8 +52,15 @@ export class Store {
   }
   addParticipant(p: Participant) {
     this.db
-      .prepare('INSERT INTO participants VALUES (?, ?, ?, ?, ?)')
-      .run(p.id, p.roomId, p.name, p.tokenHash, Number(p.host));
+      .prepare(
+        'INSERT INTO participants (id, room_id, name, token_hash, host, participating) VALUES (?, ?, ?, ?, ?, ?)',
+      )
+      .run(p.id, p.roomId, p.name, p.tokenHash, Number(p.host), Number(p.participating));
+  }
+  joinHost(id: string, name: string) {
+    this.db
+      .prepare('UPDATE participants SET name = ?, participating = 1 WHERE id = ?')
+      .run(name, id);
   }
   participants(roomId: string): Participant[] {
     return (
@@ -58,6 +70,7 @@ export class Store {
         name: string;
         token_hash: string;
         host: number;
+        participating: number;
       }[]
     ).map((r) => ({
       id: r.id,
@@ -65,6 +78,7 @@ export class Store {
       name: r.name,
       tokenHash: r.token_hash,
       host: Boolean(r.host),
+      participating: Boolean(r.participating),
     }));
   }
   start(id: string, roomId: string, at: string) {

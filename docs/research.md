@@ -40,3 +40,9 @@ The physical interaction may be useful despite positional imperfections. Symmetr
 Counterbalance option adjacency and opposition across comparable groups. Compare private initial ballots and post-round acceptance. Use accuracy for verifiable questions; use acceptance, retained disagreement and layout sensitivity for subjective choices. Do not equate convergence speed with quality.
 
 A replay of old inputs under new mechanics is a diagnostic, not a behavioural trial: people would react to a different trajectory. Conduct live comparisons before claiming improved decisions. Keep company product claims separate from empirical study results and distinguish creator-authored evidence from independent replication.
+
+## Magnet distance and touch input
+
+Unanimous AI's [UNU FAQ](https://unanimous.ai/unum-f-a-q/) states that closer magnets exert stronger pulls. Its [2019 artificial swarming paper](https://unanimous.ai/wp-content/uploads/2019/02/Artificial-Swarming-Amplifies-Subjective-Jugement-FICC-2019-full.pdf) describes tracking the moving puck’s rim as a way to require continuing engagement. These sources support the proximity interaction, but do not establish Puck’s exact force curve or cutoff as a reproduction of their implementation.
+
+Direct touch can obscure the puck and introduce motor-skill differences. A separate relative touchpad is a candidate experiment that preserves distance-based force while moving the finger away from the arena; it has not been implemented or validated here.

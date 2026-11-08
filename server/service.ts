@@ -72,7 +72,7 @@ export class SessionService {
     this.rooms.set(roomId, room);
     return room;
   }
-  create(name: string, question: string, labels: string[]) {
+  create(question: string, labels: string[]) {
     const room: StoredRoom = {
       id: id(),
       question,
@@ -83,7 +83,8 @@ export class SessionService {
     const participant: Participant = {
       id: id(),
       roomId: room.id,
-      name,
+      name: '',
+      participating: false,
       tokenHash: hash(token),
       host: true,
     };
@@ -97,14 +98,28 @@ export class SessionService {
   }
   join(roomId: string, name: string, token?: string) {
     const existing = this.authenticate(roomId, token);
-    if (existing && token) return { token };
+    if (existing?.participating && token) return { token };
     const room = this.get(roomId);
     if (room.state && !terminal(room.state.phase))
       throw new ClientError('A round is running. Join after it finishes.', 409);
-    if (room.participants.length >= MAX_PARTICIPANTS)
+    if (room.participants.filter((p) => p.participating).length >= MAX_PARTICIPANTS)
       throw new ClientError('This room has reached its 32-participant limit.', 409);
+    if (existing && token) {
+      this.store.joinHost(existing.id, name);
+      existing.name = name;
+      existing.participating = true;
+      this.broadcast(room);
+      return { token };
+    }
     const nextToken = randomBytes(32).toString('base64url');
-    const p: Participant = { id: id(), roomId, name, tokenHash: hash(nextToken), host: false };
+    const p: Participant = {
+      id: id(),
+      roomId,
+      name,
+      tokenHash: hash(nextToken),
+      host: false,
+      participating: true,
+    };
     this.store.addParticipant(p);
     room.participants.push(p);
     this.broadcast(room);
@@ -117,14 +132,21 @@ export class SessionService {
       question: room.data.question,
       options: room.data.options,
       me: participant
-        ? { id: participant.id, name: participant.name, host: participant.host }
+        ? {
+            id: participant.id,
+            name: participant.name,
+            host: participant.host,
+            participating: participant.participating,
+          }
         : null,
       participants: participant
-        ? room.participants.map((p) => ({
-            id: p.id,
-            name: p.name,
-            connected: room.connections.has(p.id),
-          }))
+        ? room.participants
+            .filter((p) => p.participating)
+            .map((p) => ({
+              id: p.id,
+              name: p.name,
+              connected: room.connections.has(p.id),
+            }))
         : [],
       round: room.recording && room.state ? { id: room.recording.id, state: room.state } : null,
       history: participant ? room.history : [],
@@ -135,11 +157,14 @@ export class SessionService {
     const room = this.get(roomId);
     if (room.state && !terminal(room.state.phase))
       throw new ClientError('A round is already running.', 409);
-    if (room.connections.size < 2)
+    const connected = room.participants.filter(
+      (p) => p.participating && room.connections.has(p.id),
+    );
+    if (connected.length < 2)
       throw new ClientError('Connect at least two participants before starting.', 409);
     if ([...this.rooms.values()].filter((r) => r.state && !terminal(r.state.phase)).length >= 4)
       throw new ClientError('Four rounds are already running. Try again shortly.', 503);
-    const config = { ...BASELINE, participantCount: room.connections.size };
+    const config = { ...BASELINE, participantCount: connected.length };
     room.state = initialState(config);
     room.recording = {
       id: id(),
@@ -149,7 +174,7 @@ export class SessionService {
       engineVersion: ENGINE_VERSION,
       config,
       participants: room.participants
-        .filter((p) => room.connections.has(p.id))
+        .filter((p) => p.participating && room.connections.has(p.id))
         .map((p) => ({ id: p.id, name: p.name })),
       startedAt: new Date().toISOString(),
       frames: [],
@@ -178,7 +203,7 @@ export class SessionService {
     };
     room.connections.set(p.id, connection);
     socket.on('message', (data, binary) => {
-      if (room.connections.get(p.id) !== connection) return;
+      if (room.connections.get(p.id) !== connection || !p.participating) return;
       const now = performance.now();
       if (now - connection.windowAt >= 1000) {
         connection.count = 0;

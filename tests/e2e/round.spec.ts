@@ -11,8 +11,10 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   page.on('pageerror', (e) => errors.push(e.message));
   guest.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
-  await page.getByLabel('Your name', { exact: true }).fill('Jo');
   await page.getByRole('button', { name: 'Create room' }).click();
+  await page.getByText('Join as a participant', { exact: true }).click();
+  await page.getByLabel('Your name', { exact: true }).fill('Host participant');
+  await page.getByRole('button', { name: 'Join the room' }).click();
   await expect(page.getByText('Connected', { exact: true })).toBeVisible();
   const roomUrl = page.url();
   await guest.goto(roomUrl);
@@ -76,9 +78,12 @@ test('mobile create form fits and accepts keyboard input', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
-  await page.getByLabel('Your name', { exact: true }).fill('Mobile');
   await page.getByRole('button', { name: 'Create room' }).click();
+  await page.getByText('Join as a participant', { exact: true }).click();
+  await page.getByLabel('Your name', { exact: true }).fill('Host participant');
+  await page.getByRole('button', { name: 'Join the room' }).click();
   const arena = page.getByRole('application');
+  await expect(page.locator('.magnet')).toBeVisible();
   await arena.focus();
   await page.keyboard.press('ArrowRight');
   expect(Number(await page.locator('.magnet').getAttribute('cx'))).toBeGreaterThan(500);
@@ -88,7 +93,6 @@ test('mobile create form fits and accepts keyboard input', async ({ page }) => {
 test('invite QR decodes to the room and fits on mobile', async ({ page, browser }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/');
-  await page.getByLabel('Your name', { exact: true }).fill('Host');
   await page.getByRole('button', { name: 'Create room' }).click();
   await expect(page.getByText('Connected', { exact: true })).toBeVisible();
   const roomUrl = page.url();
@@ -123,4 +127,43 @@ test('invite QR decodes to the room and fits on mobile', async ({ page, browser 
   }
   await page.getByRole('button', { name: 'Hide QR code' }).click();
   await expect(qr).toBeHidden();
+});
+
+test('creator hosts two participants without contributing to the round', async ({
+  page,
+  browser,
+}) => {
+  await page.goto('/');
+  await expect(page.getByLabel('Your name', { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Create room' }).click();
+  await expect(page.getByText('0 online', { exact: true })).toBeVisible();
+  await expect(page.locator('.magnet')).toHaveCount(0);
+  const contexts = await Promise.all([browser.newContext(), browser.newContext()]);
+  try {
+    for (const [i, context] of contexts.entries()) {
+      const guest = await context.newPage();
+      await guest.goto(page.url());
+      await guest.getByLabel('Your name', { exact: true }).fill(`Guest ${i}`);
+      await guest.getByRole('button', { name: 'Join the room' }).click();
+      await expect(page.getByText(`${i + 1} online`, { exact: true })).toBeVisible();
+      if (i === 0)
+        await expect(page.getByRole('button', { name: 'Start round', exact: true })).toBeDisabled();
+    }
+    await page.reload();
+    await expect(page.getByText('2 online', { exact: true })).toBeVisible();
+    await expect(page.locator('.magnet')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Start round', exact: true }).click();
+    await page.getByRole('button', { name: 'Cancel round' }).click();
+    await page.getByRole('link', { name: /cancelled.*Replay/ }).click();
+    const link = page.getByRole('link', { name: 'Download recording' });
+    const response = await page.request.get((await link.getAttribute('href')) ?? '');
+    const recording = await response.json();
+    expect(recording.config.participantCount).toBe(2);
+    expect(recording.participants.map((p: { name: string }) => p.name).sort()).toEqual([
+      'Guest 0',
+      'Guest 1',
+    ]);
+  } finally {
+    await Promise.all(contexts.map((context) => context.close()));
+  }
 });

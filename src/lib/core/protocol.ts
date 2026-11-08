@@ -11,7 +11,6 @@ export const inputMessage = z
   .strict();
 export const createRequest = z
   .object({
-    name: z.string().trim().min(1).max(32),
     question: z.string().trim().min(1).max(240),
     options: z.array(z.string().trim().min(1).max(48)).min(2).max(6),
   })
@@ -23,7 +22,7 @@ export type RoomView = {
   id: string;
   question: string;
   options: Option[];
-  me: { id: string; name: string; host: boolean } | null;
+  me: { id: string; name: string; host: boolean; participating: boolean } | null;
   participants: { id: string; name: string; connected: boolean }[];
   round: { id: string; state: State } | null;
   history: { id: string; status: string; startedAt: string; selectedLabel: string | null }[];
