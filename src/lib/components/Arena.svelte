@@ -152,6 +152,16 @@ function key(event: KeyboardEvent) {
         class:pulling={engaged}
       />
     {/if}
+    {#if puckState?.correction && Math.hypot(puckState.correction.x, puckState.correction.y) > 0.01}
+      <line
+        x1={PUCK_RADIUS + 4}
+        y1="0"
+        x2={PUCK_RADIUS + 4 + Math.hypot(puckState.correction.x, puckState.correction.y)}
+        y2="0"
+        transform={`translate(${shown.x} ${shown.y}) rotate(${(Math.atan2(puckState.correction.y, puckState.correction.x) * 180) / Math.PI})`}
+        class="correction-force"
+      />
+    {/if}
     <circle cx={shown.x} cy={shown.y} r={PUCK_RADIUS} class="puck" />
     {#if puckState?.targetId && puckState.dwellMs > 0}
       <circle

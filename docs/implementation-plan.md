@@ -9,7 +9,7 @@ Each slice includes its browser-visible outcome, relevant tests and documentatio
 | 3. Inspect a decision    | Persist and replay applied inputs and states; authorised participants can export; engine re-simulation matches                                 | Implemented; storage, engine and replay-access tests                         |
 | 4. Survive participation | Reconnect without multiplying influence, reject malformed input, expire stale inputs, mark interrupted rounds; responsive input surface        | Implemented baseline; broader device and assistive-technology trials remain  |
 | 5. Run a pilot           | Verify configured capacity, backup/restore and actual deployed WebSocket behaviour; observe latency and failures                               | Local preparation; real deployment and human pilot remain                    |
-| 6. Compare mechanisms    | Preserve baseline and assign recorded variants; collect private ballots and acceptance; analyse position sensitivity                           | Planned                                                                      |
+| 6. Compare mechanisms    | Preserve baseline; record modes, correction and personal layouts; replay raw/mapped inputs                                                     | Implemented experimental modes; human comparisons remain                     |
 
 ## Next pilot work
 
@@ -19,15 +19,13 @@ Each slice includes its browser-visible outcome, relevant tests and documentatio
 4. Collect participant feedback separately from the puck outcome.
 5. Decide whether synchronous recording writes need a worker, using tick-overrun measurements.
 
-## Later experimental slices
+## Current experimental scope
 
-- Counterbalanced option layouts, with layout assignment recorded.
-- A separately versioned centre-restoring correction based on disclosed mechanisms.
-- Personalised layouts with input mapping by option identity.
-- Alternative force curves and dwell thresholds.
-- Adaptive weighting only with a stated hypothesis and explicit participant treatment.
+Implemented: advanced mode selection, recorded centre-restoring correction, and proportional personalised layouts. See [Experimental modes](experimental-modes.md) for mechanics, limitations and recording semantics. Baseline remains the default.
 
-Do not replace the baseline silently when adding a variant. Avoid building a generic plugin framework before the first variant exists.
+Next: simplex UI prototypes. Other proposed additions remain deferred. Adaptive participant weighting and fictional expert/AI claims are excluded. Asynchronous representative agents are only a possible future experiment, with substantial concerns about replacing mutual adaptation with simulated participation.
+
+Do not replace the baseline silently when adding a variant. Avoid building a generic plugin framework before it is needed.
 
 ## Deferred product scope
 

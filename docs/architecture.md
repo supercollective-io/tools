@@ -33,7 +33,7 @@ A stationary magnet remains a stationary point in arena coordinates. It does not
 
 A countdown, active round and terminal result are server-owned. Terminal outcomes are `selected`, `timed-out`, `cancelled` and `interrupted`. Centre deadlock never selects an option. Re-entering a target starts a new dwell period. Selection is not labelled unanimity.
 
-The client interpolates snapshots for display. Reduced-motion mode removes interpolation. The same server coordinates determine force and selection regardless of the screen dimensions.
+The client interpolates snapshots for display. Reduced-motion mode removes interpolation. Baseline uses the same server coordinates for force and selection regardless of screen dimensions. Experimental personalised modes project those coordinates and map local inputs by option proportions; selection remains canonical. See [Experimental modes](experimental-modes.md).
 
 ## Network and authority
 

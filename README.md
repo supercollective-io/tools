@@ -73,3 +73,7 @@ Run one server process against a durable local database. A room's membership is 
 Completed recordings are durable. Active frames are buffered in memory; a process crash preserves an interrupted round marker, not its unfinished trajectory. Clearing browser cookies loses the guest identity and host control. Anonymous join links are suitable for trusted pilots, not proof of one real person per participant.
 
 The pilot capacity is a configured limit. Local synthetic tests do not establish internet-scale capacity, accessibility equivalence or improved decision quality. Geometry corrections, adaptive weighting and controlled human comparisons remain future slices.
+
+## Experimental modes
+
+Open **Advanced settings** when creating a room to choose baseline, positional correction, personalised layouts, or both experiments together. Personalised layouts require at least four options and transfer proportional pulls by option identity. Modes, layouts and applied forces are saved with the round. Replay can show the shared simulation or a participant’s personal view. See [Experimental modes](docs/experimental-modes.md) for the precise rules and limitations.

@@ -4,7 +4,9 @@ import { page } from '$app/state';
 import { request } from '../../../lib/api.ts';
 import Arena from '../../../lib/components/Arena.svelte';
 import InviteQr from '../../../lib/components/InviteQr.svelte';
+import ModeNotice from '../../../lib/components/ModeNotice.svelte';
 import { type Point, terminal } from '../../../lib/core/engine.ts';
+import { optionMixture, personalised, projectState } from '../../../lib/core/experiments.ts';
 import type { RoomView, ServerMessage } from '../../../lib/core/protocol.ts';
 
 let inviteUrl = $state('');
@@ -27,6 +29,30 @@ const status = $derived(room?.round?.state.phase ?? 'waiting');
 const connected = $derived(room?.participants.filter((p) => p.connected).length ?? 0);
 const selectedLabel = $derived(
   room?.options.find((o) => o.id === room?.round?.state.selectedId)?.label,
+);
+const localView = $derived(Boolean(room?.me?.participating && personalised(room.mode)));
+const displayState = $derived(
+  room?.round
+    ? localView
+      ? projectState(room.round.state, room.options, room.localOptions)
+      : room.round.state
+    : null,
+);
+const mixture = $derived(
+  room && localView && engaged
+    ? optionMixture(displayState?.position ?? { x: 500, y: 500 }, magnet, room.localOptions)
+    : {},
+);
+const mixtureLabel = $derived(
+  room
+    ? Object.entries(mixture)
+        .filter(([, weight]) => weight > 0.005)
+        .map(
+          ([id, weight]) =>
+            `${Math.round(weight * 100)}% ${room?.options.find((o) => o.id === id)?.label}`,
+        )
+        .join(' · ')
+    : '',
 );
 function connect() {
   if (disposed || blocked) return;
@@ -138,6 +164,7 @@ async function copy() {
 {:else if !room.me}
   <section class="form-page">
     <h1>{room.question}</h1>
+    <ModeNotice mode={room.mode} />
     <form onsubmit={join}>
       <label
         >Your name<input bind:value={name} required maxlength="32" autocomplete="given-name"></label
@@ -157,6 +184,7 @@ async function copy() {
 {:else}
   <section class="session">
     <h1>{room.question}</h1>
+    <ModeNotice mode={room.mode} />
     <div class="toolbar">
       <button type="button" onclick={copy}>{copied ? 'Link copied' : 'Copy invite link'}</button>
       <InviteQr url={inviteUrl} />
@@ -224,13 +252,18 @@ async function copy() {
       </details>
     {/if}
     <Arena
-      options={room.options}
-      state={room.round?.state ?? null}
+      options={localView ? room.localOptions : room.options}
+      state={displayState}
       enabled={connection === 'Connected' && room.me.participating}
       {magnet}
       {engaged}
       oninput={input}
     />
+    {#if localView}
+      <p class="muted">
+        {mixtureLabel || 'Pull between option directions to split your influence.'}
+      </p>
+    {/if}
     {#if room.me.participating}
       <p class="arena-hint">
         <span class="magnet-key"></span>Hold and drag near the puck to pull. Release to stop.

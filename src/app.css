@@ -276,3 +276,18 @@ li {
     font-size: 12px;
   }
 }
+
+select {
+  font: inherit;
+  padding: 8px;
+  max-width: 100%;
+  border: 1px solid #b6beb8;
+  border-radius: 4px;
+  background: white;
+  color: inherit;
+}
+.correction-force {
+  stroke: #b85d05;
+  stroke-width: 7;
+  stroke-linecap: round;
+}

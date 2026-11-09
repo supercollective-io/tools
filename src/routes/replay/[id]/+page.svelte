@@ -3,14 +3,28 @@ import { onMount } from 'svelte';
 import { page } from '$app/state';
 import { request } from '../../../lib/api.ts';
 import Arena from '../../../lib/components/Arena.svelte';
+import ModeNotice from '../../../lib/components/ModeNotice.svelte';
 import { initialState, type Recording, STEP_MS } from '../../../lib/core/engine.ts';
+import { personalised, projectState } from '../../../lib/core/experiments.ts';
 
 let recording = $state<Recording | null>(null),
   error = $state(''),
   index = $state(0),
   playing = $state(false);
+let perspective = $state('');
 const frame = $derived(recording?.frames[index]);
 const puckState = $derived(frame?.state ?? (recording ? initialState(recording.config) : null));
+const localOptions = $derived(recording?.participants.find((p) => p.id === perspective)?.layout);
+const displayState = $derived(
+  puckState && recording && localOptions
+    ? projectState(puckState, recording.options, localOptions)
+    : puckState,
+);
+const displayedInputs = $derived(
+  perspective
+    ? (frame?.localInputs ?? []).filter((i) => i.participantId === perspective)
+    : (frame?.inputs ?? []),
+);
 const selected = $derived(
   recording?.options.find((o) => o.id === recording?.result.selectedId)?.label,
 );
@@ -41,12 +55,30 @@ onMount(() => {
 {:else}
   <section class="session">
     <h1>{recording.question}</h1>
+    <ModeNotice mode={recording.config.mode ?? 'baseline'} />
     <div class="toolbar">
       <a href={`/room/${recording.roomId}`}>Back to room</a>
       <a href={`/api/recordings/${recording.id}?download`}>Download recording</a>
     </div>
-    <p>Replay · {selected ?? recording.result.phase.replace('-', ' ')} · All magnets visible</p>
-    <Arena options={recording.options} state={puckState} replayInputs={frame?.inputs ?? []} />
+    <p>
+      Replay · {selected ?? recording.result.phase.replace('-', ' ')} ·
+      {perspective ? 'Personal view — own magnet' : 'Shared view — all applied pulls'}
+    </p>
+    {#if personalised(recording.config.mode ?? 'baseline')}
+      <label
+        >Replay view<select bind:value={perspective}>
+          <option value="">Shared simulation</option>
+          {#each recording.participants as participant}
+            <option value={participant.id}>{participant.name}’s layout</option>
+          {/each}
+        </select></label
+      >
+    {/if}
+    <Arena
+      options={localOptions ?? recording.options}
+      state={displayState}
+      replayInputs={displayedInputs}
+    />
     <div class="replay-controls">
       <button
         type="button"
