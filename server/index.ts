@@ -81,7 +81,7 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
     const parsed = createRequest.safeParse(await body(req));
     if (!parsed.success)
       throw new ClientError(parsed.error.issues[0]?.message ?? 'Check the question and options.');
-    const created = service.create(parsed.data.question, parsed.data.options);
+    const created = service.create(parsed.data.question, parsed.data.options, parsed.data.mode);
     setCookie(res, created.roomId, created.token);
     json(res, { id: created.roomId }, 201);
     return;

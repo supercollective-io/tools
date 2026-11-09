@@ -13,6 +13,15 @@ import {
   step,
   terminal,
 } from '../src/lib/core/engine.ts';
+import {
+  CORRECTION_RATIO,
+  corrected,
+  MAPPING_VERSION,
+  type Mode,
+  mapInput,
+  personalised,
+  personalLayout,
+} from '../src/lib/core/experiments.ts';
 import { inputMessage, type RoomView } from '../src/lib/core/protocol.ts';
 import type { Participant, Store, StoredRoom } from './store.ts';
 export const MAX_PARTICIPANTS = 32;
@@ -72,10 +81,11 @@ export class SessionService {
     this.rooms.set(roomId, room);
     return room;
   }
-  create(question: string, labels: string[]) {
+  create(question: string, labels: string[], mode: Mode = 'baseline') {
     const room: StoredRoom = {
       id: id(),
       question,
+      mode,
       options: layout(labels),
       createdAt: new Date().toISOString(),
     };
@@ -131,6 +141,11 @@ export class SessionService {
       id: roomId,
       question: room.data.question,
       options: room.data.options,
+      mode: room.data.mode ?? 'baseline',
+      localOptions:
+        participant?.participating && personalised(room.data.mode ?? 'baseline')
+          ? personalLayout(room.data.options, `${roomId}:${participant.id}`)
+          : room.data.options,
       me: participant
         ? {
             id: participant.id,
@@ -164,7 +179,14 @@ export class SessionService {
       throw new ClientError('Connect at least two participants before starting.', 409);
     if ([...this.rooms.values()].filter((r) => r.state && !terminal(r.state.phase)).length >= 4)
       throw new ClientError('Four rounds are already running. Try again shortly.', 503);
-    const config = { ...BASELINE, participantCount: connected.length };
+    const mode = room.data.mode ?? 'baseline';
+    const config = {
+      ...BASELINE,
+      participantCount: connected.length,
+      mode,
+      correctionRatio: corrected(mode) ? CORRECTION_RATIO : 0,
+      mappingVersion: personalised(mode) ? MAPPING_VERSION : undefined,
+    };
     room.state = initialState(config);
     room.recording = {
       id: id(),
@@ -175,7 +197,13 @@ export class SessionService {
       config,
       participants: room.participants
         .filter((p) => p.participating && room.connections.has(p.id))
-        .map((p) => ({ id: p.id, name: p.name })),
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          layout: personalised(mode)
+            ? personalLayout(room.data.options, `${roomId}:${p.id}`)
+            : room.data.options,
+        })),
       startedAt: new Date().toISOString(),
       frames: [],
       result: room.state,
@@ -283,7 +311,7 @@ export class SessionService {
       for (const room of this.rooms.values()) {
         const recording = room.recording;
         if (!recording || !room.state || terminal(room.state.phase)) continue;
-        const inputs = recording.participants
+        const localInputs = recording.participants
           .map((p) => {
             const connection = room.connections.get(p.id);
             return connection
@@ -294,8 +322,25 @@ export class SessionService {
               : { participantId: p.id, x: 500, y: 500, engaged: false, sequence: -1 };
           })
           .sort((a, b) => a.participantId.localeCompare(b.participantId));
+        const position = room.state.position;
+        const inputs = personalised(recording.config.mode ?? 'baseline')
+          ? localInputs.map((input) =>
+              mapInput(
+                input,
+                position,
+                recording.options,
+                recording.participants.find((p) => p.id === input.participantId)?.layout ??
+                  recording.options,
+                recording.config,
+              ),
+            )
+          : localInputs;
         room.state = step(room.state, inputs, recording.options, recording.config);
-        recording.frames.push({ state: room.state, inputs });
+        recording.frames.push({
+          state: room.state,
+          inputs,
+          ...(personalised(recording.config.mode ?? 'baseline') ? { localInputs } : {}),
+        });
         if (terminal(room.state.phase)) this.finish(room);
         this.broadcast(room);
       }

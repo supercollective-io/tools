@@ -12,7 +12,7 @@ it('preserves a completed recording and marks unfinished rounds interrupted on r
   try {
     const options = layout(['A', 'B']);
     store.create(
-      { id: 'room', question: 'Which?', options, createdAt: 'now' },
+      { id: 'room', question: 'Which?', options, createdAt: 'now', mode: 'personalised-corrected' },
       {
         id: 'person',
         roomId: 'room',
@@ -43,6 +43,7 @@ it('preserves a completed recording and marks unfinished rounds interrupted on r
     expect(store.recording('finished')).toEqual(recording);
     expect(store.history('room').find((r) => r.id === 'unfinished')?.status).toBe('interrupted');
     expect(store.participants('room')[0]?.host).toBe(true);
+    expect(store.room('room')?.mode).toBe('personalised-corrected');
   } finally {
     store.close();
     rmSync(dir, { recursive: true, force: true });

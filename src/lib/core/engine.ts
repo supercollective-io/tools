@@ -1,5 +1,6 @@
+import type { Mode } from './experiments.ts';
 /** Normalised arena units, not CSS pixels. Baseline parameters are Puck choices. */
-export const ENGINE_VERSION = 'baseline-v1';
+export const ENGINE_VERSION = 'puck-v2';
 export const STEP_MS = 50;
 export const PUCK_RADIUS = 22;
 export const MAGNET_RADIUS = 9;
@@ -15,22 +16,35 @@ export const BASELINE = Object.freeze({
 });
 export type Point = { x: number; y: number };
 export type Option = Point & { id: string; label: string };
-export type Input = Point & { participantId: string; engaged: boolean; sequence: number };
+export type Input = Point & {
+  participantId: string;
+  engaged: boolean;
+  sequence: number;
+  force?: Point;
+  optionWeights?: Record<string, number>;
+  availableStrength?: number;
+};
 export type Phase = 'countdown' | 'active' | 'selected' | 'timed-out' | 'cancelled' | 'interrupted';
-export type Config = { [K in keyof typeof BASELINE]: number } & { participantCount: number };
+export type Config = { [K in keyof typeof BASELINE]: number } & {
+  participantCount: number;
+  mode?: Mode;
+  correctionRatio?: number;
+  mappingVersion?: string;
+};
 export type State = {
   tick: number;
   phase: Phase;
   position: Point;
   velocity: Point;
   force: Point;
+  correction?: Point;
   elapsedMs: number;
   countdownMs: number;
   targetId: string | null;
   dwellMs: number;
   selectedId: string | null;
 };
-export type Frame = { state: State; inputs: Input[] };
+export type Frame = { state: State; inputs: Input[]; localInputs?: Input[] };
 export type Recording = {
   id: string;
   roomId: string;
@@ -38,7 +52,7 @@ export type Recording = {
   options: Option[];
   engineVersion: string;
   config: Config;
-  participants: { id: string; name: string }[];
+  participants: { id: string; name: string; layout?: Option[] }[];
   startedAt: string;
   frames: Frame[];
   result: State;
@@ -99,10 +113,24 @@ export function step(previous: State, inputs: Input[], options: Option[], config
     return state;
   }
   state.elapsedMs += STEP_MS;
+  let appliedStrength = 0;
   for (const input of inputs) {
-    const f = forceFor(state.position, input, config);
+    const f = input.force ?? forceFor(state.position, input, config);
+    appliedStrength += Math.hypot(f.x, f.y);
     state.force.x += f.x;
     state.force.y += f.y;
+  }
+  if (config.correctionRatio) {
+    const dx = 500 - state.position.x,
+      dy = 500 - state.position.y;
+    const distance = Math.hypot(dx, dy);
+    const magnitude = config.correctionRatio * appliedStrength * Math.min(1, distance / 370);
+    state.correction =
+      distance > 0 && magnitude > 0
+        ? { x: (dx / distance) * magnitude, y: (dy / distance) * magnitude }
+        : { x: 0, y: 0 };
+    state.force.x += state.correction.x;
+    state.force.y += state.correction.y;
   }
   const dt = STEP_MS / 1000;
   state.velocity.x = (state.velocity.x + state.force.x * dt) * Math.exp(-config.damping * dt);

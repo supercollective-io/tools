@@ -2,7 +2,14 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
 import type { Option, Recording } from '../src/lib/core/engine.ts';
-export type StoredRoom = { id: string; question: string; options: Option[]; createdAt: string };
+import type { Mode } from '../src/lib/core/experiments.ts';
+export type StoredRoom = {
+  id: string;
+  question: string;
+  options: Option[];
+  createdAt: string;
+  mode?: Mode;
+};
 export type Participant = {
   id: string;
   roomId: string;
@@ -26,20 +33,31 @@ export class Store {
     const columns = this.db.prepare('PRAGMA table_info(participants)').all() as { name: string }[];
     if (!columns.some((column) => column.name === 'participating'))
       this.db.exec('ALTER TABLE participants ADD COLUMN participating INTEGER NOT NULL DEFAULT 1');
-    this.db.pragma('user_version = 2');
+    const roomColumns = this.db.prepare('PRAGMA table_info(rooms)').all() as { name: string }[];
+    if (!roomColumns.some((column) => column.name === 'mode'))
+      this.db.exec("ALTER TABLE rooms ADD COLUMN mode TEXT NOT NULL DEFAULT 'baseline'");
+    this.db.pragma('user_version = 3');
     this.db.prepare("UPDATE rounds SET status = 'interrupted' WHERE status = 'active'").run();
   }
   create(room: StoredRoom, participant: Participant) {
     this.db.transaction(() => {
       this.db
-        .prepare('INSERT INTO rooms VALUES (?, ?, ?, ?)')
-        .run(room.id, room.question, JSON.stringify(room.options), room.createdAt);
+        .prepare(
+          'INSERT INTO rooms (id, question, options, created_at, mode) VALUES (?, ?, ?, ?, ?)',
+        )
+        .run(
+          room.id,
+          room.question,
+          JSON.stringify(room.options),
+          room.createdAt,
+          room.mode ?? 'baseline',
+        );
       this.addParticipant(participant);
     })();
   }
   room(id: string): StoredRoom | undefined {
     const row = this.db.prepare('SELECT * FROM rooms WHERE id = ?').get(id) as
-      | { id: string; question: string; options: string; created_at: string }
+      | { id: string; question: string; options: string; created_at: string; mode: Mode }
       | undefined;
     return (
       row && {
@@ -47,6 +65,7 @@ export class Store {
         question: row.question,
         options: JSON.parse(row.options),
         createdAt: row.created_at,
+        mode: row.mode,
       }
     );
   }
