@@ -60,7 +60,7 @@ Personalised frames contain:
 
 The proxy coordinates are not a second input calculation. The engine uses the recorded applied force directly. Re-simulation can reproduce frames from mapped inputs; tests also reconstruct those mappings from the raw local inputs and saved layouts. The terminal cancellation/interruption override remains in `result` as before.
 
-Replay starts in the shared simulation, showing all applied pulls. Personalised runs also offer each participant's layout, showing that person's raw magnet and projected puck. Historical baseline recordings remain viewable without the new fields. No cross-version numerical identity is promised.
+Replay starts in the shared simulation, showing all applied pulls. Personalised runs also offer each participant's layout, showing that person's raw magnet and projected puck. A third view, **Option contributions**, splits each recorded input into arrows towards its named options before vector cancellation. Arrow lengths use a common linear force scale (220 arena units for one participant's maximum force); colours and a text legend identify participants. Small parallel lane offsets and a start just beyond the puck edge separate arrows visually and do not imply actual magnet locations. A participant filter helps inspect overlaps. Percentages are the recorded proportions of an individual's pull, not shares of group support. Countdown and disengaged inputs contribute no arrows. The separate orange correction remains visible. The shared resultant view retains synthetic proxy magnets and explicitly labels them as such. Historical baseline recordings remain viewable without the new fields. No cross-version numerical identity is promised.
 
 ## Decisions and future scope
 

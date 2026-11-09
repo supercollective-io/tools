@@ -97,6 +97,32 @@ test('personalised correction mode records proportions, layouts and replay persp
       .getByRole('combobox', { name: 'Replay view', exact: true })
       .selectOption(recording.participants[0].id);
     await expect(page.getByText(/Personal view — own magnet/)).toBeVisible();
+    await page
+      .getByRole('combobox', { name: 'Replay view', exact: true })
+      .selectOption('contributions');
+    const contributionFrame = recording.frames.findIndex(
+      (f) =>
+        f.state.phase === 'active' &&
+        f.state.elapsedMs > 0 &&
+        f.inputs.some(
+          (i) =>
+            i.engaged && Object.values(i.optionWeights ?? {}).some((w) => Math.abs(w - 0.3) < 0.03),
+        ),
+    );
+    expect(contributionFrame).toBeGreaterThanOrEqual(0);
+    await page.getByRole('slider', { name: 'Round timeline' }).fill(String(contributionFrame));
+    await expect(page.locator('.contribution-arrow')).toHaveCount(2);
+    await expect(page.locator('.replay-magnet')).toHaveCount(0);
+    await expect(page.getByRole('list', { name: 'Option contributions' })).toContainText('Host:');
+    const hostId = recording.participants.find((p) => p.name === 'Host')?.id;
+    const guestId = recording.participants.find((p) => p.name === 'Guest')?.id;
+    if (!hostId || !guestId) throw new Error('Missing participant');
+    await page.getByRole('combobox', { name: 'Participant', exact: true }).selectOption(guestId);
+    await expect(page.locator('.contribution-arrow')).toHaveCount(0);
+    await page.getByRole('combobox', { name: 'Participant', exact: true }).selectOption(hostId);
+    await expect(page.locator('.contribution-arrow')).toHaveCount(2);
+    await page.getByRole('combobox', { name: 'Replay view', exact: true }).selectOption('');
+    await expect(page.locator('.contribution-arrow')).toHaveCount(0);
   } finally {
     await context.close();
   }

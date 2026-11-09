@@ -9,6 +9,7 @@ import {
   type State,
   TARGET_RADIUS,
 } from '../core/engine.ts';
+import type { Contribution } from '../core/replay.ts';
 
 let {
   options,
@@ -18,6 +19,7 @@ let {
   engaged = false,
   oninput = (_point: Point, _engaged: boolean) => {},
   replayInputs = [],
+  contributions = [],
 }: {
   options: Option[];
   state: State | null;
@@ -26,6 +28,7 @@ let {
   engaged?: boolean;
   oninput?: (point: Point, engaged: boolean) => void;
   replayInputs?: Input[];
+  contributions?: Contribution[];
 } = $props();
 let arena: HTMLDivElement;
 let shown = $state<Point>({ x: 500, y: 500 });
@@ -141,6 +144,32 @@ function key(event: KeyboardEvent) {
     {#each replayInputs.filter((i) => i.engaged) as input}
       <line x1={shown.x} y1={shown.y} x2={input.x} y2={input.y} class="replay-pull" />
       <circle cx={input.x} cy={input.y} r="9" class="replay-magnet" />
+    {/each}
+    {#each contributions as contribution}
+      <g
+        class="contribution-arrow"
+        data-participant={contribution.participantId}
+        data-option={contribution.optionId}
+        data-force={contribution.force}
+        data-proportion={contribution.proportion}
+        transform={`translate(${shown.x} ${shown.y}) rotate(${(Math.atan2(contribution.direction.y, contribution.direction.x) * 180) / Math.PI}) translate(${PUCK_RADIUS + 5} ${contribution.lane})`}
+        style:color={contribution.colour}
+      >
+        <line
+          x1="0"
+          y1="0"
+          x2={contribution.length}
+          y2="0"
+          stroke="currentColor"
+          stroke-width="3"
+        />
+        <path
+          d={`M${contribution.length - 7} -5 L${contribution.length} 0 L${contribution.length - 7} 5`}
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+        />
+      </g>
     {/each}
     {#if enabled}
       <line
