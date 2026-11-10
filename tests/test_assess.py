@@ -138,3 +138,11 @@ def test_sdk_boundary(monkeypatch):
     result = JevScorer().score(event, *event.participants[:2])
     assert result.model == "test-model"
     assert result.weight == 2.25
+
+
+def test_provider_rounding_is_preserved():
+    result = Metric(
+        score=2.97, confidence=0.7, probabilities={0: 0.0, 1: 0.0, 2: 0.1, 3: 0.79, 4: 0.1}
+    )
+    assert sum(result.probabilities.values()) == pytest.approx(0.99)
+    assert result.normalised == 2.97 / 4

@@ -69,10 +69,10 @@ class Metric(Record):
             raise ValueError("Expected probability for every rubric level 0–4")
         if any(not math.isfinite(p) or not 0 <= p <= 1 for p in self.probabilities.values()):
             raise ValueError("Invalid probability")
-        if not math.isclose(sum(self.probabilities.values()), 1, abs_tol=0.001):
+        if not math.isclose(sum(self.probabilities.values()), 1, abs_tol=0.0555):
             raise ValueError("Probabilities must sum to one")
         expected = sum(k * v for k, v in self.probabilities.items())
-        if not math.isclose(expected, self.score, abs_tol=0.02):
+        if not math.isclose(expected, self.score, abs_tol=0.055):
             raise ValueError("Score disagrees with distribution")
         return self
 

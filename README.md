@@ -39,3 +39,23 @@ uv run pytest
 Tests use fake scorers; CI does not need secrets or private data. Model-quality
 assessment requires separate human review. No extraction, introductions, website,
 follow-up pairing or claims of validated collaboration prediction yet.
+
+## Score and inspect an event
+
+```sh
+uv run match score examples/event.json --output runs/example
+uv run match inspect runs/example --person ecology
+# The same command resumes missing/failed pairs without redoing saved successes.
+uv run match score examples/event.json --output runs/example
+```
+
+`--concurrency` defaults to four. Transient SDK failures get up to three attempts.
+A run freezes event text, rubric fingerprint and model configuration. Its first
+successful response resolves `jev-latest`; remaining requests and resumes use that
+exact returned model. Changed inputs or rubrics require a new output directory.
+There is no silent fallback to a new model. A crash may leave `.lock`: remove it
+only after confirming that no process is still writing that run.
+
+Results are written atomically as requests finish. `failures.json` records error
+classes without private request bodies. An unsuccessful run exits nonzero; inspect
+shows available candidates and the missing count. A complete rerun makes no API calls.
