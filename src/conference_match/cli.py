@@ -70,7 +70,8 @@ def main() -> int:
             write_json(args.output, report)
             for row in report["comparisons"]:
                 print(
-                    f"{row['id']} [{row['status']}]: {row['outcome']}; "
+                    f"{row['id']} [{row['status']}, {row['preference_strength']}]: "
+                    f"{row['outcome']}; "
                     f"preferred {row['preferred_score']:.3f}; "
                     f"alternative {row['alternative_score']:.3f}; "
                     f"margin {row['margin']:+.3f}"

@@ -93,5 +93,5 @@ human review and do not establish successful collaboration.
 
 `match evaluate` scores only pairs referenced by human-approved comparisons, then
 checks the model's ranking against those judgements. Writer–writer and composer–composer
-proposals are in `examples/comparisons.json`; they await review and are not labelled
-truth. See `docs/prompt-evaluation.md` for review, CLI commands and the development loop.
+judgements are in `examples/comparisons.json`, with the user’s review notes and
+qualitative preference strength. See `docs/prompt-evaluation.md` for review, CLI commands and the development loop.

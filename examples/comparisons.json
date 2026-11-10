@@ -11,10 +11,11 @@
         "1joxpvx",
         "1nseb22"
       ],
-      "reason": "The professional writer explicitly welcomes co-writers; the hobby writer offers writing, while the composer offers audio.",
-      "status": "draft",
-      "reviewed_by": null,
-      "split": "development"
+      "reason": "Similar, with maybe A slightly higher. I read learning game development and technical constraints as the primary request, and being open to co-writers as secondary. A fills the secondary request; B is partly related to the primary one but not fully. Neither is exactly the technical game developer they are looking for.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "preference_strength": "slight"
     },
     {
       "id": "writer_seeking_game_team",
@@ -27,10 +28,11 @@
         "1nseb22",
         "1einy86"
       ],
-      "reason": "The hobby writer seeks a game project: the Ren’Py developer explicitly seeks writing, whereas the professional writer offers co-writing but no game implementation. Proposed ordering needs human judgement.",
-      "status": "draft",
-      "reviewed_by": null,
-      "split": "development"
+      "reason": "Probably a slight preference for A. The person wants to be part of a technical team, and B does not offer that.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "preference_strength": "slight"
     },
     {
       "id": "composer_project_over_peer",
@@ -43,10 +45,11 @@
         "1joxpvx",
         "1gk4mad"
       ],
-      "reason": "The pianist wants a small game to compose for; the tower-defence developer explicitly needs music. The other composer is also seeking projects.",
-      "status": "draft",
-      "reviewed_by": null,
-      "split": "development"
+      "reason": "Definitely A. B is not really relevant, and A is very directly relevant.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "preference_strength": "clear"
     },
     {
       "id": "composer_other_direction",
@@ -59,10 +62,11 @@
         "1gk4mad",
         "1joxpvx"
       ],
-      "reason": "The composer seeks game projects; the Ren’Py developer explicitly seeks audio. Another composer does not state a project needing music. Project scope may complicate the ordering.",
-      "status": "draft",
-      "reviewed_by": null,
-      "split": "development"
+      "reason": "Definitely A. A is not as high a match as in question 3: I read the person as preferring professional work, whereas A is a hobby project. But B is not relevant.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "preference_strength": "clear"
     },
     {
       "id": "writer_shared_inquiry",
@@ -75,10 +79,11 @@
         "1einy86",
         "1joxpvx"
       ],
-      "reason": "The writers both want to work on game narrative; the composer wants audio projects. Review whether this is shared inquiry rather than merely shared craft.",
-      "status": "draft",
-      "reviewed_by": null,
-      "split": "development"
+      "reason": "A. Both are interested in writing to develop a shared world in games, with the goal of eventually creating games. B also wants to make games, but their shared interest is only general games, not that specific part.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "preference_strength": "unspecified"
     },
     {
       "id": "composer_overall_pair",
@@ -91,10 +96,11 @@
         "1joxpvx",
         "1gk4mad"
       ],
-      "reason": "The developer needs music and the composer needs a project; the two composers both seek projects. Compare the complete pair using the agreed sum of three metrics.",
-      "status": "draft",
-      "reviewed_by": null,
-      "split": "development"
+      "reason": "Definitely A. B has a similar profile to the person, rather than a complementary one.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "preference_strength": "clear"
     },
     {
       "id": "writer_overall_pair",
@@ -107,10 +113,11 @@
         "1nseb22",
         "1einy86"
       ],
-      "reason": "The developer and hobby writer have reciprocal project/writing needs; the writer–writer pair has explicit co-writing potential in one direction. This overall preference is a proposal, not an established label.",
-      "status": "draft",
-      "reviewed_by": null,
-      "split": "development"
+      "reason": "A can deliver what the person wants, and A's needs are directly related to the person's offers. Shared inquiry is high for both pairs.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "preference_strength": "unspecified"
     },
     {
       "id": "programmer_explicit_peer",
@@ -123,10 +130,11 @@
         "1gk4mad",
         "1fkroce"
       ],
-      "reason": "The recipient explicitly wants a fellow Godot programmer. Protect legitimate same-skill collaboration from a prompt that treats all shared expertise as irrelevant.",
-      "status": "draft",
-      "reviewed_by": null,
-      "split": "development"
+      "reason": "A. They want a programmer for a two-person team. A is a programmer and B is not.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "preference_strength": "unspecified"
     }
   ]
 }

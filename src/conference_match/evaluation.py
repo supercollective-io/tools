@@ -18,6 +18,7 @@ class Comparison(Record):
     alternative: tuple[str, str]
     metric: Literal["support", "shared_inquiry", "sum"]
     reason: str = Field(min_length=1)
+    preference_strength: Literal["slight", "clear", "unspecified"] = "unspecified"
     status: Literal["draft", "approved"] = "draft"
     reviewed_by: str | None = None
     split: Literal["development", "holdout"] = "development"
@@ -113,6 +114,7 @@ def evaluate(
                 "id": c.id,
                 "status": c.status,
                 "metric": c.metric,
+                "preference_strength": c.preference_strength,
                 "preferred_score": preferred,
                 "alternative_score": alternative,
                 "margin": margin,

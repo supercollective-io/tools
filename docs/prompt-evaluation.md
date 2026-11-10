@@ -6,8 +6,10 @@ that ordering. This is a prompt evaluation, not an allocation or model-versus-mo
 
 ## Review and label
 
-`examples/comparisons.json` contains eight proposed comparisons from the real profiles,
-including the writer–writer and composer–composer pairs. All start as `draft`.
+`examples/comparisons.json` contains eight user-reviewed comparisons from the real profiles,
+including the writer–writer and composer–composer pairs. Their review notes are
+recorded as human interpretations, not new facts added to the source profiles.
+New comparisons should start as `draft`.
 An agent's suggested ranking is not a human label. Review the full profiles before
 looking at their model scores. Reverse a proposed ordering if appropriate, or leave it
 as draft if ambiguous. Once agreed, set `status` to `approved` and `reviewed_by` to the
@@ -33,7 +35,7 @@ uv run match evaluate examples/event.json examples/comparisons.json \
 ```
 
 Only the distinct pairs referenced by the selected comparisons are sent to Jev.
-All eight current drafts need nine assessments, not 780. Repeated pairs and reversed
+All eight current comparisons need nine assessments, not 780. Repeated pairs and reversed
 orientations reuse one assessment. The first response pins the model for later calls.
 Use a fresh output filename for each run; existing results are never overwritten.
 This lean evaluator does not resume a partially failed live run.
@@ -95,3 +97,25 @@ Five ranking checks need four pair assessments. Inspect the scores as well as pa
 rank agreement alone does not establish absolute calibration. Do not combine the sanity
 suite's pass rate with the separately reviewed real-data accuracy. These are development
 checks, not an unseen holdout. No prompt change was made to achieve their first passing run.
+
+## First human-reviewed baseline
+
+The user reviewed all eight comparisons on 2026-11-10. Questions 1 and 2 express
+slight preferences; question 1 is tentative and describes both candidates as similar.
+Questions 3, 4 and 6 express clear preferences. Strength is unspecified for 5, 7 and 8.
+The `preference_strength` field records this distinction without inventing numeric
+score gaps or changing metric weights. Rank accuracy alone does not measure strength
+agreement: a large gap can still pass a slightly preferred ordering.
+
+Run the approved judgements against the saved baseline without API calls:
+
+```sh
+uv run match evaluate examples/event.json examples/comparisons.json \
+  --model jev-1.14.0 --from-run runs/reddit-v2 \
+  --output runs/human-review-baseline.json
+```
+
+Do not convert a reviewer's interpretation into an unstated profile requirement.
+For example, question 4's review interprets the composer as preferring professional
+work; the input itself expresses a preference for a committed team and larger projects,
+with flexibility about payment. The human ordering is retained without rewriting it.
