@@ -1,0 +1,69 @@
+{
+  "kind": "synthetic",
+  "comparisons": [
+    {
+      "id": "control_developer_vs_peer",
+      "preferred": [
+        "1l1fhta",
+        "1joxpvx"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1joxpvx"
+      ],
+      "metric": "support",
+      "reason": "Original fixture 4 ranking, retained here as an exploratory control, not a new human judgement.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "role_in_needs_developer_vs_peer",
+      "preferred": [
+        "1l1fhta",
+        "1joxpvx-role"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1joxpvx-role"
+      ],
+      "metric": "support",
+      "reason": "Explore the developer/peer ranking when the recipient repeats their role in needs. No assumed correct outcome.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "peer_support_role_effect",
+      "preferred": [
+        "1gk4mad",
+        "1joxpvx"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1joxpvx-role"
+      ],
+      "metric": "support",
+      "reason": "Test the hypothesis that repeating the recipient role reduces support credited to a peer. A negative margin means the opposite; neither is a normative failure.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "developer_support_role_effect",
+      "preferred": [
+        "1l1fhta",
+        "1joxpvx-role"
+      ],
+      "alternative": [
+        "1l1fhta",
+        "1joxpvx"
+      ],
+      "metric": "support",
+      "reason": "Check whether role placement changes support credited to the project provider. This is exploratory, not a labelled expectation.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    }
+  ]
+}

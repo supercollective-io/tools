@@ -115,6 +115,10 @@ def test_sdk_boundary(monkeypatch):
 
         def system_one(self, *, state, questions, model):
             assert "name" not in state["Person A"]
+            assert "name" not in state["Person B"]
+            assert state["Person A"] == event.participants[0].context()
+            assert state["Person B"] == event.participants[1].context()
+            assert state["event"] == event.description
             assert rubric.QUESTIONS["a_to_b"] in questions["a_to_b"].instructions
             assert len(questions) == 3
             return SystemOneResponse.model_validate(

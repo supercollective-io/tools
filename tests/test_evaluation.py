@@ -125,3 +125,26 @@ def test_synthetic_suite_is_separate_and_reuses_four_pairs():
     assert report["fixture_kind"] == "synthetic"
     assert report["unique_pairs"] == len(calls) == 4
     assert report["approved_count"] == 5
+
+
+def test_role_context_experiment_changes_only_needs_prefix():
+    source = load_event(Path("examples/event.json"))
+    event = load_event(Path("examples/role-context-event.json"))
+    fixtures = Fixtures.model_validate_json(
+        Path("examples/role-context-comparisons.json").read_text()
+    )
+    original = event.person("1joxpvx")
+    variant = event.person("1joxpvx-role")
+    assert original.context() == source.person("1joxpvx").context()
+    assert variant.context() == {
+        "offers": original.offers,
+        "needs": "I am a composer. " + (original.needs or ""),
+    }
+    assert event.description == source.description
+    assert all(c.status == "draft" for c in fixtures.comparisons)
+    calls = []
+    report = evaluate(
+        event, fixtures, "latest", lambda m: FakeScorer(m, calls), include_drafts=True
+    )
+    assert len(calls) == 4
+    assert report["approved_accuracy"] is None

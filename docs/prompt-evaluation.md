@@ -125,3 +125,11 @@ Do not convert a reviewer's interpretation into an unstated profile requirement.
 For example, question 4's review interprets the composer as preferring professional
 work; the input itself expresses a preference for a committed team and larger projects,
 with flexibility about payment. The human ordering is retained without rewriting it.
+
+## Exploratory role-placement comparison
+
+`examples/role-context-event.json` copies the fixture-4 profiles and adds one
+synthetic recipient whose needs begin “I am a composer.” Its four draft comparisons
+can be run with `--include-drafts` to inspect placement effects without declaring
+an expected human ranking. Both sides' complete offers and needs already reach the
+model. See `role-context-experiment.md` for the controlled five-repeat experiment.
