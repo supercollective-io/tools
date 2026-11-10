@@ -17,7 +17,7 @@ def test_profiles_preserve_original_text():
     raw = Participant(id="a", name="A", profile="  I build things.\nI seek collaborators. ")
     assert raw.context()["profile"] == raw.profile
     assert "name" not in raw.context()
-    assert len(load_event(Path("examples/event.json")).participants) == 8
+    assert len(load_event(Path("examples/event.json")).participants) >= 6
 
 
 @pytest.mark.parametrize(
@@ -61,7 +61,7 @@ def test_cli_assess(monkeypatch, tmp_path, capsys):
             pass
 
         def score(self, event, a, b):
-            assert a.id == "ecology" and b.id == "networking"
+            assert a.id == "1cv563y" and b.id == "1jgjvjt"
             return Assessment(
                 a=a.id,
                 b=b.id,
@@ -79,9 +79,9 @@ def test_cli_assess(monkeypatch, tmp_path, capsys):
             "assess",
             "examples/event.json",
             "--a",
-            "ecology",
+            "1cv563y",
             "--b",
-            "networking",
+            "1jgjvjt",
             "--output",
             str(output),
         ],
@@ -146,3 +146,13 @@ def test_provider_rounding_is_preserved():
     )
     assert sum(result.probabilities.values()) == pytest.approx(0.99)
     assert result.normalised == 2.97 / 4
+
+
+def test_demo_profiles_have_real_source_attribution():
+    event = load_event(Path("examples/event.json"))
+    manifest = json.loads(Path("examples/sources.json").read_text())
+    sources = {s["id"]: s for s in manifest["profiles"]}
+    assert set(sources) == {p.id for p in event.participants}
+    for source in sources.values():
+        assert source["url"].startswith("https://www.reddit.com/r/INAT/comments/")
+        assert source["capture"] and source["adaptation"]

@@ -1,36 +1,55 @@
-# Data and evaluation
+# Real-data evaluation
 
-## Source candidates
+## Included example dataset
 
-[`../examples/sources.json`](../examples/sources.json) records candidate public r/INAT posts from the 2024–25 period. A manifest entry is a lead for review, not a collected record or a reusable corpus. The verification field distinguishes information checked in a live search result from IDs that still need checking. Search snippets and cached excerpts can be incomplete; do not treat them as complete posts.
+`examples/event.json` contains **twenty real-derived profiles**, adapted from individual
+r/INAT collaboration posts published in 2024–2025. `examples/sources.json` links every
+profile to its source and records capture method and adaptations. These replace the
+original fictional demonstration profiles.
 
-Source access and reuse permissions remain unresolved. This project has not established a licence for the post text or permission to build a third-party inference corpus from it. Do not download or retain post bodies in bulk on the strength of this manifest. Before acquiring any source text, review the current platform terms and applicable access route, and establish that the proposed collection and inference use are permitted. A safer initial route is to evaluate on text supplied by a participant who has permission to share it, or on a small, individually reviewed set whose use has been cleared. Keep a record of the basis for each acquired item and remove items when that basis no longer applies.
+The main posts were read through available web page/search extractions, excluding
+comments. For four included sources a subagent opened the source page; others have
+main-post text available through search extraction, bounded by the comment section.
+The manifest distinguishes these routes. Access to every original page is not
+reliable, so this is not a fully reproducible downloader or claimed licensed corpus.
 
-## Raw input profiles
+Profiles are paraphrased into **offers** and **needs**, preserving engines, experience,
+project scope, preferences and commitments. Names are descriptive labels. Contacts,
+portfolio links and unnecessary identifying details are omitted. No new abilities,
+needs or reciprocal fit were invented. Two posts later said partners or teammates had been found;
+those closures are retained. We evaluate the historical stated requests, not current
+availability. No one has been contacted or introduced.
 
-Raw user-provided or otherwise cleared inputs belong under `data/`. The repository ignores that directory so private material does not get added by accident. Do not put secrets, credentials, or unreviewed Reddit content there. Runs and generated results belong under the ignored `runs/` directory.
+This twenty-post convenience sample meets the initial 20–30 profile target.
+It is neither representative nor labelled ground truth. Author identities
+have not been reconstructed across posts; a source post is the evaluation unit.
 
-The accepted raw input is an event with a shared description and participants. Individual participants may use raw text or labelled sections:
+Raw local captures, where saved, are in ignored `data/reddit-part-*.json`, with matching
+source metadata. Further adapted records are in ignored `data/additional-*.json`. Search extractions
+showed main-post endings before comments, but completeness could not always be
+independently verified by opening the original page.
+Do not bulk scrape or assume these materials carry an open redistribution licence.
 
-```json
-{
-  "description": "A short description of the event or project.",
-  "participants": [
-    {"id": "person-a", "name": "A", "profile": "Skills, interests, offer, and needs."},
-    {"id": "person-b", "name": "B", "profile": "Skills, interests, offer, and needs."}
-  ]
-}
+## Run and inspect
+
+```sh
+uv run match score examples/event.json --output runs/reddit
+uv run match inspect runs/reddit --person 1cv563y
+uv run match allocate runs/reddit --output runs/reddit-allocation.json
+uv run match allocate runs/reddit --normalisation zscore --output runs/reddit-zscore.json
 ```
 
-```json
-{"description": "A shared context", "participants": [
-  {"id": "person-a", "name": "A", "offers": "Skills and contributions.", "needs": "What they seek."},
-  {"id": "person-b", "name": "B", "offers": "Skills and contributions.", "needs": "What they seek."}
-]}
-```
+`data/` and `runs/` are ignored. Generated results should not be committed. The input
+schema requires an event `description` and `participants`; each participant has `id`,
+`name` and either `profile` or both `offers` and `needs`. The full text is assessed.
 
-Use stable, non-identifying IDs for evaluation where possible. Names are required but may be pseudonyms. Profiles should include only information needed for the matching task.
+## Evaluation
 
-## Small evaluation worksheet
+Use `evaluation.csv` for human review. Read source-derived profiles before model scores.
+Score relevance in each direction and shared inquiry using levels 0–4; record reasoning
+and disagreements. Reserve some examples using the `split` column while adjusting the
+rubric. Compare allocation modes using the same stored assessments. A high model score
+or an enthusiastic historical reply is not evidence of a successful collaboration.
 
-[`evaluation.csv`](evaluation.csv) is a blank, human-review worksheet. Add one row per candidate pair. `relevance_a_to_b` and `relevance_b_to_a` capture directional fit; `shared_inquiry` records common ground in what both people want to investigate. Use the `split` field to keep examples assigned to separate development and held-out evaluation groups. Reviewers should judge the pair from the source profiles, not from a model-generated explanation alone. Do not treat a small worksheet as evidence of broad performance.
+Unit tests retain minimal mechanical records/numeric scores to test algorithms; they
+are not demonstration profiles and are never used for live model-quality evaluation.

@@ -2,6 +2,7 @@
 
 import json
 import math
+import tempfile
 from pathlib import Path
 from typing import Self
 
@@ -69,7 +70,8 @@ class Metric(Record):
             raise ValueError("Expected probability for every rubric level 0–4")
         if any(not math.isfinite(p) or not 0 <= p <= 1 for p in self.probabilities.values()):
             raise ValueError("Invalid probability")
-        if not math.isclose(sum(self.probabilities.values()), 1, abs_tol=0.0555):
+        # Jev rounds each of five probabilities to two decimal places.
+        if not math.isclose(sum(self.probabilities.values()), 1, abs_tol=0.0250001):
             raise ValueError("Probabilities must sum to one")
         expected = sum(k * v for k, v in self.probabilities.items())
         if not math.isclose(expected, self.score, abs_tol=0.055):
@@ -110,6 +112,20 @@ def load_event(path: Path) -> Event:
 
 def write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
-    temporary.replace(path)
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=".match-",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary = Path(handle.name)
+            json.dump(value, handle, indent=2, ensure_ascii=False, allow_nan=False)
+            handle.write("\n")
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)

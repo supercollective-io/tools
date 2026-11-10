@@ -1,51 +1,125 @@
 {
-  "description": "A workshop on collective intelligence: how humans think, decide and act together. The broad event theme alone does not distinguish participants.",
+  "description": "An offline evaluation using adapted historical individual r/INAT collaboration posts from 2024–2025. People bring game-development skills and seek collaborators or shared projects. Shared enthusiasm for game development alone is background, not a strong match. These are historical requests, not current availability or consent to an introduction.",
   "participants": [
     {
-      "id": "ecology",
-      "name": "Ecology researcher",
-      "offers": "I study the material and energy flows of computing infrastructure. I have conducted interviews with communities affected by new industrial developments and can help frame an ecological research question.",
-      "needs": "I want to understand how networks work inside data centres: which equipment moves information and how architecture influences physical infrastructure. I also want examples of including local knowledge in technical decisions."
+      "id": "1cv563y",
+      "name": "Artist, writer and designer",
+      "offers": "I make art, write and design game concepts and systems. I have been doing these things casually for a while, without professional experience. I already have some planned game ideas and concepts written down. Programming has been the biggest obstacle when I have tried making games myself. I am new to using online platforms to communicate.",
+      "needs": "I want to make games for fun and gain experience, in any style or genre. I am looking for a person or small team with programming skills; experience level is not important if they can make simple functional games. We could implement and test my ideas, or I could make art for someone else’s project. Please be patient with my limited experience communicating online."
     },
     {
-      "id": "networking",
-      "name": "Network engineer",
-      "offers": "I have designed and maintained networks in computing facilities. I can explain switching, routing and redundancy with practical examples. I enjoy explaining infrastructure to non-specialists.",
-      "needs": "I want to understand how communities evaluate the environmental effects of data centres and which impacts engineers tend to overlook."
+      "id": "1jgjvjt",
+      "name": "GameMaker and JavaScript programmer",
+      "offers": "I have made a few small games and participated in game jams, mainly using GameMaker. I have also made small multiplayer web projects in JavaScript. I have a couple of small projects paused because I do not want to handle the art myself. I enjoy discussing a game with someone and finding ways to improve its design.",
+      "needs": "I am looking for an art partner to exchange ideas and design games together. I treat this as a serious hobby, spending a couple of hours a day on average, and would like a partner with a similar commitment. I want to start with very small projects or game jams and polish them before attempting a longer project. We could resume an existing project or start fresh. This is a historical request; the original post was later edited to say a partner had been found."
     },
     {
-      "id": "facilitator",
-      "name": "Cooperative facilitator",
-      "profile": "I have facilitated meetings in a housing cooperative for eight years, including disputes over repairs and shared budgets. I can share practical methods for recording dissent and reaching consent. I am exploring how groups preserve minority viewpoints after making a decision, especially when membership changes."
+      "id": "1js59ah",
+      "name": "Artist developing a 2D platformer",
+      "offers": "I am a casual artist and aspiring game developer. I have been working on a 2D platformer and have a working player controller and tileset. My programming skills are limited, so implementation takes me a long time. The game draws on Mario, Donkey Kong Country and Hollow Knight: exploring an abandoned city after the fall of civilisation and fighting the remaining automatons.",
+      "needs": "I want a dedicated programmer to help with my programming limitations, speed up progress and contribute to what the game could become. This is an unpaid hobby project with no guaranteed profit if it is released. I want someone tolerant and reasonable who does not rely on AI for coding. My time zone is CDT."
     },
     {
-      "id": "researcher",
-      "name": "Deliberation researcher",
-      "offers": "I compare records from citizens assemblies and interview facilitators about how minority positions appear in reports. I can help analyse meeting records.",
-      "needs": "How do groups preserve minority viewpoints after a decision? I want to compare practical examples with research methods. I am also interested in teaching qualitative coding."
+      "id": "1jszrrr",
+      "name": "Godot programmer for short projects",
+      "offers": "I am an experienced programmer who has made 2D Godot games for over a year as a hobby, mainly for short game jams. I enjoy implementing interesting mechanics, especially non-platforming puzzles and arcade-style minigames. I am open to trying something new.",
+      "needs": "I would like to join an upcoming game jam or help with a project that has a clear vision and tight scope. My ideal project can be finished in two or three weeks. I do not want a months-long project with a huge scope, because I want the hobby to stay enjoyable rather than become a second job. I can contribute programming."
     },
     {
-      "id": "artist",
-      "name": "Community artist",
-      "offers": "I run accessible drawing workshops and make illustrated explanations for community projects. I have experience helping people communicate ideas without specialist vocabulary.",
-      "needs": "I want to learn what collective intelligence means in practice. I am looking for feedback on workshop activities that make quiet participants comfortable contributing."
+      "id": "1of22k5",
+      "name": "Godot C# developer and test engineer",
+      "offers": "I have developed mostly 2D games as a hobby for two years. I now mainly use C# with Godot and also know Unity. I have worked in full-stack development and test automation, and briefly at a small video-game startup. During my computer-science master’s I studied game design and game AI, including state machines and pathfinding.",
+      "needs": "I am looking for a team for a game jam or a small-to-medium hobby project. Revenue sharing is acceptable, but I would like to work on something small before committing to a larger project. My priority is enjoying the work and improving my skills, rather than making a commercial game for profit."
     },
     {
-      "id": "software",
-      "name": "Software developer",
-      "offers": "I build collaborative editing tools and have worked on offline synchronisation. I can explain technical trade-offs in recording group work.",
-      "needs": "I want concrete examples of how groups track dissent so I can design a small tool. I also need help making technical diagrams more accessible."
+      "id": "1lm6mli",
+      "name": "Beginner pixel animator and low-poly modeller",
+      "offers": "I started pixel art, animation and low-poly 3D modelling a few months ago. I am a beginner and want to contribute while practising, improving and building a portfolio.",
+      "needs": "I would like a short, manageable, beginner-friendly project with little pressure. I hope to meet a programmer at a similar stage, or a small team with room for an artist. I am open to an existing project or brainstorming something new. I want us to finish something we can both feel proud of, without a large commitment."
     },
     {
-      "id": "gardener",
-      "name": "Volunteer gardener",
-      "profile": "I organise a neighbourhood garden with rotating volunteers. We have learned how to hand over seasonal knowledge through demonstrations rather than manuals. I would like to understand collective intelligence and talk about public participation, but do not yet have a particular project in mind."
+      "id": "1iit34l",
+      "name": "Unreal programmer seeking artists",
+      "offers": "I have worked with Unreal Engine for about seven months and can handle programming fairly well. As my projects grow, I struggle to finish them alone. My modelling experience is minimal; creating assets and environments, rigging and animation are my biggest difficulties.",
+      "needs": "I want to connect with artists or modellers and build a small community where we can make games, improve our skills and learn from each other. Beginners are welcome. I would eventually like a small indie studio, and I also welcome writers, composers, designers and others interested in learning game development."
     },
     {
-      "id": "historian",
-      "name": "Oral historian",
-      "offers": "I record oral histories and organise community archives. I can help design interviews and think about whose knowledge a formal record leaves out.",
-      "needs": "How can volunteer groups keep practical knowledge when members leave? I want examples of teaching through demonstration rather than relying on written documentation."
+      "id": "1nucfo9",
+      "name": "2D artist learning low-poly 3D",
+      "offers": "I have around six years of 2D-art experience, including concepts and illustration. I do not do 2D animation and would like to avoid it. I am learning low-poly 3D modelling and still working out rigging. I have a few months of experience with GDScript and Unreal Blueprints, including basic combat, attributes and experience systems. I have finished small game-jam-type projects but have not released a game. My time zone is UTC+3.",
+      "needs": "I want a programmer to make small 3D single-player games involving building and combat, particularly RTS-like games. I prefer Godot but the engine is flexible, and coding experience matters less than willingness to improve. I would like to try a very small game in about seven days to see how we work together. I value responsive communication and do not want AI-generated art. I hope smaller projects could support longer dream projects; if they eventually earn money, I would favour a 50/50 split."
+    },
+    {
+      "id": "1einy86",
+      "name": "Hobby writer and poet",
+      "offers": "I am a hobby writer and poet, with no professional creative-writing experience. I would like to try macro-scale world-building, limited-perspective story narratives, NPC dialogue chains, or present full game ideas to a team starting from scratch. My interests include science fiction, fantasy, and darker introspective themes. I am open to trying romance or comedy, though I may not be the best fit for those projects.",
+      "needs": "I am looking for a game-development team to collaborate with on writing. I offer writing for exposure and credit. I am interested in writing for an existing project or presenting an idea if a team is starting from scratch."
+    },
+    {
+      "id": "1d664o8",
+      "name": "3D modeller and writer",
+      "offers": "I have experience in 3D modelling and writing, plus some artistic ability. I have some experience with Unreal Engine and a little with Godot; I mainly use Blender and also use CAD. My preferred art style is lower-poly. I am willing to put considerable time and effort into a project, though my availability varies during parts of the year.",
+      "needs": "I want to make a 3D game as an equal collaboration, with both partners having an equal say and developing the idea together. I am open to ideas and would prefer to start with small games to refine our skills, without aiming for profit or payment until we have a good workflow and quality product. I would like to begin with a simple infinite-runner or tower-defence game, with a few basic models, characters and animations, and a small scope."
+    },
+    {
+      "id": "1gk4mad",
+      "name": "Pianist and hobby game composer",
+      "offers": "I am an aspiring game composer and pianist with experience in piano and classical-inspired music. I can also compose in other genres when I can find an approach that fits.",
+      "needs": "I am offering free music for a video-game project to gain experience. I would prefer a relatively small project rather than a large open-world game. I cannot promise quick turnaround because I do this as a hobby. I need information about the project and the kind of music it needs."
+    },
+    {
+      "id": "1joxpvx",
+      "name": "Hobby composer and pianist",
+      "offers": "I am a hobby composer and pianist, most adept at composition, and can also do mixing and sound design. My musical inspirations include Nintendo, Toby Fox, and John Williams. I have worked on smaller projects, including an upcoming game.",
+      "needs": "I am looking for video-game projects. I would especially like to work with a committed team that has a clear vision, preferably on a larger project, though I am open to hearing about other projects. For commercial projects, payment or revenue share would be welcome and terms are negotiable; for an exciting idea, I am also willing to work for free."
+    },
+    {
+      "id": "1nseb22",
+      "name": "Professional writer and editor seeking hobby collaboration",
+      "offers": "I am a professional writer and editor. I manage writers and edit their work, with a current focus on narrative structure, quotations, and dialogue. I have not worked in game development or game design.",
+      "needs": "I would like to collaborate with an independent or aspiring game developer on characters, narrative structure, or dialogue as a hobby, not as a career. I would work for free and would value writing credit if the work is released. I would also like to learn about game development and the technical constraints on storytelling. I am open to collaborating with co-writers on games or television and film scripts."
+    },
+    {
+      "id": "1gteq4h",
+      "name": "Experienced programmer with pixel-art skills",
+      "offers": "I have more than 12 years of game-making experience and have worked in software development for seven years. My usual game-development tools are Java with libGDX or JavaScript with p5.js. I usually make 2D or 2.5D games and have some 3D experience. I am competent at pixel art, though I would prefer not to make art my main role. I can likely dedicate a couple of hours a day while working full time.",
+      "needs": "I am looking for an artist and/or game designer to join a small hobby team of two or three people. There is no project idea yet; I would like to brainstorm and make something quick, around game-jam size, to see how we work together. Beginners are welcome."
+    },
+    {
+      "id": "1fkroce",
+      "name": "Godot programmer seeking a hobby partner",
+      "offers": "I have worked on game development on the side for about two years and joined multiple game jams, though I have left personal projects unfinished. I mainly use Godot with GDScript. I work full time as a software engineer. I am interested in a range of game types, especially crafty building and simulation games, roguelike deck builders and multiplayer strategy games, while remaining open to other ideas.",
+      "needs": "I am looking for a fellow programmer to partner with on hobby game development. I hope to make games as a small two-person team, with the project chosen by agreement. I would like to make games in building, simulation or strategy-oriented genres, but I am open to an interesting idea."
+    },
+    {
+      "id": "1epwle8",
+      "name": "Godot programmer and game generalist",
+      "offers": "I have used Godot for about a year and made a couple of solo Godot projects. I have also recreated classic games such as Pac-Man, Animal Crossing and Space Invaders in other tools, including Python and Unity. I primarily offer programming, with some 2D art, animation and sound effects or music. Most of my experience is in 2D; I have little 3D modelling experience but am open to learning. I have a 2D grid-combat roguelike with basic combat and level progression in progress.",
+      "needs": "I am looking for a team or partner to make games, gain experience and produce a game I can feel proud of. I would like a project with a memorable story or lesson and a challenge that helps me improve. I can contribute my available free time, with more time if a project strongly interests me. My current project could use help with its story, non-player characters and direction; I am also interested in other collaborations. I cannot promise compensation, though revenue sharing could be considered if I decide to sell my game."
+    },
+    {
+      "id": "1dbmgzh",
+      "name": "MonoGame programmer with an audio-engineering background",
+      "offers": "I have experimented with MonoGame/XNA for a couple of years and have taken it seriously as a hobby for roughly the past six to twelve months. I have made gameplay prototypes in Unity and Godot. I also have an audio-engineering background.",
+      "needs": "I am looking for a team or partner for an upcoming game jam or a small project. For a small project, I can commit around two to three hours a day on three or four days each week; for a jam, I could take time off work and devote much more time. An artist would complement my skills, as I say pixel art is a weakness. I would like to talk with people in a similar position."
+    },
+    {
+      "id": "1cwixnx",
+      "name": "Godot programmer and hobby artist",
+      "offers": "I am a software engineer who also enjoys art as a hobby. I am a beginner at game development and have solo-developed a few game-jam projects. I use Godot and am familiar with Blender, Krita and GitHub. I am interested in 3D games and dark, satirical or fantasy themes, but am open to other kinds of games. I can share coding knowledge and learn with collaborators.",
+      "needs": "I wanted to join more game jams and start with very small, simple games so potential teammates and I could see how we work together. I was seeking people of any skill level who were willing to learn and grow as a team, with the longer-term hope of making larger games. The post was later edited to say all roles had been filled, so this is a closed historical request."
+    },
+    {
+      "id": "1lgeru4",
+      "name": "Unreal programmer seeking a game concept",
+      "offers": "I recently finished a long-term solo project: a multiplayer first-person shooter made in Unreal Engine. I have over ten years of software-development experience. I offered help with game logic, AI, and single-player or multiplayer implementation. I have a full-time job, so I cannot work every day; Unreal is my strongest engine, though I am interested in learning Godot.",
+      "needs": "I am looking to join a small hobby project with a level designer or artist who has an intermediate skill level and a clear idea with distinctive selling points. I need to like the game concept enough to stay motivated, and I do not want to make mobile games. I am not interested in learning Unity."
+    },
+    {
+      "id": "1l9tcy1",
+      "name": "Beginner Godot developer seeking collaborators",
+      "offers": "I have been doing game-development work for a few months and am learning programming, pixel art and sound design. I have finished a small HTML web game and am working on a metroidvania-like game about a robot vampire that can transform into a drone. I work from home and said I have a lot of time to collaborate. I am based in the UK and am comfortable working across time zones.",
+      "needs": "I am looking for other people who want to learn, make games and have fun together. I am willing to work with people at any skill level and would like collaborators to bounce ideas off, since working alone can leave me stuck. I am mainly using Godot."
     }
   ]
 }

@@ -7,7 +7,7 @@ Python 3.12+, managed with uv. No web service or database.
 uv sync
 uv run pre-commit install
 # Set JEV_API_KEY in .env (never commit it).
-uv run match assess examples/event.json --a ecology --b networking --output runs/pair.json
+uv run match assess examples/event.json --a 1cv563y --b 1jgjvjt --output runs/pair.json
 ```
 
 `TYPESAFE_API_KEY` is accepted as a fallback. `JEV_API_KEY` takes precedence.
@@ -25,9 +25,10 @@ score by four; these are NOT probabilities of successful collaboration. Confiden
 is retained for inspection, never used as a match-quality weight. The pair weight
 is the sum of the three normalised scores. Rubrics live in `rubric.py`.
 
-Synthetic examples exercise code, not model quality. Real-source acquisition and
-human evaluation are documented in `docs/data.md`. Never commit private inputs or
-outputs; use `data/` and `runs/`. Public source candidates are not an acquired corpus.
+The twenty example profiles are adapted from real r/INAT posts, with source URLs
+and adaptation notes in `examples/sources.json`. They are historical requests,
+not current availability. See `docs/data.md` for provenance and evaluation.
+Unedited captures and generated runs stay local under ignored `data/` and `runs/`.
 
 ```sh
 uv run ruff check .
@@ -43,10 +44,10 @@ follow-up pairing or claims of validated collaboration prediction yet.
 ## Score and inspect an event
 
 ```sh
-uv run match score examples/event.json --output runs/example
-uv run match inspect runs/example --person ecology
+uv run match score examples/event.json --output runs/reddit
+uv run match inspect runs/reddit --person 1cv563y
 # The same command resumes missing/failed pairs without redoing saved successes.
-uv run match score examples/event.json --output runs/example
+uv run match score examples/event.json --output runs/reddit
 ```
 
 `--concurrency` defaults to four. Transient SDK failures get up to three attempts.
@@ -59,3 +60,30 @@ only after confirming that no process is still writing that run.
 Results are written atomically as requests finish. `failures.json` records error
 classes without private request bodies. An unsuccessful run exits nonzero; inspect
 shows available candidates and the missing count. A complete rerun makes no API calls.
+
+## Allocate one partner per person
+
+```sh
+uv run match allocate runs/reddit --output runs/reddit-allocation.json
+uv run match allocate runs/reddit --normalisation zscore --output runs/reddit-zscore.json
+```
+
+Allocation makes no API calls. It requires all pairs to be scored and an even
+participant count. NetworkX maximises total edge weight while pairing everyone
+exactly once. Tied optimal allocations are equally acceptable.
+
+Default `none` uses the **sum** of all three 0–1 component scores. Optional `zscore`
+standardises using the complete candidate graph before matching: both directions
+share one pooled relevance distribution, while shared inquiry has its own.
+Each value becomes `(value - population_mean) / population_standard_deviation`.
+A zero-variance distribution contributes zero. Negative values are retained; the
+solver still pairs everyone. All raw values and statistics remain in the export.
+
+This equalises component variability, not predictive importance. Near-constant
+noise can be amplified; raw sum remains the default. Compare modes against human
+judgements rather than selecting whichever output looks more sophisticated.
+
+The output contains selected partners, raw/transformed components, final weights,
+model, rubric and input fingerprints. Displayed scores are rounded; allocation
+uses unrounded values. Examples are real-derived and explicitly adapted; model outputs still require
+human review and do not establish successful collaboration.
