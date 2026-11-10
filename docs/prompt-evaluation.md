@@ -47,12 +47,12 @@ Exit status is 1 if any approved ranking fails or ties, or the command errors; o
 An empty approved suite refuses to run. The saved JSON contains the profiles, labels,
 full rubric, model version, assessments and comparison results.
 
-After scoring a full event under the current rubric into `runs/reddit-v10`,
+After scoring a full event under the current rubric into `runs/reddit-v11`,
 you can inspect draft proposals against that run without API calls:
 
 ```sh
 uv run match evaluate examples/event.json examples/comparisons.json \
-  --model jev-1.14.0 --include-drafts --from-run runs/reddit-v10 \
+  --model jev-1.14.0 --include-drafts --from-run runs/reddit-v11 \
   --output runs/draft-review.json
 ```
 
@@ -133,3 +133,13 @@ synthetic recipient whose needs begin “I am a composer.” Its four draft comp
 can be run with `--include-drafts` to inspect placement effects without declaring
 an expected human ranking. Both sides' complete offers and needs already reach the
 model. See `role-context-experiment.md` for the controlled five-repeat experiment.
+
+## Additional help and explicitly requested peers
+
+The current v11 prompt considers the recipient’s existing offers within the
+directional support metric. `examples/additional-help-event.json` and its
+comparison file test explicitly wanted versus excluded co-composition. These
+synthetic controls are separate from the exploratory role-repetition cases and
+the real reviewed judgements. See `additional-help-experiment.md` for baseline
+comparisons, repeated results, trade-offs and limitations. No overlap penalty
+or fourth metric was added.

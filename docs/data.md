@@ -34,10 +34,10 @@ Do not bulk scrape or assume these materials carry an open redistribution licenc
 ## Run and inspect
 
 ```sh
-uv run match score examples/event.json --model jev-1.14.0 --output runs/reddit-v10
-uv run match inspect runs/reddit-v10 --person 1cv563y
-uv run match allocate runs/reddit-v10 --output runs/reddit-v10-allocation.json
-uv run match allocate runs/reddit-v10 --normalisation zscore --output runs/reddit-v10-zscore.json
+uv run match score examples/event.json --model jev-1.14.0 --output runs/reddit-v11
+uv run match inspect runs/reddit-v11 --person 1cv563y
+uv run match allocate runs/reddit-v11 --output runs/reddit-v11-allocation.json
+uv run match allocate runs/reddit-v11 --normalisation zscore --output runs/reddit-v11-zscore.json
 ```
 
 `data/` and `runs/` are ignored. Generated results should not be committed. The input
@@ -57,8 +57,9 @@ are not demonstration profiles and are never used for live model-quality evaluat
 
 ## Prompt comparison
 
-The directional question is now “Considering only requirements Person B has explicitly asked for, how much can
-Person A help fulfil Person B’s requests?” (and the reverse). Its anchors are no identifiable, weak, moderate,
+The directional question is now “Given what Person B already offers, how much
+additional help can Person A provide towards Person B’s explicit requests?” (and
+the reverse). Its anchors are no identifiable, weak, moderate,
 strong and very strong support. Shared inquiry is unchanged. No extra matching
 dimensions or extraction step were added.
 

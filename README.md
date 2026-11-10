@@ -45,10 +45,10 @@ follow-up pairing or claims of validated collaboration prediction yet.
 ## Score and inspect an event
 
 ```sh
-uv run match score examples/event.json --model jev-1.14.0 --output runs/reddit-v10
-uv run match inspect runs/reddit-v10 --person 1cv563y
+uv run match score examples/event.json --model jev-1.14.0 --output runs/reddit-v11
+uv run match inspect runs/reddit-v11 --person 1cv563y
 # The same command resumes missing/failed pairs without redoing saved successes.
-uv run match score examples/event.json --model jev-1.14.0 --output runs/reddit-v10
+uv run match score examples/event.json --model jev-1.14.0 --output runs/reddit-v11
 ```
 
 `--concurrency` defaults to four. Transient SDK failures get up to three attempts.
@@ -65,8 +65,8 @@ shows available candidates and the missing count. A complete rerun makes no API 
 ## Allocate one partner per person
 
 ```sh
-uv run match allocate runs/reddit-v10 --output runs/reddit-v10-allocation.json
-uv run match allocate runs/reddit-v10 --normalisation zscore --output runs/reddit-v10-zscore.json
+uv run match allocate runs/reddit-v11 --output runs/reddit-v11-allocation.json
+uv run match allocate runs/reddit-v11 --normalisation zscore --output runs/reddit-v11-zscore.json
 ```
 
 Allocation makes no API calls. It requires all pairs to be scored and an even
