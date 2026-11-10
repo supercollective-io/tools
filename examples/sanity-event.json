@@ -1,0 +1,29 @@
+{
+  "description": "A game-development meetup where people exchange skills, discuss their projects and find collaborators.",
+  "participants": [
+    {
+      "id": "surgeon",
+      "name": "Synthetic heart surgeon with a pet newt",
+      "offers": "I am a heart surgeon and offer expertise in heart surgery.",
+      "needs": "I have a new pet newt and need a specialist to help me care for it."
+    },
+    {
+      "id": "newt_specialist",
+      "name": "Synthetic newt specialist needing heart surgery",
+      "offers": "I am a veterinarian specialising in newts and offer expert help with newt care.",
+      "needs": "I need heart surgery and am looking for a heart surgeon."
+    },
+    {
+      "id": "newt_specialist_tax",
+      "name": "Synthetic newt specialist needing tax help",
+      "offers": "I am a veterinarian specialising in newts and offer expert help with newt care.",
+      "needs": "I need help preparing the tax return for my veterinary business. I am only looking for tax expertise."
+    },
+    {
+      "id": "game_programmer",
+      "name": "Synthetic game programmer needing pixel art",
+      "offers": "I programme 2D games in Godot and can implement game mechanics.",
+      "needs": "I need a pixel artist to draw the characters for my game."
+    }
+  ]
+}

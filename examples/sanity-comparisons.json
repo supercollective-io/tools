@@ -1,0 +1,85 @@
+{
+  "kind": "synthetic",
+  "comparisons": [
+    {
+      "id": "reciprocal_surgeon_support",
+      "metric": "support",
+      "preferred": [
+        "surgeon",
+        "newt_specialist"
+      ],
+      "alternative": [
+        "game_programmer",
+        "newt_specialist"
+      ],
+      "reason": "A heart surgeon directly supports the newt specialist’s heart-surgery need; a game programmer does not.",
+      "status": "approved",
+      "reviewed_by": "User-specified reciprocal, one-way and unrelated sanity expectations; assistant-authored wording",
+      "split": "development"
+    },
+    {
+      "id": "reciprocal_newt_support",
+      "metric": "support",
+      "preferred": [
+        "newt_specialist",
+        "surgeon"
+      ],
+      "alternative": [
+        "game_programmer",
+        "surgeon"
+      ],
+      "reason": "Newt expertise directly supports the surgeon’s newt-care need; game programming does not.",
+      "status": "approved",
+      "reviewed_by": "User-specified reciprocal, one-way and unrelated sanity expectations; assistant-authored wording",
+      "split": "development"
+    },
+    {
+      "id": "one_way_not_reciprocal",
+      "metric": "support",
+      "preferred": [
+        "newt_specialist_tax",
+        "surgeon"
+      ],
+      "alternative": [
+        "surgeon",
+        "newt_specialist_tax"
+      ],
+      "reason": "The vet helps with the surgeon’s newt, but the surgeon cannot meet the vet’s stated tax need. The identical pair must be assessed differently in each direction.",
+      "status": "approved",
+      "reviewed_by": "User-specified reciprocal, one-way and unrelated sanity expectations; assistant-authored wording",
+      "split": "development"
+    },
+    {
+      "id": "reciprocal_over_unrelated",
+      "metric": "sum",
+      "preferred": [
+        "surgeon",
+        "newt_specialist"
+      ],
+      "alternative": [
+        "surgeon",
+        "game_programmer"
+      ],
+      "reason": "The mutually supporting off-topic pair should outrank the unrelated pair.",
+      "status": "approved",
+      "reviewed_by": "User-specified reciprocal, one-way and unrelated sanity expectations; assistant-authored wording",
+      "split": "development"
+    },
+    {
+      "id": "reciprocal_over_one_way",
+      "metric": "sum",
+      "preferred": [
+        "surgeon",
+        "newt_specialist"
+      ],
+      "alternative": [
+        "surgeon",
+        "newt_specialist_tax"
+      ],
+      "reason": "Both pairs support newt care; only the reciprocal pair also meets the other person’s need. Their common inquiry is not stated in either case.",
+      "status": "approved",
+      "reviewed_by": "User-specified reciprocal, one-way and unrelated sanity expectations; assistant-authored wording",
+      "split": "development"
+    }
+  ]
+}

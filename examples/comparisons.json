@@ -1,0 +1,132 @@
+{
+  "comparisons": [
+    {
+      "id": "writer_explicit_cowriting",
+      "metric": "support",
+      "preferred": [
+        "1einy86",
+        "1nseb22"
+      ],
+      "alternative": [
+        "1joxpvx",
+        "1nseb22"
+      ],
+      "reason": "The professional writer explicitly welcomes co-writers; the hobby writer offers writing, while the composer offers audio.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "writer_seeking_game_team",
+      "metric": "support",
+      "preferred": [
+        "1l1fhta",
+        "1einy86"
+      ],
+      "alternative": [
+        "1nseb22",
+        "1einy86"
+      ],
+      "reason": "The hobby writer seeks a game project: the Ren’Py developer explicitly seeks writing, whereas the professional writer offers co-writing but no game implementation. Proposed ordering needs human judgement.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "composer_project_over_peer",
+      "metric": "support",
+      "preferred": [
+        "1i78bs2",
+        "1gk4mad"
+      ],
+      "alternative": [
+        "1joxpvx",
+        "1gk4mad"
+      ],
+      "reason": "The pianist wants a small game to compose for; the tower-defence developer explicitly needs music. The other composer is also seeking projects.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "composer_other_direction",
+      "metric": "support",
+      "preferred": [
+        "1l1fhta",
+        "1joxpvx"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1joxpvx"
+      ],
+      "reason": "The composer seeks game projects; the Ren’Py developer explicitly seeks audio. Another composer does not state a project needing music. Project scope may complicate the ordering.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "writer_shared_inquiry",
+      "metric": "shared_inquiry",
+      "preferred": [
+        "1einy86",
+        "1nseb22"
+      ],
+      "alternative": [
+        "1einy86",
+        "1joxpvx"
+      ],
+      "reason": "The writers both want to work on game narrative; the composer wants audio projects. Review whether this is shared inquiry rather than merely shared craft.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "composer_overall_pair",
+      "metric": "sum",
+      "preferred": [
+        "1i78bs2",
+        "1gk4mad"
+      ],
+      "alternative": [
+        "1joxpvx",
+        "1gk4mad"
+      ],
+      "reason": "The developer needs music and the composer needs a project; the two composers both seek projects. Compare the complete pair using the agreed sum of three metrics.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "writer_overall_pair",
+      "metric": "sum",
+      "preferred": [
+        "1l1fhta",
+        "1einy86"
+      ],
+      "alternative": [
+        "1nseb22",
+        "1einy86"
+      ],
+      "reason": "The developer and hobby writer have reciprocal project/writing needs; the writer–writer pair has explicit co-writing potential in one direction. This overall preference is a proposal, not an established label.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    },
+    {
+      "id": "programmer_explicit_peer",
+      "metric": "support",
+      "preferred": [
+        "1jszrrr",
+        "1fkroce"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1fkroce"
+      ],
+      "reason": "The recipient explicitly wants a fellow Godot programmer. Protect legitimate same-skill collaboration from a prompt that treats all shared expertise as irrelevant.",
+      "status": "draft",
+      "reviewed_by": null,
+      "split": "development"
+    }
+  ]
+}

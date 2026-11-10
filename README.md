@@ -88,3 +88,10 @@ The output contains selected partners, raw/transformed components, final weights
 model, rubric and input fingerprints. Displayed scores are rounded; allocation
 uses unrounded values. Examples are real-derived and explicitly adapted; model outputs still require
 human review and do not establish successful collaboration.
+
+## Iterate against human pairwise judgements
+
+`match evaluate` scores only pairs referenced by human-approved comparisons, then
+checks the model's ranking against those judgements. Writer–writer and composer–composer
+proposals are in `examples/comparisons.json`; they await review and are not labelled
+truth. See `docs/prompt-evaluation.md` for review, CLI commands and the development loop.

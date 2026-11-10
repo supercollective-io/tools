@@ -7,6 +7,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from conference_match.allocation import allocate
+from conference_match.evaluation import Fixtures, evaluate
 from conference_match.models import load_event, write_json
 from conference_match.runs import load_results, score_event
 from conference_match.scoring import JevScorer
@@ -41,8 +42,59 @@ def main() -> int:
     allocation.add_argument("run_dir", type=Path)
     allocation.add_argument("--output", type=Path, required=True)
     allocation.add_argument("--normalisation", choices=["none", "zscore"], default="none")
+    evaluation = commands.add_parser("evaluate", help="Test only labelled fixture pairs")
+    evaluation.add_argument("input", type=Path)
+    evaluation.add_argument("fixtures", type=Path)
+    evaluation.add_argument("--output", type=Path, required=True)
+    evaluation.add_argument("--model", default="jev-latest")
+    evaluation.add_argument("--split", choices=["development", "holdout"], default="development")
+    evaluation.add_argument("--include-drafts", action="store_true")
+    evaluation.add_argument("--from-run", type=Path)
     args = parser.parse_args()
     try:
+        if args.command == "evaluate":
+            protect_output(
+                args.output, [args.input, args.fixtures], [args.from_run] if args.from_run else []
+            )
+            if args.output.exists():
+                raise ValueError("Evaluation output exists; choose a new file")
+            report = evaluate(
+                load_event(args.input),
+                Fixtures.model_validate_json(args.fixtures.read_text()),
+                args.model,
+                JevScorer,
+                args.split,
+                args.include_drafts,
+                args.from_run,
+            )
+            write_json(args.output, report)
+            for row in report["comparisons"]:
+                print(
+                    f"{row['id']} [{row['status']}]: {row['outcome']}; "
+                    f"preferred {row['preferred_score']:.3f}; "
+                    f"alternative {row['alternative_score']:.3f}; "
+                    f"margin {row['margin']:+.3f}"
+                )
+            print(f"{report['unique_pairs']} unique pairs; {report['api_calls']} API calls")
+            if report["approved_count"]:
+                label = (
+                    "Synthetic sanity"
+                    if report["fixture_kind"] == "synthetic"
+                    else "Human-judgement"
+                )
+                print(
+                    f"{label} agreement: {report['approved_accuracy']:.1%} "
+                    f"over {report['approved_count']} comparisons; "
+                    f"{report['approved_outcomes']['tie']} ties"
+                )
+            else:
+                print("Draft preview only: no human-judgement accuracy available")
+            return int(
+                any(
+                    row["status"] == "approved" and row["outcome"] != "pass"
+                    for row in report["comparisons"]
+                )
+            )
         if args.command == "allocate":
             protect_output(
                 args.output,
