@@ -1,0 +1,77 @@
+{
+  "description": "Curated r/INAT source candidates for human review. This is a link manifest, not a corpus; only search-result evidence is recorded, and candidate text must not be assumed complete or reusable.",
+  "candidates": [
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1cv563y/",
+      "date": "2024-05-18",
+      "title": "[Hobby] artist looking for programmer to help make games for fun",
+      "verification_status": "search_result_verified_partial",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "A Reddit search result exposed the post title, date, body excerpt, and comments. The result is partial evidence, not a complete capture. Source licence/access and permission for third-party inference use are unresolved; do not collect the body as corpus material without an established permissible route."
+    },
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1jdmqkr/",
+      "date": "2025-03-17",
+      "title": null,
+      "verification_status": "unverified_direct_open_cache_miss",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "Candidate ID and date supplied for verification. Direct page and JSON opens returned cache misses; title and post contents were not verified. Source licence/access and permission for third-party inference use are unresolved."
+    },
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1gteq4h/",
+      "date": null,
+      "title": null,
+      "verification_status": "unverified_direct_open_cache_miss",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "Candidate ID supplied for verification. Direct page open returned a cache miss; date, title, and contents remain unverified. Source licence/access and permission for third-party inference use are unresolved."
+    },
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1cwixnx/",
+      "date": null,
+      "title": null,
+      "verification_status": "unverified_direct_open_cache_miss",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "Candidate ID supplied for verification. Direct page open returned a cache miss; date, title, and contents remain unverified. Source licence/access and permission for third-party inference use are unresolved."
+    },
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1huwc0b/",
+      "date": null,
+      "title": null,
+      "verification_status": "unverified_direct_open_cache_miss",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "Candidate ID supplied for verification. Direct page open returned a cache miss; date, title, and contents remain unverified. Source licence/access and permission for third-party inference use are unresolved."
+    },
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1hxkrtt/",
+      "date": null,
+      "title": null,
+      "verification_status": "unverified_direct_open_cache_miss",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "Candidate ID supplied for verification. Direct page open returned a cache miss; date, title, and contents remain unverified. Source licence/access and permission for third-party inference use are unresolved."
+    },
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1js59ah/",
+      "date": null,
+      "title": null,
+      "verification_status": "unverified_direct_open_cache_miss",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "Candidate ID supplied for verification. Direct page open returned a cache miss; date, title, and contents remain unverified. Source licence/access and permission for third-party inference use are unresolved."
+    },
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1mdi7hh/",
+      "date": null,
+      "title": null,
+      "verification_status": "unverified_direct_open_cache_miss",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "Candidate ID supplied for verification. Direct page open returned a cache miss; date, title, and contents remain unverified. Source licence/access and permission for third-party inference use are unresolved."
+    },
+    {
+      "url": "https://www.reddit.com/r/INAT/comments/1nxg6x8/",
+      "date": null,
+      "title": null,
+      "verification_status": "unverified_direct_open_cache_miss",
+      "eligibility": "candidate_only_permission_unresolved",
+      "notes": "Candidate ID supplied for verification. Direct page open returned a cache miss; date, title, and contents remain unverified. Source licence/access and permission for third-party inference use are unresolved."
+    }
+  ]
+}

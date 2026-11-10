@@ -1,0 +1,51 @@
+{
+  "description": "A workshop on collective intelligence: how humans think, decide and act together. The broad event theme alone does not distinguish participants.",
+  "participants": [
+    {
+      "id": "ecology",
+      "name": "Ecology researcher",
+      "offers": "I study the material and energy flows of computing infrastructure. I have conducted interviews with communities affected by new industrial developments and can help frame an ecological research question.",
+      "needs": "I want to understand how networks work inside data centres: which equipment moves information and how architecture influences physical infrastructure. I also want examples of including local knowledge in technical decisions."
+    },
+    {
+      "id": "networking",
+      "name": "Network engineer",
+      "offers": "I have designed and maintained networks in computing facilities. I can explain switching, routing and redundancy with practical examples. I enjoy explaining infrastructure to non-specialists.",
+      "needs": "I want to understand how communities evaluate the environmental effects of data centres and which impacts engineers tend to overlook."
+    },
+    {
+      "id": "facilitator",
+      "name": "Cooperative facilitator",
+      "profile": "I have facilitated meetings in a housing cooperative for eight years, including disputes over repairs and shared budgets. I can share practical methods for recording dissent and reaching consent. I am exploring how groups preserve minority viewpoints after making a decision, especially when membership changes."
+    },
+    {
+      "id": "researcher",
+      "name": "Deliberation researcher",
+      "offers": "I compare records from citizens assemblies and interview facilitators about how minority positions appear in reports. I can help analyse meeting records.",
+      "needs": "How do groups preserve minority viewpoints after a decision? I want to compare practical examples with research methods. I am also interested in teaching qualitative coding."
+    },
+    {
+      "id": "artist",
+      "name": "Community artist",
+      "offers": "I run accessible drawing workshops and make illustrated explanations for community projects. I have experience helping people communicate ideas without specialist vocabulary.",
+      "needs": "I want to learn what collective intelligence means in practice. I am looking for feedback on workshop activities that make quiet participants comfortable contributing."
+    },
+    {
+      "id": "software",
+      "name": "Software developer",
+      "offers": "I build collaborative editing tools and have worked on offline synchronisation. I can explain technical trade-offs in recording group work.",
+      "needs": "I want concrete examples of how groups track dissent so I can design a small tool. I also need help making technical diagrams more accessible."
+    },
+    {
+      "id": "gardener",
+      "name": "Volunteer gardener",
+      "profile": "I organise a neighbourhood garden with rotating volunteers. We have learned how to hand over seasonal knowledge through demonstrations rather than manuals. I would like to understand collective intelligence and talk about public participation, but do not yet have a particular project in mind."
+    },
+    {
+      "id": "historian",
+      "name": "Oral historian",
+      "offers": "I record oral histories and organise community archives. I can help design interviews and think about whose knowledge a formal record leaves out.",
+      "needs": "How can volunteer groups keep practical knowledge when members leave? I want examples of teaching through demonstration rather than relying on written documentation."
+    }
+  ]
+}
