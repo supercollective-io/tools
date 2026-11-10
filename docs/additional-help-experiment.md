@@ -78,3 +78,12 @@ uv run match evaluate examples/sanity-event.json examples/sanity-comparisons.jso
 Use new output filenames. Each real run uses nine pairs; each explicit-peer run uses four. This experiment made 82 pair assessments, including the four-pair original sanity run. Reports include full prompt and input snapshots.
 
 Saved runs: `runs/additional-baseline-real-{1,2,3}.json`, `runs/additional-baseline-peer-{1,2,3}.json`, `runs/additional-v11-real-{1,2,3}.json`, `runs/additional-v11-peer-{1,2,3}.json`, and `runs/additional-v11-sanity.json`. Generated assessments remain local and ignored by Git.
+
+## Subsequent full-event run
+
+The later full v11 run completed all 780 real-profile pairs and reproduced all
+eight reviewed fixture rankings. Raw-sum and z-score allocations each retain
+5/20 pairs from v10; the two v11 modes agree on 15/20 pairs. Mean directional
+support increases from 0.420 to 0.459, while mean shared inquiry stays near 0.516.
+See `v10-v11-comparison.md` for all partner changes, component comparisons and
+the distinction between an individual pair ranking and a global allocation.
