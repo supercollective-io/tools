@@ -93,3 +93,11 @@ This iteration used 138 pair assessments across 14 real-fixture runs and 3 sanit
 - **Fill a stated gap:** How well do Person A's offers fill a gap that Person B describes?
 - **Given requirements (user):** Given requirements Person B has explicitly asked for, how much can Person A help fulfil Person B's requests?
 - **Considering only (user):** Considering only requirements Person B has explicitly asked for, how much can Person A help fulfil Person B's requests?
+
+## Subsequent full-run check
+
+The later 780-pair v10 run reproduced 7/8 fixture rankings: question 7 remained
+correct, but question 4 reversed by 0.0225. This supplements the three earlier 8/8
+fixture runs and confirms residual instability. See `full-run-comparison.md` for
+component changes, all partner changes and token-based cost estimates. The full
+run does not change the human judgements or the prompt.
