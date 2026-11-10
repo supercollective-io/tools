@@ -47,11 +47,12 @@ Exit status is 1 if any approved ranking fails or ties, or the command errors; o
 An empty approved suite refuses to run. The saved JSON contains the profiles, labels,
 full rubric, model version, assessments and comparison results.
 
-To inspect draft proposals against an existing run without API calls:
+After scoring a full event under the current rubric into `runs/reddit-v10`,
+you can inspect draft proposals against that run without API calls:
 
 ```sh
 uv run match evaluate examples/event.json examples/comparisons.json \
-  --model jev-1.14.0 --include-drafts --from-run runs/reddit-v2 \
+  --model jev-1.14.0 --include-drafts --from-run runs/reddit-v10 \
   --output runs/draft-review.json
 ```
 
@@ -115,13 +116,10 @@ qualitative review annotations, not invented numeric bounds or metric weights.
 Rank accuracy alone does not measure separation agreement: a large score gap can
 still pass a comparison where the human judges the candidates similar.
 
-Run the approved judgements against the saved baseline without API calls:
-
-```sh
-uv run match evaluate examples/event.json examples/comparisons.json \
-  --model jev-1.14.0 --from-run runs/reddit-v2 \
-  --output runs/human-review-baseline.json
-```
+The original baseline is preserved locally in `runs/human-review-revised-q1.json`.
+Its rubric predates the current prompt; `--from-run` intentionally rejects it under
+the current rubric. Use a fresh fixture-only run for the current prompt. See
+`prompt-experiments.md` for the controlled iteration and repeated results.
 
 Do not convert a reviewer's interpretation into an unstated profile requirement.
 For example, question 4's review interprets the composer as preferring professional
