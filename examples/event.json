@@ -120,6 +120,126 @@
       "name": "Beginner Godot developer seeking collaborators",
       "offers": "I have been doing game-development work for a few months and am learning programming, pixel art and sound design. I have finished a small HTML web game and am working on a metroidvania-like game about a robot vampire that can transform into a drone. I work from home and have a lot of time to collaborate. I am based in the UK and am comfortable working across time zones.",
       "needs": "I am looking for other people who want to learn, make games and have fun together. I am willing to work with people at any skill level and would like collaborators to bounce ideas off, since working alone can leave me stuck. I am mainly using Godot."
+    },
+    {
+      "id": "1b84hmd",
+      "name": "Top-down RPG developer seeking an artist",
+      "offers": "I am developing a top-down RPG and can offer payment for game art, with the scope and price to be agreed according to the amount of work and its quality. I would prefer pixel art, although I am open to other styles. The initial goal is a visually appealing proof of concept.",
+      "needs": "I am looking for 2D character sprite sheets suitable for skeletal animation, plus tilesets and props. I would like to discuss a paid arrangement; I have also considered revenue share, but the project is still too early for me to make a strong case for that option."
+    },
+    {
+      "id": "1mvi9ms",
+      "name": "3D prop and environment artist offering game testing",
+      "offers": "I am a 3D artist who has created props and scenes for university projects and has worked in teams on several projects. I can contribute 3D art and test a game by trying to find bugs and edge cases that a typical play-through might miss.",
+      "needs": "I am looking for a game project where I can gain practical experience and build my portfolio. I am happy to join an existing project or work with a team to develop a game from an idea. I am offering my contribution for free and can start soon."
+    },
+    {
+      "id": "1eac2m2",
+      "name": "Hobby game team seeking an artist or animator",
+      "offers": "I am part of a hobby team that has already completed a week-long game jam and wants to build towards a possible Steam release. The team has three developers, a sound designer and a writer, with a Discord server, project notes and code repository in place. We work at a relaxed pace alongside other jobs and value communication, learning and steady collaboration.",
+      "needs": "I am looking for an artist, modeller or animator to join our side project. Some professional or hobby experience would help, but we are learning as we go and do not expect immediate commercial success. I am hoping to add someone confident enough to work independently and enjoy taking time to make something good."
+    },
+    {
+      "id": "1i78bs2",
+      "name": "Medieval tower-defence hobby developer seeking audio help",
+      "offers": "I am making a medieval-fantasy tower-defence game as a hobby project. It includes towers that can take damage, enemy types that can attack them, tower upgrades and environmental events that affect play. I aim to keep collaboration respectful and relaxed, and I will give full credit when the game is released.",
+      "needs": "I am looking for a sound designer to create effects for towers, enemies and special abilities, as well as background music that suits the medieval-fantasy setting. I would also welcome creative input on how to improve the game's audio. The role is unpaid."
+    },
+    {
+      "id": "1l1fhta",
+      "name": "Ren’Py visual-novel hobby developer",
+      "offers": "I am handling the programming for a Ren’Py visual novel. This is a passion project with no strict deadlines; we can work at our own pace and adapt to each person's available time. Beginners and experienced collaborators are welcome.",
+      "needs": "I am looking for collaborators in art, writing and sound. I need character designs, backgrounds and other visual assets; story development, dialogue and engaging narrative, with branching-story experience as a plus; and music, sound effects and audio mixing. A consistent visual style and a good ear for atmosphere would help."
+    },
+    {
+      "id": "1l7zlhy",
+      "name": "Sound designer, composer and audio programmer",
+      "offers": "I am a sound designer, composer, music producer and audio programmer. Over the past two years I have produced beats, composed for friends' projects and collaborated with singers. I can create sound effects, interface sounds, ambiences, transitions and stingers; compose music in a range of genres, including experimental styles; mix and master; and help with audio integration. I use Logic, FL Studio and Ableton Live and have a programming and game-development background.",
+      "needs": "I am looking to collaborate with beginner-friendly game teams and build experience in game audio. I would like to take on a project's full audio pipeline if that fits, but I can also tailor my contribution to the team's needs."
+    },
+    {
+      "id": "1h4lijb",
+      "name": "Freelance composer for games and film",
+      "offers": "I am a freelance composer with several years of experience writing music for films and games. I hold bachelor's and master's degrees from the Royal Birmingham Conservatoire and can compose music to support a project's story and atmosphere, whether it is a platformer, an epic RPG or another kind of game. I am open to working with solo developers and larger teams.",
+      "needs": "I am looking for new projects and prefer paid work. I understand that small teams and hobby projects may have limited budgets, so I am open to discussing an arrangement that works for both sides."
+    },
+    {
+      "id": "1n6vr7h",
+      "name": "Hobby writer and game-idea creator",
+      "offers": "I have spent several years writing stories and game ideas. I have a large collection of story concepts and am keen to contribute creative ideas and writing to a game. I am a hobbyist and would like to learn how game development works through collaboration.",
+      "needs": "I am looking to join a team or an existing project that needs stories and ideas. I do not have practical experience with game engines, art or animation, so I need collaborators who can help bring the writing to life. I am hesitant to share full concepts before finding a team I trust."
+    },
+    {
+      "id": "1l2lnyd",
+      "name": "Isometric city-builder developer seeking a 2D artist",
+      "offers": "I am developing a personal, passion-led city-builder called We Who Build. Players shape a settlement that changes in response to their architecture and planning choices. I am handling the programming and have made placeholder pixel art. This is an unfunded hobby project with no current commercial goal; I would like to finish and publish a polished game, and I estimate development at around 10–12 months while remaining flexible.",
+      "needs": "I am looking for a 2D artist to collaborate on isometric art. Hand-drawn and pixel-art approaches are both welcome, provided the work suits the isometric format and gives the game a coherent visual identity."
+    },
+    {
+      "id": "1pd8kz7",
+      "name": "GameMaker developer and designer seeking an artist",
+      "offers": "I am a hobby game developer and game designer with about five years of experience. I have made several prototypes, including an online top-down fighting-game engine with rollback networking, a Rivals of Aether Workshop character for which I handled design and coding, and a keyboard-controlled platformer engine. I am comfortable with gameplay systems and logic, and my professional full-stack background covers data, back-end and server systems.",
+      "needs": "I am looking for a serious, long-term collaboration, either to revive my paused mobile gacha shooter or to start a new project. I would especially value an artist, as high-quality asset creation is not my strength and I prefer to focus on design and programming. My speciality is GameMaker, which makes a 2D artist a particularly good fit, though I can learn another engine if the project calls for it."
+    },
+    {
+      "id": "1fpxdgr",
+      "name": "Multi-engine hobby programmer",
+      "offers": "I have time outside work to contribute as the programmer on a small game. I have used GameMaker, Godot, MonoGame and Love2D, and released a text-mode art editor. I especially enjoy old-school pixel-art games.",
+      "needs": "I want to work with one or two people on a simple, fun game that can be made casually. I am happy for a partner to focus on art, music or design, and would welcome someone who can help shape the idea."
+    },
+    {
+      "id": "1ftv86v",
+      "name": "Senior software engineer and Unity programmer",
+      "offers": "I am a senior software engineer with about four years of C# experience, a master's degree focused on AI, and several hundred hours using Unity. I have also used Blender and can contribute programming to a small game.",
+      "needs": "I would like to join or form a friendly team making an innovative game with realistic but interesting mechanics. I would value working with another experienced programmer and people with complementary skills. I can contribute a couple of hours a day and weekends around my full-time job. Unity is my preference, though I am learning Unreal Engine 5."
+    },
+    {
+      "id": "1estywy",
+      "name": "Unity C# gameplay programmer",
+      "offers": "I have seven years of Unity experience and can work in Unity 2D or 3D and C#. My game-development skills include turn-based combat, NPC dialogue, user interfaces, and first- and third-person movement and camera controls. I have worked on two games, including rebuilding a beat-'em-up side-scroller from scratch.",
+      "needs": "I am seeking paid work with a game team. I have worked on PC games and am open to learning new skills and adapting to a project."
+    },
+    {
+      "id": "1abl26m",
+      "name": "Java programmer seeking game-development experience",
+      "offers": "I know Java beyond the basics and studied programming at school. I can contribute primarily as a programmer, with some additional skills outside programming if useful.",
+      "needs": "I am looking for a team to make a game and learn through the experience. I do not have a finished game to show yet. I am open to discussing the working arrangement privately."
+    },
+    {
+      "id": "1arxbvh",
+      "name": "Computer science student and aspiring game programmer",
+      "offers": "I am studying for a computer science bachelor's degree and have used Unity and Godot, with some experience in C, C++, Python and other languages. I can contribute around 20 hours a week, though this can vary for short periods.",
+      "needs": "I am looking for a team to make realistic games together while learning and having fun. I am open to different genres and learning new tools. I have taken part in programming competitions but do not yet have a game portfolio."
+    },
+    {
+      "id": "1kn6y4g",
+      "name": "Junior Unity and Unreal game programmer",
+      "offers": "I am a game programmer starting out, with some game-making experience over the past four or five years. I have worked in 2D and 3D with Unity and in 3D with Unreal, and have recently focused more on Unity 2D. I am open to changing engines to suit a project's ideas.",
+      "needs": "I want to make small but meaningful games with a couple of collaborators, or join a team of about two or three people and no more than four or five. Projects could last from one or two weeks up to three months, with game jams as a way to keep scope tight. I would ideally work with a designer and an artist, though I am flexible. Teammates should be able to share and receive constructive criticism, and contribute a little each day, around 30 minutes to an hour. I want to build portfolio pieces and experience."
+    },
+    {
+      "id": "1g2r4vt",
+      "name": "Unity prototyper seeking a game designer",
+      "offers": "I have used Unity for a few years, collected assets and made prototypes. I also do some creative writing and can help build a playable 3D project, including with simple purchased assets.",
+      "needs": "I am looking for someone with game-design skills to collaborate on very small projects, such as a single-scene experiment or game-jam entry. My main aim is to learn by doing; perhaps we could try a larger project later. I am interested in adventure games, shooters, racing, children's and educational games, and story-driven games."
+    },
+    {
+      "id": "1dz0wom",
+      "name": "Experienced RPG programmer",
+      "offers": "I have years of game-programming experience and have worked on both 2D and 3D RPGs. My current schedule makes 2D metroidvanias especially appealing, though I am open to other genres.",
+      "needs": "I want to join a team that is committed to finishing a polished game. Past teams have abandoned projects or lacked commitment, so seeing a project through to completion matters to me."
+    },
+    {
+      "id": "1eq7qt5",
+      "name": "Programmer with a 3D platformer concept",
+      "offers": "I am an experienced programmer and have written a game design document for my own game concept. The project is a 3D platformer with themed worlds and distinct mechanics for each world.",
+      "needs": "I need a game designer to help make the concept, levels and world design more distinctive. I have limited skills in sprites, 3D modelling and audio, and would eventually like a dedicated sound artist. My budget is limited, so I am open to students, aspiring professionals building a portfolio, or experienced people interested in earning extra income; revenue share or direct payment may be discussed."
+    },
+    {
+      "id": "1cvyr2i",
+      "name": "Artist and designer with a fighting-game concept",
+      "offers": "I am an artist and designer trying to get into game development, and I have some art for a small fighting-game concept. I have the most experience with Unity and GameMaker.",
+      "needs": "I am looking for a programmer to help make a two-player mind-game fighter. Players choose characters and stages, then guess an opponent's directional choice; three correct guesses win a round, while a miss resets the combo and gives the opponent a turn. Characters would have one-use abilities such as changing a choice mid-attack, adding extra directions, blocking, doubling combo progress or revealing the opponent's choice. I want to develop more ability ideas with a collaborator."
     }
   ]
 }

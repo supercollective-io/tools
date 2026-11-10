@@ -26,7 +26,7 @@ score by four; these are NOT probabilities of successful collaboration. Confiden
 is retained for inspection, never used as a match-quality weight. The pair weight
 is the sum of the three normalised scores. Rubrics live in `rubric.py`.
 
-The twenty example profiles are adapted from real r/INAT posts, with source URLs
+The forty example profiles are adapted from real r/INAT posts, with source URLs
 and adaptation notes in `examples/sources.json`. They are historical requests,
 not current availability. See `docs/data.md` for provenance and evaluation.
 Unedited captures and generated runs stay local under ignored `data/` and `runs/`.
@@ -45,10 +45,10 @@ follow-up pairing or claims of validated collaboration prediction yet.
 ## Score and inspect an event
 
 ```sh
-uv run match score examples/event.json --output runs/reddit-v2
+uv run match score examples/event.json --model jev-1.14.0 --output runs/reddit-v2
 uv run match inspect runs/reddit-v2 --person 1cv563y
 # The same command resumes missing/failed pairs without redoing saved successes.
-uv run match score examples/event.json --output runs/reddit-v2
+uv run match score examples/event.json --model jev-1.14.0 --output runs/reddit-v2
 ```
 
 `--concurrency` defaults to four. Transient SDK failures get up to three attempts.
