@@ -11,12 +11,12 @@
         "1joxpvx",
         "1nseb22"
       ],
-      "reason": "The two candidates are genuinely similar, with a tentative lean towards A: B partly fits the primary need for game-development and technical knowledge, while A fully fits the secondary openness to co-writing. Neither is exactly the technical game developer sought.",
+      "reason": "Preference for A. On re-review, I regard A as partly answering the primary request. My earlier assessment of B inferred technical game-development skills from knowing programmers who are also composers. B does not state those skills. B might have been around technical developers, but that is speculative and must not count as an offered capability. The earlier similarity judgement is no longer an established label; no numeric score gap is specified.",
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "ordering_confidence": "tentative",
-      "expected_separation": "similar"
+      "ordering_confidence": "definite",
+      "expected_separation": "unspecified"
     },
     {
       "id": "writer_seeking_game_team",
