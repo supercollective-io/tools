@@ -11,11 +11,12 @@
         "1joxpvx",
         "1nseb22"
       ],
-      "reason": "Similar, with maybe A slightly higher. I read learning game development and technical constraints as the primary request, and being open to co-writers as secondary. A fills the secondary request; B is partly related to the primary one but not fully. Neither is exactly the technical game developer they are looking for.",
+      "reason": "The two candidates are genuinely similar, with a tentative lean towards A: B partly fits the primary need for game-development and technical knowledge, while A fully fits the secondary openness to co-writing. Neither is exactly the technical game developer sought.",
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "preference_strength": "slight"
+      "ordering_confidence": "tentative",
+      "expected_separation": "similar"
     },
     {
       "id": "writer_seeking_game_team",
@@ -28,11 +29,12 @@
         "1nseb22",
         "1einy86"
       ],
-      "reason": "Probably a slight preference for A. The person wants to be part of a technical team, and B does not offer that.",
+      "reason": "There is a definite preference for A, but both candidates are still similar-ish. The person wants to be part of a technical team, which A offers and B does not.",
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "preference_strength": "slight"
+      "ordering_confidence": "definite",
+      "expected_separation": "similar"
     },
     {
       "id": "composer_project_over_peer",
@@ -49,7 +51,8 @@
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "preference_strength": "clear"
+      "ordering_confidence": "definite",
+      "expected_separation": "unspecified"
     },
     {
       "id": "composer_other_direction",
@@ -66,7 +69,8 @@
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "preference_strength": "clear"
+      "ordering_confidence": "definite",
+      "expected_separation": "unspecified"
     },
     {
       "id": "writer_shared_inquiry",
@@ -83,7 +87,8 @@
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "preference_strength": "unspecified"
+      "ordering_confidence": "unspecified",
+      "expected_separation": "unspecified"
     },
     {
       "id": "composer_overall_pair",
@@ -100,7 +105,8 @@
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "preference_strength": "clear"
+      "ordering_confidence": "definite",
+      "expected_separation": "unspecified"
     },
     {
       "id": "writer_overall_pair",
@@ -117,7 +123,8 @@
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "preference_strength": "unspecified"
+      "ordering_confidence": "unspecified",
+      "expected_separation": "unspecified"
     },
     {
       "id": "programmer_explicit_peer",
@@ -134,7 +141,8 @@
       "status": "approved",
       "reviewed_by": "User, conversation review on 2026-11-10",
       "split": "development",
-      "preference_strength": "unspecified"
+      "ordering_confidence": "unspecified",
+      "expected_separation": "unspecified"
     }
   ]
 }

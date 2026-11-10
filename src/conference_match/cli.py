@@ -70,11 +70,11 @@ def main() -> int:
             write_json(args.output, report)
             for row in report["comparisons"]:
                 print(
-                    f"{row['id']} [{row['status']}, {row['preference_strength']}]: "
+                    f"{row['id']} [{row['status']}, {row['ordering_confidence']}]: "
                     f"{row['outcome']}; "
                     f"preferred {row['preferred_score']:.3f}; "
                     f"alternative {row['alternative_score']:.3f}; "
-                    f"margin {row['margin']:+.3f}"
+                    f"margin {row['margin']:+.3f}; expected separation {row['expected_separation']}"
                 )
             print(f"{report['unique_pairs']} unique pairs; {report['api_calls']} API calls")
             if report["approved_count"]:

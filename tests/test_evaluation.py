@@ -33,12 +33,16 @@ def test_directional_value_uses_fixture_order():
 def test_scores_only_unique_fixture_pairs_and_pins_model():
     calls = []
     fixtures = Fixtures(
-        comparisons=[case(preference_strength="slight"), case(id="reverse", preferred=("1", "0"))]
+        comparisons=[
+            case(ordering_confidence="definite", expected_separation="similar"),
+            case(id="reverse", preferred=("1", "0")),
+        ]
     )
     report = evaluate(event_of_size(), fixtures, "latest", lambda m: FakeScorer(m, calls))
     assert calls == [("0", "1", "latest"), ("0", "2", "fake-pinned")]
     assert report["unique_pairs"] == 2
-    assert report["comparisons"][0]["preference_strength"] == "slight"
+    assert report["comparisons"][0]["ordering_confidence"] == "definite"
+    assert report["comparisons"][0]["expected_separation"] == "similar"
     assert report["approved_accuracy"] == 0
     assert report["approved_outcomes"] == {"pass": 0, "fail": 0, "tie": 2}
 

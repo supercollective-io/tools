@@ -94,4 +94,4 @@ human review and do not establish successful collaboration.
 `match evaluate` scores only pairs referenced by human-approved comparisons, then
 checks the model's ranking against those judgements. Writer–writer and composer–composer
 judgements are in `examples/comparisons.json`, with the user’s review notes and
-qualitative preference strength. See `docs/prompt-evaluation.md` for review, CLI commands and the development loop.
+ordering confidence and perceived score separation. See `docs/prompt-evaluation.md` for review, CLI commands and the development loop.

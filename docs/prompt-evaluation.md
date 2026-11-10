@@ -100,12 +100,17 @@ checks, not an unseen holdout. No prompt change was made to achieve their first 
 
 ## First human-reviewed baseline
 
-The user reviewed all eight comparisons on 2026-11-10. Questions 1 and 2 express
-slight preferences; question 1 is tentative and describes both candidates as similar.
-Questions 3, 4 and 6 express clear preferences. Strength is unspecified for 5, 7 and 8.
-The `preference_strength` field records this distinction without inventing numeric
-score gaps or changing metric weights. Rank accuracy alone does not measure strength
-agreement: a large gap can still pass a slightly preferred ordering.
+The user reviewed all eight comparisons on 2026-11-10, then clarified the first two:
+question 1 is genuinely similar with a tentative lean towards A; question 2 has a
+definite preference for A, while the candidates remain fairly similar. Questions
+3, 4 and 6 also express definite orderings. Ordering confidence is unspecified for
+5, 7 and 8 rather than inferred from the explanation.
+
+`ordering_confidence` records how definite the preference is. `expected_separation`
+records perceived closeness independently: both 1 and 2 are `similar`. These are
+qualitative review annotations, not invented numeric bounds or metric weights.
+Rank accuracy alone does not measure separation agreement: a large score gap can
+still pass a comparison where the human judges the candidates similar.
 
 Run the approved judgements against the saved baseline without API calls:
 
