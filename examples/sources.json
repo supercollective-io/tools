@@ -1,5 +1,5 @@
 {
-  "description": "Twenty real-derived profiles used by examples/event.json. Not fictional people or verbatim participant submissions. Sources were reshaped into offers/needs by the assistant, retaining substantive constraints. No usernames or contact details are model inputs. This is a small convenience sample, not a representative benchmark.",
+  "description": "Twenty real-derived profiles used by examples/event.json. Not fictional people or verbatim participant submissions. Sources were reshaped into offers/needs by the assistant, retaining substantive constraints. No usernames or contact details are model inputs. This is a small convenience sample, not a representative benchmark. Model inputs reconstruct requests as originally made; dates and later closure notes are kept in this manifest only.",
   "retrieved": "2026-11-10",
   "profiles": [
     {
@@ -17,8 +17,9 @@
       "url": "https://www.reddit.com/r/INAT/comments/1jgjvjt/",
       "published": "2025-03-21",
       "capture": "main_post_from_opened_page",
-      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. The later closure of this request is retained. This is an adapted historical profile, not a current request.",
-      "original_capture_local": "data/reddit-part-a-sources.json"
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. The later closure of this request is retained. This is an adapted historical profile, not a current request. The closure is recorded here only; model inputs reconstruct the request before closure.",
+      "original_capture_local": "data/reddit-part-a-sources.json",
+      "status_note": "Later edited to say a partner had been found."
     },
     {
       "id": "1js59ah",
@@ -142,7 +143,8 @@
       "url": "https://www.reddit.com/r/INAT/comments/1cwixnx/",
       "published": "2024-05-20",
       "capture": "main_post_from_search_extraction; direct_open_unavailable",
-      "adaptation": "Paraphrased and split into offers and needs. Contact information omitted. Preserves the later post edit that all roles had been filled. No capabilities or needs added."
+      "adaptation": "Paraphrased and split into offers and needs. Contact information omitted. Preserves the later post edit that all roles had been filled. No capabilities or needs added. The closure is recorded here only; model inputs reconstruct the request before closure.",
+      "status_note": "Later edited to say all roles had been filled."
     },
     {
       "id": "1lgeru4",

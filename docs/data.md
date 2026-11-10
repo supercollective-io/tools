@@ -8,7 +8,7 @@ profile to its source and records capture method and adaptations. These replace 
 original fictional demonstration profiles.
 
 The main posts were read through available web page/search extractions, excluding
-comments. For four included sources a subagent opened the source page; others have
+comments. Capture methods are recorded per source. Some pages were opened directly; others have
 main-post text available through search extraction, bounded by the comment section.
 The manifest distinguishes these routes. Access to every original page is not
 reliable, so this is not a fully reproducible downloader or claimed licensed corpus.
@@ -17,10 +17,11 @@ Profiles are paraphrased into **offers** and **needs**, preserving engines, expe
 project scope, preferences and commitments. Names are descriptive labels. Contacts,
 portfolio links and unnecessary identifying details are omitted. No new abilities,
 needs or reciprocal fit were invented. Two posts later said partners or teammates had been found;
-those closures are retained. We evaluate the historical stated requests, not current
+those closures are retained in source metadata only. Model inputs reconstruct the
+requests before closure, in the first person, without curator commentary. We evaluate the historical stated requests, not current
 availability. No one has been contacted or introduced.
 
-This twenty-post convenience sample meets the initial 20–30 profile target.
+This convenience sample is used to inspect score distributions and possible matches.
 It is neither representative nor labelled ground truth. Author identities
 have not been reconstructed across posts; a source post is the evaluation unit.
 
@@ -33,10 +34,10 @@ Do not bulk scrape or assume these materials carry an open redistribution licenc
 ## Run and inspect
 
 ```sh
-uv run match score examples/event.json --output runs/reddit
-uv run match inspect runs/reddit --person 1cv563y
-uv run match allocate runs/reddit --output runs/reddit-allocation.json
-uv run match allocate runs/reddit --normalisation zscore --output runs/reddit-zscore.json
+uv run match score examples/event.json --output runs/reddit-v2
+uv run match inspect runs/reddit-v2 --person 1cv563y
+uv run match allocate runs/reddit-v2 --output runs/reddit-v2-allocation.json
+uv run match allocate runs/reddit-v2 --normalisation zscore --output runs/reddit-v2-zscore.json
 ```
 
 `data/` and `runs/` are ignored. Generated results should not be committed. The input
@@ -53,3 +54,15 @@ or an enthusiastic historical reply is not evidence of a successful collaboratio
 
 Unit tests retain minimal mechanical records/numeric scores to test algorithms; they
 are not demonstration profiles and are never used for live model-quality evaluation.
+
+## Prompt comparison
+
+The directional question is now “How much can what Person A offers support Person B’s
+stated needs?” (and the reverse). Its anchors are no identifiable, weak, moderate,
+strong and very strong support. Shared inquiry is unchanged. No extra matching
+dimensions or extraction step were added.
+
+Local `runs/clean20-v1` and `runs/clean20-v2` compare the old and new wording on the
+same cleaned twenty profiles, using pinned model `jev-1.14.0`. These separate the
+prompt change from profile cleanup. They are exploratory single runs, not labelled
+validation; a general drop in scores is not itself evidence of better matches.

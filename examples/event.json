@@ -1,5 +1,5 @@
 {
-  "description": "An offline evaluation using adapted historical individual r/INAT collaboration posts from 2024–2025. People bring game-development skills and seek collaborators or shared projects. Shared enthusiasm for game development alone is background, not a strong match. These are historical requests, not current availability or consent to an introduction.",
+  "description": "A game-development meetup where people exchange skills, discuss their projects and find collaborators.",
   "participants": [
     {
       "id": "1cv563y",
@@ -11,7 +11,7 @@
       "id": "1jgjvjt",
       "name": "GameMaker and JavaScript programmer",
       "offers": "I have made a few small games and participated in game jams, mainly using GameMaker. I have also made small multiplayer web projects in JavaScript. I have a couple of small projects paused because I do not want to handle the art myself. I enjoy discussing a game with someone and finding ways to improve its design.",
-      "needs": "I am looking for an art partner to exchange ideas and design games together. I treat this as a serious hobby, spending a couple of hours a day on average, and would like a partner with a similar commitment. I want to start with very small projects or game jams and polish them before attempting a longer project. We could resume an existing project or start fresh. This is a historical request; the original post was later edited to say a partner had been found."
+      "needs": "I am looking for an art partner to exchange ideas and design games together. I treat this as a serious hobby, spending a couple of hours a day on average, and would like a partner with a similar commitment. I want to start with very small projects or game jams and polish them before attempting a longer project. We could resume an existing project or start fresh."
     },
     {
       "id": "1js59ah",
@@ -101,24 +101,24 @@
       "id": "1dbmgzh",
       "name": "MonoGame programmer with an audio-engineering background",
       "offers": "I have experimented with MonoGame/XNA for a couple of years and have taken it seriously as a hobby for roughly the past six to twelve months. I have made gameplay prototypes in Unity and Godot. I also have an audio-engineering background.",
-      "needs": "I am looking for a team or partner for an upcoming game jam or a small project. For a small project, I can commit around two to three hours a day on three or four days each week; for a jam, I could take time off work and devote much more time. An artist would complement my skills, as I say pixel art is a weakness. I would like to talk with people in a similar position."
+      "needs": "I am looking for a team or partner for an upcoming game jam or a small project. For a small project, I can commit around two to three hours a day on three or four days each week; for a jam, I could take time off work and devote much more time. An artist would complement my skills, as pixel art is a weakness. I would like to talk with people in a similar position."
     },
     {
       "id": "1cwixnx",
       "name": "Godot programmer and hobby artist",
       "offers": "I am a software engineer who also enjoys art as a hobby. I am a beginner at game development and have solo-developed a few game-jam projects. I use Godot and am familiar with Blender, Krita and GitHub. I am interested in 3D games and dark, satirical or fantasy themes, but am open to other kinds of games. I can share coding knowledge and learn with collaborators.",
-      "needs": "I wanted to join more game jams and start with very small, simple games so potential teammates and I could see how we work together. I was seeking people of any skill level who were willing to learn and grow as a team, with the longer-term hope of making larger games. The post was later edited to say all roles had been filled, so this is a closed historical request."
+      "needs": "I want to join more game jams and start with very small, simple games so potential teammates and I could see how we work together. I am seeking people of any skill level who are willing to learn and grow as a team, with the longer-term hope of making larger games."
     },
     {
       "id": "1lgeru4",
       "name": "Unreal programmer seeking a game concept",
-      "offers": "I recently finished a long-term solo project: a multiplayer first-person shooter made in Unreal Engine. I have over ten years of software-development experience. I offered help with game logic, AI, and single-player or multiplayer implementation. I have a full-time job, so I cannot work every day; Unreal is my strongest engine, though I am interested in learning Godot.",
+      "offers": "I recently finished a long-term solo project: a multiplayer first-person shooter made in Unreal Engine. I have over ten years of software-development experience. I offer help with game logic, AI, and single-player or multiplayer implementation. I have a full-time job, so I cannot work every day; Unreal is my strongest engine, though I am interested in learning Godot.",
       "needs": "I am looking to join a small hobby project with a level designer or artist who has an intermediate skill level and a clear idea with distinctive selling points. I need to like the game concept enough to stay motivated, and I do not want to make mobile games. I am not interested in learning Unity."
     },
     {
       "id": "1l9tcy1",
       "name": "Beginner Godot developer seeking collaborators",
-      "offers": "I have been doing game-development work for a few months and am learning programming, pixel art and sound design. I have finished a small HTML web game and am working on a metroidvania-like game about a robot vampire that can transform into a drone. I work from home and said I have a lot of time to collaborate. I am based in the UK and am comfortable working across time zones.",
+      "offers": "I have been doing game-development work for a few months and am learning programming, pixel art and sound design. I have finished a small HTML web game and am working on a metroidvania-like game about a robot vampire that can transform into a drone. I work from home and have a lot of time to collaborate. I am based in the UK and am comfortable working across time zones.",
       "needs": "I am looking for other people who want to learn, make games and have fun together. I am willing to work with people at any skill level and would like collaborators to bounce ideas off, since working alone can leave me stuck. I am mainly using Godot."
     }
   ]

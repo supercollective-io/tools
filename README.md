@@ -19,7 +19,8 @@ and either a nonblank `profile`, or nonblank `offers` and `needs`. Text is not
 summarised; names are excluded from model input. IDs must be unique.
 
 Three hypotheses are scored: A's contribution to B, B's contribution to A, and
-shared inquiry. Each uses the five anchors none/weak/moderate/strong/very strong.
+shared inquiry. Directional scores measure how much one person’s offers support the other’s stated
+needs, using five anchors from no identifiable support to very strong support.
 Jev returns a distribution over levels 0–4 and its expected score. We divide the
 score by four; these are NOT probabilities of successful collaboration. Confidence
 is retained for inspection, never used as a match-quality weight. The pair weight
@@ -44,10 +45,10 @@ follow-up pairing or claims of validated collaboration prediction yet.
 ## Score and inspect an event
 
 ```sh
-uv run match score examples/event.json --output runs/reddit
-uv run match inspect runs/reddit --person 1cv563y
+uv run match score examples/event.json --output runs/reddit-v2
+uv run match inspect runs/reddit-v2 --person 1cv563y
 # The same command resumes missing/failed pairs without redoing saved successes.
-uv run match score examples/event.json --output runs/reddit
+uv run match score examples/event.json --output runs/reddit-v2
 ```
 
 `--concurrency` defaults to four. Transient SDK failures get up to three attempts.
@@ -64,8 +65,8 @@ shows available candidates and the missing count. A complete rerun makes no API 
 ## Allocate one partner per person
 
 ```sh
-uv run match allocate runs/reddit --output runs/reddit-allocation.json
-uv run match allocate runs/reddit --normalisation zscore --output runs/reddit-zscore.json
+uv run match allocate runs/reddit-v2 --output runs/reddit-v2-allocation.json
+uv run match allocate runs/reddit-v2 --normalisation zscore --output runs/reddit-v2-zscore.json
 ```
 
 Allocation makes no API calls. It requires all pairs to be scored and an even
