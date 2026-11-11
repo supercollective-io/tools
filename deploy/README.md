@@ -7,11 +7,11 @@ Target instance: `https://deploy.radicaldata.org`. Use four independent GitHub A
 | Polymind | `supercollective-io/tools`, `/` | `/apps/polymind/Dockerfile` | `https://polymind.supercollective.io` | 3000 | `/data` |
 | Puck | `supercollective-io/tools`, `/` | `/apps/puck/Dockerfile` | `https://puck.supercollective.io` | 3000 | `/data` |
 | Flight | Flight repository, `/` | `/Dockerfile` | `https://flight.supercollective.io` | See Flight relay guide | See Flight relay guide |
-| Hub | Hub repository, `/` | `/Dockerfile` | `https://we.supercollective.io` | 3000 | `/data` |
+| Hub | `supercollective-io/tools`, `/` | `/apps/hub/Dockerfile` | `https://we.supercollective.io` | 3000 | `/data` |
 
 ## Import application settings
 
-Both applications build from Base Directory `/`. Select Dockerfile, not Docker
+All three Tools applications build from Base Directory `/`. Select Dockerfile, not Docker
 Compose. Polymind's Dockerfile now lives alongside its source, like Puck's.
 For an existing Polymind application, change Dockerfile Location from
 `/deploy/Dockerfile` to `/apps/polymind/Dockerfile` before deploying this revision.
@@ -23,6 +23,7 @@ During creation, Smart Scan > Review > Env file offers these root templates:
 |---|---|---|
 | Polymind | [`.env.template`](../.env.template) | `OPERATOR_TOKEN`: private random value, at least 32 characters |
 | Puck | [`.env.sample`](../.env.sample) | None |
+| Hub | [`.env.dist`](../.env.dist) | `HUB_OPERATOR_PASSWORD`: private random password, at least 24 characters |
 
 Select the matching file and confirm Import before Continue. The root
 [`.env.example`](../.env.example) is for local development; its loopback host and
@@ -32,7 +33,7 @@ into Puck. Templates populate values, but do not create domains or storage.
 Configure one canonical HTTPS domain per application, enable **Include Coolify
 default variables**, and leave interpolation enabled for `PUBLIC_ORIGIN=$COOLIFY_URL`.
 Coolify supplies the URL from that application's domain configuration. The app
-still receives `PUBLIC_ORIGIN`; no hosting-specific code or request-header origin
+still receives `PUBLIC_ORIGIN` (the hub uses `HUB_PUBLIC_ORIGIN`); no hosting-specific code or request-header origin
 inference is needed. Do not configure a list of domains as the application expects
 one origin. Set every imported variable to **Not available during build** and
 **Available in the container**; template comments do not set these UI flags.
@@ -67,3 +68,34 @@ The image runs erasable TypeScript using pinned Node 26 native type stripping; C
 The full matching runtime is built from `packages/match` in the same checkout and installed non-editably using its own lockfile, with development dependencies excluded; there is no sibling checkout or dependency installation at runtime. Run `mise exec -- just build-container` and `mise exec -- just test-matching-container` to verify the packaged worker without provider calls. Code rollback after a schema change may require restoration of the complete corresponding data backup. Preserve failed jobs and inputs; retries are explicit and cached successful matching work is reused.
 
 For an already configured synthetic staging application, `just deploy-staging` uses `COOLIFY_URL`, `COOLIFY_TOKEN` and `COOLIFY_STAGING_APP_UUID`. It follows the documented [deployment request](https://coolify.io/docs/api/endpoints/deployments/deploy-by-tag-or-uuid) and [deployment status](https://coolify.io/docs/api/endpoints/deployments/get-deployment-by-uuid) endpoints, then `just smoke-staging https://your-staging-domain` checks public routing and the unauthenticated operator boundary. This workflow has not been exercised against the target instance.
+
+## Hub packaging
+
+The hub remains an independent Coolify Application. Select the Tools repository,
+Base Directory `/`, Dockerfile Location `/apps/hub/Dockerfile` and internal port
+`3000`. Keep its canonical origin `https://we.supercollective.io`, existing
+operator credentials and dedicated `/data` volume (UID/GID 1000). Use one replica.
+Do not share another application's volume or authentication. Runtime variables
+and destination allowlisting are described in the [hub guide](../apps/hub/README.md).
+
+Run `just build-hub-container` and `just test-hub-container` through `mise exec --`
+for isolated image checks. The container smoke uses a disposable volume and checks
+health, non-root execution and persisted state across restart. CI runs these checks
+and the hub browser smoke. This source import does not reconfigure a live Coolify
+application, deploy an image or migrate state; apply the reviewed source settings
+when deployment is authorised, preserving the existing storage and secrets.
+
+### Hub health checks and replacement
+
+Use the image's Node-native health check. Leave the Coolify dashboard Healthcheck
+disabled: current Coolify versions override the image check when that setting is
+enabled, and dashboard HTTP checks require curl or wget, which this image does
+not install. Verify the effective container health-check command on the target
+instance before release. See [Coolify health checks](https://coolify.io/docs/applications/configuration/health-checks).
+
+Stop the previous hub writer before starting its replacement. One replica alone
+does not prevent overlapping containers during a rolling deployment; do not use
+rolling replacement with this single-writer JSON store. Preserve the dedicated
+volume and take a backup before deployment. Preview deployments must use separate
+storage and credentials. Verify the target server architecture against the pinned
+image before deploying; local container checks do not verify the target host.

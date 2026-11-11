@@ -17,5 +17,7 @@ jobs:
       - run: mise exec -- just test-matching-container
       - run: mise exec -- just build-puck-container
       - run: mise exec -- just test-puck-container
+      - run: mise exec -- just build-hub-container
+      - run: mise exec -- just test-hub-container
       - run: mise exec -- pnpm --dir apps/polymind exec playwright install --with-deps chromium
       - run: mise exec -- just test-browser

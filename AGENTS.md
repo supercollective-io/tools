@@ -1,8 +1,8 @@
 # Working on Supercollective Tools
 
-Use British English and metric units. Python uses pyproject.toml, uv, Ruff, Pyright with nodejs and pytest. Root pre-commit hooks cover Polymind, Match and Puck. Run root commands through `mise exec -- just`; `just verify` is the local gate, and `just test-browser` checks browser flows. Providers are fake in ordinary tests. Never run a paid rehearsal implicitly.
+Use British English and metric units. Python uses pyproject.toml, uv, Ruff, Pyright with nodejs and pytest. Root pre-commit hooks cover Polymind, Match, Puck and Hub. Run root commands through `mise exec -- just`; `just verify` is the local gate, and `just test-browser` checks browser flows. Providers are fake in ordinary tests. Never run a paid rehearsal implicitly.
 
-Puck lives in `apps/puck`; read its `AGENTS.md` before changing its engine, transport or recordings. It has its own server, identity, SQLite database and deployment. Root verification includes both applications and Match.
+Puck lives in `apps/puck`; read its `AGENTS.md` before changing its engine, transport or recordings. It has its own server, identity, SQLite database and deployment. Root verification includes all three applications and Match. The hub lives in `apps/hub`; read its `AGENTS.md` before changing it. It keeps its own authentication, atomic JSON state and deployment.
 
 Polymind's modules are in `apps/polymind/src/session`; continuous voice and legacy readers remain in the adjacent `live-*` modules. Read `apps/polymind/AGENTS.md` for journal, model and privacy invariants. Browser source is `src/web`, never generated `dist/web`.
 
@@ -21,6 +21,7 @@ Run commands below from the repository root with `mise exec --`.
 | --- | --- | --- |
 | Session, browser or continuous voice changes | [Polymind instructions](apps/polymind/AGENTS.md), then [contributor map](apps/polymind/CONTRIBUTING.md) | Focused tests, root verification; browser changes also need `just test-browser` |
 | Puck mechanics, interface or operation | [Puck instructions](apps/puck/AGENTS.md), then [architecture](apps/puck/docs/architecture.md) | Root verification; transport, UI and lifecycle changes also need `just test-browser-puck` |
+| Hub entrance, navigation or packaging | [Hub instructions](apps/hub/AGENTS.md), then [hub guide](apps/hub/README.md) | Root verification; navigation changes also need `just test-browser-hub`; packaging changes need the hub container recipes |
 | Matching or worker integration | [Match README](packages/match/README.md) and [worker contract](packages/match/docs/worker.md) | Root verification includes Python and worker contracts; container changes also need the container recipes |
 | Prompt or artistic evaluation | [Piece brief](apps/polymind/docs/rehearsing-we.md) and the relevant protocol linked from [Polymind README](apps/polymind/README.md) | Inspect saved outcomes against the protocol; mocks cannot establish model quality |
 | Event operation or recovery | [Operations](docs/operations.md) and [backup/restore](docs/ops-backup.md) | Explicit publication review or isolated restore evidence, as applicable |

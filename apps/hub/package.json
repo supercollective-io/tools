@@ -1,0 +1,16 @@
+{
+  "name": "@supercollective/hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "26.13.0"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test",
+    "check": "node --check server.mjs && node --check public/hub.js && node --check public/operator.js",
+    "verify": "pnpm run check && pnpm test",
+    "dev": "node --env-file=.env server.mjs"
+  }
+}

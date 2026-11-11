@@ -49,3 +49,9 @@ repos:
         language: system
         files: ^apps/polymind/
         pass_filenames: false
+      - id: hub-verify
+        name: hub syntax and unit tests
+        entry: mise exec -- pnpm --dir apps/hub verify
+        language: system
+        files: ^apps/hub/
+        pass_filenames: false

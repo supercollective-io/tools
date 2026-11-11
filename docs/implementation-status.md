@@ -13,13 +13,13 @@ remain readable through the voice CLI. Private research data stays outside Git.
 | bounded audio | Browser recording/playback, private bounded uploads, four-worker queue, transcript correction, explicit confirmation, retention cleanup and typed fallback | Physical iOS/Android, venue acoustics and real provider burst/quotas; server validates bytes/container signature, not decoded duration |
 | Puck | Configurable capacity, count distinctions, unchanged force denominator, return link, verified production image; 50/100/140/180 synthetic WebSocket trials | Public deployment and human round |
 | Flight | Authenticated hosted relay, outbound simulator bridge, generations/freshness, independent expiry, explicit Join/Observe, local override, projection status, return link | Public controls driving actual FlightGear, OBS and venue recovery |
-| hub | Independent authenticated phase control, atomic revisions, mobile polling entrance, waiting/analogue/closing, return navigation and printable QR | Verified participant destinations and whole-show phone transitions |
+| hub | In-repository, independently deployed service in `apps/hub`; authenticated phase control, atomic revisions, mobile polling entrance, waiting/analogue/closing, return navigation and printable QR | Verified participant destinations and whole-show phone transitions |
 | Score and space | Timed score, equipment/accessibility draft and disabled zone proposal in `rehearsing-we/performance` | Venue floor inspection, chosen analogue exercise, timed human rehearsal |
 
 ## Verification evidence
 
 Run `mise exec -- just verify` for current lint, types, synthetic tests, worker
-contracts and builds. Run `mise exec -- just test-browser` for both applications.
+contracts and builds. Run `mise exec -- just test-browser` for all three applications.
 See [deployment](../deploy/README.md) for container checks and
 [backup and restore](ops-backup.md) for isolated recovery checks.
 
