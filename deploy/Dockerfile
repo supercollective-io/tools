@@ -13,10 +13,11 @@ FROM python:3.12.13-slim-bookworm@sha256:4766d8b510c428e595d74b9cc5bbb2fae8e2631
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=uv /uv /usr/local/bin/uv
 WORKDIR /app
-COPY packages/match/pyproject.toml packages/match/pyproject.toml
+COPY packages/match/pyproject.toml packages/match/uv.lock packages/match/
 COPY packages/match/src packages/match/src
-COPY workers/matching workers/matching
-RUN uv sync --project workers/matching --frozen --no-dev --no-editable --no-cache --python /usr/local/bin/python3
+RUN uv sync --project packages/match --frozen --no-dev --no-editable --no-cache --python /usr/local/bin/python3
+COPY packages/match/contracts packages/match/contracts
+COPY packages/match/tests/test_contract.py packages/match/tests/test_contract.py
 # Keep Node's extra shared library with the same pinned source image.
 COPY --from=node /usr/lib/*-linux-gnu/libatomic.so.1.* /usr/local/lib/
 RUN ldconfig && node --version && python --version && uv --version
@@ -26,7 +27,7 @@ COPY --from=build /app/apps/polymind/src ./apps/polymind/src
 COPY --from=build /app/apps/polymind/package.json ./apps/polymind/package.json
 COPY scripts/backup.mjs scripts/restore-check.mjs ./scripts/
 RUN groupadd --gid 10001 polymind && useradd --uid 10001 --gid polymind --no-create-home polymind && mkdir /data && chown polymind:polymind /data
-ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 DATA_DIR=/data/polymind MATCHING_PYTHON=/app/workers/matching/.venv/bin/python
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 DATA_DIR=/data/polymind
 USER 10001:10001
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 CMD ["node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]

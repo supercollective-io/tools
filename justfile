@@ -6,7 +6,6 @@ default:
 setup:
     pnpm install --frozen-lockfile
     uv sync --project packages/match --frozen --python 3.12.13
-    uv sync --project workers/matching --frozen --python 3.12.13
 
 dev: dev-bounded
 
@@ -28,7 +27,6 @@ typecheck:
 test:
     pnpm test
     uv run --directory packages/match --frozen pytest
-    uv run --project workers/matching --frozen --no-dev python -m unittest discover -s workers/matching -p "test_*.py"
 
 build:
     pnpm build
@@ -38,16 +36,11 @@ build:
 match *args:
     uv run --directory packages/match --frozen match "$@"
 
-# Re-resolve only when matching dependency manifests change; never needed for source edits.
-lock-matching:
-    uv lock --project packages/match
-    uv lock --project workers/matching
-
 build-container:
     docker build --file deploy/Dockerfile --tag polymind:local-candidate .
 
 test-matching-container:
-    docker run --rm --network none --entrypoint /app/workers/matching/.venv/bin/python polymind:local-candidate -m unittest discover -s workers/matching -p "test_*.py"
+    docker run --rm --network none --entrypoint /app/packages/match/.venv/bin/python polymind:local-candidate -m unittest discover -s packages/match/tests -p test_contract.py
 
 verify: check typecheck test build
 

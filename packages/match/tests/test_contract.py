@@ -9,7 +9,7 @@ from pathlib import Path
 
 from conference_match.worker import Request
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1] / "contracts"
 
 
 class WorkerContract(unittest.TestCase):
@@ -24,16 +24,12 @@ class WorkerContract(unittest.TestCase):
             directory = Path(temporary)
             request = json.loads((ROOT / "example.request.json").read_text())
             request["outputDir"] = str(directory / "job")
-            request["roster"][0]["text"] = (
-                "Unicode inquiry: ¿cómo? — $(touch forbidden)"
-            )
+            request["roster"][0]["text"] = "Unicode inquiry: ¿cómo? — $(touch forbidden)"
             input_path = directory / "request.json"
             input_path.write_text(json.dumps(request))
             command = [sys.executable, "-m", "conference_match.worker", str(input_path)]
             for _ in range(2):
-                completed = subprocess.run(
-                    command, check=True, capture_output=True, text=True
-                )
+                completed = subprocess.run(command, check=True, capture_output=True, text=True)
                 events = [json.loads(line) for line in completed.stdout.splitlines()]
                 self.assertEqual(events[-1]["status"], "succeeded")
                 self.assertEqual(completed.stderr, "")
@@ -61,9 +57,7 @@ class WorkerContract(unittest.TestCase):
             text=True,
         )
         self.assertIn("serve", completed.stdout)
-        self.assertTrue(
-            files("conference_match").joinpath("web/pilot/participant.html").is_file()
-        )
+        self.assertTrue(files("conference_match").joinpath("web/pilot/participant.html").is_file())
 
 
 if __name__ == "__main__":

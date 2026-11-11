@@ -251,7 +251,7 @@ async function runMatching(
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
   const python =
     process.env.MATCHING_PYTHON ??
-    join(root, "workers/matching/.venv/bin/python");
+    join(root, "packages/match/.venv/bin/python");
   await new Promise<void>((accept, reject) => {
     const child = spawn(
       python,

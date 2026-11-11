@@ -5,7 +5,7 @@ for (const [tool, expected] of [['pnpm', '12.16.1'], ['python', '3.12.13'], ['uv
   const result = spawnSync(tool, ['--version'], { encoding: 'utf8' });
   checks.push([tool, result.status === 0 ? result.stdout.trim() : 'unavailable', result.status === 0 && result.stdout.includes(expected)]);
 }
-for (const file of ['apps/polymind/node_modules/zod/package.json', 'workers/matching/.venv/bin/python']) checks.push([file, await access(file).then(() => 'installed', () => 'missing'), await access(file).then(() => true, () => false)]);
+for (const file of ['apps/polymind/node_modules/zod/package.json', 'packages/match/.venv/bin/python']) checks.push([file, await access(file).then(() => 'installed', () => 'missing'), await access(file).then(() => true, () => false)]);
 for (const [name, value, ok] of checks) console.log(`${ok ? 'OK' : 'FAIL'} ${name}: ${value}`);
 console.log(`Operator token: ${process.env.OPERATOR_TOKEN?.length >= 32 ? 'configured' : 'set OPERATOR_TOKEN (at least 32 characters)'}`);
 console.log(`Transcription: ${process.env.TRANSCRIPTION_MODEL ? 'explicit model configured' : 'typed capture only'}`);

@@ -1,10 +1,22 @@
 # Matching worker
 
-This worker installs Match from `../../packages/match` in this repository. Local development uses an editable install, so source edits need no package hand-off. The container installs that same source non-editably at build time. Python 3.12.13 and uv 0.11.28 are the deployment pins. Run `mise exec -- just setup` at the repository root; then, from this directory, launch `uv run --frozen --no-dev python -m conference_match.worker /absolute/path/request.json`. Pass the request path as a process argument with `shell: false`.
+The worker is `conference_match.worker` in this package. Development and deployment use
+`packages/match/pyproject.toml` and its single `uv.lock`. Run `mise exec -- just setup`
+at the repository root. From `packages/match`, launch
+`uv run --frozen python -m conference_match.worker /absolute/path/request.json`.
+Pass the request path as a process argument with `shell: false`.
 
-`mise exec -- just verify` includes Match's own checks and build plus these consumer contract tests. CI also builds the production container and runs the contracts inside it without network access. When dependency declarations change, run `mise exec -- just lock-matching` and inspect both locks; source edits require no version bump or lock update. Runtime dependency versions remain locked independently from Match's development tools.
+Polymind uses `packages/match/.venv/bin/python` by default. `MATCHING_PYTHON` can
+explicitly override that executable. The container uses the same default path,
+with a non-editable install and development dependencies excluded. Python 3.12.13
+and uv 0.11.28 are the deployment pins.
 
-`request.schema.json` defines schema version 1. `example.request.json` uses synthetic, supplied embeddings and makes no provider calls. Generate a fresh private output directory for each immutable job. Snapshot hashes are caller references; the worker additionally hashes the complete authorised texts, roster, source references, mode, configuration and collaboration rubric. Changed inputs require a new job directory. Names, contact details and credentials are absent from requests.
+`mise exec -- just verify` includes the worker contracts in Match's test suite.
+CI also runs those contracts inside the production image without networking.
+Dependency changes update this package's lockfile; source edits need no version
+bump or package hand-off.
+
+[`contracts/request.schema.json`](../contracts/request.schema.json) defines schema version 1. [`contracts/example.request.json`](../contracts/example.request.json) uses synthetic, supplied embeddings and makes no provider calls. Generate a fresh private output directory for each immutable job. Snapshot hashes are caller references; the worker additionally hashes the complete authorised texts, roster, source references, mode, configuration and collaboration rubric. Changed inputs require a new job directory. Names, contact details and credentials are absent from requests.
 
 Collaboration preserves Match's summed directional help and shared inquiry rubric, with optional pooled z-score normalisation. It scores all pairs: 1,225 at 50 people, 4,950 at 100 and 9,730 at 140. Require explicit `config.model` and `config.maxCalls` before invoking it. `maxCalls` is a persisted total count of provider score requests across attempts; include retry headroom deliberately. The worker disables SDK retries so a score call cannot silently multiply the budget. Actual provider prices and real latency require an authorised rehearsal. Credentials come from `JEV_API_KEY` or `TYPESAFE_API_KEY` in the process environment.
 
