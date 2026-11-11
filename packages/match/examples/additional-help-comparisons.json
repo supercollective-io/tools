@@ -1,0 +1,53 @@
+{
+  "kind": "synthetic",
+  "comparisons": [
+    {
+      "id": "explicit_peer_request",
+      "preferred": [
+        "1gk4mad",
+        "1joxpvx-peer"
+      ],
+      "alternative": [
+        "1l1fhta",
+        "1joxpvx-peer"
+      ],
+      "metric": "support",
+      "reason": "A composer explicitly seeking a composer/pianist should receive more support from the composer/pianist than from a programmer offering a project.",
+      "status": "approved",
+      "reviewed_by": "User-requested preservation of valid peer collaboration; assistant-authored explicit-request sanity controls",
+      "split": "development"
+    },
+    {
+      "id": "explicit_peer_exclusion",
+      "preferred": [
+        "1l1fhta",
+        "1joxpvx-no-peer"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1joxpvx-no-peer"
+      ],
+      "metric": "support",
+      "reason": "A composer explicitly seeking a developer/project and declining another composer should receive more support from the developer.",
+      "status": "approved",
+      "reviewed_by": "User-requested preservation of valid peer collaboration; assistant-authored explicit-request sanity controls",
+      "split": "development"
+    },
+    {
+      "id": "same_skill_request_vs_exclusion",
+      "preferred": [
+        "1gk4mad",
+        "1joxpvx-peer"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1joxpvx-no-peer"
+      ],
+      "metric": "support",
+      "reason": "The same peer offer should score higher when explicitly requested than when explicitly excluded; overlap alone must not determine the score.",
+      "status": "approved",
+      "reviewed_by": "User-requested preservation of valid peer collaboration; assistant-authored explicit-request sanity controls",
+      "split": "development"
+    }
+  ]
+}

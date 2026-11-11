@@ -1,0 +1,25 @@
+:root { font-family: system-ui, sans-serif; color-scheme: light dark; line-height: 1.5; }
+body { margin: 1rem; }
+main { max-width: 70rem; margin: auto; }
+h1 { font-size: 1.3rem; }
+h2 { font-size: 1.1rem; }
+h3 { font-size: 1rem; }
+label { display: block; margin: .7rem 0; }
+input, select, textarea, button { font: inherit; max-width: 100%; box-sizing: border-box; }
+textarea { display: block; width: 100%; }
+button, select, input:not([type=radio]) { padding: .35rem; }
+button { cursor: pointer; margin-bottom: .4rem; }
+button:disabled { cursor: default; }
+summary { cursor: pointer; padding: .5rem 0; }
+details, section { margin-bottom: 1.5rem; }
+#pairs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+.profile-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+#message:empty { display: none; }
+#message { border-inline-start: .2rem solid; padding: .5rem; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #888; }
+#allocation { overflow-x: auto; }
+fieldset label { display: inline-block; margin-right: 1rem; }
+@media (max-width: 42rem) { #pairs { grid-template-columns: 1fr; } }
+
+.shared-person { grid-column: 1 / -1; }

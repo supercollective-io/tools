@@ -1,0 +1,318 @@
+{
+  "description": "Forty real-derived profiles used by examples/event.json. Not fictional people or verbatim participant submissions. Sources were reshaped into offers/needs by the assistant, retaining substantive constraints. No usernames or contact details are model inputs. This is a small convenience sample, not a representative benchmark. Model inputs reconstruct requests as originally made; dates and later closure notes are kept in this manifest only.",
+  "retrieved": "2026-11-10",
+  "profiles": [
+    {
+      "id": "1cv563y",
+      "display_name": "Artist, writer and designer",
+      "url": "https://www.reddit.com/r/INAT/comments/1cv563y/",
+      "published": "2024-05-18",
+      "capture": "main_post_from_opened_page",
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. This is an adapted historical profile, not a current request.",
+      "original_capture_local": "data/reddit-part-a-sources.json"
+    },
+    {
+      "id": "1jgjvjt",
+      "display_name": "GameMaker and JavaScript programmer",
+      "url": "https://www.reddit.com/r/INAT/comments/1jgjvjt/",
+      "published": "2025-03-21",
+      "capture": "main_post_from_opened_page",
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. The later closure of this request is retained. This is an adapted historical profile, not a current request. The closure is recorded here only; model inputs reconstruct the request before closure.",
+      "original_capture_local": "data/reddit-part-a-sources.json",
+      "status_note": "Later edited to say a partner had been found."
+    },
+    {
+      "id": "1js59ah",
+      "display_name": "Artist developing a 2D platformer",
+      "url": "https://www.reddit.com/r/INAT/comments/1js59ah/",
+      "published": "2025-04-05",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. This is an adapted historical profile, not a current request.",
+      "original_capture_local": "data/reddit-part-b-sources.json"
+    },
+    {
+      "id": "1jszrrr",
+      "display_name": "Godot programmer for short projects",
+      "url": "https://www.reddit.com/r/INAT/comments/1jszrrr/",
+      "published": "2025-04-06",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. This is an adapted historical profile, not a current request.",
+      "original_capture_local": "data/reddit-part-b-sources.json"
+    },
+    {
+      "id": "1of22k5",
+      "display_name": "Godot C# developer and test engineer",
+      "url": "https://www.reddit.com/r/INAT/comments/1of22k5/",
+      "published": "2025-10-24",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. This is an adapted historical profile, not a current request.",
+      "original_capture_local": "data/reddit-part-b-sources.json"
+    },
+    {
+      "id": "1lm6mli",
+      "display_name": "Beginner pixel animator and low-poly modeller",
+      "url": "https://www.reddit.com/r/INAT/comments/1lm6mli/",
+      "published": "2025-06-27",
+      "capture": "main_post_from_search_extraction; main-post ending visible before comments",
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. This is an adapted historical profile, not a current request.",
+      "original_capture_local": null
+    },
+    {
+      "id": "1iit34l",
+      "display_name": "Unreal programmer seeking artists",
+      "url": "https://www.reddit.com/r/INAT/comments/1iit34l/",
+      "published": "2025-02-06",
+      "capture": "main_post_from_search_extraction; main-post ending visible before comments",
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. This is an adapted historical profile, not a current request.",
+      "original_capture_local": null
+    },
+    {
+      "id": "1nucfo9",
+      "display_name": "2D artist learning low-poly 3D",
+      "url": "https://www.reddit.com/r/INAT/comments/1nucfo9/",
+      "published": "2025-09-30",
+      "capture": "main_post_from_search_extraction; main-post ending visible before comments",
+      "adaptation": "Paraphrased and split into offers and needs. Contact and portfolio links removed. No capabilities or needs added. This is an adapted historical profile, not a current request.",
+      "original_capture_local": null
+    },
+    {
+      "id": "1einy86",
+      "url": "https://www.reddit.com/r/INAT/comments/1einy86/hobby_writer_hoping_to_collaborate_with_a_dev_team/",
+      "published": "2024-08-02",
+      "capture": "main_post_from_opened_page",
+      "adaptation": "Adapted the author's stated writing skills, preferred narrative tasks and genres, experience level, and offer of writing for exposure and credit. Excluded the sample fiction excerpt and contact details. No closure or update was stated in the main post."
+    },
+    {
+      "id": "1d664o8",
+      "url": "https://www.reddit.com/r/INAT/comments/1d664o8/",
+      "published": "2024-06-02",
+      "capture": "complete_main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Adapted the author's stated 3D-modelling, writing and art experience, engines and tools, availability variation, and request for an equal partnership on a small 3D game. Excluded contact details. No closure or update was stated in the main post."
+    },
+    {
+      "id": "1gk4mad",
+      "url": "https://www.reddit.com/r/INAT/comments/1gk4mad/",
+      "published": "2024-11-05",
+      "capture": "complete_main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Adapted the author's stated piano and classical-music experience, openness to other genres, free offer, preference for small scope, and limited speed expectation. Excluded contact details. No closure or update was stated in the main post."
+    },
+    {
+      "id": "1joxpvx",
+      "url": "https://www.reddit.com/r/INAT/comments/1joxpvx/",
+      "published": "2025-04-01",
+      "capture": "complete_main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Adapted the author's stated composition, mixing and sound-design skills, musical influences, project preferences, and payment or revenue-share terms. Excluded portfolio and contact details. No closure or update was stated in the main post."
+    },
+    {
+      "id": "1nseb22",
+      "url": "https://www.reddit.com/r/INAT/comments/1nseb22/hobby_writer_looking_to_collaborate_on_video_game/",
+      "published": "2025-09-28",
+      "capture": "main_post_from_opened_page",
+      "adaptation": "Adapted the author's stated writing and editing work, lack of game-development/design experience, and hobby collaboration terms. Omitted the identifying award detail, contact details, and unrelated comments. No closure or update was stated in the main post."
+    },
+    {
+      "id": "1gteq4h",
+      "url": "https://www.reddit.com/r/INAT/comments/1gteq4h/",
+      "published": "2024-11-17",
+      "capture": "complete_main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Adapted the author's stated programming history, usual 2D/2.5D focus, pixel-art competence, preference not to focus on art, work schedule, and request for an artist and/or designer. Excluded portfolio, email, Discord, and other contact details. No closure or update was stated in the main post."
+    },
+    {
+      "id": "1fkroce",
+      "url": "https://www.reddit.com/r/INAT/comments/1fkroce/",
+      "published": "2024-09-19",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Contact information omitted. Retains the stated two years of side-project experience, Godot/GDScript use, full-time software job and preferred genres. No capabilities or needs added."
+    },
+    {
+      "id": "1epwle8",
+      "url": "https://www.reddit.com/r/INAT/comments/1epwle8/",
+      "published": "2024-08-11",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Portfolio URL omitted. Kept the author's current project and its stated gaps separate from collaboration preferences. No capabilities or needs added."
+    },
+    {
+      "id": "1dbmgzh",
+      "url": "https://www.reddit.com/r/INAT/comments/1dbmgzh/",
+      "published": "2024-06-09",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Contact information omitted. Preserves the stated tools, prototypes, audio background, time commitment and desire for an artist. No capabilities or needs added."
+    },
+    {
+      "id": "1cwixnx",
+      "url": "https://www.reddit.com/r/INAT/comments/1cwixnx/",
+      "published": "2024-05-20",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Contact information omitted. Preserves the later post edit that all roles had been filled. No capabilities or needs added. The closure is recorded here only; model inputs reconstruct the request before closure.",
+      "status_note": "Later edited to say all roles had been filled."
+    },
+    {
+      "id": "1lgeru4",
+      "url": "https://www.reddit.com/r/INAT/comments/1lgeru4/",
+      "published": "2025-06-20",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Portfolio and contact details omitted. Preserves the stated Unreal experience, full-time work constraint, project preference, and Unity/mobile exclusions. The post describes a hobby offer; it is not treated as a paid-only service. No capabilities or needs added."
+    },
+    {
+      "id": "1l9tcy1",
+      "url": "https://www.reddit.com/r/INAT/comments/1l9tcy1/",
+      "published": "2025-06-12",
+      "capture": "main_post_from_search_extraction; direct_open_unavailable",
+      "adaptation": "Paraphrased and split into offers and needs. Contact details omitted. Uses only the author's own profile text, not skills or offers from commenters. No capabilities or needs added."
+    },
+    {
+      "id": "1b84hmd",
+      "url": "https://www.reddit.com/r/INAT/comments/1b84hmd",
+      "published": "2024-03-06",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Converted the author's RPG art brief into first-person offers and needs. The post's edit says the paid position had been filled; retained as closure metadata rather than current availability. Contact requests removed."
+    },
+    {
+      "id": "1mvi9ms",
+      "url": "https://www.reddit.com/r/INAT/comments/1mvi9ms/3d_prop_and_enviroment_artist_looking_for_a_game/",
+      "published": "2025-08-20",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Adapted the individual artist's stated prop and environment work, willingness to playtest, free contribution and portfolio goal. Removed the portfolio URL and contact details; excluded thread replies."
+    },
+    {
+      "id": "1eac2m2",
+      "url": "https://www.reddit.com/r/INAT/comments/1eac2m2",
+      "published": "2024-07-23",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Summarised the author's team status, project approach and desired art role. Removed links and contact instructions."
+    },
+    {
+      "id": "1i78bs2",
+      "url": "https://www.reddit.com/r/INAT/comments/1i78bs2",
+      "published": "2025-01-22",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Adapted the tower-defence project description and unpaid sound-design request."
+    },
+    {
+      "id": "1l1fhta",
+      "url": "https://www.reddit.com/r/INAT/comments/1l1fhta",
+      "published": "2025-06-02",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Converted the Ren’Py recruitment post into one profile. Kept only main-post requests for art, writing and sound; omitted later comments and contact details."
+    },
+    {
+      "id": "1l7zlhy",
+      "url": "https://www.reddit.com/r/INAT/comments/1l7zlhy",
+      "published": "2025-06-10",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Adapted the poster's first-person audio skill list and collaboration goal; omitted the Discord contact."
+    },
+    {
+      "id": "1h4lijb",
+      "url": "https://www.reddit.com/r/INAT/comments/1h4lijb",
+      "published": "2024-12-02",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Adapted the composer's stated education, experience, work scope and payment preference; removed the portfolio URL and contact invitation."
+    },
+    {
+      "id": "1n6vr7h",
+      "url": "https://www.reddit.com/r/INAT/comments/1n6vr7h",
+      "published": "2025-09-02",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Used only the original writer's post body, excluding all subsequent thread replies. Rephrased self-described experience and collaboration needs."
+    },
+    {
+      "id": "1l2lnyd",
+      "url": "https://www.reddit.com/r/INAT/comments/1l2lnyd",
+      "published": "2025-06-03",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Adapted the city-builder developer's description of project, schedule, funding and desired art collaboration."
+    },
+    {
+      "id": "1pd8kz7",
+      "url": "https://www.reddit.com/r/INAT/comments/1pd8kz7/hobbyrevshare_looking_for_2d_artist_preferably_2d/",
+      "published": "2025-12-03",
+      "capture": "Complete main-post text from search extraction; comments excluded",
+      "adaptation": "Adapted the developer's self-described experience, skills and artist needs. Removed portfolio link and contact details."
+    },
+    {
+      "id": "1fpxdgr",
+      "url": "https://www.reddit.com/r/INAT/comments/1fpxdgr/",
+      "published": "2024-09-26",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased the author's stated engines, released editor, preferred game style, availability and preference for one or two creative collaborators. Removed Discord handle and unrelated comments. Later comments include mixed interest and suggest the author was approached; no definitive closure was stated."
+    },
+    {
+      "id": "1ftv86v",
+      "url": "https://www.reddit.com/r/INAT/comments/1ftv86v/",
+      "published": "2024-10-01",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased the author's software, AI, Unity and Blender experience, game preferences and time available around work. Removed contact details and comments. No closure was stated in the main post."
+    },
+    {
+      "id": "1estywy",
+      "url": "https://www.reddit.com/r/INAT/comments/1estywy/",
+      "published": "2024-08-15",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased stated paid-work preference, prior game experience and listed Unity/C# capabilities. Removed portfolio and Discord details. No closure was stated in the main post."
+    },
+    {
+      "id": "1abl26m",
+      "url": "https://www.reddit.com/r/INAT/comments/1abl26m/",
+      "published": "2024-01-26",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased Java knowledge, school background, lack of a finished showcase, interest in self-learning and openness to discussing terms privately. Removed contact details and unrelated comments. No closure was stated in the main post."
+    },
+    {
+      "id": "1arxbvh",
+      "url": "https://www.reddit.com/r/INAT/comments/1arxbvh/",
+      "published": "2024-02-16",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased computer-science study, engine and language experience, approximate weekly availability, genre flexibility and lack of a portfolio. Removed contact details and unrelated comments. No closure was stated."
+    },
+    {
+      "id": "1kn6y4g",
+      "url": "https://www.reddit.com/r/INAT/comments/1kn6y4g/",
+      "published": "2025-05-15",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased the author's stated game-programming experience, Unity and Unreal experience, small-team preference, intended project duration, preferred complementary roles, daily time expectation and portfolio goals. Excluded portfolio and contact details and all commenters' separate offers. No closure was stated in the main post."
+    },
+    {
+      "id": "1g2r4vt",
+      "url": "https://www.reddit.com/r/INAT/comments/1g2r4vt/",
+      "published": "2024-10-13",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased Unity prototyping, writing, asset use, focus on small projects and stated genre interests. Omitted the author's name and hardware inventory as non-substantive identifying details. No closure was stated."
+    },
+    {
+      "id": "1dz0wom",
+      "url": "https://www.reddit.com/r/INAT/comments/1dz0wom/",
+      "published": "2024-07-09",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased experience with 2D/3D RPGs, current interest in metroidvanias, openness to other genres and need for a committed team. Excluded contact details and subsequent commenters' separate offers. A July 17 comment says the author joined a team; retained as historical closure metadata."
+    },
+    {
+      "id": "1eq7qt5",
+      "url": "https://www.reddit.com/r/INAT/comments/1eq7qt5/",
+      "published": "2024-08-12",
+      "capture": "main_post_and_author_reply_from_search_extraction",
+      "adaptation": "Paraphrased the author's programming experience, GDD, project premise, need for design help, art/audio gaps and budget constraints. Used the author's reply for project specifics and audio timing/payment options, not other commenters' profiles. Contact details and unrelated comments omitted. No definitive closure was stated."
+    },
+    {
+      "id": "1cvyr2i",
+      "url": "https://www.reddit.com/r/INAT/comments/1cvyr2i/",
+      "published": "2024-05-19",
+      "capture": "complete_main_post_from_search_extraction",
+      "adaptation": "Paraphrased the author's art/design role, tools, concrete two-player directional-guessing fighter concept and request for a programmer. Removed Discord handle and unrelated comments. No closure was stated."
+    }
+  ],
+  "excluded": [
+    {
+      "id": "1l08mjv",
+      "reason": "Team-oriented revenue-sharing recruitment; excluded from the individual hobby sample."
+    },
+    {
+      "id": "1g3vh67",
+      "reason": "Team recruitment brief could not safely be represented as an individual skill profile."
+    },
+    {
+      "id": "1amhd49",
+      "reason": "Retrieved text truncates a potentially relevant financial-terms section."
+    }
+  ]
+}

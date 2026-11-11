@@ -1,0 +1,148 @@
+{
+  "comparisons": [
+    {
+      "id": "writer_explicit_cowriting",
+      "metric": "support",
+      "preferred": [
+        "1einy86",
+        "1nseb22"
+      ],
+      "alternative": [
+        "1joxpvx",
+        "1nseb22"
+      ],
+      "reason": "Preference for A. On re-review, I regard A as partly answering the primary request. My earlier assessment of B inferred technical game-development skills from knowing programmers who are also composers. B does not state those skills. B might have been around technical developers, but that is speculative and must not count as an offered capability. The earlier similarity judgement is no longer an established label; no numeric score gap is specified.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "ordering_confidence": "definite",
+      "expected_separation": "unspecified"
+    },
+    {
+      "id": "writer_seeking_game_team",
+      "metric": "support",
+      "preferred": [
+        "1l1fhta",
+        "1einy86"
+      ],
+      "alternative": [
+        "1nseb22",
+        "1einy86"
+      ],
+      "reason": "There is a definite preference for A, but both candidates are still similar-ish. The person wants to be part of a technical team, which A offers and B does not.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "ordering_confidence": "definite",
+      "expected_separation": "similar"
+    },
+    {
+      "id": "composer_project_over_peer",
+      "metric": "support",
+      "preferred": [
+        "1i78bs2",
+        "1gk4mad"
+      ],
+      "alternative": [
+        "1joxpvx",
+        "1gk4mad"
+      ],
+      "reason": "Definitely A. B is not really relevant, and A is very directly relevant.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "ordering_confidence": "definite",
+      "expected_separation": "unspecified"
+    },
+    {
+      "id": "composer_other_direction",
+      "metric": "support",
+      "preferred": [
+        "1l1fhta",
+        "1joxpvx"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1joxpvx"
+      ],
+      "reason": "Definitely A. A is not as high a match as in question 3: I read the person as preferring professional work, whereas A is a hobby project. But B is not relevant.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "ordering_confidence": "definite",
+      "expected_separation": "unspecified"
+    },
+    {
+      "id": "writer_shared_inquiry",
+      "metric": "shared_inquiry",
+      "preferred": [
+        "1einy86",
+        "1nseb22"
+      ],
+      "alternative": [
+        "1einy86",
+        "1joxpvx"
+      ],
+      "reason": "A. Both are interested in writing to develop a shared world in games, with the goal of eventually creating games. B also wants to make games, but their shared interest is only general games, not that specific part.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "ordering_confidence": "unspecified",
+      "expected_separation": "unspecified"
+    },
+    {
+      "id": "composer_overall_pair",
+      "metric": "sum",
+      "preferred": [
+        "1i78bs2",
+        "1gk4mad"
+      ],
+      "alternative": [
+        "1joxpvx",
+        "1gk4mad"
+      ],
+      "reason": "Definitely A. B has a similar profile to the person, rather than a complementary one.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "ordering_confidence": "definite",
+      "expected_separation": "unspecified"
+    },
+    {
+      "id": "writer_overall_pair",
+      "metric": "sum",
+      "preferred": [
+        "1l1fhta",
+        "1einy86"
+      ],
+      "alternative": [
+        "1nseb22",
+        "1einy86"
+      ],
+      "reason": "A can deliver what the person wants, and A's needs are directly related to the person's offers. Shared inquiry is high for both pairs.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "ordering_confidence": "unspecified",
+      "expected_separation": "unspecified"
+    },
+    {
+      "id": "programmer_explicit_peer",
+      "metric": "support",
+      "preferred": [
+        "1jszrrr",
+        "1fkroce"
+      ],
+      "alternative": [
+        "1gk4mad",
+        "1fkroce"
+      ],
+      "reason": "A. They want a programmer for a two-person team. A is a programmer and B is not.",
+      "status": "approved",
+      "reviewed_by": "User, conversation review on 2026-11-10",
+      "split": "development",
+      "ordering_confidence": "unspecified",
+      "expected_separation": "unspecified"
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+"""Command-line interface for whole-text matching."""
+
+import argparse
+import sys
+from pathlib import Path
+
+from pydantic import ValidationError
+
+from conference_match.allocation import allocate
+from conference_match.evaluation import Fixtures, evaluate
+from conference_match.models import load_event, write_json
+from conference_match.runs import load_results, score_event
+from conference_match.scoring import JevScorer
+
+
+def protect_output(output: Path, files: list[Path], trees: list[Path] | None = None) -> None:
+    target = output.resolve()
+    if target in [p.resolve() for p in files] or any(
+        target.is_relative_to(p.resolve()) for p in (trees or [])
+    ):
+        raise ValueError("Output would overwrite source input or run state; choose another path")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(prog="match")
+    commands = parser.add_subparsers(dest="command", required=True)
+    assess = commands.add_parser("assess", help="Assess one pair with Jev")
+    assess.add_argument("input", type=Path)
+    assess.add_argument("--a", required=True)
+    assess.add_argument("--b", required=True)
+    assess.add_argument("--output", type=Path, required=True)
+    assess.add_argument("--model", default="jev-latest")
+    score = commands.add_parser("score", help="Score every pair; rerun to resume")
+    score.add_argument("input", type=Path)
+    score.add_argument("--output", type=Path, required=True)
+    score.add_argument("--model", default="jev-latest")
+    score.add_argument("--concurrency", type=int, default=4)
+    inspect = commands.add_parser("inspect", help="Inspect saved candidate scores")
+    inspect.add_argument("run_dir", type=Path)
+    inspect.add_argument("--person", required=True)
+    allocation = commands.add_parser("allocate", help="Allocate one partner per person")
+    allocation.add_argument("run_dir", type=Path)
+    allocation.add_argument("--output", type=Path, required=True)
+    allocation.add_argument("--normalisation", choices=["none", "zscore"], default="none")
+    evaluation = commands.add_parser("evaluate", help="Test only labelled fixture pairs")
+    evaluation.add_argument("input", type=Path)
+    evaluation.add_argument("fixtures", type=Path)
+    evaluation.add_argument("--output", type=Path, required=True)
+    evaluation.add_argument("--model", default="jev-latest")
+    evaluation.add_argument("--split", choices=["development", "holdout"], default="development")
+    evaluation.add_argument("--include-drafts", action="store_true")
+    evaluation.add_argument("--from-run", type=Path)
+    review = commands.add_parser("review", help="Open the local operator review interface")
+    review.add_argument("input", type=Path)
+    review.add_argument("--workspace", type=Path, default=Path("runs/operator-review"))
+    review.add_argument("--run", type=Path)
+    review.add_argument("--fixtures", type=Path)
+    review.add_argument("--port", type=int, default=8765)
+    review.add_argument("--expert-report", type=Path)
+    prepare = commands.add_parser("expert-prepare", help="Export blind expert input packets")
+    prepare.add_argument("archive", type=Path)
+    prepare.add_argument("--output", type=Path, required=True)
+    rank = commands.add_parser(
+        "expert-rank", help="Compare independent expert answers with saved Jev scores"
+    )
+    rank.add_argument("archive", type=Path)
+    rank.add_argument("--forward", type=Path, required=True)
+    rank.add_argument("--reverse", type=Path, required=True)
+    rank.add_argument("--run", type=Path, required=True)
+    rank.add_argument("--output", type=Path, required=True)
+    pilot = commands.add_parser("serve", help="Run participant registration and organiser matching")
+    pilot.add_argument("--workspace", type=Path, default=Path("runs/pilot"))
+    pilot.add_argument("--description")
+    pilot.add_argument("--model", default="jev-1.14.0")
+    pilot.add_argument("--host", default="127.0.0.1")
+    pilot.add_argument("--port", type=int, default=8767)
+    pilot.add_argument("--public-url")
+    args = parser.parse_args()
+    try:
+        if args.command == "serve":
+            from conference_match.pilot_server import serve_pilot
+
+            if not 0 <= args.port <= 65535:
+                raise ValueError("Port must be between 0 and 65535")
+            serve_pilot(
+                args.workspace, args.description, args.model, args.host, args.port, args.public_url
+            )
+            return 0
+        if args.command in ("expert-prepare", "expert-rank"):
+            from conference_match.expert import ExpertAnswers, make_packet, rank_reviews
+            from conference_match.review import ReviewSession
+
+            session = ReviewSession.model_validate_json(args.archive.read_text())
+            if args.command == "expert-prepare":
+                if args.output.exists():
+                    raise ValueError("Expert output directory exists; choose a new directory")
+                write_json(args.output / "forward-input.json", make_packet(session))
+                write_json(args.output / "reverse-input.json", make_packet(session, reverse=True))
+                print("Independent input packets saved; no human answers or model scores included")
+            else:
+                if args.output.exists():
+                    raise ValueError("Expert report exists; choose a new file")
+                protect_output(args.output, [args.archive, args.forward, args.reverse], [args.run])
+                report = rank_reviews(
+                    session,
+                    ExpertAnswers.model_validate_json(args.forward.read_text()),
+                    ExpertAnswers.model_validate_json(args.reverse.read_text()),
+                    args.run,
+                )
+                write_json(args.output, report.model_dump(mode="json"))
+                print(f"Private triage report saved for {len(report.items)} comparisons")
+            return 0
+        if args.command == "review":
+            from conference_match.operator import serve
+
+            if not 0 <= args.port <= 65535:
+                raise ValueError("Port must be between 0 and 65535")
+            serve(
+                load_event(args.input),
+                args.workspace,
+                args.run,
+                Fixtures.model_validate_json(args.fixtures.read_text()) if args.fixtures else None,
+                args.port,
+                args.expert_report,
+            )
+            return 0
+        if args.command == "evaluate":
+            protect_output(
+                args.output, [args.input, args.fixtures], [args.from_run] if args.from_run else []
+            )
+            if args.output.exists():
+                raise ValueError("Evaluation output exists; choose a new file")
+            report = evaluate(
+                load_event(args.input),
+                Fixtures.model_validate_json(args.fixtures.read_text()),
+                args.model,
+                JevScorer,
+                args.split,
+                args.include_drafts,
+                args.from_run,
+            )
+            write_json(args.output, report)
+            for row in report["comparisons"]:
+                print(
+                    f"{row['id']} [{row['status']}, {row['ordering_confidence']}]: "
+                    f"{row['outcome']}; "
+                    f"preferred {row['preferred_score']:.3f}; "
+                    f"alternative {row['alternative_score']:.3f}; "
+                    f"margin {row['margin']:+.3f}; expected separation {row['expected_separation']}"
+                )
+            print(f"{report['unique_pairs']} unique pairs; {report['api_calls']} API calls")
+            if report["approved_count"]:
+                label = (
+                    "Synthetic sanity"
+                    if report["fixture_kind"] == "synthetic"
+                    else "Human-judgement"
+                )
+                print(
+                    f"{label} agreement: {report['approved_accuracy']:.1%} "
+                    f"over {report['approved_count']} comparisons; "
+                    f"{report['approved_outcomes']['tie']} ties"
+                )
+            else:
+                print("Draft preview only: no human-judgement accuracy available")
+            return int(
+                any(
+                    row["status"] == "approved" and row["outcome"] != "pass"
+                    for row in report["comparisons"]
+                )
+            )
+        if args.command == "allocate":
+            protect_output(
+                args.output,
+                [args.run_dir / name for name in ("manifest.json", "failures.json", ".lock")],
+                [args.run_dir / "pairs"],
+            )
+            manifest, results = load_results(args.run_dir, complete=True)
+            allocation_result = allocate(manifest.event, results, args.normalisation)
+            write_json(
+                args.output,
+                {
+                    "input_hash": manifest.input_hash,
+                    "rubric_hash": manifest.rubric_hash,
+                    "model": manifest.resolved_model,
+                    "requested_model": manifest.requested_model,
+                    **allocation_result.model_dump(mode="json"),
+                },
+            )
+            print("A / B | A → B | B → A | shared | allocation weight")
+            for pair in allocation_result.pairs:
+                raw = pair.raw_scores
+                print(
+                    f"{pair.a_name} / {pair.b_name} | {raw['a_to_b']:.3f} | "
+                    f"{raw['b_to_a']:.3f} | {raw['shared_inquiry']:.3f} | {pair.weight:.3f}"
+                )
+            print(
+                f"{len(allocation_result.pairs)} pairs; "
+                f"mean weight {allocation_result.mean_weight:.3f}; "
+                f"minimum {allocation_result.minimum_weight:.3f}; "
+                f"normalisation {args.normalisation}"
+            )
+            return 0
+        if args.command == "score":
+            event = load_event(args.input)
+            _, failed = score_event(event, args.output, args.model, JevScorer, args.concurrency)
+            return 1 if failed else 0
+        if args.command == "inspect":
+            manifest, results = load_results(args.run_dir)
+            manifest.event.person(args.person)
+            relevant = [r for r in results if args.person in (r.a, r.b)]
+            print("partner | you → them | them → you | shared inquiry | sum")
+            for result in sorted(relevant, key=lambda r: (-r.weight, r.a, r.b)):
+                is_a = result.a == args.person
+                other = result.b if is_a else result.a
+                outward = result.metrics["a_to_b" if is_a else "b_to_a"].normalised
+                inward = result.metrics["b_to_a" if is_a else "a_to_b"].normalised
+                shared = result.metrics["shared_inquiry"].normalised
+                print(
+                    f"{manifest.event.person(other).name} ({other}) | {outward:.3f} | "
+                    f"{inward:.3f} | {shared:.3f} | {result.weight:.3f}"
+                )
+            print(f"Showing {len(relevant)}/{len(manifest.event.participants) - 1} candidates")
+            return 0
+        event = load_event(args.input)
+        a, b = event.person(args.a), event.person(args.b)
+        if a.id == b.id:
+            raise ValueError("Choose two distinct participants")
+        protect_output(args.output, [args.input])
+        result = JevScorer(args.model).score(event, a, b)
+        write_json(args.output, result.model_dump(mode="json"))
+        for metric, score in result.components.items():
+            print(f"{metric}: {score:.3f}")
+        print(f"sum: {result.weight:.3f} | model: {result.model}")
+        return 0
+    except ValidationError as exc:
+        # Pydantic's default error includes input text: avoid printing private profiles.
+        print(f"Invalid data: {exc.error_count()} validation error(s)", file=sys.stderr)
+    except (OSError, ValueError, RuntimeError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+    return 1

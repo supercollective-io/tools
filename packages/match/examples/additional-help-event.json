@@ -1,0 +1,29 @@
+{
+  "description": "A game-development meetup where people exchange skills, discuss their projects and find collaborators.",
+  "participants": [
+    {
+      "id": "1gk4mad",
+      "name": "Pianist and hobby game composer",
+      "offers": "I am an aspiring game composer and pianist with experience in piano and classical-inspired music. I can also compose in other genres when I can find an approach that fits.",
+      "needs": "I am offering free music for a video-game project to gain experience. I would prefer a relatively small project rather than a large open-world game. I cannot promise quick turnaround because I do this as a hobby. I need information about the project and the kind of music it needs."
+    },
+    {
+      "id": "1joxpvx-peer",
+      "name": "Synthetic composer requesting a co-composer",
+      "offers": "I am a hobby composer and pianist, most adept at composition, and can also do mixing and sound design. My musical inspirations include Nintendo, Toby Fox, and John Williams. I have worked on smaller projects, including an upcoming game.",
+      "needs": "I am a composer. I am looking for another composer and pianist to co-compose a classical-inspired game soundtrack with me."
+    },
+    {
+      "id": "1joxpvx-no-peer",
+      "name": "Synthetic composer seeking a developer, not a co-composer",
+      "offers": "I am a hobby composer and pianist, most adept at composition, and can also do mixing and sound design. My musical inspirations include Nintendo, Toby Fox, and John Williams. I have worked on smaller projects, including an upcoming game.",
+      "needs": "I am a composer. I will handle all composition myself and am not looking for another composer. I need a game developer with a project that needs music."
+    },
+    {
+      "id": "1l1fhta",
+      "name": "Ren’Py visual-novel hobby developer",
+      "offers": "I am handling the programming for a Ren’Py visual novel. This is a passion project with no strict deadlines; we can work at our own pace and adapt to each person's available time. Beginners and experienced collaborators are welcome.",
+      "needs": "I am looking for collaborators in art, writing and sound. I need character designs, backgrounds and other visual assets; story development, dialogue and engaging narrative, with branching-story experience as a plus; and music, sound effects and audio mixing. A consistent visual style and a good ear for atmosphere would help."
+    }
+  ]
+}

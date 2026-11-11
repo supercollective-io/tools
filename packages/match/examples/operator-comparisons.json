@@ -1,0 +1,41 @@
+{
+  "kind": "real",
+  "comparisons": [
+    {
+      "id": "review-f10c15d6a6199791",
+      "preferred": [
+        "1nucfo9",
+        "1mvi9ms"
+      ],
+      "alternative": [
+        "1l9tcy1",
+        "1mvi9ms"
+      ],
+      "metric": "shared_inquiry",
+      "reason": "Both person and B are in early stages of exploring 3d art in games. That is very similar. A is probably a better match for the person in terms of meeting their needs, but B is definitely the choice for this pairwise comparison of shared inquiry.",
+      "ordering_confidence": "unspecified",
+      "expected_separation": "unspecified",
+      "status": "approved",
+      "reviewed_by": "Local operator",
+      "split": "development"
+    },
+    {
+      "id": "review-9e1f458d20521e9a",
+      "preferred": [
+        "1d664o8",
+        "1einy86"
+      ],
+      "alternative": [
+        "1nseb22",
+        "1einy86"
+      ],
+      "metric": "support",
+      "reason": "Note in this one, the needs of the other two are relevant for understanding the best match as both mainly describe their background rather than presenting it as an offer. With just the offers alone it is a bit unclear who you should pick, though I went for A, as the person is looking for a game development team, which is more aligned with a single programmer and artist than a single writer (particularly given the person is a writer themselves).",
+      "ordering_confidence": "unspecified",
+      "expected_separation": "unspecified",
+      "status": "approved",
+      "reviewed_by": "Local operator",
+      "split": "development"
+    }
+  ]
+}
