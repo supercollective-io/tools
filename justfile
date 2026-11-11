@@ -13,7 +13,7 @@ dev-bounded:
     pnpm --dir apps/polymind bounded
 
 dev-voice:
-    pnpm --dir apps/polymind start
+    pnpm --dir apps/polymind exec node --env-file-if-exists=../../.env src/start.ts
 
 check:
     pnpm check
