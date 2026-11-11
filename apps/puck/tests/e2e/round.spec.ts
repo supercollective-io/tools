@@ -1,10 +1,16 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import jsQR from 'jsqr';
+
+async function capture(page: Page, testInfo: TestInfo, name: string) {
+  const path = testInfo.outputPath(`${name}.png`);
+  await page.screenshot({ path, fullPage: true });
+  await testInfo.attach(name, { path, contentType: 'image/png' });
+}
 
 test('two participants share a round, reconnect, cancel and replay privately', async ({
   page,
   browser,
-}) => {
+}, testInfo) => {
   const guestContext = await browser.newContext();
   const guest = await guestContext.newPage();
   const errors: string[] = [];
@@ -18,12 +24,15 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   await expect(page.getByText('Connected', { exact: true })).toBeVisible();
   const roomUrl = page.url();
   await guest.goto(roomUrl);
+  await capture(guest, testInfo, 'participant-join');
   await guest.getByLabel('Your name', { exact: true }).fill('Alex');
   await guest.getByRole('button', { name: 'Join the room' }).click();
   await expect(page.getByText('2 online')).toBeVisible();
+  await capture(page, testInfo, 'desktop-room-ready');
   await page.getByRole('button', { name: 'Start round', exact: true }).click();
   await expect(guest.getByText('Round in progress')).toBeVisible();
   await expect(page.getByRole('timer')).toHaveText('59s', { timeout: 8000 });
+  await capture(guest, testInfo, 'participant-active');
   await page.bringToFront();
   const arena = page.getByRole('application');
   await arena.scrollIntoViewIfNeeded();
@@ -55,6 +64,7 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   await expect(guest.getByRole('heading', { name: 'Round cancelled.' })).toBeVisible();
   await page.getByRole('link', { name: /cancelled.*Replay/ }).click();
   await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
+  await capture(page, testInfo, 'desktop-replay');
   const download = page.getByRole('link', { name: 'Download recording' });
   const href = await download.getAttribute('href');
   if (!href) throw new Error('Missing recording URL.');
@@ -74,10 +84,11 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   await guestContext.close();
 });
 
-test('mobile create form fits and accepts keyboard input', async ({ page }) => {
+test('mobile create form fits and accepts keyboard input', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  await capture(page, testInfo, 'mobile-create');
   await page.getByRole('button', { name: 'Create room' }).click();
   await page.getByText('Join as a participant', { exact: true }).click();
   await page.getByLabel('Your name', { exact: true }).fill('Host participant');
@@ -88,9 +99,10 @@ test('mobile create form fits and accepts keyboard input', async ({ page }) => {
   await page.keyboard.press('ArrowRight');
   expect(Number(await page.locator('.magnet').getAttribute('cx'))).toBeGreaterThan(500);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  await capture(page, testInfo, 'mobile-room-keyboard');
 });
 
-test('invite QR decodes to the room and fits on mobile', async ({ page, browser }) => {
+test('invite QR decodes to the room and fits on mobile', async ({ page, browser }, testInfo) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/');
   await page.getByRole('button', { name: 'Create room' }).click();
@@ -115,6 +127,7 @@ test('invite QR decodes to the room and fits on mobile', async ({ page, browser 
   });
   const decoded = jsQR(new Uint8ClampedArray(pixels.data), pixels.width, pixels.height);
   expect(decoded?.data).toBe(roomUrl);
+  await capture(page, testInfo, 'mobile-invitation');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
   const participant = await browser.newContext();
   try {

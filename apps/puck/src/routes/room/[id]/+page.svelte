@@ -176,10 +176,6 @@ async function copy() {
         {busy ? 'Joining…' : 'Join the room'}
       </button>
     </form>
-    <p class="muted">
-      Your magnet is private during the round. Afterwards, participants can replay everyone’s
-      movements.
-    </p>
   </section>
 {:else}
   <section class="session">
@@ -217,7 +213,9 @@ async function copy() {
       {:else if status === 'waiting'}
         <p class="muted">
           {room.me.host
-            ? 'At least two people must be connected to start.'
+            ? connected < 2
+              ? 'Waiting for at least two connected participants.'
+              : 'Ready to start.'
             : 'Waiting for the host to start.'}
         </p>
       {:else}
@@ -303,7 +301,6 @@ async function copy() {
           A round lasts 60 seconds. The puck selects an option after 1.5 seconds inside its target;
           this does not mean everyone agrees.
         </p>
-        <p>Your magnet is private live. Participants can replay everyone’s movements afterwards.</p>
       </details>
       {#if room.history.some((r) => r.status !== 'active')}
         <details open>

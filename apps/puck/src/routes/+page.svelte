@@ -27,7 +27,7 @@ async function create(event: SubmitEvent) {
 }
 </script>
 <svelte:head><title>Create a room — Puck</title></svelte:head>
-<section class="form-page">
+<section class="form-page create-page">
   <h1>Create a room</h1>
   <form onsubmit={create}>
     <label
