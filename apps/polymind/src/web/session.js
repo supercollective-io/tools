@@ -18,8 +18,10 @@ let state,
   transcript,
   transcriptRecordingId,
   sourceRecording,
-  roundId;
-const draftKey = (round) => `polymind:${session}:${round}`;
+  roundId,
+  participantId,
+  editorGeneration = 0;
+const draftKey = (round) => `polymind:${session}:${participantId}:${round}`;
 function status(message, error = false, kind = "action") {
   $("status").textContent = message;
   $("status").dataset.error = String(error);
@@ -42,7 +44,7 @@ async function api(path, data, raw) {
   return result;
 }
 function retainDraft() {
-  if (roundId)
+  if (roundId && participantId)
     localStorage.setItem(
       draftKey(roundId),
       JSON.stringify({
@@ -77,8 +79,14 @@ function updateConflict(latest) {
     !latest || !state?.round?.open || !state?.session?.open;
 }
 async function readConflict() {
+  const generation = editorGeneration;
   try {
     const latestState = await api("/api/state");
+    if (generation !== editorGeneration) return;
+    if (latestState.participant?.id !== participantId) {
+      await refresh();
+      return;
+    }
     if (latestState.round?.id !== roundId) {
       updateConflict(undefined);
       status(
@@ -98,6 +106,7 @@ async function readConflict() {
       false,
     );
   } catch (error) {
+    if (generation !== editorGeneration) return;
     updateConflict(undefined);
     $("conflict").hidden = false;
     status(`Could not read the latest saved version: ${error.message}`, true);
@@ -105,7 +114,8 @@ async function readConflict() {
 }
 async function save(confirmed = false) {
   if (
-    !state?.participant ||
+    !participantId ||
+    state?.participant?.id !== participantId ||
     !roundId ||
     !state.round?.open ||
     !state.session.open
@@ -124,13 +134,19 @@ async function save(confirmed = false) {
   if (saving) return;
   saving = true;
   const sentRound = roundId;
+  const generation = editorGeneration;
   try {
     pending ??= makeRevision(confirmQueued);
     const sent = pending;
     retainDraft();
     $("saved").textContent = "Saving…";
     const saved = await api("/api/contribution", sent);
-    if (roundId !== sentRound || sent.roundId !== sentRound) return;
+    if (
+      generation !== editorGeneration ||
+      roundId !== sentRound ||
+      sent.roundId !== sentRound
+    )
+      return;
     state.contribution = saved;
     pending = undefined;
     const latestText = $("text").value;
@@ -163,6 +179,7 @@ async function save(confirmed = false) {
         false,
       );
   } catch (error) {
+    if (generation !== editorGeneration) return;
     if (
       error.status === 409 &&
       /changed in another window|request id reused with different input/i.test(
@@ -189,7 +206,7 @@ async function save(confirmed = false) {
     $("saved").textContent =
       "Not yet saved — retrying on your next edit or confirmation.";
   } finally {
-    saving = false;
+    if (generation === editorGeneration) saving = false;
   }
 }
 $("text").addEventListener("input", () => {
@@ -239,6 +256,8 @@ $("matching").onchange = () => {
 };
 $("join").onsubmit = async (event) => {
   event.preventDefault();
+  resetEditor();
+  participantId = undefined;
   try {
     const result = await api("/api/join", {
       name: $("name").value,
@@ -256,6 +275,8 @@ $("join").onsubmit = async (event) => {
 };
 $("recover-form").onsubmit = async (event) => {
   event.preventDefault();
+  resetEditor();
+  participantId = undefined;
   try {
     await api("/api/recover", { recovery: $("recovery-code").value.trim() });
     await refresh();
@@ -288,6 +309,43 @@ function matches(items) {
     $("matches").append(box);
   }
 }
+function resetEditor() {
+  editorGeneration++;
+  editVersion++;
+  clearTimeout(debounce);
+  saving = false;
+  pending = undefined;
+  confirmQueued = false;
+  conflict = undefined;
+  recordingGeneration++;
+  if (recorder?.state === "recording") recorder.stop();
+  stream?.getTracks().forEach((track) => {
+    track.stop();
+  });
+  recorder = stream = audioBlob = undefined;
+  recordingId = recordingRound = transcript = transcriptRecordingId = undefined;
+  sourceRecording = undefined;
+  $("text").value = "";
+  $("matching").checked = false;
+  $("conflict").hidden = true;
+  $("conflict-text").textContent = "";
+  $("saved").textContent = "";
+  $("identity").textContent = $("badge").textContent = "";
+  $("record").disabled = false;
+  for (const id of [
+    "stop",
+    "transcribe",
+    "retry-audio",
+    "use-transcript",
+    "playback",
+  ])
+    $(id).hidden = true;
+  $("record-status").textContent = $("transcript-preview").textContent = "";
+  if ($("playback").src.startsWith("blob:"))
+    URL.revokeObjectURL($("playback").src);
+  $("playback").src = "";
+  status("", false, "routine");
+}
 async function refresh() {
   if (!session) {
     status(
@@ -297,9 +355,16 @@ async function refresh() {
     );
     return;
   }
+  const generation = editorGeneration;
   try {
     const next = await api("/api/state");
-    if (saving) return;
+    if (generation !== editorGeneration) return;
+    const identityChanged = participantId !== next.participant?.id;
+    if (saving && !identityChanged) return;
+    const editorChanged = identityChanged || roundId !== next.round?.id;
+    if (editorChanged) resetEditor();
+    participantId = next.participant?.id;
+    roundId = next.round?.id;
     const recovered = reconnecting;
     reconnecting = false;
     state = next;
@@ -314,19 +379,7 @@ async function refresh() {
     if (next.participant) {
       $("identity").textContent = next.participant.name;
       $("badge").textContent = next.participant.badge;
-      if (next.round && roundId !== next.round.id) {
-        if (recorder?.state === "recording") recorder.stop();
-        recordingGeneration++;
-        recordingId = undefined;
-        recordingRound = undefined;
-        transcript = undefined;
-        transcriptRecordingId = undefined;
-        roundId = next.round.id;
-        sourceRecording = undefined;
-        pending = undefined;
-        confirmQueued = false;
-        conflict = undefined;
-        $("conflict").hidden = true;
+      if (next.round && editorChanged) {
         let draft;
         try {
           draft = JSON.parse(localStorage.getItem(draftKey(roundId)) ?? "null");
@@ -478,6 +531,7 @@ $("record").onclick = async () => {
     $("stop").hidden = false;
     $("transcribe").hidden = true;
   } catch (e) {
+    if (!isCurrentRecording(job)) return;
     stream?.getTracks().forEach((track) => {
       track.stop();
     });

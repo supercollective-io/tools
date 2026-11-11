@@ -60,7 +60,14 @@ it("keeps 140 identities and long revisions independent of explicit voice lifecy
     await vi.waitFor(() => expect(generated).toHaveBeenCalled(), {
       timeout: 10000,
     });
-    await voice.control("pause", session.id, round.id);
+    store.freeze(round.id);
+    store.createRound(session.id, "Bounded next", "bounded");
+    expect(voice.state(session.id)?.roundId).toBe(round.id);
+    await voice.control(
+      "pause",
+      session.id,
+      voice.state(session.id)?.roundId ?? "missing-voice-round",
+    );
     const state = voice.state(session.id);
     expect(state?.status).toBe("paused");
     const run = await readLiveRun(join(dir, `voice-${state?.id}.jsonl`));
@@ -78,12 +85,20 @@ it("keeps 140 identities and long revisions independent of explicit voice lifecy
     await voice.load();
     expect(voice.state(session.id)?.status).toBe("paused");
     expect(generated).toHaveBeenCalledTimes(calls);
-    await voice.control("end", session.id, round.id);
-    expect(store.session(session.id).open).toBe(true);
-    store.freeze(round.id);
-    expect(store.createRound(session.id, "Bounded next", "bounded").open).toBe(
-      true,
+    expect(voice.state(session.id)?.roundId).toBe(round.id);
+    await voice.control(
+      "end",
+      session.id,
+      voice.state(session.id)?.roundId ?? "missing-voice-round",
     );
+    expect(store.session(session.id).open).toBe(true);
+    const bounded = store.rounds(session.id).at(-1);
+    expect(bounded?.mode).toBe("bounded");
+    store.freeze(bounded?.id ?? "missing-bounded-round");
+    const next = store.createRound(session.id, "Continuous next", "continuous");
+    await voice.control("start", session.id, next.id, config);
+    expect(voice.state(session.id)?.roundId).toBe(next.id);
+    await voice.control("end", session.id, next.id);
   } finally {
     await voice.close();
     store.close();

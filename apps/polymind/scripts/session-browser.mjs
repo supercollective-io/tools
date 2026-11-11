@@ -127,6 +127,102 @@ try {
   await expect(projection.locator("#idea")).toContainText(
     "A place we can reach",
   );
+  // Identity changes in the same browser must never inherit another person's draft.
+  await operator
+    .getByRole("button", { name: "Open round", exact: true })
+    .click();
+  await expect(participant.locator("#text")).toBeEnabled();
+  const sessionQuery = new URL(`${origin}${destination}`).search;
+  await participant.route("**/api/contribution?*", (route) => route.abort());
+  await participant.locator("#text").fill("Synthetic private draft for Robin");
+  await participant.locator("#confirm").click();
+  await expect(participant.locator("#saved")).toContainText("Not yet saved");
+  await mobile.clearCookies();
+  await participant.reload();
+  await participant
+    .getByLabel("What should your partner call you?")
+    .fill("Casey");
+  await participant
+    .getByRole("button", { name: "Join this gathering" })
+    .click();
+  await expect(participant.locator("#badge")).toHaveText("002");
+  await expect(participant.locator("#text")).toHaveValue("");
+  await participant.unroute("**/api/contribution?*");
+  await participant.locator("#text").fill("Synthetic contribution for Casey");
+  await participant.locator("#confirm").click();
+  await expect(participant.locator("#saved")).toContainText("Confirmed");
+  const casey = await (
+    await mobile.request.get(`${origin}/api/state${sessionQuery}`)
+  ).json();
+  if (casey.contribution.text !== "Synthetic contribution for Casey")
+    throw new Error("Identity isolation failed");
+  const recovery = (await participant.locator("#recovery").textContent())
+    .split(": ")
+    .at(-1);
+  await mobile.clearCookies();
+  const other = await mobile.request.post(`${origin}/api/join${sessionQuery}`, {
+    headers: { Origin: origin },
+    data: { name: "Morgan", seated: false },
+  });
+  if (!other.ok()) throw new Error("Synthetic identity switch failed");
+  await expect(participant.locator("#badge")).toHaveText("003", {
+    timeout: 10000,
+  });
+  await participant.route("**/api/contribution?*", (route) => route.abort());
+  await participant.locator("#text").fill("Synthetic private draft for Morgan");
+  await participant.locator("#confirm").click();
+  await expect(participant.locator("#saved")).toContainText("Not yet saved");
+  const recovered = await mobile.request.post(
+    `${origin}/api/recover${sessionQuery}`,
+    { headers: { Origin: origin }, data: { recovery } },
+  );
+  if (!recovered.ok()) throw new Error("Synthetic recovery failed");
+  await expect(participant.locator("#badge")).toHaveText("002", {
+    timeout: 10000,
+  });
+  await expect(participant.locator("#text")).toHaveValue(
+    "Synthetic contribution for Casey",
+  );
+  await participant.unroute("**/api/contribution?*");
+
+  // Exercise the actual operator handlers with a synthetic voice, without a provider.
+  let activeVoice = { roundId: "earlier-continuous-round", status: "running" };
+  await operator.route("**/api/operator/state?*", async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({
+      json: { ...(await response.json()), voice: activeVoice },
+    });
+  });
+  await operator.route("**/api/operator/voice?*", async (route) => {
+    const command = route.request().postDataJSON();
+    if (command.roundId !== activeVoice.roundId)
+      throw new Error("Voice control targeted the collection round");
+    activeVoice = {
+      ...activeVoice,
+      status: command.action === "pause" ? "paused" : "ended",
+    };
+    await route.fulfill({ json: activeVoice });
+  });
+  await operator
+    .getByText("Continuous Collective Microphone", { exact: true })
+    .click();
+  await expect(operator.locator("#voice-status")).toHaveText("running", {
+    timeout: 10000,
+  });
+  await operator
+    .getByRole("button", { name: "Pause voice", exact: true })
+    .click();
+  await expect(operator.locator("#voice-status")).toHaveText("paused");
+  await operator.locator("#freeze").click();
+  await operator.locator("#round-mode").selectOption("continuous");
+  await operator
+    .getByRole("button", { name: "Open round", exact: true })
+    .click();
+  await expect(operator.locator("#round-status")).toContainText("continuous");
+  await operator
+    .getByRole("button", { name: "End voice", exact: true })
+    .click();
+  await expect(operator.locator("#voice-status")).toHaveText("ended");
   await mkdir("test-results", { recursive: true });
   for (const [page, name] of [
     [participant, "participant"],
@@ -139,7 +235,7 @@ try {
     });
   if (errors.length) throw new Error(errors.join("\n"));
   console.log(
-    "Browser flow passed: operator sign-in → join → autosave/confirm → return → freeze → review/reveal. Screenshots in test-results/.",
+    "Browser flow passed: operator sign-in → join → autosave/confirm → return → freeze → review/reveal → identity isolation → voice controls across rounds. Screenshots in test-results/.",
   );
 } finally {
   await browser?.close();

@@ -100,7 +100,10 @@ async function browser(
   const local = sharedStorage;
   get("capture").hidden = true;
   if (savedDraft)
-    local.set("polymind:session-1:round-1", JSON.stringify(savedDraft));
+    local.set(
+      "polymind:session-1:participant-1:round-1",
+      JSON.stringify(savedDraft),
+    );
   const timers = new Map<number, { delay: number; callback: () => unknown }>();
   const intervals: (() => unknown)[] = [];
   let timerId = 0;
@@ -229,8 +232,9 @@ it("queues Confirm behind an in-flight autosave and confirms the latest text", a
   page.get("matching").checked = true;
   await page.get("confirm").onclick?.();
   expect(
-    JSON.parse(page.local.get("polymind:session-1:round-1") ?? "{}")
-      .confirmQueued,
+    JSON.parse(
+      page.local.get("polymind:session-1:participant-1:round-1") ?? "{}",
+    ).confirmQueued,
   ).toBe(true);
 
   const draft = requests[0];
@@ -256,7 +260,9 @@ it("queues Confirm behind an in-flight autosave and confirms the latest text", a
       "Confirmed and saved for this round.",
     ),
   );
-  expect(page.local.has("polymind:session-1:round-1")).toBe(false);
+  expect(page.local.has("polymind:session-1:participant-1:round-1")).toBe(
+    false,
+  );
 
   const reloaded = await browser(
     async (url) => {
@@ -471,7 +477,9 @@ it("stops autosaving an opted-in draft after one acknowledgement and retains the
   expect(page.scheduledDelays()).not.toContain(20);
   expect(page.get("matching").checked).toBe(true);
   expect(
-    JSON.parse(page.local.get("polymind:session-1:round-1") ?? "null"),
+    JSON.parse(
+      page.local.get("polymind:session-1:participant-1:round-1") ?? "null",
+    ),
   ).toMatchObject({ text: "Edited thought", matching: true });
   await page.get("confirm").onclick?.();
   expect(requests).toHaveLength(2);
@@ -520,4 +528,59 @@ it("shows live processing without confirmation for continuous rounds and explici
   );
   expect(page.get("bounded").hidden).toBe(false);
   expect(page.get("retention").textContent).toContain("before confirming");
+});
+
+it("isolates retained drafts and discards late saves and recordings when identity changes", async () => {
+  const first = deferred<ReturnType<typeof response>>();
+  let state = initialState();
+  const requests: Record<string, unknown>[] = [];
+  const page = await browser(async (url, options) => {
+    if (url.startsWith("/api/state")) return response(state);
+    const sent = JSON.parse(String(options?.body));
+    requests.push(sent);
+    if (requests.length === 1) return first.promise;
+    return response({ ...sent, revision: 1 });
+  });
+  page.get("text").value = "Synthetic draft for A";
+  page.get("text").listeners.get("input")?.();
+  await page.get("record").onclick?.();
+  const saving = page.get("confirm").onclick?.();
+  state = {
+    ...initialState(),
+    participant: { id: "participant-2", name: "B", badge: "002" },
+  };
+  await page.refresh();
+  expect(page.get("text").value).toBe("");
+  expect(page.get("matching").checked).toBe(false);
+  expect(page.get("playback").hidden).toBe(true);
+  expect(page.get("transcribe").hidden).toBe(true);
+  expect(page.get("stop").hidden).toBe(true);
+  first.resolve(response({ ...requests[0], revision: 1 }));
+  await saving;
+  expect(page.get("text").value).toBe("");
+  page.get("text").value = "Synthetic draft for B";
+  await page.get("confirm").onclick?.();
+  expect(requests[1]).toMatchObject({
+    text: "Synthetic draft for B",
+    expectedRevision: 0,
+    source: "typed",
+  });
+  state = initialState();
+  await page.refresh();
+  expect(page.get("text").value).toBe("Synthetic draft for A");
+});
+
+it("does not restore legacy drafts without an owner", async () => {
+  const local = new Map([
+    [
+      "polymind:session-1:round-1",
+      JSON.stringify({ text: "Unowned synthetic draft" }),
+    ],
+  ]);
+  const page = await browser(
+    async () => response(initialState()),
+    undefined,
+    local,
+  );
+  expect(page.get("text").value).toBe("");
 });

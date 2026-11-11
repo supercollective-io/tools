@@ -217,7 +217,8 @@ for (const b of document.querySelectorAll("[data-voice]"))
         : undefined;
       await api("/api/operator/voice", {
         action,
-        roundId: state.rounds.at(-1).id,
+        roundId:
+          action === "start" ? state.rounds.at(-1)?.id : state.voice?.roundId,
         config,
       });
       await refresh();

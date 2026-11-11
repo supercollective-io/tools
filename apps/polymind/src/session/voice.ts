@@ -21,17 +21,18 @@ export class SessionVoice {
   private controls: Promise<unknown> = Promise.resolve();
   private saved = new Map<
     string,
-    { id: string; status: string; text: string }
+    { id: string; roundId: string; status: string; text: string }
   >();
   async load() {
     for (const row of this.store.db
-      .prepare("SELECT id,session FROM voice_runs ORDER BY rowid")
+      .prepare("SELECT id,session,round FROM voice_runs ORDER BY rowid")
       .all()) {
       const { state } = await readLiveRun(
         join(this.directory, `voice-${row.id}.jsonl`),
       );
       this.saved.set(row.session as string, {
         id: row.id as string,
+        roundId: row.round as string,
         status: state.status === "running" ? "paused" : state.status,
         text: state.composer.text.slice(0, state.publishedOffset),
       });
@@ -177,9 +178,10 @@ export class SessionVoice {
   state(session: string) {
     if (!this.active || this.active.session !== session)
       return this.saved.get(session);
-    const { id, log } = this.active;
+    const { id, round, log } = this.active;
     return {
       id,
+      roundId: round,
       status: log.state.status,
       text: log.state.composer.text.slice(0, log.state.publishedOffset),
     };
