@@ -10,3 +10,6 @@ data/
 __pycache__/
 *.tsbuildinfo
 .DS_Store
+.pnpm-store/
+test-results/
+playwright-report/

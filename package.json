@@ -1,0 +1,12 @@
+{
+  "name": "supercollective-tools",
+  "private": true,
+  "packageManager": "pnpm@12.16.1",
+  "scripts": {
+    "check": "pnpm --dir apps/polymind check",
+    "typecheck": "pnpm --dir apps/polymind typecheck",
+    "test": "pnpm --dir apps/polymind test",
+    "build": "pnpm --dir apps/polymind build",
+    "verify": "pnpm check && pnpm typecheck && pnpm test && pnpm build"
+  }
+}
