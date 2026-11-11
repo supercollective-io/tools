@@ -1,8 +1,8 @@
 {
   "sourceRepository": "conference-match",
-  "sourceHead": "9e052cf91bafc60b751bf0c9348122e78f88064f",
-  "version": "0.1.0+polymind.39888304f13d",
-  "sourceTreeHash": "39888304f13d4a82b52f448c854645efbdbfc139814abc40049ed45fd92da158",
+  "sourceHead": "fe3f00951e009ffa35fe9af721409df250bd5563",
+  "version": "0.1.0+polymind.d505c8452a3c",
+  "sourceTreeHash": "d505c8452a3c321487546983d89c46ce4cae980f03b214cad881fbc5757d5bcd",
   "files": {
     "src/conference_match/__init__.py": "03a85a3d5bb64e0342e38e1f0d220dcf3822635bf27647ec6bd1c5c02a4b8a0c",
     "src/conference_match/allocation.py": "8bf143a53cec011949b3d631a25788c318816e5f3d904eb6c1cdec330925989e",
@@ -27,7 +27,7 @@
     "src/conference_match/web/pilot/participant.js": "bd25f4c14fed7df74a60f6673cee4eafc755bfdd82117177edb979a89385418f",
     "src/conference_match/web/pilot/style.css": "94c9b26945cc4ea9709c7f746914f4d397a4778b15b69cdbe7cb38a66dbf1789",
     "src/conference_match/web/style.css": "c09a163fc904390734bee6f886abbadd63cf123287b237882b9e6ea3e7c4dac2",
-    "src/conference_match/worker.py": "d67171bffdec8976a242ea0ece6c3bcabf243011a665f33b14e6ee8a566a7ffc"
+    "src/conference_match/worker.py": "e5f6df67e02cb1c3d02d170b26fe151ba1ce3971e24ae0ab9ca5e1c0ad6db539"
   },
   "includedWorkingChanges": [
     "src/conference_match/cli.py",
@@ -49,8 +49,8 @@
     "caches",
     "development dependencies"
   ],
-  "wheel": "conference_match-0.1.0+polymind.39888304f13d-py3-none-any.whl",
-  "wheelSha256": "712b197bd50d78970db1d740c9cd1701b56b6a1d11dbf92045b3b4c46f44fcf0",
+  "wheel": "conference_match-0.1.0+polymind.d505c8452a3c-py3-none-any.whl",
+  "wheelSha256": "f90f1e6cdff539f8321f074844ffdabb1d28b5482bd86aded93b999494f2428c",
   "buildPython": "3.12.13",
   "buildUv": "0.11.28",
   "buildBackend": "uv_build==0.13.4"

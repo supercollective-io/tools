@@ -26,8 +26,8 @@ wheels = [
 
 [[package]]
 name = "conference-match"
-version = "0.1.0+polymind.39888304f13d"
-source = { path = "vendor/conference_match-0.1.0+polymind.39888304f13d-py3-none-any.whl" }
+version = "0.1.0+polymind.d505c8452a3c"
+source = { path = "vendor/conference_match-0.1.0+polymind.d505c8452a3c-py3-none-any.whl" }
 dependencies = [
     { name = "networkx" },
     { name = "pydantic" },
@@ -35,7 +35,7 @@ dependencies = [
     { name = "typesafe-sdk" },
 ]
 wheels = [
-    { filename = "conference_match-0.1.0+polymind.39888304f13d-py3-none-any.whl", hash = "sha256:712b197bd50d78970db1d740c9cd1701b56b6a1d11dbf92045b3b4c46f44fcf0" },
+    { filename = "conference_match-0.1.0+polymind.d505c8452a3c-py3-none-any.whl", hash = "sha256:f90f1e6cdff539f8321f074844ffdabb1d28b5482bd86aded93b999494f2428c" },
 ]
 
 [package.metadata]
@@ -130,7 +130,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "conference-match", path = "vendor/conference_match-0.1.0+polymind.39888304f13d-py3-none-any.whl" }]
+requires-dist = [{ name = "conference-match", path = "vendor/conference_match-0.1.0+polymind.d505c8452a3c-py3-none-any.whl" }]
 
 [[package]]
 name = "pydantic"

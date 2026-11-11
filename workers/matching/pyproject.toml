@@ -2,7 +2,7 @@
 name = "polymind-matching-worker"
 version = "0.1.0"
 requires-python = ">=3.12,<3.13"
-dependencies = ["conference-match==0.1.0+polymind.39888304f13d"]
+dependencies = ["conference-match==0.1.0+polymind.d505c8452a3c"]
 
 [tool.uv.sources]
-conference-match = { path = "vendor/conference_match-0.1.0+polymind.39888304f13d-py3-none-any.whl" }
+conference-match = { path = "vendor/conference_match-0.1.0+polymind.d505c8452a3c-py3-none-any.whl" }
