@@ -28,7 +28,11 @@ try {
   await page.goto(base);
   await expect(page.getByRole('heading', { name: 'Welcome to Rehearsing We' })).toBeVisible();
   await expect(page.getByText('Connected · invitations update here')).toBeVisible();
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      true, `Participant entrance must fit a ${width}px viewport without horizontal scrolling`);
+  }
   await page.screenshot({ path: join(output, 'mobile-welcome.png'), fullPage: true });
   const operator = await context.newPage();
   await operator.setViewportSize({ width: 1100, height: 900 });
