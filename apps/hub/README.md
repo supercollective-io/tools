@@ -2,6 +2,8 @@
 
 The independent participant entrance is intended for **https://we.supercollective.io**. It shows one current invitation, polls saved revisions every two seconds and opens participant activities as full pages in the same tab. Returning to the hub refreshes the invitation. The hub never navigates another app remotely.
 
+A ready digital activity shows its state, title and a “Join activity” link. Room instructions appear only when there is no activity to open (waiting, unavailable, in-person or closed states). The operator instruction field is hidden for ready digital activities; saved instructions remain available if the activity becomes unavailable. Connection information appears only on failure and clears after recovery. Default activity names apply to new programmes; existing saved names are not migrated.
+
 The public entrance has no registration or participant data. Identity and saved matches remain in the destination apps. Keep using the same browser; a QR scanner's separate browser can lose access to an existing app session. Physical phone and return-session testing is still required.
 
 ## Run and verify

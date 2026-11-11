@@ -2,7 +2,6 @@ const title = document.querySelector('#activity-title');
 const instruction = document.querySelector('#instruction');
 const phase = document.querySelector('#phase');
 const link = document.querySelector('#activity-link');
-const phonesDown = document.querySelector('#phones-down');
 const connection = document.querySelector('#connection');
 let revision;
 
@@ -15,22 +14,25 @@ async function refresh() {
     if (revision !== state.revision) {
       const current = state.current;
       title.textContent = current.label;
+      phase.hidden = current.kind === 'analogue';
       instruction.textContent = current.instruction;
-      phase.textContent = { activity: 'The current invitation', analogue: 'Phones down · eyes up',
-        waiting: 'Stay with the room', closed: 'For now, we close' }[current.kind];
+      phase.textContent = { activity: 'Current activity', analogue: 'In-person activity',
+        waiting: 'Waiting', closed: 'Finished' }[current.kind];
       const canOpen = current.kind === 'activity' && current.status === 'ready' && current.url;
       link.hidden = !canOpen;
-      if (canOpen) { link.href = current.url; link.textContent = `Open ${current.label} ↗`; }
+      instruction.hidden = Boolean(canOpen) || !current.instruction;
+      if (canOpen) { link.href = current.url; link.textContent = 'Join activity'; }
       else link.removeAttribute('href');
-      phonesDown.hidden = current.kind !== 'analogue' && current.kind !== 'closed';
       revision = state.revision;
     }
-    connection.textContent = 'Connected · invitations update here';
+    connection.textContent = '';
+    connection.parentElement.hidden = true;
     connection.dataset.state = 'connected';
   } catch {
     connection.textContent = revision ? 'Connection interrupted. Showing the last invitation; listen for the cue.'
       : 'Waiting for a connection. You can follow the spoken invitation.';
     connection.dataset.state = 'offline';
+    connection.parentElement.hidden = false;
   }
 }
 void refresh();

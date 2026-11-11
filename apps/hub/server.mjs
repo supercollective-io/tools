@@ -79,7 +79,7 @@ export function validateSelection(value, config) {
     const id = text(activity.id, 'activity ID', 80);
     if (!/^[a-z0-9-]+$/.test(id)) throw new HttpError(400, 'Activity IDs use lowercase letters, digits and hyphens');
     const label = text(activity.label, 'activity label', 100);
-    const instruction = text(activity.instruction, 'instruction');
+    const instruction = activity.instruction === '' ? '' : text(activity.instruction, 'instruction');
     if (!kinds.has(activity.kind) || !['ready', 'unavailable'].includes(activity.status)) {
       throw new HttpError(400, 'Invalid activity kind or status');
     }
@@ -100,18 +100,18 @@ export function validateSelection(value, config) {
 
 function seed() {
   return { activeId: 'arrival', activities: [
-    { id: 'arrival', label: 'Welcome to Rehearsing We', kind: 'waiting', status: 'ready',
-      instruction: 'You are in the right place. Keep this page open and listen for the invitation.' },
-    { id: 'polymind', label: 'Our temporary collective mind', kind: 'activity', status: 'unavailable',
-      instruction: 'We are preparing the next invitation. Please wait for the cue.' },
-    { id: 'analogue', label: 'Look up, meet the room', kind: 'analogue', status: 'ready',
-      instruction: 'Put your phone away for a moment. Listen to the invitation and make space for one another.' },
-    { id: 'puck', label: 'Move something together', kind: 'activity', status: 'unavailable',
-      instruction: 'We are preparing this experiment. Stay with the room.' },
-    { id: 'flight', label: 'Steer together', kind: 'activity', status: 'unavailable',
-      instruction: 'We are preparing this experiment. Stay with the room.' },
-    { id: 'closing', label: 'Take the rehearsal with you', kind: 'closed', status: 'ready',
-      instruction: 'The shared experiment has ended. Put your phone away and join the closing conversation.' },
+    { id: 'arrival', label: 'Waiting to begin', kind: 'waiting', status: 'ready',
+      instruction: '' },
+    { id: 'polymind', label: 'Polymind', kind: 'activity', status: 'unavailable',
+      instruction: 'Not available yet.' },
+    { id: 'analogue', label: 'In-person activity', kind: 'analogue', status: 'ready',
+      instruction: 'Put your phone away. Leave this page open — we’ll return to it.' },
+    { id: 'puck', label: 'Puck', kind: 'activity', status: 'unavailable',
+      instruction: 'Not available yet.' },
+    { id: 'flight', label: 'Flight', kind: 'activity', status: 'unavailable',
+      instruction: 'Not available yet.' },
+    { id: 'closing', label: 'Closing conversation', kind: 'closed', status: 'ready',
+      instruction: 'Put your phone away.' },
   ] };
 }
 

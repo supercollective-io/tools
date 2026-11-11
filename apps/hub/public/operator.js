@@ -18,7 +18,7 @@ function field(card, label, name, value, options) {
     const node = element('option', option); node.value = option; input.append(node);
   }
   input.value = value;
-  input.required = name !== 'url';
+  input.required = !['url', 'instruction'].includes(name);
   if (name === 'url') input.type = 'url';
   wrapper.append(input); card.append(wrapper);
   return input;
@@ -27,16 +27,22 @@ function addActivity(activity, selected = false) {
   const card = element('fieldset', '', 'activity-editor');
   card.dataset.id = activity.id;
   card.append(element('legend', activity.label));
-  const choice = element('label', 'Make this the current invitation', 'choice');
+  const choice = element('label', 'Make this the current activity', 'choice');
   const radio = element('input'); radio.type = 'radio'; radio.name = 'active'; radio.value = activity.id;
   radio.checked = selected; radio.required = true; choice.prepend(radio); card.append(choice);
   field(card, 'Activity name', 'label', activity.label);
-  const kind = field(card, 'Kind of invitation', 'kind', activity.kind,
+  const kind = field(card, 'Activity type', 'kind', activity.kind,
     ['activity', 'analogue', 'waiting', 'closed']);
   const status = field(card, 'Availability', 'status', activity.status, ['ready', 'unavailable']);
   field(card, 'Instruction for the room', 'instruction', activity.instruction);
   const url = field(card, 'Participant destination (HTTPS)', 'url', activity.url ?? '');
-  const refreshUrl = () => { url.disabled = kind.value !== 'activity' || status.value !== 'ready'; };
+  const instruction = card.querySelector('[name=instruction]');
+  const refreshUrl = () => {
+    const readyActivity = kind.value === 'activity' && status.value === 'ready';
+    url.disabled = !readyActivity;
+    instruction.disabled = readyActivity;
+    instruction.closest('label').hidden = readyActivity;
+  };
   kind.addEventListener('change', refreshUrl); status.addEventListener('change', refreshUrl); refreshUrl();
   list.append(card);
 }
@@ -66,7 +72,7 @@ form.addEventListener('submit', async event => {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error ?? 'The programme could not be saved.');
     revision = result.revision;
-    feedback.textContent = `Invitation saved · revision ${revision}. Give the room its spoken cue.`;
+    feedback.textContent = `Invitation saved · revision ${revision}.`;
   } catch (error) { feedback.textContent = error.message; }
   finally { button.disabled = false; }
 });
@@ -79,6 +85,6 @@ document.querySelector('#add').addEventListener('click', () => {
   serial += 1;
   const id = `invitation-${Date.now()}-${serial}`;
   addActivity({ id, label: 'New invitation', kind: 'waiting', status: 'ready',
-    instruction: 'Listen for the next invitation.' });
+    instruction: '' });
 });
 void load().catch(error => { feedback.textContent = error.message; });
