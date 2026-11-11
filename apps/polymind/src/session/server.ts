@@ -256,7 +256,7 @@ export async function startSessionServer(options: {
             model: options.transcriptionModel,
             maxSeconds: 60,
             retention:
-              "Audio is deleted after successful transcription; failed audio expires after 24 hours. Text is kept privately for this event until the organiser deletes the session. Confirmed text may be sent to the explicitly selected analysis or matching provider. Matching shares a short excerpt with your allocated partners.",
+              "Audio is deleted after successful transcription; failed audio expires after 24 hours. Text is kept privately for this event until the organiser deletes the session. In continuous rounds, saved text goes to the selected model while the voice is running and may inform the public voice, without confirmation. In bounded rounds, confirmed contributions are eligible for frozen processing and the organiser controls publication. Matching shares a short excerpt with your allocated partners.",
           },
         });
       }

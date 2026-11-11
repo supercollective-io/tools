@@ -359,13 +359,18 @@ async function refresh() {
       $("matching").disabled = !open;
       if (conflict)
         $("rebase").disabled = !next.round?.open || !next.session.open;
-      $("bounded").hidden = next.round?.mode === "continuous";
+      const continuous = next.round?.mode === "continuous";
+      $("bounded").hidden = continuous;
+      $("participation-notice").hidden = false;
+      $("participation-notice").textContent = continuous
+        ? "Live round: while the collective voice is running, your saved text goes to the selected model and may inform the public collective voice. There is no confirmation step."
+        : "Bounded round: confirmed contributions are eligible for frozen processing. The organiser controls publication. Matching also requires your opt-in.";
       $("audio-controls").hidden =
         !next.capture.enabled || !open || !window.MediaRecorder;
       $("retention").textContent =
         next.capture.retention +
         (next.capture.enabled
-          ? ` Recording uses ${next.capture.provider} (${next.capture.model}). Review and correct the transcript before confirming.`
+          ? ` Recording uses ${next.capture.provider} (${next.capture.model}). ${continuous ? "Review the transcript before using it as live text." : "Review and correct the transcript before confirming."}`
           : " Recording is not enabled; typed input is available.");
       matches(next.encounters);
       if (recovered && statusKind === "transient")
@@ -553,7 +558,11 @@ $("use-transcript").onclick = () => {
   retainDraft();
   void save(false);
   $("use-transcript").hidden = true;
-  status("Review and correct your draft, then confirm it.");
+  status(
+    state?.round?.mode === "continuous"
+      ? "Transcript added. Saved text goes to the selected model while the voice is running and may inform the public voice; there is no confirmation step."
+      : "Review and correct your draft, then confirm it.",
+  );
 };
 window.addEventListener("pagehide", () => {
   recordingGeneration++;

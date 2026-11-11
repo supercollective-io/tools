@@ -486,3 +486,38 @@ it("stops autosaving an opted-in draft after one acknowledgement and retains the
     "Confirmed and saved for this round.",
   );
 });
+
+it("shows live processing without confirmation for continuous rounds and explicit frozen publication rules for bounded rounds", async () => {
+  const bounded = initialState();
+  let state = { ...bounded, round: { ...bounded.round, mode: "continuous" } };
+  const page = await browser(async () => response(state));
+  expect(page.get("participation-notice").hidden).toBe(false);
+  expect(page.get("participation-notice").textContent).toContain(
+    "your saved text goes to the selected model",
+  );
+  expect(page.get("participation-notice").textContent).toContain(
+    "while the collective voice is running",
+  );
+  expect(page.get("participation-notice").textContent).toContain(
+    "public collective voice",
+  );
+  expect(page.get("participation-notice").textContent).toContain(
+    "There is no confirmation step",
+  );
+  expect(page.get("bounded").hidden).toBe(true);
+  expect(page.get("retention").textContent).not.toContain("before confirming");
+  state = bounded;
+  await page.refresh();
+  expect(page.get("participation-notice").hidden).toBe(false);
+  expect(page.get("participation-notice").textContent).toContain(
+    "confirmed contributions are eligible for frozen processing",
+  );
+  expect(page.get("participation-notice").textContent).toContain(
+    "The organiser controls publication",
+  );
+  expect(page.get("participation-notice").textContent).not.toContain(
+    "no confirmation step",
+  );
+  expect(page.get("bounded").hidden).toBe(false);
+  expect(page.get("retention").textContent).toContain("before confirming");
+});
