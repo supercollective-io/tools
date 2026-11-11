@@ -169,7 +169,7 @@ async function browser(
   runInNewContext(`(() => {${source}\n})()`, context);
   await vi.waitFor(() => {
     expect(get("capture").hidden).toBe(false);
-    expect(get("event").textContent).toBe("A gathering");
+    expect(get("prompt").textContent).toBe("What matters?");
   });
   return {
     get,
@@ -198,7 +198,7 @@ async function browser(
   };
 }
 
-it("queues Confirm behind an in-flight autosave and confirms the latest text", async () => {
+it("autosaves bounded contributions into matching and preserves the latest edit", async () => {
   const first = deferred<ReturnType<typeof response>>();
   const requests: Record<string, unknown>[] = [];
   let state = initialState();
@@ -226,40 +226,18 @@ it("queues Confirm behind an in-flight autosave and confirms the latest text", a
   page.get("text").listeners.get("input")?.();
   await page.runTimer(500);
   await vi.waitFor(() => expect(requests).toHaveLength(1));
-
-  page.get("text").value = "Latest confirmed text";
+  page.get("text").value = "Latest text";
   page.get("text").listeners.get("input")?.();
-  page.get("matching").checked = true;
-  await page.get("confirm").onclick?.();
-  expect(
-    JSON.parse(
-      page.local.get("polymind:session-1:participant-1:round-1") ?? "{}",
-    ).confirmQueued,
-  ).toBe(true);
-
-  const draft = requests[0];
-  first.resolve(
-    response({
-      ...draft,
-      revision: 1,
-      confirmed: false,
-      matching: false,
-      savedAt: "now",
-    }),
-  );
+  first.resolve(response({ ...requests[0], revision: 1, savedAt: "now" }));
   await page.runTimer(20);
   await vi.waitFor(() => expect(requests).toHaveLength(2));
   expect(requests[1]).toMatchObject({
     expectedRevision: 1,
-    text: "Latest confirmed text",
+    text: "Latest text",
     confirmed: true,
     matching: true,
   });
-  await vi.waitFor(() =>
-    expect(page.get("saved").textContent).toBe(
-      "Confirmed and saved for this round.",
-    ),
-  );
+  await vi.waitFor(() => expect(page.get("saved").textContent).toBe("Saved"));
   expect(page.local.has("polymind:session-1:participant-1:round-1")).toBe(
     false,
   );
@@ -272,13 +250,10 @@ it("queues Confirm behind an in-flight autosave and confirms the latest text", a
     undefined,
     page.local,
   );
-  expect(reloaded.get("text").value).toBe("Latest confirmed text");
-  expect(reloaded.get("saved").textContent).toBe(
-    "Confirmed and saved for this round.",
-  );
+  expect(reloaded.get("text").value).toBe("Latest text");
 });
 
-it("retries an uncertain pending draft before sending the queued confirmation", async () => {
+it("retries the same saved request after a connection error", async () => {
   const requests: Record<string, unknown>[] = [];
   let state = initialState();
   const page = await browser(async (url, options) => {
@@ -293,60 +268,40 @@ it("retries an uncertain pending draft before sending the queued confirmation", 
         ...payload,
         revision: 1,
         text: String(payload.text ?? ""),
-        confirmed: false,
-        matching: false,
+        confirmed: Boolean(payload.confirmed),
+        matching: Boolean(payload.matching),
       });
       throw new TypeError("Network disconnected after saving.");
     }
-    if (requests.length === 2)
-      return response({
-        ...payload,
-        revision: 1,
-        text: String(payload.text ?? ""),
-        confirmed: false,
-        matching: false,
-      });
     const saved = {
       ...payload,
-      revision: 2,
+      revision: 1,
       text: String(payload.text ?? ""),
-      confirmed: true,
-      matching: false,
+      confirmed: Boolean(payload.confirmed),
+      matching: Boolean(payload.matching),
     };
     state = initialState(saved);
     return response(saved);
   });
-
-  page.get("text").value = "A pending draft";
+  page.get("text").value = "A contribution";
   page.get("text").listeners.get("input")?.();
   await page.runTimer(500);
   await vi.waitFor(() =>
     expect(page.get("status").textContent).toContain("Reconnecting"),
   );
-  await page.get("confirm").onclick?.();
+  await page.refresh();
   await vi.waitFor(() => expect(requests).toHaveLength(2));
   expect(requests[1]).toEqual(requests[0]);
-  await page.runTimer(20);
-  await vi.waitFor(() => expect(requests).toHaveLength(3));
-  expect(requests[2]).toMatchObject({
-    expectedRevision: 1,
-    text: "A pending draft",
-    confirmed: true,
-  });
-  await vi.waitFor(() =>
-    expect(page.get("saved").textContent).toBe(
-      "Confirmed and saved for this round.",
-    ),
-  );
+  await vi.waitFor(() => expect(page.get("saved").textContent).toBe("Saved"));
 });
 
-it("shows the competing revision and requires an explicit rebase without losing local text", async () => {
+it("shows a competing contribution and lets the participant keep either version", async () => {
   const requests: Record<string, unknown>[] = [];
   const remote = {
     revision: 2,
-    text: "The other browser's latest text",
-    confirmed: false,
-    matching: false,
+    text: "The other window's latest text",
+    confirmed: true,
+    matching: true,
   };
   const page = await browser(
     async (url, options) => {
@@ -356,49 +311,33 @@ it("shows the competing revision and requires an explicit rebase without losing 
         unknown
       >;
       requests.push(payload);
-      if (requests.length === 1)
-        return response(
-          { error: "This contribution changed in another window." },
-          409,
-        );
-      const saved = {
-        ...payload,
-        revision: 3,
-        confirmed: false,
-        matching: false,
-      };
-      return response(saved);
+      return response(
+        { error: "This contribution changed in another window." },
+        409,
+      );
     },
     {
-      text: "My local draft",
+      text: "My local text",
       pending: {
         requestId: "old-request",
         roundId: "round-1",
         expectedRevision: 1,
-        text: "My local draft",
-        confirmed: false,
-        matching: false,
+        text: "My local text",
+        confirmed: true,
+        matching: true,
         source: "typed",
       },
     },
   );
-
-  await page.get("confirm").onclick?.();
-  expect(page.get("conflict").hidden).toBe(false);
+  await page.runTimer(20);
+  await vi.waitFor(() => expect(page.get("conflict").hidden).toBe(false));
   expect(page.get("conflict-text").textContent).toContain(remote.text);
-  expect(page.get("text").value).toBe("My local draft");
-  expect(page.get("rebase").disabled).toBe(false);
+  expect(page.get("text").value).toBe("My local text");
   expect(requests).toHaveLength(1);
-
-  await page.get("rebase").onclick?.();
-  expect(requests).toHaveLength(2);
-  expect(requests[1]).toMatchObject({
-    expectedRevision: 2,
-    text: "My local draft",
-    confirmed: false,
-    matching: false,
-  });
-  expect(page.get("saved").textContent).toBe("Draft saved.");
+  page.get("keep-saved").onclick?.();
+  expect(page.get("text").value).toBe(remote.text);
+  expect(page.get("conflict").hidden).toBe(true);
+  expect(page.get("saved").textContent).toBe("Saved");
 });
 
 it("binds transcript polling and upload to the captured recording job", async () => {
@@ -407,7 +346,7 @@ it("binds transcript polling and upload to the captured recording job", async ()
   expect(source).toContain("const job = {\n    id: recordingId");
   expect(source).toContain("await api(`/api/recordings/" + "$" + "{job.id}`)");
   expect(source).toContain(
-    'if (!isCurrentRecording(job)) return;\n    $("record-status").textContent = item.state;',
+    'if (!isCurrentRecording(job)) return;\n    $("record-status").textContent =\n      item.state === "succeeded" ? "Transcript ready." : item.state;',
   );
   expect(source).toContain(
     "if (isCurrentRecording(job)) await pollRecording(job);",
@@ -432,102 +371,79 @@ it("clears only transient reconnect status after a successful refresh", async ()
 
   page.get("help-reason").value = "A question";
   await page.get("help").onclick?.();
-  expect(page.get("status").textContent).toBe(
-    "The organiser has your request. Released matches stay unchanged.",
-  );
+  expect(page.get("status").textContent).toBe("Request sent to the organiser.");
   await page.refresh();
-  expect(page.get("status").textContent).toBe(
-    "The organiser has your request. Released matches stay unchanged.",
-  );
+  expect(page.get("status").textContent).toBe("Request sent to the organiser.");
 });
 
-it("stops autosaving an opted-in draft after one acknowledgement and retains the next confirmation choice", async () => {
-  let state = initialState({
-    revision: 1,
-    text: "Confirmed thought",
-    confirmed: true,
-    matching: true,
-  });
+it("saves bounded text to matching and removes both choices from the page", async () => {
+  let state = initialState();
   const requests: Record<string, unknown>[] = [];
   const page = await browser(async (url, options) => {
     if (url.startsWith("/api/state")) return response(state);
     const payload = JSON.parse(String(options?.body));
     requests.push(payload);
-    const saved = {
-      ...payload,
-      id: `saved-${requests.length}`,
-      revision: payload.expectedRevision + 1,
-    };
+    const saved = { ...payload, revision: payload.expectedRevision + 1 };
     state = initialState(saved);
     return response(saved);
   });
-  page.get("text").value = "Edited thought";
+  expect(page.get("confirm").disabled).toBe(false);
+  page.get("text").value = "Included automatically";
   page.get("text").listeners.get("input")?.();
   await page.runTimer(500);
-  await vi.waitFor(() =>
-    expect(page.get("saved").textContent).toBe("Draft saved."),
-  );
+  await vi.waitFor(() => expect(page.get("saved").textContent).toBe("Saved"));
   expect(requests).toHaveLength(1);
   expect(requests[0]).toMatchObject({
-    text: "Edited thought",
-    confirmed: false,
-    matching: false,
-    expectedRevision: 1,
-  });
-  expect(page.scheduledDelays()).not.toContain(20);
-  expect(page.get("matching").checked).toBe(true);
-  expect(
-    JSON.parse(
-      page.local.get("polymind:session-1:participant-1:round-1") ?? "null",
-    ),
-  ).toMatchObject({ text: "Edited thought", matching: true });
-  await page.get("confirm").onclick?.();
-  expect(requests).toHaveLength(2);
-  expect(requests[1]).toMatchObject({
-    text: "Edited thought",
+    text: "Included automatically",
     confirmed: true,
     matching: true,
-    expectedRevision: 2,
   });
-  expect(page.scheduledDelays()).not.toContain(20);
-  expect(page.get("saved").textContent).toBe(
-    "Confirmed and saved for this round.",
-  );
 });
 
-it("shows live processing without confirmation for continuous rounds and explicit frozen publication rules for bounded rounds", async () => {
+it("sends continuous text to the voice without bounded confirmation", async () => {
   const bounded = initialState();
   let state = { ...bounded, round: { ...bounded.round, mode: "continuous" } };
-  const page = await browser(async () => response(state));
+  const requests: Record<string, unknown>[] = [];
+  const page = await browser(async (url, options) => {
+    if (url.startsWith("/api/state")) return response(state);
+    const payload = JSON.parse(String(options?.body));
+    requests.push(payload);
+    return response({ ...payload, revision: 1 });
+  });
   expect(page.get("participation-notice").hidden).toBe(false);
   expect(page.get("participation-notice").textContent).toContain(
-    "your saved text goes to the selected model",
+    "saved text goes to the selected model",
   );
-  expect(page.get("participation-notice").textContent).toContain(
-    "while the collective voice is running",
-  );
-  expect(page.get("participation-notice").textContent).toContain(
-    "public collective voice",
-  );
-  expect(page.get("participation-notice").textContent).toContain(
-    "There is no confirmation step",
-  );
-  expect(page.get("bounded").hidden).toBe(true);
-  expect(page.get("retention").textContent).not.toContain("before confirming");
+  page.get("text").value = "Voice input";
+  page.get("text").listeners.get("input")?.();
+  await page.runTimer(500);
+  await vi.waitFor(() => expect(requests).toHaveLength(1));
+  expect(requests[0]).toMatchObject({
+    text: "Voice input",
+    confirmed: false,
+    matching: false,
+  });
   state = bounded;
   await page.refresh();
-  expect(page.get("participation-notice").hidden).toBe(false);
-  expect(page.get("participation-notice").textContent).toContain(
-    "confirmed contributions are eligible for frozen processing",
-  );
-  expect(page.get("participation-notice").textContent).toContain(
-    "The organiser controls publication",
-  );
-  expect(page.get("participation-notice").textContent).not.toContain(
-    "no confirmation step",
-  );
-  expect(page.get("bounded").hidden).toBe(false);
-  expect(page.get("retention").textContent).toContain("before confirming");
+  expect(page.get("participation-notice").hidden).toBe(true);
+});
+
+it("does not include an empty bounded contribution", async () => {
+  const requests: Record<string, unknown>[] = [];
+  const page = await browser(async (url, options) => {
+    if (url.startsWith("/api/state")) return response(initialState());
+    requests.push(JSON.parse(String(options?.body)));
+    return response({ revision: 1 });
+  });
+  page.get("text").value = "   ";
+  page.get("text").listeners.get("input")?.();
+  await page.runTimer(500);
+  await vi.waitFor(() => expect(requests).toHaveLength(1));
+  expect(requests[0]).toMatchObject({
+    text: "   ",
+    confirmed: false,
+    matching: false,
+  });
 });
 
 it("isolates retained drafts and discards late saves and recordings when identity changes", async () => {
@@ -544,14 +460,14 @@ it("isolates retained drafts and discards late saves and recordings when identit
   page.get("text").value = "Synthetic draft for A";
   page.get("text").listeners.get("input")?.();
   await page.get("record").onclick?.();
-  const saving = page.get("confirm").onclick?.();
+  await page.runTimer(500);
+  const saving = Promise.resolve();
   state = {
     ...initialState(),
     participant: { id: "participant-2", name: "B", badge: "002" },
   };
   await page.refresh();
   expect(page.get("text").value).toBe("");
-  expect(page.get("matching").checked).toBe(false);
   expect(page.get("playback").hidden).toBe(true);
   expect(page.get("transcribe").hidden).toBe(true);
   expect(page.get("stop").hidden).toBe(true);
@@ -559,7 +475,8 @@ it("isolates retained drafts and discards late saves and recordings when identit
   await saving;
   expect(page.get("text").value).toBe("");
   page.get("text").value = "Synthetic draft for B";
-  await page.get("confirm").onclick?.();
+  page.get("text").listeners.get("input")?.();
+  await page.runTimer(500);
   expect(requests[1]).toMatchObject({
     text: "Synthetic draft for B",
     expectedRevision: 0,
@@ -583,4 +500,22 @@ it("does not restore legacy drafts without an owner", async () => {
     local,
   );
   expect(page.get("text").value).toBe("");
+});
+
+it("only offers partner-specific assistance after an encounter is released", async () => {
+  let state = { ...initialState(), encounters: [] as object[] };
+  const page = await browser(async () => response(state));
+  expect(page.get("help-absent").hidden).toBe(true);
+  expect(page.get("help-decline").disabled).toBe(true);
+  expect(page.get("matches-title").hidden).toBe(true);
+  state = {
+    ...state,
+    encounters: [
+      { partners: [], location: "Zone A", invitation: "Discuss the question." },
+    ],
+  };
+  await page.refresh();
+  expect(page.get("help-absent").hidden).toBe(false);
+  expect(page.get("help-decline").disabled).toBe(false);
+  expect(page.get("matches-title").hidden).toBe(false);
 });

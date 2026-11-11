@@ -51,6 +51,26 @@ const app = await startSessionServer({
     };
   },
 });
+async function captureReview(page, name) {
+  await mkdir("test-results/copy-review", { recursive: true });
+  const recovery = page.locator("#recovery");
+  const original = (await recovery.count())
+    ? await recovery.textContent()
+    : null;
+  if (original)
+    await recovery.evaluate((el) => {
+      el.textContent =
+        "Private recovery code — use this to recover your place in another browser: [example code]";
+    });
+  await page.screenshot({
+    path: resolve(`test-results/copy-review/${name}.png`),
+    fullPage: true,
+  });
+  if (original)
+    await recovery.evaluate((el, text) => {
+      el.textContent = text;
+    }, original);
+}
 let browser;
 try {
   browser = await chromium.launch({ headless: true });
@@ -67,6 +87,7 @@ try {
   for (const page of [operator, participant])
     page.on("pageerror", (e) => errors.push(e.message));
   await operator.goto(`${origin}/operator`);
+  await captureReview(operator, "operator-sign-in");
   await operator.getByLabel("Operator access token").fill(token);
   await operator.getByRole("button", { name: "Sign in", exact: true }).click();
   await operator
@@ -79,21 +100,25 @@ try {
   await expect(operator.locator("#round-status")).toContainText("collecting");
   const destination = await operator.locator("#join-link").getAttribute("href");
   await participant.goto(`${origin}${destination}`);
-  await participant
-    .getByLabel("What should your partner call you?")
-    .fill("Robin");
-  await participant
-    .getByRole("button", { name: "Join this gathering" })
-    .click();
+  await captureReview(participant, "participant-join");
+  await participant.getByLabel("Your name").fill("Robin");
+  await participant.getByRole("button", { name: "Join session" }).click();
   await expect(participant.locator("#badge")).toHaveText("001");
+  await captureReview(participant, "participant-write");
   await participant
     .getByLabel("Your contribution", { exact: true })
     .fill("We need an accessible place to gather and make things together.");
-  await participant.getByLabel("Include me in this round’s matching").check();
-  await participant
-    .getByRole("button", { name: "Confirm my contribution" })
-    .click();
-  await expect(participant.locator("#saved")).toContainText("Confirmed");
+  await expect(participant.locator("#saved")).toHaveText("Saved");
+  const included = await (
+    await mobile.request.get(
+      `${origin}/api/state${new URL(`${origin}${destination}`).search}`,
+    )
+  ).json();
+  if (!included.contribution.confirmed || !included.contribution.matching)
+    throw new Error("Saved writing must be included in the round and matching");
+  await expect(participant.locator("#confirm")).toHaveCount(0);
+  await expect(participant.locator("#matching")).toHaveCount(0);
+  await captureReview(participant, "participant-confirmed");
   await participant.reload();
   await expect(participant.locator("#badge")).toHaveText("001");
   await expect(
@@ -103,10 +128,12 @@ try {
   );
   await operator
     .getByRole("button", {
-      name: "Close round and freeze confirmed contributions",
+      name: "Close round and freeze contributions",
     })
     .click();
-  await expect(operator.locator("#snapshot-info")).toContainText("1 confirmed");
+  await expect(operator.locator("#snapshot-info")).toContainText(
+    "1 contributions",
+  );
   await operator
     .getByLabel("Text model", { exact: true })
     .fill("synthetic-fake-provider");
@@ -123,34 +150,36 @@ try {
   await expect(projection.locator("#idea")).not.toContainText(
     "A place we can reach",
   );
+  await expect(projection.locator("#idea")).toHaveText("");
+  await expect(projection.locator("header, h1, nav, button")).toHaveCount(0);
+  await captureReview(projection, "projection-empty");
   await operator.getByRole("button", { name: "Reveal on projection" }).click();
   await expect(projection.locator("#idea")).toContainText(
     "A place we can reach",
   );
+  await expect(operator.locator("#status")).toHaveText("");
+  await captureReview(projection, "projection-published");
+  await captureReview(operator, "operator-review");
   // Identity changes in the same browser must never inherit another person's draft.
   await operator
     .getByRole("button", { name: "Open round", exact: true })
     .click();
   await expect(participant.locator("#text")).toBeEnabled();
+  await expect(participant.locator("#text")).toHaveValue("");
   const sessionQuery = new URL(`${origin}${destination}`).search;
   await participant.route("**/api/contribution?*", (route) => route.abort());
   await participant.locator("#text").fill("Synthetic private draft for Robin");
-  await participant.locator("#confirm").click();
   await expect(participant.locator("#saved")).toContainText("Not yet saved");
+  await captureReview(participant, "participant-unsaved");
   await mobile.clearCookies();
   await participant.reload();
-  await participant
-    .getByLabel("What should your partner call you?")
-    .fill("Casey");
-  await participant
-    .getByRole("button", { name: "Join this gathering" })
-    .click();
+  await participant.getByLabel("Your name").fill("Casey");
+  await participant.getByRole("button", { name: "Join session" }).click();
   await expect(participant.locator("#badge")).toHaveText("002");
   await expect(participant.locator("#text")).toHaveValue("");
   await participant.unroute("**/api/contribution?*");
   await participant.locator("#text").fill("Synthetic contribution for Casey");
-  await participant.locator("#confirm").click();
-  await expect(participant.locator("#saved")).toContainText("Confirmed");
+  await expect(participant.locator("#saved")).toHaveText("Saved");
   const casey = await (
     await mobile.request.get(`${origin}/api/state${sessionQuery}`)
   ).json();
@@ -170,7 +199,6 @@ try {
   });
   await participant.route("**/api/contribution?*", (route) => route.abort());
   await participant.locator("#text").fill("Synthetic private draft for Morgan");
-  await participant.locator("#confirm").click();
   await expect(participant.locator("#saved")).toContainText("Not yet saved");
   const recovered = await mobile.request.post(
     `${origin}/api/recover${sessionQuery}`,
@@ -223,19 +251,38 @@ try {
     .getByRole("button", { name: "End voice", exact: true })
     .click();
   await expect(operator.locator("#voice-status")).toHaveText("ended");
+  await expect(participant.locator("#bounded")).toBeHidden();
+  await captureReview(participant, "participant-live");
+  await expect(operator.locator("#status")).toHaveText("");
+  await captureReview(operator, "operator-live");
   await mkdir("test-results", { recursive: true });
   for (const [page, name] of [
     [participant, "participant"],
     [operator, "operator"],
     [projection, "projection"],
-  ])
+  ]) {
     await page.screenshot({
       path: resolve(`test-results/session-${name}.png`),
       fullPage: true,
     });
+    for (const width of [320, 390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      if (
+        !(await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ))
+      ) {
+        throw new Error(`${name} overflows at ${width}px`);
+      }
+      await page.screenshot({
+        path: resolve(`test-results/session-${name}-${width}.png`),
+        fullPage: true,
+      });
+    }
+  }
   if (errors.length) throw new Error(errors.join("\n"));
   console.log(
-    "Browser flow passed: operator sign-in → join → autosave/confirm → return → freeze → review/reveal → identity isolation → voice controls across rounds. Screenshots in test-results/.",
+    "Browser flow passed: operator sign-in → join → autosave/include → return → freeze → review/reveal → identity isolation → voice controls across rounds. Screenshots in test-results/.",
   );
 } finally {
   await browser?.close();

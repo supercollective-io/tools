@@ -1,7 +1,8 @@
 const $ = (id) => document.getElementById(id);
 let session,
   state,
-  loading = false;
+  loading = false,
+  statusScope;
 function status(message, error = false) {
   $("status").textContent = message;
   $("status").dataset.error = String(error);
@@ -95,7 +96,7 @@ $("create-session").onsubmit = async (event) => {
     );
     session = next.id;
     await sessions();
-    status("Session created. Open a round when ready.");
+    status("Session created.");
   } catch (e) {
     status(e.message, true);
   }
@@ -142,7 +143,7 @@ $("close-session").onclick = async () => {
 function describeSnapshot() {
   const snap = state?.snapshots.find((s) => s.id === $("snapshot").value);
   $("snapshot-info").textContent = snap
-    ? `${snap.contributions.length} confirmed contributions · ${snap.eligible.length} opted into matching`
+    ? `${snap.contributions.length} contributions · ${snap.eligible.length} included in matching`
     : "Close a round to freeze input.";
   const count = snap?.eligible.length ?? 0;
   $("matching-cost").textContent =
@@ -348,6 +349,17 @@ async function refresh() {
   loading = true;
   try {
     state = await api("/api/operator/state");
+    const roundScope = state.rounds.at(-1);
+    const scope = JSON.stringify([
+      session,
+      roundScope?.id,
+      roundScope?.open,
+      state.voice?.status,
+      state.operations.map((op) => [op.id, op.state, op.published]),
+    ]);
+    if (scope !== statusScope && $("status").dataset.error !== "true")
+      status("");
+    statusScope = scope;
     $("join-link").href = `/?session=${session}`;
     $("projection-link").href = `/projection?session=${session}`;
     $("counts").textContent =

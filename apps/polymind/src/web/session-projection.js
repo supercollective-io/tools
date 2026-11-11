@@ -4,28 +4,21 @@ let slides = [],
   signature = "";
 function render() {
   const slide = slides[index];
-  document.getElementById("category").textContent =
-    slide?.category ?? "Rehearsing We";
-  document.getElementById("idea").textContent =
-    slide?.text ?? "Listening for what we could change together.";
-  document.getElementById("legend").textContent = slide
-    ? `${index + 1} / ${slides.length} · ${slide.category === "Collective Microphone" ? "Developing collective voice" : "An interpretation of the contributions, open to disagreement"}`
-    : "";
+  document.getElementById("idea").textContent = slide?.text ?? "";
 }
-document.getElementById("next").onclick = () => {
-  index = (index + 1) % Math.max(1, slides.length);
+document.addEventListener("keydown", (event) => {
+  if (!["ArrowRight", "ArrowLeft"].includes(event.key)) return;
+  event.preventDefault();
+  index =
+    (index + (event.key === "ArrowRight" ? 1 : -1) + slides.length) %
+    Math.max(1, slides.length);
   render();
-};
-document.getElementById("previous").onclick = () => {
-  index = (index - 1 + slides.length) % Math.max(1, slides.length);
-  render();
-};
+});
 async function refresh() {
   try {
     const response = await fetch(`/api/projection?session=${session}`);
     if (!response.ok) return;
     const state = await response.json();
-    document.getElementById("title").textContent = state.title;
     const next = [];
     for (const op of state.results) {
       if (op.kind === "voice") {
@@ -41,11 +34,13 @@ async function refresh() {
               text: finding.text,
             });
     }
-    if (state.voice?.text)
+    if (state.voice?.text) {
+      next.length = 0;
       next.push({
         category: "Collective Microphone",
         text: state.voice.text.slice(-500),
       });
+    }
     const key = state.results.map((op) => op.id).join(":");
     if (signature !== key) {
       index = Math.max(0, next.length - 1);
@@ -55,8 +50,7 @@ async function refresh() {
     index = Math.min(index, Math.max(0, slides.length - 1));
     render();
   } catch {
-    document.getElementById("legend").textContent =
-      "Connection interrupted · holding the last published view";
+    // Hold the last published words during a connection interruption.
   }
 }
 void refresh();

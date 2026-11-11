@@ -1,6 +1,6 @@
 # Polymind
 
-Polymind provides event sessions, confirmed contributions, bounded analysis,
+Polymind provides event sessions, autosaved contributions, bounded analysis,
 matching, audio capture and continuous collective voice. Start with the root
 [operator workflow](../../README.md#run). This guide covers Collective Microphone,
 its voice workspace, CLI modes and artistic research.

@@ -3,7 +3,6 @@ const session = new URL(location.href).searchParams.get("session");
 let state,
   pending,
   saving = false,
-  confirmQueued = false,
   conflict,
   reconnecting = false,
   statusKind = "routine",
@@ -50,22 +49,19 @@ function retainDraft() {
       JSON.stringify({
         text: $("text").value,
         pending,
-        confirmQueued,
-        matching: $("matching").checked,
       }),
     );
 }
-function makeRevision(
-  confirmed,
-  expectedRevision = state.contribution?.revision ?? 0,
-) {
+function makeRevision(expectedRevision = state.contribution?.revision ?? 0) {
   return {
     requestId: crypto.randomUUID(),
     roundId,
     expectedRevision,
     text: $("text").value,
-    confirmed,
-    matching: confirmed && $("matching").checked,
+    confirmed:
+      state.round.mode !== "continuous" && Boolean($("text").value.trim()),
+    matching:
+      state.round.mode !== "continuous" && Boolean($("text").value.trim()),
     source: sourceRecording ? "transcript" : "typed",
     ...(sourceRecording ? { recordingId: sourceRecording } : {}),
   };
@@ -73,8 +69,8 @@ function makeRevision(
 function updateConflict(latest) {
   conflict = latest;
   $("conflict-text").textContent = latest
-    ? `Revision ${latest.revision}:\n${latest.text || "(No text was saved.)"}`
-    : "The latest saved version could not be loaded. Read it before rebasing.";
+    ? latest.text || "(No text was saved.)"
+    : "Could not load the saved version. Refresh it before replacing it.";
   $("rebase").disabled =
     !latest || !state?.round?.open || !state?.session?.open;
 }
@@ -90,7 +86,7 @@ async function readConflict() {
     if (latestState.round?.id !== roundId) {
       updateConflict(undefined);
       status(
-        "The round changed. Your local draft is still in this browser.",
+        "The round changed. Your unsaved text is still in this browser.",
         true,
       );
       return;
@@ -100,9 +96,8 @@ async function readConflict() {
       latestState.contribution ?? { revision: 0, text: "", confirmed: false },
     );
     $("conflict").hidden = false;
-    $("confirm").disabled = true;
     status(
-      "Read the latest saved version, then choose whether to rebase your local draft.",
+      "This contribution was edited in another window. Choose which text to keep.",
       false,
     );
   } catch (error) {
@@ -112,7 +107,7 @@ async function readConflict() {
     status(`Could not read the latest saved version: ${error.message}`, true);
   }
 }
-async function save(confirmed = false) {
+async function save() {
   if (
     !participantId ||
     state?.participant?.id !== participantId ||
@@ -121,12 +116,10 @@ async function save(confirmed = false) {
     !state.session.open
   )
     return;
-  if (confirmed) confirmQueued = true;
-  if (confirmed) retainDraft();
   if (conflict) {
     retainDraft();
     status(
-      "Read the latest saved version and rebase before saving this draft.",
+      "This contribution was edited in another window. Choose which text to keep.",
       true,
     );
     return;
@@ -136,7 +129,7 @@ async function save(confirmed = false) {
   const sentRound = roundId;
   const generation = editorGeneration;
   try {
-    pending ??= makeRevision(confirmQueued);
+    pending ??= makeRevision();
     const sent = pending;
     retainDraft();
     $("saved").textContent = "Saving…";
@@ -149,35 +142,19 @@ async function save(confirmed = false) {
       return;
     state.contribution = saved;
     pending = undefined;
-    const latestText = $("text").value;
-    const latestMatching = $("matching").checked;
+    const latest = makeRevision();
     const changed =
-      latestText !== saved.text ||
-      (saved.confirmed && latestMatching !== saved.matching);
-    const needsConfirmedFollowup =
-      confirmQueued &&
-      (!saved.confirmed ||
-        changed ||
-        (sourceRecording && saved.recordingId !== sourceRecording));
-    if (confirmQueued && !needsConfirmedFollowup) confirmQueued = false;
-    if (needsConfirmedFollowup || changed) {
+      latest.text !== saved.text ||
+      latest.confirmed !== saved.confirmed ||
+      latest.matching !== saved.matching ||
+      latest.recordingId !== saved.recordingId;
+    if (changed) {
       retainDraft();
-      debounce = setTimeout(
-        () => void save(needsConfirmedFollowup && confirmQueued),
-        20,
-      );
+      debounce = setTimeout(() => void save(), 20);
     } else {
-      if (!saved.confirmed && latestMatching) retainDraft();
-      else localStorage.removeItem(draftKey(roundId));
-      $("saved").textContent = saved.confirmed
-        ? "Confirmed and saved for this round."
-        : "Draft saved.";
+      localStorage.removeItem(draftKey(roundId));
+      $("saved").textContent = "Saved";
     }
-    if (changed && !needsConfirmedFollowup)
-      status(
-        "Your latest edit is saved as a draft. Confirm again when ready.",
-        false,
-      );
   } catch (error) {
     if (generation !== editorGeneration) return;
     if (
@@ -186,46 +163,53 @@ async function save(confirmed = false) {
         error.message,
       )
     ) {
-      confirmQueued = false;
       $("conflict").hidden = false;
       updateConflict(undefined);
       retainDraft();
       status(
-        "Another saved revision exists. Read it before choosing to rebase your local draft.",
+        "This contribution was edited in another window. Choose which text to keep.",
         true,
       );
       await readConflict();
     } else if (error.status === undefined) {
       reconnecting = true;
       status(
-        `${error.message} Your words remain in this browser. Reconnecting…`,
+        "Connection lost. Your words remain in this browser. Reconnecting…",
         true,
         "transient",
       );
     } else status(`${error.message} Your words remain in this browser.`, true);
-    $("saved").textContent =
-      "Not yet saved — retrying on your next edit or confirmation.";
+    $("saved").textContent = conflict
+      ? "Not saved — choose which text to keep."
+      : "Not yet saved — retrying…";
   } finally {
     if (generation === editorGeneration) saving = false;
   }
 }
 $("text").addEventListener("input", () => {
   editVersion++;
-  if (confirmQueued) confirmQueued = false;
   retainDraft();
   $("saved").textContent = "Unsaved changes";
   clearTimeout(debounce);
   const version = editVersion;
   debounce = setTimeout(() => {
-    if (version === editVersion) void save(false);
+    if (version === editVersion) void save();
   }, 500);
 });
-$("confirm").onclick = async () => {
-  editVersion++;
-  clearTimeout(debounce);
-  await save(true);
-};
 $("read-conflict").onclick = () => void readConflict();
+$("keep-saved").onclick = () => {
+  if (!conflict) return;
+  state.contribution = conflict;
+  $("text").value = conflict.text;
+  sourceRecording = conflict.recordingId;
+  pending = undefined;
+  conflict = undefined;
+  clearTimeout(debounce);
+  localStorage.removeItem(draftKey(roundId));
+  $("conflict").hidden = true;
+  $("saved").textContent = "Saved";
+  status("", false, "routine");
+};
 $("rebase").onclick = async () => {
   if (!conflict || $("rebase").disabled) return;
   const localText = $("text").value;
@@ -233,26 +217,17 @@ $("rebase").onclick = async () => {
   const priorSource = pending?.source === "transcript" ? pending : undefined;
   state.contribution = latest;
   pending = {
-    ...makeRevision(false, latest.revision),
+    ...makeRevision(latest.revision),
     text: localText,
-    matching: false,
     ...(priorSource?.recordingId
       ? { source: "transcript", recordingId: priorSource.recordingId }
       : {}),
   };
-  confirmQueued = false;
   conflict = undefined;
-  $("matching").checked = false;
   $("conflict").hidden = true;
-  $("confirm").disabled = false;
   retainDraft();
-  await save(false);
-};
-$("matching").onchange = () => {
-  editVersion++;
-  if (confirmQueued) confirmQueued = false;
-  retainDraft();
-  $("saved").textContent = "Confirm again to save your matching choice.";
+  status("", false, "routine");
+  await save();
 };
 $("join").onsubmit = async (event) => {
   event.preventDefault();
@@ -266,7 +241,7 @@ $("join").onsubmit = async (event) => {
     if (result.recovery) {
       $("recovery").hidden = false;
       $("recovery").textContent =
-        `Keep this private code if you need to return on another browser: ${result.recovery}`;
+        `Private recovery code — use this to recover your place in another browser: ${result.recovery}`;
     }
     await refresh();
   } catch (e) {
@@ -284,10 +259,14 @@ $("recover-form").onsubmit = async (event) => {
     status(e.message, true);
   }
 };
+$("help-reason").onchange = () => {
+  $("help").disabled = !$("help-reason").value;
+};
 $("help").onclick = async () => {
+  if (!$("help-reason").value) return;
   try {
     await api("/api/help", { reason: $("help-reason").value });
-    status("The organiser has your request. Released matches stay unchanged.");
+    status("Request sent to the organiser.");
   } catch (e) {
     status(e.message, true);
   }
@@ -315,7 +294,6 @@ function resetEditor() {
   clearTimeout(debounce);
   saving = false;
   pending = undefined;
-  confirmQueued = false;
   conflict = undefined;
   recordingGeneration++;
   if (recorder?.state === "recording") recorder.stop();
@@ -326,7 +304,6 @@ function resetEditor() {
   recordingId = recordingRound = transcript = transcriptRecordingId = undefined;
   sourceRecording = undefined;
   $("text").value = "";
-  $("matching").checked = false;
   $("conflict").hidden = true;
   $("conflict-text").textContent = "";
   $("saved").textContent = "";
@@ -368,10 +345,9 @@ async function refresh() {
     const recovered = reconnecting;
     reconnecting = false;
     state = next;
-    $("event").textContent = next.session.title;
     $("hub").href = next.hubUrl;
     $("prompt").textContent =
-      next.round?.prompt ?? "Welcome. The next invitation is on its way.";
+      next.round?.prompt ?? "Waiting for the next question.";
     $("join").hidden = !!next.participant || !next.session.open;
     $("recover").hidden = !!next.participant;
     $("capture").hidden = !next.participant || !next.round;
@@ -388,58 +364,63 @@ async function refresh() {
         }
         $("text").value = draft?.text ?? next.contribution?.text ?? "";
         pending = draft?.pending;
-        confirmQueued = Boolean(draft?.confirmQueued);
         sourceRecording =
           draft?.pending?.source === "transcript"
             ? draft.pending.recordingId
-            : undefined;
-        $("matching").checked =
-          draft?.matching ??
-          draft?.pending?.matching ??
-          next.contribution?.matching ??
-          false;
+            : next.contribution?.recordingId;
         $("saved").textContent = draft
-          ? "Recovered a local draft. Save or confirm to send it."
-          : next.contribution?.confirmed
-            ? "Confirmed and saved for this round."
-            : next.contribution
-              ? "Draft saved."
-              : "";
+          ? "Restoring unsaved changes…"
+          : next.contribution
+            ? "Saved"
+            : "";
+        if (draft && next.round.open && next.session.open)
+          debounce = setTimeout(() => void save(), 20);
       }
       const open = next.session.open && next.round?.open;
       $("text").disabled = !open;
-      $("confirm").disabled = !open || Boolean(conflict);
-      $("matching").disabled = !open;
       if (conflict)
         $("rebase").disabled = !next.round?.open || !next.session.open;
       const continuous = next.round?.mode === "continuous";
-      $("bounded").hidden = continuous;
-      $("participation-notice").hidden = false;
+      $("participation-notice").hidden = !continuous;
       $("participation-notice").textContent = continuous
-        ? "Live round: while the collective voice is running, your saved text goes to the selected model and may inform the public collective voice. There is no confirmation step."
-        : "Bounded round: confirmed contributions are eligible for frozen processing. The organiser controls publication. Matching also requires your opt-in.";
+        ? "While the voice runs, saved text goes to the selected model and may inform the public voice. "
+        : "";
       $("audio-controls").hidden =
         !next.capture.enabled || !open || !window.MediaRecorder;
       $("retention").textContent =
         next.capture.retention +
         (next.capture.enabled
-          ? ` Recording uses ${next.capture.provider} (${next.capture.model}). ${continuous ? "Review the transcript before using it as live text." : "Review and correct the transcript before confirming."}`
-          : " Recording is not enabled; typed input is available.");
+          ? ` Recording uses ${next.capture.provider} (${next.capture.model}). Check the transcript before adding it to your contribution.`
+          : "");
+      const hasEncounter = next.encounters.length > 0;
+      $("matches-title").hidden = !hasEncounter;
+      for (const id of ["help-absent", "help-decline"]) {
+        $(id).hidden = !hasEncounter;
+        $(id).disabled = !hasEncounter;
+      }
+      if (
+        !hasEncounter &&
+        ["absent", "decline"].includes($("help-reason").value)
+      ) {
+        $("help-reason").value = "";
+      }
+      $("help").disabled = !$("help-reason").value;
       matches(next.encounters);
+      if (pending && !conflict && open) void save();
       if (recovered && statusKind === "transient")
         status("Connection restored.", false, "routine");
       else if (statusKind === "routine")
         status(
           open
-            ? "You are part of this gathering."
-            : "Collection has closed. Your identity and encounters remain available.",
+            ? ""
+            : "Contributions are closed. Your matches remain available.",
           false,
           "routine",
         );
     } else
       status(
         next.session.open
-          ? "Join with the name you want others to use."
+          ? ""
           : "Joining has closed. You can still recover an existing place.",
         false,
         recovered && statusKind === "transient" ? "routine" : statusKind,
@@ -547,7 +528,8 @@ async function pollRecording(job) {
   try {
     const item = await api(`/api/recordings/${job.id}`);
     if (!isCurrentRecording(job)) return;
-    $("record-status").textContent = item.state;
+    $("record-status").textContent =
+      item.state === "succeeded" ? "Transcript ready." : item.state;
     if (item.state === "succeeded") {
       transcript = item.transcript;
       transcriptRecordingId = job.id;
@@ -610,13 +592,9 @@ $("use-transcript").onclick = () => {
   $("text").value = transcript;
   sourceRecording = transcriptRecordingId;
   retainDraft();
-  void save(false);
+  void save();
   $("use-transcript").hidden = true;
-  status(
-    state?.round?.mode === "continuous"
-      ? "Transcript added. Saved text goes to the selected model while the voice is running and may inform the public voice; there is no confirmation step."
-      : "Review and correct your draft, then confirm it.",
-  );
+  status("Transcript added to your contribution.");
 };
 window.addEventListener("pagehide", () => {
   recordingGeneration++;
