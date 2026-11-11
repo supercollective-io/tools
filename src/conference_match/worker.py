@@ -63,6 +63,7 @@ class Config(Record):
     timeoutSeconds: float = Field(default=360, gt=0, le=3600)
     maxAttempts: int = Field(default=3, ge=1, le=10)
     maxCalls: int | None = Field(default=None, ge=0)
+    forbiddenPairs: list[tuple[str, str]] = Field(default_factory=list)
 
 
 class Request(Record):
@@ -83,6 +84,17 @@ class Request(Record):
             raise ValueError("Output directory must be absolute")
         if len(ids) % 2 and self.config.oddPolicy == "reject":
             raise ValueError("Odd roster requires an explicit trio policy")
+        forbidden = {tuple(sorted(pair)) for pair in self.config.forbiddenPairs}
+        if len(forbidden) != len(self.config.forbiddenPairs):
+            raise ValueError("Forbidden pairs must be unique")
+        if forbidden:
+            # Feasibility is independent of scores. Refuse impossible constraints before spending.
+            allocate_edges(
+                ids,
+                [Edge(a=a, b=b, weight=0) for a, b in combinations(ids, 2)],
+                odd_policy=self.config.oddPolicy,
+                forbidden_edges=tuple(self.config.forbiddenPairs),
+            )
         if self.mode == "similarity":
             vectors = [p.embedding for p in self.roster]
             if any(v is None or not v or math.hypot(*v) == 0 for v in vectors):
@@ -319,6 +331,7 @@ def run_job(
                 [p.participantId for p in request.roster],
                 edges,
                 odd_policy=request.config.oddPolicy,
+                forbidden_edges=tuple(request.config.forbiddenPairs),
             )
             people = {p.participantId: p for p in request.roster}
             result = {

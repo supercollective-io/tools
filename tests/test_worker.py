@@ -152,3 +152,22 @@ def test_cli_outputs_json_and_atomic_result(tmp_path):
     assert all(json.loads(line)["jobId"] == "job-1" for line in completed.stdout.splitlines())
     assert json.loads((Path(request.outputDir) / "state.json").read_text())["status"] == "succeeded"
     assert not list(Path(request.outputDir).glob(".match-*.tmp"))
+
+
+def test_previous_pairs_are_excluded_and_impossible_constraints_fail_before_scoring(tmp_path):
+    request = request_for(tmp_path / "first")
+    first = run_job(request, emit=lambda _: None)
+    previous = [group["participantIds"] for group in first["groups"]]
+    second = request_for(tmp_path / "second", forbiddenPairs=previous)
+    output = run_job(second, emit=lambda _: None)
+    assert all(group["participantIds"] not in previous for group in output["groups"])
+    with pytest.raises(ValueError, match="cover"):
+        request_for(
+            tmp_path / "impossible",
+            mode="collaboration",
+            maxCalls=6,
+            forbiddenPairs=[["0", "1"], ["0", "2"], ["0", "3"]],
+        )
+    for forbidden in ([["0", "0"]], [["0", "absent"]], [["0", "1"], ["1", "0"]]):
+        with pytest.raises(ValueError):
+            request_for(tmp_path / "invalid", forbiddenPairs=forbidden)
