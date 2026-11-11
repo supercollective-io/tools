@@ -279,3 +279,126 @@ it("hands the exact snapshot to the packaged Python worker and validates the ret
   expect(request.roster[0]).not.toHaveProperty("name");
   expect(request.roster[0]).not.toHaveProperty("credential");
 }, 15000);
+
+it("passes released encounters through to Match as forbidden pairs", async () => {
+  const { app, session, round, directory } = await setup();
+  const people = Array.from(
+    { length: 4 },
+    (_, i) => app.store.join(session.id, `Person ${i}`).participant,
+  );
+  for (const person of people)
+    app.store.revise(session.id, person.id, {
+      roundId: round.id,
+      requestId: randomUUID(),
+      expectedRevision: 0,
+      text: "Synthetic contribution",
+      confirmed: true,
+      matching: true,
+      source: "typed",
+    });
+
+  const config = {
+    model: {
+      provider: "openai" as const,
+      model: "fake",
+      maxOutputTokens: 1000,
+      timeoutMs: 10000,
+    },
+    promptVersion: "bounded-v1" as const,
+    maxInputCharacters: 10000,
+    mode: "similarity" as const,
+    embeddingModel: "synthetic-vectors",
+    maxCalls: 1,
+    oddPolicy: "trio" as const,
+  };
+  const firstSnapshot = app.store.freeze(round.id);
+  const first = app.store.enqueue(firstSnapshot.id, "matching", config);
+  const priorGroups = [people.slice(0, 2), people.slice(2)];
+  const firstResult = {
+    schemaVersion: 1,
+    jobId: first.id,
+    snapshot: { id: firstSnapshot.id, hash: first.snapshotHash },
+    mode: "similarity",
+    groups: priorGroups.map((group, i) => ({
+      id: String(i),
+      participantIds: group.map((person) => person.id),
+      reviewRequired: false,
+      sourceRefs: Object.fromEntries(
+        firstSnapshot.contributions
+          .filter((contribution) =>
+            group.some((person) => person.id === contribution.participantId),
+          )
+          .map((contribution) => [
+            contribution.participantId,
+            [contribution.id],
+          ]),
+      ),
+    })),
+  };
+  validateResult(first, firstSnapshot, firstResult);
+  app.store.saveOperation({
+    ...first,
+    state: "succeeded",
+    result: firstResult,
+  });
+  app.store.release(first.id, ["Table A", "Table B"], true);
+
+  const nextRound = app.store.createRound(
+    session.id,
+    "Next question",
+    "bounded",
+  );
+  for (const person of people)
+    app.store.revise(session.id, person.id, {
+      roundId: nextRound.id,
+      requestId: randomUUID(),
+      expectedRevision: 0,
+      text: "Another synthetic contribution",
+      confirmed: true,
+      matching: true,
+      source: "typed",
+    });
+  const nextSnapshot = app.store.freeze(nextRound.id);
+  const next = app.store.enqueue(nextSnapshot.id, "matching", {
+    ...config,
+    avoidPrevious: true,
+  });
+  vi.stubGlobal("fetch", async () => ({
+    ok: true,
+    json: async () => ({
+      data: [0, 1, 2, 3].map((index) => ({
+        index,
+        embedding: [1, index + 1],
+      })),
+    }),
+  }));
+  const allocated = await modelExecutor(directory)(
+    next,
+    nextSnapshot,
+    new AbortController().signal,
+    () => {},
+  );
+  const request = JSON.parse(
+    await readFile(
+      join(directory, "matching", next.id, "request.json"),
+      "utf8",
+    ),
+  );
+  const previousPairs = priorGroups.map((group) =>
+    group.map((person) => person.id).sort(),
+  );
+  expect(
+    request.config.forbiddenPairs.map((pair: string[]) => pair.sort()),
+  ).toEqual(previousPairs);
+  expect(() => validateResult(next, nextSnapshot, allocated)).not.toThrow();
+  expect(
+    (allocated as { groups: { participantIds: string[] }[] }).groups.every(
+      (group) =>
+        !previousPairs.some(
+          ([a, b]) =>
+            group.participantIds.includes(a!) &&
+            group.participantIds.includes(b!),
+        ),
+    ),
+  ).toBe(true);
+}, 15000);

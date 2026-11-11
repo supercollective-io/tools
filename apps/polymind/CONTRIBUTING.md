@@ -2,16 +2,17 @@
 
 ## Set up and verify
 
-Follow [repository setup](README.md#set-up). `mise.toml` pins the runtime and
+Follow [repository setup](../../README.md#run). `mise.toml` pins the runtime and
 package manager; `package.json` supplies commands; `pnpm-workspace.yaml` supplies
 dependency-build policy. Use the committed `pnpm-lock.yaml` for installations.
 Git hooks are optional for an ephemeral agent checkout; CI runs independently.
 
-Run commands from the repository root:
+Run the commands in this table from `apps/polymind`. For the complete
+monorepo gate, run `mise exec -- just verify` from the repository root:
 
 | Purpose                                  | Command                                                  |
 | ---------------------------------------- | -------------------------------------------------------- |
-| Same checks as CI                        | `mise exec -- pnpm run verify`                           |
+| Package verification                     | `mise exec -- pnpm run verify`                           |
 | Biome checks without rewriting           | `mise exec -- pnpm run check`                            |
 | Type checking                            | `mise exec -- pnpm run typecheck`                        |
 | One test file                            | `mise exec -- pnpm test tests/live.test.ts`              |
@@ -19,7 +20,7 @@ Run commands from the repository root:
 | Build TypeScript and copy browser assets | `mise exec -- pnpm run build`                            |
 | Compiled CLI smoke check                 | `mise exec -- node dist/cli.js --help`                   |
 
-`verify` is the canonical CI sequence. `fmt` rewrites formatting across the
+Root `just verify` is the canonical local gate; CI additionally checks the container and browser. Package `verify` covers Polymind only. `fmt` rewrites formatting across the
 repository; prefer `mise exec -- pnpm exec biome format --write <files>` when
 only changed files need formatting. Biome and TypeScript configuration define
 the mechanical code conventions. Source imports use `.ts` extensions; the
@@ -45,21 +46,25 @@ The application is one Node process, with plain browser assets and versioned
 JSONL storage. It has no Svelte application. Typed participation also uses SQLite for durable
 contribution revisions and the admission queue.
 
-| Task                                          | Source entry points                                                                           | Test entry points                                                                                  |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Launcher, model setup and shutdown            | `src/start.ts`, `src/local-models.ts`                                                         | `tests/start.test.ts`                                                                              |
-| Session selection and browser controls        | `src/workspace.ts`, `src/live-server.ts`, `src/web/`                                          | `tests/workspace.test.ts`, `tests/live-server.test.ts`                                             |
-| Current scheduling, prompts and continuations | `src/live.ts`, `src/live-schema.ts`                                                           | `tests/live.test.ts`, `tests/modes.test.ts`                                                        |
-| Live event contracts and state reconstruction | `src/live-runs.ts`                                                                            | `tests/live-runs.test.ts`                                                                          |
-| Journal locking, ordered writes and recovery  | `src/journal.ts`                                                                              | `tests/journal.test.ts` and affected mode's run tests                                              |
-| Model adapters and native prefill             | `src/models.ts`                                                                               | `src/models.test.ts`, `tests/native-prefill.test.ts`                                               |
-| Focused offline run outcomes                  | `src/inspect.ts`, `src/cli.ts`                                                                | `tests/inspect.test.ts`                                                                            |
-| Composer experiments and request evidence     | `src/composer-experiment.ts`, `src/composer-audit.ts`, `src/live-cli.ts`                      | `tests/composer-experiment.test.ts`, `tests/composer-audit.test.ts`                                |
-| Rapid static prompt screening                 | `src/collective-screen.ts`, `scripts/collective-screen.ts`, `scripts/prepare-human-screen.ts` | `tests/collective-screen.test.ts`, `tests/human-screen.test.ts`, `tests/experiment-budget.test.ts` |
-| Contribution corpus preparation and pilot     | `src/contribution-corpus.ts`, `src/contribution-cli.ts`                                       | `tests/contribution-corpus.test.ts`                                                                |
-| Scripted Stage 1 and percentage slicing       | `src/controller.ts`, `src/composition.ts`, `src/runs.ts`                                      | `tests/core.test.ts`, `tests/slices.test.ts`, `tests/cli.test.ts`                                  |
-| Round-based Stage 2A                          | `src/simulation.ts`, `src/simulation-runs.ts`                                                 | `tests/simulation.test.ts`, `tests/simulation-cli.test.ts`                                         |
-| Historical bounded-turn compatibility         | `src/continuous.ts`, `src/continuous-runs.ts`                                                 | `tests/continuous.test.ts`, `tests/continuous-cli.test.ts`                                         |
+| Task                                             | Source entry points                                                                           | Test entry points                                                                                  |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Event sessions, frozen revisions and publication | `src/session/store.ts`, `src/session/contracts.ts`, `src/session/server.ts`                   | `tests/session.test.ts`, `tests/session-http.test.ts`                                              |
+| Matching worker supervision and retries          | `src/session/jobs.ts`, [Match worker contract](../../packages/match/docs/worker.md)           | `tests/session.test.ts`, [Python contracts](../../packages/match/tests/test_contract.py)           |
+| Session browser and recording                    | `src/web/`, `src/session/recordings.ts`                                                       | `tests/session-browser.test.ts`, `tests/session-recordings.test.ts`; root `just test-browser`      |
+| Session continuous voice and legacy import       | `src/session/voice.ts`, `src/session/legacy.ts`                                               | `tests/session-voice.test.ts`, `tests/session-legacy.test.ts`                                      |
+| Launcher, model setup and shutdown               | `src/start.ts`, `src/local-models.ts`                                                         | `tests/start.test.ts`                                                                              |
+| Session selection and browser controls           | `src/workspace.ts`, `src/live-server.ts`, `src/web/`                                          | `tests/workspace.test.ts`, `tests/live-server.test.ts`                                             |
+| Current scheduling, prompts and continuations    | `src/live.ts`, `src/live-schema.ts`                                                           | `tests/live.test.ts`, `tests/modes.test.ts`                                                        |
+| Live event contracts and state reconstruction    | `src/live-runs.ts`                                                                            | `tests/live-runs.test.ts`                                                                          |
+| Journal locking, ordered writes and recovery     | `src/journal.ts`                                                                              | `tests/journal.test.ts` and affected mode's run tests                                              |
+| Model adapters and native prefill                | `src/models.ts`                                                                               | `src/models.test.ts`, `tests/native-prefill.test.ts`                                               |
+| Focused offline run outcomes                     | `src/inspect.ts`, `src/cli.ts`                                                                | `tests/inspect.test.ts`                                                                            |
+| Composer experiments and request evidence        | `src/composer-experiment.ts`, `src/composer-audit.ts`, `src/live-cli.ts`                      | `tests/composer-experiment.test.ts`, `tests/composer-audit.test.ts`                                |
+| Rapid static prompt screening                    | `src/collective-screen.ts`, `scripts/collective-screen.ts`, `scripts/prepare-human-screen.ts` | `tests/collective-screen.test.ts`, `tests/human-screen.test.ts`, `tests/experiment-budget.test.ts` |
+| Contribution corpus preparation and pilot        | `src/contribution-corpus.ts`, `src/contribution-cli.ts`                                       | `tests/contribution-corpus.test.ts`                                                                |
+| Scripted Stage 1 and percentage slicing          | `src/controller.ts`, `src/composition.ts`, `src/runs.ts`                                      | `tests/core.test.ts`, `tests/slices.test.ts`, `tests/cli.test.ts`                                  |
+| Round-based Stage 2A                             | `src/simulation.ts`, `src/simulation-runs.ts`                                                 | `tests/simulation.test.ts`, `tests/simulation-cli.test.ts`                                         |
+| Historical bounded-turn compatibility            | `src/continuous.ts`, `src/continuous-runs.ts`                                                 | `tests/continuous.test.ts`, `tests/continuous-cli.test.ts`                                         |
 
 `src/cli.ts` dispatches to mode-specific CLI modules. New
 `simulate-continuous` runs use `live-*`; the similarly named `continuous-*`

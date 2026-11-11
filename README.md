@@ -2,6 +2,8 @@
 
 Tools for collective understanding, coordination and action. **Polymind** combines event-scoped contributions, bounded analysis, matching and **Collective Microphone**, its continuous collective-voice mode.
 
+For agent task routes and focused checks, start with [AGENTS.md](AGENTS.md).
+
 ## Run
 
 Install the versions in `mise.toml`, then:
