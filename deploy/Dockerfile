@@ -13,8 +13,10 @@ FROM python:3.12.13-slim-bookworm@sha256:4766d8b510c428e595d74b9cc5bbb2fae8e2631
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=uv /uv /usr/local/bin/uv
 WORKDIR /app
+COPY packages/match/pyproject.toml packages/match/pyproject.toml
+COPY packages/match/src packages/match/src
 COPY workers/matching workers/matching
-RUN uv sync --project workers/matching --frozen --no-dev --no-cache --python /usr/local/bin/python3
+RUN uv sync --project workers/matching --frozen --no-dev --no-editable --no-cache --python /usr/local/bin/python3
 # Keep Node's extra shared library with the same pinned source image.
 COPY --from=node /usr/lib/*-linux-gnu/libatomic.so.1.* /usr/local/lib/
 RUN ldconfig && node --version && python --version && uv --version

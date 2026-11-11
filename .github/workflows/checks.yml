@@ -10,5 +10,7 @@ jobs:
       - uses: jdx/mise-action@v2
       - run: mise exec -- just setup
       - run: mise exec -- just verify
+      - run: mise exec -- just build-container
+      - run: mise exec -- just test-matching-container
       - run: mise exec -- pnpm --dir apps/polymind exec playwright install --with-deps chromium
       - run: mise exec -- just test-browser

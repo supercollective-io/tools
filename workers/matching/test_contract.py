@@ -1,6 +1,5 @@
-"""Consumer checks against the installed immutable wheel; no provider calls."""
+"""Consumer checks against the installed Match package; no provider calls."""
 
-import hashlib
 import json
 import subprocess
 import sys
@@ -18,12 +17,6 @@ class WorkerContract(unittest.TestCase):
         self.assertEqual(
             json.loads((ROOT / "request.schema.json").read_text()),
             Request.model_json_schema(),
-        )
-
-    def test_wheel_matches_recorded_digest(self):
-        digest, name = (ROOT / "vendor/SHA256SUMS").read_text().split()
-        self.assertEqual(
-            hashlib.sha256((ROOT / "vendor" / name).read_bytes()).hexdigest(), digest
         )
 
     def test_process_result_and_idempotent_restart(self):
