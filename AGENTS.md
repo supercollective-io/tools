@@ -6,6 +6,6 @@ Polymind's modules are in `apps/polymind/src/session`; continuous voice and lega
 
 Keep credentials, raw provider failures and participant content out of public responses, logs, fixtures and commits. Frozen contribution revisions never change retrospectively. Results require explicit publication; matching returns only the requesting participant's released encounter. Names and badges never authenticate anyone.
 
-One server process owns the event database and continuous journals. Preserve interrupted-operation recovery, retry idempotence and source references. Matching uses the pinned wheel in `workers/matching/vendor`; never depend on a sibling checkout in production. Update its provenance and lock together.
+One server process owns the event database and continuous journals. Preserve interrupted-operation recovery, retry idempotence and source references. Match's authoritative Python source is in `packages/match`; `workers/matching` installs it as a local package. Never depend on a sibling checkout in production. Root verification includes Match's lint, types, tests, package build and worker contracts; dependency changes require both Python locks to be checked.
 
 Stage inspected paths. Preserve unrelated source changes and private records. Keep migration, dependencies and capabilities in separate lower-case Conventional Commits. Never claim synthetic tests prove human usefulness or venue readiness.

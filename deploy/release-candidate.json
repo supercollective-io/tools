@@ -71,15 +71,16 @@
   },
   "localCandidates": {
     "polymind": {
-      "sourceRevision": "5a60fdc2948c477f8cd685f338655fe9b8b8c71e",
-      "imageId": "sha256:8e33846ffe6460ae0cb4c07e5f24166247908d33b660b53c6149cea426a850c2",
+      "sourceRevision": "aeaf427cb7c5f953cbd27fb47fec52bd1db9307a",
+      "imageId": "sha256:c78e89d48138a322c9fe985818ed6e9dcf05ea49200b947c7416e336901e38be",
       "platform": "linux/arm64",
-      "evidence": "docs/verification/polymind-container.json"
+      "evidence": "docs/verification/match-monorepo.json"
     },
     "matching": {
-      "sourceRevision": "fe3f00951e009ffa35fe9af721409df250bd5563",
-      "wheel": "conference_match-0.1.0+polymind.d505c8452a3c-py3-none-any.whl",
-      "sha256": "f90f1e6cdff539f8321f074844ffdabb1d28b5482bd86aded93b999494f2428c"
+      "sourceRevision": "aeaf427cb7c5f953cbd27fb47fec52bd1db9307a",
+      "package": "packages/match",
+      "imageId": "sha256:c78e89d48138a322c9fe985818ed6e9dcf05ea49200b947c7416e336901e38be",
+      "evidence": "docs/verification/match-monorepo.json"
     },
     "puck": {
       "sourceRevision": "229fab174665ffd8010df474adefef11effac855",

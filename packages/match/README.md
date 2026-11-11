@@ -1,11 +1,12 @@
 # Match
 
 A lean organiser CLI for testing whether whole-text contributions and needs produce useful pairs.
-Python 3.12+, managed with uv. Includes local operator review and participant matching interfaces; no hosted service or database.
+Python 3.12+, managed with uv inside Supercollective Tools. Includes local operator review and participant matching interfaces; no hosted service or database.
+
+This is the authoritative Match source. From the monorepo root, run `mise exec -- just setup`, `mise exec -- just verify`, or `mise exec -- just match --help`. The examples below run from `packages/match` after root setup. Private `runs/`, `data/` and credentials from the former checkout were not moved; supply an explicit private workspace path when resuming existing work.
 
 ```sh
-uv sync
-uv run pre-commit install
+# Run mise exec -- just setup from the monorepo root first.
 # Set JEV_API_KEY in .env (never commit it).
 uv run match assess examples/event.json --a 1cv563y --b 1jgjvjt --output runs/pair.json
 ```
@@ -32,10 +33,10 @@ not current availability. See `docs/data.md` for provenance and evaluation.
 Unedited captures and generated runs stay local under ignored `data/` and `runs/`.
 
 ```sh
-uv run ruff check .
-uv run ruff format --check .
-uv run pyright
-uv run pytest
+uv run --frozen ruff check .
+uv run --frozen ruff format --check .
+uv run --frozen pyright
+uv run --frozen pytest
 ```
 
 Tests use fake scorers; CI does not need secrets or private data. Model-quality

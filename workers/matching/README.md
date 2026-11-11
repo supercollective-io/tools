@@ -1,6 +1,8 @@
 # Matching worker
 
-This worker installs the reviewed Match wheel in `vendor/`, rather than reading a sibling checkout. Python 3.12.13 and uv 0.11.28 are the deployment pins. From this directory, run `uv sync --frozen --no-dev`; then launch `uv run --frozen --no-dev python -m conference_match.worker /absolute/path/request.json`. Pass the request path as a process argument with `shell: false`.
+This worker installs Match from `../../packages/match` in this repository. Local development uses an editable install, so source edits need no package hand-off. The container installs that same source non-editably at build time. Python 3.12.13 and uv 0.11.28 are the deployment pins. Run `mise exec -- just setup` at the repository root; then, from this directory, launch `uv run --frozen --no-dev python -m conference_match.worker /absolute/path/request.json`. Pass the request path as a process argument with `shell: false`.
+
+`mise exec -- just verify` includes Match's own checks and build plus these consumer contract tests. CI also builds the production container and runs the contracts inside it without network access. When dependency declarations change, run `mise exec -- just lock-matching` and inspect both locks; source edits require no version bump or lock update. Runtime dependency versions remain locked independently from Match's development tools.
 
 `request.schema.json` defines schema version 1. `example.request.json` uses synthetic, supplied embeddings and makes no provider calls. Generate a fresh private output directory for each immutable job. Snapshot hashes are caller references; the worker additionally hashes the complete authorised texts, roster, source references, mode, configuration and collaboration rubric. Changed inputs require a new job directory. Names, contact details and credentials are absent from requests.
 

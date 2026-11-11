@@ -2,7 +2,7 @@
 
 Prepared on Wednesday 11 November 2026 for Rehearsing We at ZKM on Saturday 14 November 2026. Scheduling uses Europe/Berlin time. Status: implementation is in progress. See [verified work and remaining gates](docs/implementation-status.md); unchecked human and deployment gates are not completed by code alone.
 
-Build Polymind in `supercollective-io/tools`, starting from the current Collective Microphone implementation. Separate participant sessions and contributions from operations that consume them. Reuse Match as a Python package, borrow selected interactions from the earlier Supermind/Polymind prototype, and keep Puck and Flight by Committee independent. Build the performance hub in `rehearsing-we/hub`.
+Build Polymind in `supercollective-io/tools`, starting from the current Collective Microphone implementation. Separate participant sessions and contributions from operations that consume them. Maintain Match as a Python package in this monorepo, borrow selected interactions from the earlier Supermind/Polymind prototype, and keep Puck and Flight by Committee independent. Build the performance hub in `rehearsing-we/hub`.
 
 This is the canonical plan in `tools/IMPLEMENTATION_PLAN.md`. The original `rehearsing-we/TOOLS_IMPLEMENTATION_PLAN.md` now links here.
 
@@ -64,7 +64,7 @@ As inspected, `/Users/jo/Documents/dev/tools` is an empty directory without loca
 | Repository | Responsibility |
 |---|---|
 | `supercollective-io/tools` | Polymind; reusable session, contribution, voice and analysis modules; matching adapter; deployment and verification |
-| Existing `match` | Python `conference_match` package; scoring/allocation and tests; standalone interface remains usable |
+| `tools/packages/match` | Authoritative Python `conference_match` package; scoring/allocation, research and tests; standalone interface remains usable |
 | Existing `supermind` | Reference interactions and selected algorithms; no second expanded Polymind to develop in parallel |
 | `rehearsing-we` | Hub, running order, prompts, floor plan, equipment and show runbook |
 | Existing `puck` | Decision engine, participant app, recordings and deployment |
@@ -83,7 +83,8 @@ The old Collective Microphone checkout becomes a retained reference after succes
 | `packages/contributions/` | Authored revisions and immutable snapshots |
 | `packages/collective-voice/` | Existing composer behind an explicit interface |
 | `packages/analysis/` | Bounded analysis with source-linked results |
-| `workers/matching/` | Python entry point depending on a pinned Match package |
+| `packages/match/` | Match source and complete imported history; standalone CLI, research and tests |
+| `workers/matching/` | Python worker environment depending on the in-repository Match package |
 | `deploy/` | Container build, health, deployment and rollback instructions |
 | `docs/adr/` | Short architectural decisions |
 | `docs/migration/` | Source manifests and cutover evidence without private data |
@@ -155,7 +156,7 @@ Proposed plan commit: `docs(plan): record toolkit and performance implementation
 
 Start with the inspected microphone pins: Node `26.13.0`, pnpm `12.16.1`. Choose and pin exact compatible Python (at least 3.12), uv and just versions after checking availability; do not invent pins or upgrade unrelated dependencies during import. Puck's pnpm pin is currently `12.18.0` and remains its own repository's concern.
 
-Preserve dependency-build allowlists. Retain the imported lockfile initially; migrate to the root workspace lockfile in a separate reviewed commit and compare resolved dependencies. Remove contradictory nested runtime pins only when root commands work. Match must be a pinned immutable revision or wheel/checksum, not a sibling absolute path or floating branch. Capture/release its required uncommitted work before creating that pin.
+Preserve dependency-build allowlists. Retain the imported lockfile initially; migrate to the root workspace lockfile in a separate reviewed commit and compare resolved dependencies. Remove contradictory nested runtime pins only when root commands work. Match is imported with full ancestry into `packages/match` after committing its required working changes. The worker uses that in-repository source and locked dependencies; no sibling absolute path, floating branch or vendored wheel is needed. See [migration evidence](docs/migration/match.md).
 
 ### Recipes to implement
 
@@ -297,7 +298,7 @@ For each phase record branch, commits, checks, observed outcome, remaining limit
 
 ### Phase 6 — Reuse Match through a background worker
 
-**Depends on:** 4; can proceed alongside 5. **Repos:** `match`, then `tools`.
+**Depends on:** 4; can proceed alongside 5. **Repo:** `tools`; Match source lives in `packages/match`.
 
 1. Preserve/release the needed current Match working state using the migration precautions. Retain its standalone CLI and pilot interface.
 2. Establish a package boundary between scoring and allocation. The current allocator is coupled to three metric names and complete pair assessments; it is not already generic.
@@ -312,10 +313,10 @@ For each phase record branch, commits, checks, observed outcome, remaining limit
 8. Define a worker request carrying schema version, job ID, snapshot reference/hash, eligible roster, full authorised texts, mode/configuration and output location. Do not send credentials or unnecessary names/contact details to providers.
 9. Worker returns structured progress/result/error data using atomic file output or a local API. Launch with structured process arguments, never a constructed shell string from participant content. Logs and machine-readable output must be separate.
 10. Persist job ownership, retries, timeouts and interruption state. Reuse saved successful assessments for the same frozen run. Do not rerun paid work simply because the page refreshed.
-11. Pin the reviewed Match package in the worker's lockfile. Package it into the deployment; do not depend on `/Users/jo/Documents/dev/match` at runtime.
+11. Install the in-repository Match package through the worker's lockfile. Build it into the deployment; do not depend on a sibling checkout at runtime.
 12. Add a Polymind adapter mapping stable participant IDs, snapshot source references and result IDs. Matching requires no separate participant registration and no running composer.
 
-**Commits in `match`:**
+**Matching capability commits (originally in `match`, now preserved in `packages/match`):**
 
 - `refactor(allocation): separate edge allocation from collaboration metrics`
 - `feat(allocation): handle odd rosters with an explicit trio policy`
@@ -614,7 +615,7 @@ Do not build these merely to fulfil an abstract toolkit architecture. Use observ
 1. Review what participants actually experienced: recognition, meaningful encounters, shared action, exclusions, waiting and which transitions mattered. Keep technical success separate from artistic claims.
 2. Consolidate modules that now have genuine multiple consumers. Remove duplicated code and temporary migration adapters once their replacements are verified.
 3. Improve frontend consistency or adopt a common framework only with a deliberate migration plan and preservation of working modes.
-4. Decide whether Match should join the monorepo or remain an independently versioned package. Until then, keep one authoritative implementation and pinned releases.
+4. Match joined the monorepo on 11 November; maintain one authoritative implementation in `packages/match` and preserve the worker contract. Further shared-package extraction should follow demonstrated needs.
 5. Develop reusable session recipes with explicit inputs, operations, transitions and publication gates. Start with a few real recipes before a visual workflow editor.
 6. Support shared identity for selected cross-application workflows only when needed. Use established authentication standards for independently hosted sign-in; keep account identity distinct from event participant identity and data permissions.
 7. Add source formats/adapters for Hyperchat and other tools, preserving authorship and correction rather than inferring identity from names.
@@ -681,7 +682,7 @@ Local source paths refer to the inspected workspace; after migration, record the
 | `../collective-microphone/docs/typed-participation.md` | Current actual typed flow and remaining human rehearsal needs |
 | `../collective-microphone/docs/rehearsing-we.md` | Artistic intent, representation and existing invitation |
 | `../collective-microphone/docs/live-scale-experiment.md` | Existing scaling work; inspect actual results before making claims |
-| `../match/pyproject.toml` and `src/conference_match/` | Importable Python package, rubric, scoring, runs, allocation and pilot |
+| `packages/match/pyproject.toml` and `packages/match/src/conference_match/` | Importable Python package, rubric, scoring, runs, allocation and pilot |
 | `../supermind/src/lib/server/actions/` | Earlier analysis and embedding-based matching |
 | `../supermind/src/routes/input/+page.svelte` | Earlier contribution and match-reveal experience |
 | `../puck/AGENTS.md`, `README.md`, `docs/operations.md`, `docs/experimental-modes.md` | Engine constraints, deployment, modes and verification |
