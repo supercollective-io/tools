@@ -277,3 +277,13 @@ The end-to-end browser check uses synthetic test profiles and a fake scorer. Aut
 tests cover save/edit, freezing, failed-run retry, reopening, release, restart, odd
 counts and participant/organiser access boundaries. This verifies the product flow,
 not match quality.
+
+## Known matching issue
+
+Jev still favours the professional writer for the hobby writer seeking a team.
+The short added instruction did not fix it. Follow-up tests changed input order and
+format without adding prompt text, and tested a shorter directional question. None
+resolved the failure; the shorter question regressed other human rankings. The
+production prompt is unchanged. See [input diagnostics](docs/writer-input-diagnostics.md)
+and [short-question results](docs/short-request-question.md). This remains a documented
+model-quality issue, not a reason to request more human reviews before the pilot.
