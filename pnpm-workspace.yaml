@@ -1,7 +1,14 @@
 minimumReleaseAge: 1440
 blockExoticSubdeps: true
 strictDepBuilds: true
+saveExact: true
+engineStrict: true
+minimumReleaseAgeStrict: true
+minimumReleaseAgeExclude:
+  - ws@8.22.2
 allowBuilds:
+  better-sqlite3: true
+  esbuild: true
   lefthook: false
 packages:
   - apps/*

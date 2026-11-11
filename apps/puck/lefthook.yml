@@ -1,8 +1,0 @@
-pre-commit:
-  commands:
-    staged-check:
-      run: mise exec -- pnpm exec biome check --staged --no-errors-on-unmatched
-pre-push:
-  commands:
-    verify:
-      run: mise exec -- pnpm verify

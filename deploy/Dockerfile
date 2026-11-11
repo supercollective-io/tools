@@ -2,7 +2,7 @@
 FROM node:26.13.0-bookworm-slim@sha256:add5c17c14752c54d2f3d519ec46a3815684d41c33f198bcb09fb998f7dcbf68 AS node
 FROM node AS build
 WORKDIR /app
-RUN npm install --global --allow-scripts=pnpm pnpm@12.16.1 && node -p process.arch && pnpm --version
+RUN npm install --global --allow-scripts=pnpm pnpm@12.18.0 && node -p process.arch && pnpm --version
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/polymind/package.json apps/polymind/package.json
 RUN --mount=type=cache,id=polymind-pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prod --ignore-scripts --prefer-offline --store-dir /pnpm/store

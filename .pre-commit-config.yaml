@@ -25,3 +25,21 @@ repos:
         language: system
         files: ^packages/match/(src/|tests/|experiments/|contracts/|examples/|pyproject\.toml$|uv\.lock$)
         pass_filenames: false
+      - id: puck-check
+        name: puck lint and format
+        entry: mise exec -- pnpm --dir apps/puck check
+        language: system
+        files: ^apps/puck/
+        pass_filenames: false
+      - id: puck-typecheck
+        name: puck types
+        entry: mise exec -- pnpm --dir apps/puck typecheck
+        language: system
+        files: ^apps/puck/
+        pass_filenames: false
+      - id: puck-test
+        name: puck unit tests
+        entry: mise exec -- pnpm --dir apps/puck test
+        language: system
+        files: ^apps/puck/
+        pass_filenames: false
