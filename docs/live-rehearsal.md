@@ -41,8 +41,11 @@ continuation instruction does not guarantee that a model will follow it.
 
 The composer also receives every participant's complete prefix, with `newFrom`
 marking the source offset sent on the previous request, and `newText` holding
-the newly admitted suffix. Speaking-space guidance uses the average participant
-addition, without rejecting or trimming model output to a word quota.
+the newly admitted suffix. Speaking-space guidance compares total collective writing with average total
+participant writing, without a per-update word target or output trimming.
+Input updates are not sentence boundaries: the collective can continue the same
+sentence across requests. Sentence-ending punctuation starts a new grammatical
+sentence, without requiring it to be independent of the preceding thought.
 Participant background and perspective remain private. Participants receive the
 published collective prefix as optional context; they primarily develop their
 own positions. Neither engagement nor agreement is required.
@@ -132,9 +135,12 @@ Long text scrolls to keep the latest words visible. Pause and End do not delay t
 already published. Reopening a saved session remains an explicit operator action.
 
 `live.composerStyle: "configured"` uses the preset's artistic instructions with
-only the live speaking-space and continuation contract appended. The preset adapts
-G's prompt by removing the standalone one-minute target and limiting its opening
-instruction to the start of the collective. Older configurations retain their
+only the live speaking-space and continuation contract appended. The preset uses
+variant C, selected from the recorded human-input experiments (text-015 and
+text-016): direct collective speech and relationships between the voices, with
+the extra qualification paragraph and prescribed movement removed. It retains
+complete source text and new-text markers. New sessions use C; reopening an
+existing session retains its frozen artistic instructions. Older configurations retain their
 previous artistic wrapper. Live generation uses the existing model adapter;
 offline Responses-screen results are not a guarantee of live writing quality.
 

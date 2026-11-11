@@ -129,7 +129,8 @@ describes its construction, provenance and limitations.
 ## Projection rehearsal
 
 `live-projection.json` is an explicit cloud Luna preset with reasoning off and
-G's artistic instructions adapted for continuation. It uses the fictional score
+variant C's simplified artistic instructions, selected from the human-recording
+outputs text-015 and text-016 in the live prompt batch. It uses the fictional score
 by default; a private score can be selected at launch. Older presets and saved
 journals keep their previous prompts. See the
 [projection procedure](../docs/live-rehearsal.md#projection-rehearsal-slice-1).

@@ -319,8 +319,15 @@ export async function startLocalRehearsalServer<Snapshot>(
 
 /** Public browser state excludes prompts, participant backgrounds and endpoints. */
 export function publicLiveState(state: import("./live-runs.ts").LiveState) {
+  const {
+    attemptIds: _attemptIds,
+    admittedIds: _admittedIds,
+    ...publicState
+  } = state;
+  const { seenTexts: _seenTexts, ...composer } = state.composer;
   return {
-    ...state,
+    ...publicState,
+    composer,
     participants: state.participants.map((writer, index) => ({
       ...writer,
       ...(state.config.live.mode === "fixed"

@@ -112,8 +112,8 @@ it("saves participant-scoped submissions durably, slices Unicode and admits fair
     "different content",
   );
   const batch = store.batch();
-  expect(batch).toHaveLength(4);
-  expect(new Set(batch.map((c) => c.participant)).size).toBe(4);
+  expect(batch).toHaveLength(6);
+  expect(new Set(batch.map((c) => c.participant)).size).toBe(6);
   expect(Array.from(batch[0]?.text ?? "").length).toBe(501);
   for (const c of batch) store.admitted(c.id, c.position);
   expect(
@@ -121,7 +121,7 @@ it("saves participant-scoped submissions durably, slices Unicode and admits fair
       .batch()
       .slice(0, 2)
       .map((c) => c.participant),
-  ).toEqual(people.slice(4).map((p) => p.id));
+  ).toEqual(people.slice(0, 2).map((p) => p.id));
   store.close();
   store = new ParticipationStore(path, run);
   expect(store.identify(first.credential)).toBe(first.id);

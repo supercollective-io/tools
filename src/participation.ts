@@ -12,6 +12,7 @@ import { LiveLog } from "./live-runs.ts";
 import { type LiveConfig, liveConfigSchema } from "./live-schema.ts";
 import { startLiveServer } from "./live-server.ts";
 import { type Generate, generate } from "./models.ts";
+import { admitPending } from "./participation-admission.ts";
 import { ParticipationStore } from "./participation-store.ts";
 
 class InputError extends Error {
@@ -124,26 +125,7 @@ export async function startParticipation(options: {
   const tick = () => {
     if (busy || closing || log.state.status !== "running") return;
     busy = true;
-    admission = (async () => {
-      for (const chunk of store.batch()) {
-        if (log.state.status !== "running") break;
-        if (
-          !(await controller.admitInput(
-            chunk.id,
-            chunk.participant,
-            chunk.text,
-            chunk.revision !== undefined,
-          ))
-        )
-          break;
-        store.admitted(
-          chunk.id,
-          chunk.position,
-          chunk.revision,
-          chunk.participant,
-        );
-      }
-    })()
+    admission = admitPending(store, controller)
       .catch(async () => {
         try {
           await controller.pause(

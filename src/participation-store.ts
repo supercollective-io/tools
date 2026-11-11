@@ -189,7 +189,7 @@ export class ParticipationStore {
     }
     return { revision, savedAt, duplicate: false };
   }
-  /** At most four people and 2,004 characters per tick, preserving each person's order. */
+  /** Captures one pending item per participant while preserving each person's order. */
   batch() {
     const cursor = Number(this.meta("cursor") ?? 0);
     const people = this.participants();
@@ -226,7 +226,6 @@ export class ParticipationStore {
           revision: head.revision,
           position: p.position,
         });
-      if (result.length === 4) break;
     }
     return result;
   }

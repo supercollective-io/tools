@@ -23,6 +23,7 @@ export function journalFor<Event, State>(
   bodySchema: z.ZodType<Event>,
   rebuild: (records: JournalEvent<Event>[]) => State,
   recover: (state: State) => Event[],
+  advance?: (state: State, record: JournalEvent<Event>) => State,
 ) {
   const eventSchema = z.strictObject({
     schemaVersion: z.literal(1),
@@ -47,6 +48,7 @@ export function journalFor<Event, State>(
     private release: () => Promise<void>;
     private isCompromised: () => boolean;
     private events: JournalEvent<Event>[];
+    private current: State | undefined;
     private queue: Promise<void> = Promise.resolve();
     private failure: { error: unknown } | null = null;
     private closing: Promise<void> | null = null;
@@ -63,10 +65,13 @@ export function journalFor<Event, State>(
       this.release = release;
       this.isCompromised = isCompromised;
       this.events = events;
+      if (advance && events.length) this.current = replay(events);
     }
 
     get state(): State {
-      return replay(this.events);
+      return advance && this.current !== undefined
+        ? structuredClone(this.current)
+        : replay(this.events);
     }
 
     private static async acquire(path: string) {
@@ -206,7 +211,12 @@ export function journalFor<Event, State>(
           "Run event",
         );
         // Validate against the state left by the preceding queued write.
-        replay([...this.events, record]);
+        // Incremental reducers validate a private copy. Failed validation or I/O
+        // cannot alter the last durable state. Offline reads still replay all records.
+        const next =
+          advance && this.current !== undefined
+            ? advance(structuredClone(this.current), record)
+            : replay([...this.events, record]);
         const line = `${JSON.stringify(record)}\n`;
         try {
           await this.handle.writeFile(line);
@@ -218,6 +228,7 @@ export function journalFor<Event, State>(
           throw error;
         }
         this.events.push(record);
+        if (advance) this.current = next;
       });
       // Validation errors before I/O leave the journal usable. Storage errors
       // remain sticky through failure, while every caller observes its rejection.

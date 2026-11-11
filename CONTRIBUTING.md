@@ -42,7 +42,8 @@ TypeScript check covers `.ts` files, not the browser's plain JavaScript.
 ## Find the implementation
 
 The application is one Node process, with plain browser assets and versioned
-JSONL storage. It has no Svelte application or database yet.
+JSONL storage. It has no Svelte application. Typed participation also uses SQLite for durable
+contribution revisions and the admission queue.
 
 | Task                                          | Source entry points                                                                           | Test entry points                                                                                  |
 | --------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -103,3 +104,26 @@ controller integration in `src/participation.ts` and SQLite admission queue in
 `src/participation-store.ts`. See `tests/participation.test.ts` and the
 [typed rehearsal guide](docs/typed-participation.md). Participant assets are in
 `src/web/participant.*`; the participant server never serves operator assets.
+
+Timestamped human-input prompt iteration uses `src/prompt-rehearsal.ts` and
+`src/prompt-rehearsal-cli.ts`, with tests in `tests/prompt-rehearsal.test.ts`.
+See the [CLI prompt rehearsal guide](docs/prompt-rehearsal.md) for simultaneous
+replay, frozen plans and source-linked JSON inspection.
+
+`src/prompt-experiments.ts` prepares the four-condition prompt/recency batch and
+creates anonymous reading copies; `tests/prompt-experiments.test.ts` covers the
+comparison structure, source revisions and fail-fast dispatch.
+
+
+Admission scaling uses `src/participation-admission.ts`, `src/participation-load.ts`
+and `src/participation-load-inspect.ts`. The load command uses local HTTP and a
+streaming model double, never a provider. See [the scale experiment](docs/live-scale-experiment.md).
+The live journal uses the same reducer for incremental appends and offline replay;
+`tests/journal.test.ts` checks state isolation across validation and I/O failures.
+
+The two-condition natural-continuation comparison uses
+`src/natural-comparison.ts` and `tests/natural-comparison.test.ts`. Its authored
+100-account fixture is in `examples/natural-comparison/`. Preparation is offline;
+provider dispatch requires an explicit run command and budget. See the
+[scale experiment](docs/live-scale-experiment.md#real-model-comparison-one-exploratory-pair)
+for the questions and follow-up criteria.

@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { LiveController } from "../src/live.ts";
 import { LiveLog, readLiveRun } from "../src/live-runs.ts";
 import type { LiveConfig } from "../src/live-schema.ts";
-import { startLiveServer } from "../src/live-server.ts";
+import { publicLiveState, startLiveServer } from "../src/live-server.ts";
 
 const config: LiveConfig = {
   schemaVersion: 2,
@@ -348,4 +348,16 @@ it("serves a separate audience page and a minimal reconnect snapshot", async () 
   cancellation.abort();
   await reader.cancel().catch(() => {});
   await f.close();
+});
+
+it("keeps historical tracking arrays and prior source copies out of operator snapshots", async () => {
+  const f = await fixture();
+  const state = f.log.state;
+  state.attemptIds = [randomUUID()];
+  state.admittedIds = ["historical admission"];
+  state.composer.seenTexts = { alice: "Prior source copy" };
+  const publicState = publicLiveState(state);
+  expect(publicState).not.toHaveProperty("attemptIds");
+  expect(publicState).not.toHaveProperty("admittedIds");
+  expect(publicState.composer).not.toHaveProperty("seenTexts");
 });

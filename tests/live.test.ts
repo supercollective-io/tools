@@ -341,7 +341,7 @@ describe("one growing participant and collective contribution", () => {
           expect(data.continuationInstruction).toContain(
             "Start a new grammatical sentence with a capital letter",
           );
-          expect(data.continuationInstruction).toContain(
+          expect(data.continuationInstruction).not.toContain(
             "Its opening must stand on its own",
           );
         } else {
@@ -956,4 +956,84 @@ describe("live session lifetime and saved failures", () => {
     expect(controller.snapshot().error).toContain("full-context capacity");
     expect(log.state.elapsedMs).toBeGreaterThanOrEqual(10);
   });
+});
+
+it("waits for opening material, then continues an unfinished sentence on a tiny input update", async () => {
+  const log = await createLog({ mode: "typed", composerStyle: "configured" });
+  const id = randomUUID();
+  const generate = vi.fn<Generate>(async ({ messages }, onToken) => {
+    const data = userFrom(messages);
+    const encoded = JSON.stringify(messages);
+    expect(encoded).not.toContain("averageNewParticipantWords");
+    expect(encoded).not.toContain("use roughly that much speaking space");
+    expect(encoded).not.toContain("stand on its own");
+    const text = data.existingText ? " fly a plane together." : "We want to";
+    if (data.existingText) {
+      expect(data.existingText).toBe("We want to");
+      expect(data.continuationInstruction).toContain(
+        "Do not force a new sentence",
+      );
+    }
+    await onToken(text);
+    return { text, finishReason: "stop" };
+  });
+  const controller = controllerFor(log, generate);
+  await controller.joinParticipant(id);
+  await controller.start();
+  await controller.admitInput("first", id, "I ", true);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  expect(generate).not.toHaveBeenCalled();
+  await controller.admitInput("second", id, "I want us to fly a plane", true);
+  await eventually(() => expect(log.state.composer.text).toBe("We want to"));
+  await controller.admitInput(
+    "third",
+    id,
+    "I want us to fly a plane together",
+    true,
+  );
+  await eventually(() =>
+    expect(log.state.composer.text).toBe("We want to fly a plane together."),
+  );
+  await controller.end();
+  expect(generate).toHaveBeenCalledTimes(2);
+});
+
+it("can remove recency markers without losing any current source text or changing the task", async () => {
+  const log = await createLog({ composerStyle: "configured" });
+  await log.append({ type: "session.started" });
+  await savedWriting(
+    log,
+    "participant/a",
+    "We want room to play, and time to learn.",
+    "eos",
+  );
+  const state = log.state;
+  const marked = userFrom(buildLivePrompt(state, "collective"));
+  state.config.live.sourcePresentation = "complete";
+  const complete = userFrom(buildLivePrompt(state, "collective"));
+  expect(complete.participants).toEqual([
+    {
+      id: "a",
+      name: "Voice a",
+      text: "We want room to play, and time to learn.",
+    },
+  ]);
+  expect(complete.task).toBe(marked.task);
+  expect(complete.speakingSpace).toEqual(marked.speakingSpace);
+  expect(JSON.stringify(marked)).toContain("newText");
+  expect(JSON.stringify(complete)).not.toContain("newText");
+  expect(JSON.stringify(complete)).not.toContain("newFrom");
+});
+
+it("starts prototype-named sources with a zero new-text offset", async () => {
+  const log = await createLog();
+  const state = log.state;
+  const voice = present(state.scenario.voices[0]);
+  voice.id = "constructor";
+  const participant = present(state.participants[0]);
+  participant.id = "participant/constructor";
+  participant.text = "A particular account.";
+  expect(
+    userFrom(buildLivePrompt(state, "collective")).participants[0],
+  ).toMatchObject({ newFrom: 0, newText: "A particular account." });
 });

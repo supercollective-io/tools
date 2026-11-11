@@ -7,7 +7,8 @@ mise exec -- pnpm participate
 ```
 
 The command prints a local operator address, a phone join link and the session
-folder. The default is the Luna/G live preset with reasoning off. Model keys stay
+folder. The default is the Luna/C live preset with reasoning off. C is the simplified
+artistic prompt selected after the human-recording replay comparison. Model keys stay
 in the environment or ignored `.env`. Nothing generates until the operator presses
 Start. Use `--config <file>` for another explicit live model configuration.
 
@@ -64,12 +65,17 @@ than silently overwriting it; close the other tab and edit again to continue.
 Browser storage must be available for safe retries. Clearing cookies loses the
 anonymous identity; clearing local storage loses writing not yet saved remotely.
 
-Admission runs every two seconds, selecting up to four people in round-robin
-order. The latest revision replaces each person's source text, including edits
+Admission runs every two seconds, capturing the latest pending revision from
+every participant. The controller applies the complete captured snapshot before
+preparing another composer request; edits saved during admission wait for the
+next tick. The latest revision replaces each person's source text, including edits
 and deletions; intermediate queued versions are coalesced. No participant models
 are called. The composer sees changes on its next context refresh; already
-published collective writing is not retracted. Saving does not guarantee that a
-contribution will appear in the collective. Paused sessions still save revisions.
+published collective writing is not retracted. Before the first collective words, at least one participant must have six
+whitespace-separated words available. This small opening threshold avoids
+generating from an isolated “I”; it is not a semantic completeness check, and
+shorter openings wait for more input. Later updates have no minimum word count.
+Saving does not guarantee that a contribution will appear in the collective. Paused sessions still save revisions.
 
 The bounds are 100 anonymous identities and 4,000 UTF-16 units of current text per
 person. Revision history is retained on disk. These are resource bounds, not a
@@ -117,7 +123,7 @@ queue is retained in SQLite; journal inspection alone does not show that queue.
 ## Verification and rehearsal
 
 Automated checks cover eight independent clients, no generation before Start,
-participant-scoped deduplication, Unicode slicing, round-robin admission, reply
+participant-scoped deduplication, Unicode slicing, complete admission snapshots, reply
 context, closed-session rejection, acknowledgement after closure, sanitised save
 failures and recovery across the SQLite/journal boundary. They use model doubles.
 
@@ -136,3 +142,13 @@ attempt, and an explicit operator pause. A 390 × 844 viewport check covered the
 phone layout, and reload preserved an unsent draft. This was not a physical-phone
 or multi-human rehearsal. Full verification passed 481 tests across 36 files,
 type checking and build.
+
+
+## Admission load experiments
+
+Use [the 100-participant experiment](live-scale-experiment.md) for the model-double
+load command, durability measurements and the planned natural-continuation comparison.
+Revision tracking detects equal-length edits, shortened accounts and deletions.
+When everyone has deleted their text, the composer waits for non-empty input;
+the deletions remain saved and available to the next request. No empty-source
+request is generated merely to acknowledge deletion.

@@ -25,7 +25,7 @@ it("projects only the published collective prefix and lifecycle", () => {
   ).toEqual({ runId: "one", status: "paused", text: "Visible" });
 });
 
-it("uses the live G preset without the legacy artistic wrapper and preserves continuation", async () => {
+it("uses the live preset without the legacy artistic wrapper and preserves continuation", async () => {
   const config = liveConfigSchema.parse(
     JSON.parse(await readFile("examples/live-projection.json", "utf8")),
   );
@@ -50,15 +50,14 @@ it("uses the live G preset without the legacy artistic wrapper and preserves con
   });
   try {
     const prompt = buildLivePrompt(log.state, "collective");
-    expect(prompt[0]?.content).toContain(
-      "Let qualifications change what we say",
-    );
+    expect(prompt[0]?.content).toContain(config.instructions);
     expect(prompt[0]?.content).not.toContain("Avoid repeatedly explaining");
     expect(prompt[0]?.content).not.toContain("140–160");
     expect(prompt[0]?.content).toContain("Begin your own contribution now");
     expect(JSON.stringify(prompt)).not.toContain("PRIVATE");
-    log.state.config.live.composerStyle = undefined;
-    expect(buildLivePrompt(log.state, "collective")[0]?.content).toContain(
+    const legacyState = log.state;
+    legacyState.config.live.composerStyle = undefined;
+    expect(buildLivePrompt(legacyState, "collective")[0]?.content).toContain(
       "Avoid repeatedly explaining",
     );
   } finally {

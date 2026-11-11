@@ -214,6 +214,50 @@ describe("shared locked journal", () => {
     expect(resumed.state).toEqual(["written", "after-resume"]);
   });
 
+  it("keeps incremental state private and unchanged after invalid or failed writes", async () => {
+    const Incremental = journalFor(
+      bodySchema,
+      rebuild,
+      () => [],
+      (state, record) => {
+        if (record.event.type !== "added") throw new Error("Invalid event");
+        state.push(record.event.value);
+        if (record.event.priorCount !== state.length - 1)
+          throw new Error("Invalid count");
+        return state;
+      },
+    );
+    const log = await Incremental.create(join(directory, "incremental.jsonl"), {
+      type: "opened",
+    });
+    activeLogs.push(log);
+    await log.append({ type: "added", value: "saved", priorCount: 0 });
+    log.state.push("external mutation");
+    await expect(
+      log.append({ type: "added", value: "invalid", priorCount: 9 }),
+    ).rejects.toThrow("Invalid count");
+    expect(log.state).toEqual(["saved"]);
+    const prototype = await fileHandlePrototype();
+    vi.spyOn(prototype, "sync").mockRejectedValueOnce(new Error("sync failed"));
+    await expect(
+      log.append({ type: "added", value: "uncertain", priorCount: 1 }),
+    ).rejects.toThrow("sync failed");
+    expect(log.state).toEqual(["saved"]);
+    await expect(
+      log.append({ type: "added", value: "later", priorCount: 1 }),
+    ).rejects.toThrow("sync failed");
+    await log.close();
+    const resumed = await Incremental.resume(log.path);
+    activeLogs.push(resumed);
+    expect(resumed.state).toEqual((await Incremental.read(log.path)).state);
+    await resumed.append({
+      type: "added",
+      value: "after resume",
+      priorCount: resumed.state.length,
+    });
+    expect(resumed.state).toEqual((await Incremental.read(log.path)).state);
+  });
+
   it("checks envelope ordering independently of the domain reducer", async () => {
     const log = await createLog();
     await log.append({ type: "added", value: "valid", priorCount: 0 });
