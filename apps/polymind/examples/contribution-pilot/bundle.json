@@ -1,0 +1,5741 @@
+{
+  "schemaVersion": 1,
+  "assignmentVersion": "balanced-shuffle-v1",
+  "authoringVersion": "contribution-v4",
+  "status": "prepared-not-generated",
+  "provenance": "fictional-design-not-a-population-sample",
+  "design": {
+    "schemaVersion": 1,
+    "title": "Rehearsing We — 64 fictional contributions",
+    "seed": 20261105,
+    "participantCount": 64,
+    "pilotSize": 8,
+    "optimisationSteps": 6000,
+    "invitation": {
+      "main": "What is something you’d like to change, but can’t change on your own?",
+      "optionalSupporting": [
+        "What would you like to be different?",
+        "What would you need to make that change?"
+      ]
+    },
+    "dimensions": [
+      {
+        "id": "interpretation",
+        "label": "Interpretation",
+        "options": [
+          {
+            "id": "personal",
+            "count": 4,
+            "instruction": "A change in your own habits or capacities that involves other people."
+          },
+          {
+            "id": "relationship",
+            "count": 4,
+            "instruction": "A change in a relationship between people."
+          },
+          {
+            "id": "shared-practice",
+            "count": 12,
+            "instruction": "A change in how people do something together."
+          },
+          {
+            "id": "institution",
+            "count": 8,
+            "instruction": "A change in an organisation's decisions or arrangements."
+          },
+          {
+            "id": "cultural",
+            "count": 12,
+            "instruction": "A change in an expectation, norm or cultural practice."
+          },
+          {
+            "id": "systemic",
+            "count": 16,
+            "instruction": "A change in wider material or social conditions."
+          },
+          {
+            "id": "open",
+            "count": 8,
+            "instruction": "Choose your own interpretation, including questioning the premise."
+          }
+        ]
+      },
+      {
+        "id": "scale",
+        "label": "Scale",
+        "options": [
+          {
+            "id": "intimate",
+            "count": 4,
+            "instruction": "The concern is at the level of a personal relationship."
+          },
+          {
+            "id": "household",
+            "count": 4,
+            "instruction": "The concern is at the level of a household or home."
+          },
+          {
+            "id": "group",
+            "count": 8,
+            "instruction": "A group, workplace or organisation is the relevant scale."
+          },
+          {
+            "id": "local",
+            "count": 8,
+            "instruction": "A neighbourhood, town or local network is the relevant scale."
+          },
+          {
+            "id": "national",
+            "count": 16,
+            "instruction": "Address a society-wide or national political concern, rather than reducing it to a local problem."
+          },
+          {
+            "id": "global",
+            "count": 16,
+            "instruction": "Address a global or transnational concern, rather than reducing it to an individual habit."
+          },
+          {
+            "id": "open",
+            "count": 8,
+            "instruction": "Choose the scale yourself, including concerns that cross scales."
+          }
+        ]
+      },
+      {
+        "id": "relationship",
+        "label": "Relationship to the issue",
+        "options": [
+          {
+            "id": "affected",
+            "count": 24,
+            "instruction": "You are directly affected by the situation."
+          },
+          {
+            "id": "observer",
+            "count": 8,
+            "instruction": "You have noticed the situation affecting people around you."
+          },
+          {
+            "id": "implicated",
+            "count": 8,
+            "instruction": "Your own behaviour contributes to the situation in some way."
+          },
+          {
+            "id": "already-trying",
+            "count": 8,
+            "instruction": "You have already tried something, without settling the issue."
+          },
+          {
+            "id": "beneficiary",
+            "count": 8,
+            "instruction": "Something about the current situation also benefits you."
+          },
+          {
+            "id": "open",
+            "count": 8,
+            "instruction": "Choose your relationship to the issue."
+          }
+        ]
+      },
+      {
+        "id": "agency",
+        "label": "Relationship to acting with others",
+        "options": [
+          {
+            "id": "organise",
+            "count": 12,
+            "instruction": "You would be willing to help organise a change."
+          },
+          {
+            "id": "contribute",
+            "count": 16,
+            "instruction": "You could contribute something, without taking on organising."
+          },
+          {
+            "id": "delegate",
+            "count": 12,
+            "instruction": "You would prefer someone with responsibility or expertise to act."
+          },
+          {
+            "id": "need-support",
+            "count": 8,
+            "instruction": "You would need support before being able to act."
+          },
+          {
+            "id": "sceptical",
+            "count": 8,
+            "instruction": "You doubt whether acting with a group would help."
+          },
+          {
+            "id": "open",
+            "count": 8,
+            "instruction": "Leave your willingness or role open if that fits."
+          }
+        ]
+      },
+      {
+        "id": "clarity",
+        "label": "Clarity",
+        "options": [
+          {
+            "id": "proposal",
+            "count": 12,
+            "instruction": "You have a fairly specific idea of what could change."
+          },
+          {
+            "id": "wish",
+            "count": 20,
+            "instruction": "You know what you want to be different but not how to get there."
+          },
+          {
+            "id": "unsettled",
+            "count": 16,
+            "instruction": "You are still working out what bothers you or what you want."
+          },
+          {
+            "id": "conflicted",
+            "count": 8,
+            "instruction": "You want things that do not fit together easily."
+          },
+          {
+            "id": "open",
+            "count": 8,
+            "instruction": "Choose how certain or specific to be."
+          }
+        ]
+      },
+      {
+        "id": "tone",
+        "label": "Emotional tone",
+        "options": [
+          {
+            "id": "hopeful",
+            "count": 12,
+            "instruction": "There is some hope in how you speak."
+          },
+          {
+            "id": "irritated",
+            "count": 12,
+            "instruction": "You sound irritated, without needing a dramatic grievance."
+          },
+          {
+            "id": "dry",
+            "count": 8,
+            "instruction": "There is room for understated or dry humour."
+          },
+          {
+            "id": "weary",
+            "count": 8,
+            "instruction": "You sound a little weary of the situation."
+          },
+          {
+            "id": "warm",
+            "count": 8,
+            "instruction": "You speak with warmth or affection for someone or something involved."
+          },
+          {
+            "id": "matter-of-fact",
+            "count": 8,
+            "instruction": "You speak in a matter-of-fact way."
+          },
+          {
+            "id": "mixed",
+            "count": 4,
+            "instruction": "Your feelings are mixed."
+          },
+          {
+            "id": "open",
+            "count": 4,
+            "instruction": "Let the tone emerge from the answer."
+          }
+        ]
+      },
+      {
+        "id": "form",
+        "label": "Way of answering",
+        "options": [
+          {
+            "id": "anecdote",
+            "count": 16,
+            "instruction": "You tend to start with something that happened."
+          },
+          {
+            "id": "direct",
+            "count": 16,
+            "instruction": "You tend to get straight to what you want to change."
+          },
+          {
+            "id": "reflection",
+            "count": 8,
+            "instruction": "You tend to reflect on a broader idea."
+          },
+          {
+            "id": "question",
+            "count": 8,
+            "instruction": "You tend to explore the issue through questions."
+          },
+          {
+            "id": "practical",
+            "count": 8,
+            "instruction": "You tend to explain practical details."
+          },
+          {
+            "id": "digressive",
+            "count": 4,
+            "instruction": "Your thought can wander or take a tangent."
+          },
+          {
+            "id": "open",
+            "count": 4,
+            "instruction": "Choose the shape of the answer."
+          }
+        ]
+      },
+      {
+        "id": "register",
+        "label": "Vocabulary",
+        "options": [
+          {
+            "id": "plain",
+            "count": 36,
+            "instruction": "Use mostly everyday vocabulary."
+          },
+          {
+            "id": "technical",
+            "count": 8,
+            "instruction": "You have relevant specialist vocabulary available; use only what fits."
+          },
+          {
+            "id": "political",
+            "count": 8,
+            "instruction": "Political language is part of how you think about this."
+          },
+          {
+            "id": "open",
+            "count": 12,
+            "instruction": "Choose the vocabulary that fits this person."
+          }
+        ]
+      },
+      {
+        "id": "fluency",
+        "label": "English fluency",
+        "options": [
+          {
+            "id": "fluent",
+            "count": 32,
+            "instruction": "You are comfortable expressing yourself in English."
+          },
+          {
+            "id": "searching",
+            "count": 16,
+            "instruction": "You sometimes search for a word or rephrase in English; keep it natural, without accent spelling or manufactured errors."
+          },
+          {
+            "id": "open",
+            "count": 16,
+            "instruction": "Choose the level of fluency independently of the person's knowledge."
+          }
+        ]
+      },
+      {
+        "id": "rhythm",
+        "label": "Speaking rhythm",
+        "options": [
+          {
+            "id": "compact",
+            "count": 16,
+            "instruction": "Your sentences tend to be compact."
+          },
+          {
+            "id": "flowing",
+            "count": 20,
+            "instruction": "Your speech tends to flow through connected thoughts."
+          },
+          {
+            "id": "revising",
+            "count": 16,
+            "instruction": "You sometimes revise what you just said."
+          },
+          {
+            "id": "open",
+            "count": 12,
+            "instruction": "Let the rhythm emerge without adding compulsory hesitations."
+          }
+        ]
+      },
+      {
+        "id": "length",
+        "label": "Loose length guide",
+        "options": [
+          {
+            "id": "brief",
+            "count": 16,
+            "instruction": "Roughly 90–120 words may suit this contribution."
+          },
+          {
+            "id": "typical",
+            "count": 32,
+            "instruction": "Roughly 110–150 words may suit this contribution."
+          },
+          {
+            "id": "expansive",
+            "count": 16,
+            "instruction": "Roughly 140–180 words may suit this contribution."
+          }
+        ]
+      },
+      {
+        "id": "abstraction",
+        "label": "Level of abstraction",
+        "options": [
+          {
+            "id": "concrete",
+            "count": 24,
+            "instruction": "Focus on a specific situation or desired change."
+          },
+          {
+            "id": "mixed",
+            "count": 24,
+            "instruction": "Move between a wider concern and particular experiences or possibilities."
+          },
+          {
+            "id": "broad",
+            "count": 16,
+            "instruction": "Express a broad concern, value or wish. It can remain general; no personal anecdote, concrete project or practical solution is required."
+          }
+        ]
+      }
+    ],
+    "situations": [
+      {
+        "id": "home",
+        "count": 4,
+        "context": "You live with other adults and have some recurring responsibilities at home.",
+        "allowed": {}
+      },
+      {
+        "id": "work",
+        "count": 6,
+        "context": "You work alongside other people. Your time and income depend partly on arrangements you do not set alone.",
+        "allowed": {}
+      },
+      {
+        "id": "care",
+        "count": 4,
+        "context": "You have a regular caring responsibility alongside other parts of your life.",
+        "allowed": {}
+      },
+      {
+        "id": "mobility",
+        "count": 4,
+        "context": "Your ordinary journeys involve both your own choices and arrangements made by others.",
+        "allowed": {}
+      },
+      {
+        "id": "culture",
+        "count": 4,
+        "context": "You sometimes take part in a cultural activity with others, but it is not your whole identity.",
+        "allowed": {}
+      },
+      {
+        "id": "digital",
+        "count": 4,
+        "context": "Digital tools are part of how you keep in touch or get things done. Your feelings about them are not predetermined.",
+        "allowed": {}
+      },
+      {
+        "id": "learning",
+        "count": 4,
+        "context": "You are learning something alongside other commitments and have differing amounts of confidence in different settings.",
+        "allowed": {}
+      },
+      {
+        "id": "neighbourhood",
+        "count": 4,
+        "context": "You live in a neighbourhood where you know some people and do not know many others.",
+        "allowed": {}
+      },
+      {
+        "id": "small-business",
+        "count": 4,
+        "context": "You help keep a small business or independent practice going and make decisions that affect others.",
+        "allowed": {}
+      },
+      {
+        "id": "public-life",
+        "count": 6,
+        "context": "You follow some public debates and political decisions, with your own interests, uncertainties and commitments.",
+        "allowed": {}
+      },
+      {
+        "id": "friendships",
+        "count": 4,
+        "context": "Your friendships involve different schedules, habits and expectations.",
+        "allowed": {}
+      },
+      {
+        "id": "open",
+        "count": 16,
+        "context": "Choose the person's circumstances; do not assume a particular issue.",
+        "allowed": {}
+      }
+    ]
+  },
+  "generator": {
+    "provider": "openai",
+    "model": "gpt-6.1-terra",
+    "reasoningEffort": "none",
+    "maxOutputTokens": 1024,
+    "timeoutMs": 120000
+  },
+  "slots": [
+    {
+      "id": "p001",
+      "situationId": "care",
+      "assignments": {
+        "interpretation": "open",
+        "scale": "national",
+        "relationship": "observer",
+        "agency": "contribute",
+        "clarity": "unsettled",
+        "tone": "irritated",
+        "form": "anecdote",
+        "register": "technical",
+        "fluency": "searching",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p002",
+      "situationId": "digital",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "national",
+        "relationship": "beneficiary",
+        "agency": "delegate",
+        "clarity": "conflicted",
+        "tone": "weary",
+        "form": "question",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "expansive",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p003",
+      "situationId": "friendships",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "intimate",
+        "relationship": "implicated",
+        "agency": "contribute",
+        "clarity": "conflicted",
+        "tone": "matter-of-fact",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "compact",
+        "length": "brief",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p004",
+      "situationId": "work",
+      "assignments": {
+        "interpretation": "open",
+        "scale": "national",
+        "relationship": "open",
+        "agency": "need-support",
+        "clarity": "proposal",
+        "tone": "hopeful",
+        "form": "anecdote",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "open",
+        "length": "expansive",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p005",
+      "situationId": "public-life",
+      "assignments": {
+        "interpretation": "institution",
+        "scale": "national",
+        "relationship": "observer",
+        "agency": "sceptical",
+        "clarity": "conflicted",
+        "tone": "dry",
+        "form": "direct",
+        "register": "open",
+        "fluency": "fluent",
+        "rhythm": "revising",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p006",
+      "situationId": "learning",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "national",
+        "relationship": "affected",
+        "agency": "sceptical",
+        "clarity": "open",
+        "tone": "irritated",
+        "form": "open",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "open",
+        "length": "brief",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p007",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "global",
+        "relationship": "implicated",
+        "agency": "open",
+        "clarity": "proposal",
+        "tone": "weary",
+        "form": "practical",
+        "register": "open",
+        "fluency": "fluent",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p008",
+      "situationId": "public-life",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "household",
+        "relationship": "affected",
+        "agency": "contribute",
+        "clarity": "open",
+        "tone": "matter-of-fact",
+        "form": "direct",
+        "register": "political",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "brief",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p009",
+      "situationId": "public-life",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "global",
+        "relationship": "affected",
+        "agency": "sceptical",
+        "clarity": "wish",
+        "tone": "dry",
+        "form": "reflection",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "open",
+        "length": "typical",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p010",
+      "situationId": "care",
+      "assignments": {
+        "interpretation": "institution",
+        "scale": "global",
+        "relationship": "already-trying",
+        "agency": "delegate",
+        "clarity": "proposal",
+        "tone": "warm",
+        "form": "direct",
+        "register": "technical",
+        "fluency": "fluent",
+        "rhythm": "open",
+        "length": "expansive",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p011",
+      "situationId": "culture",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "global",
+        "relationship": "affected",
+        "agency": "organise",
+        "clarity": "open",
+        "tone": "warm",
+        "form": "reflection",
+        "register": "open",
+        "fluency": "searching",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p012",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "institution",
+        "scale": "group",
+        "relationship": "observer",
+        "agency": "open",
+        "clarity": "proposal",
+        "tone": "hopeful",
+        "form": "reflection",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p013",
+      "situationId": "friendships",
+      "assignments": {
+        "interpretation": "personal",
+        "scale": "national",
+        "relationship": "open",
+        "agency": "delegate",
+        "clarity": "open",
+        "tone": "dry",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "revising",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p014",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "local",
+        "relationship": "implicated",
+        "agency": "need-support",
+        "clarity": "unsettled",
+        "tone": "dry",
+        "form": "open",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "revising",
+        "length": "expansive",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p015",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "national",
+        "relationship": "implicated",
+        "agency": "delegate",
+        "clarity": "wish",
+        "tone": "irritated",
+        "form": "anecdote",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "revising",
+        "length": "expansive",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p016",
+      "situationId": "work",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "local",
+        "relationship": "open",
+        "agency": "delegate",
+        "clarity": "conflicted",
+        "tone": "mixed",
+        "form": "reflection",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p017",
+      "situationId": "public-life",
+      "assignments": {
+        "interpretation": "open",
+        "scale": "global",
+        "relationship": "already-trying",
+        "agency": "sceptical",
+        "clarity": "open",
+        "tone": "hopeful",
+        "form": "anecdote",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p018",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "group",
+        "relationship": "affected",
+        "agency": "need-support",
+        "clarity": "wish",
+        "tone": "hopeful",
+        "form": "question",
+        "register": "technical",
+        "fluency": "searching",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p019",
+      "situationId": "friendships",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "global",
+        "relationship": "open",
+        "agency": "open",
+        "clarity": "unsettled",
+        "tone": "mixed",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "flowing",
+        "length": "brief",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p020",
+      "situationId": "neighbourhood",
+      "assignments": {
+        "interpretation": "open",
+        "scale": "global",
+        "relationship": "already-trying",
+        "agency": "contribute",
+        "clarity": "wish",
+        "tone": "irritated",
+        "form": "reflection",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "revising",
+        "length": "brief",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p021",
+      "situationId": "small-business",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "intimate",
+        "relationship": "affected",
+        "agency": "need-support",
+        "clarity": "proposal",
+        "tone": "irritated",
+        "form": "practical",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "open",
+        "length": "brief",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p022",
+      "situationId": "learning",
+      "assignments": {
+        "interpretation": "institution",
+        "scale": "group",
+        "relationship": "affected",
+        "agency": "open",
+        "clarity": "unsettled",
+        "tone": "weary",
+        "form": "anecdote",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "revising",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p023",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "global",
+        "relationship": "beneficiary",
+        "agency": "sceptical",
+        "clarity": "unsettled",
+        "tone": "irritated",
+        "form": "anecdote",
+        "register": "open",
+        "fluency": "fluent",
+        "rhythm": "compact",
+        "length": "brief",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p024",
+      "situationId": "mobility",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "local",
+        "relationship": "affected",
+        "agency": "contribute",
+        "clarity": "unsettled",
+        "tone": "weary",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "flowing",
+        "length": "expansive",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p025",
+      "situationId": "neighbourhood",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "global",
+        "relationship": "affected",
+        "agency": "contribute",
+        "clarity": "unsettled",
+        "tone": "hopeful",
+        "form": "direct",
+        "register": "technical",
+        "fluency": "open",
+        "rhythm": "revising",
+        "length": "typical",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p026",
+      "situationId": "care",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "open",
+        "relationship": "affected",
+        "agency": "delegate",
+        "clarity": "unsettled",
+        "tone": "warm",
+        "form": "anecdote",
+        "register": "open",
+        "fluency": "open",
+        "rhythm": "flowing",
+        "length": "brief",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p027",
+      "situationId": "friendships",
+      "assignments": {
+        "interpretation": "personal",
+        "scale": "global",
+        "relationship": "beneficiary",
+        "agency": "need-support",
+        "clarity": "wish",
+        "tone": "hopeful",
+        "form": "direct",
+        "register": "open",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p028",
+      "situationId": "neighbourhood",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "group",
+        "relationship": "observer",
+        "agency": "contribute",
+        "clarity": "wish",
+        "tone": "warm",
+        "form": "question",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "revising",
+        "length": "brief",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p029",
+      "situationId": "work",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "national",
+        "relationship": "already-trying",
+        "agency": "organise",
+        "clarity": "wish",
+        "tone": "weary",
+        "form": "anecdote",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "compact",
+        "length": "brief",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p030",
+      "situationId": "learning",
+      "assignments": {
+        "interpretation": "personal",
+        "scale": "household",
+        "relationship": "affected",
+        "agency": "sceptical",
+        "clarity": "unsettled",
+        "tone": "warm",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "compact",
+        "length": "expansive",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p031",
+      "situationId": "home",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "local",
+        "relationship": "already-trying",
+        "agency": "organise",
+        "clarity": "wish",
+        "tone": "matter-of-fact",
+        "form": "anecdote",
+        "register": "open",
+        "fluency": "searching",
+        "rhythm": "revising",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p032",
+      "situationId": "culture",
+      "assignments": {
+        "interpretation": "relationship",
+        "scale": "global",
+        "relationship": "affected",
+        "agency": "contribute",
+        "clarity": "conflicted",
+        "tone": "dry",
+        "form": "anecdote",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "expansive",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p033",
+      "situationId": "public-life",
+      "assignments": {
+        "interpretation": "institution",
+        "scale": "national",
+        "relationship": "implicated",
+        "agency": "organise",
+        "clarity": "unsettled",
+        "tone": "hopeful",
+        "form": "digressive",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "brief",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p034",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "local",
+        "relationship": "beneficiary",
+        "agency": "delegate",
+        "clarity": "unsettled",
+        "tone": "irritated",
+        "form": "anecdote",
+        "register": "political",
+        "fluency": "open",
+        "rhythm": "open",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p035",
+      "situationId": "small-business",
+      "assignments": {
+        "interpretation": "institution",
+        "scale": "global",
+        "relationship": "affected",
+        "agency": "organise",
+        "clarity": "wish",
+        "tone": "matter-of-fact",
+        "form": "practical",
+        "register": "political",
+        "fluency": "fluent",
+        "rhythm": "revising",
+        "length": "expansive",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p036",
+      "situationId": "small-business",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "global",
+        "relationship": "observer",
+        "agency": "need-support",
+        "clarity": "conflicted",
+        "tone": "matter-of-fact",
+        "form": "digressive",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p037",
+      "situationId": "home",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "open",
+        "relationship": "affected",
+        "agency": "organise",
+        "clarity": "unsettled",
+        "tone": "dry",
+        "form": "question",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "compact",
+        "length": "expansive",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p038",
+      "situationId": "care",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "national",
+        "relationship": "beneficiary",
+        "agency": "contribute",
+        "clarity": "open",
+        "tone": "warm",
+        "form": "practical",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p039",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "national",
+        "relationship": "beneficiary",
+        "agency": "open",
+        "clarity": "wish",
+        "tone": "matter-of-fact",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "flowing",
+        "length": "brief",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p040",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "open",
+        "scale": "open",
+        "relationship": "affected",
+        "agency": "open",
+        "clarity": "wish",
+        "tone": "irritated",
+        "form": "digressive",
+        "register": "open",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "expansive",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p041",
+      "situationId": "home",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "local",
+        "relationship": "beneficiary",
+        "agency": "organise",
+        "clarity": "wish",
+        "tone": "hopeful",
+        "form": "direct",
+        "register": "technical",
+        "fluency": "fluent",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p042",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "institution",
+        "scale": "open",
+        "relationship": "already-trying",
+        "agency": "need-support",
+        "clarity": "open",
+        "tone": "irritated",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p043",
+      "situationId": "digital",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "national",
+        "relationship": "affected",
+        "agency": "delegate",
+        "clarity": "proposal",
+        "tone": "matter-of-fact",
+        "form": "reflection",
+        "register": "open",
+        "fluency": "searching",
+        "rhythm": "compact",
+        "length": "expansive",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p044",
+      "situationId": "culture",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "global",
+        "relationship": "implicated",
+        "agency": "delegate",
+        "clarity": "wish",
+        "tone": "warm",
+        "form": "digressive",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p045",
+      "situationId": "culture",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "intimate",
+        "relationship": "open",
+        "agency": "organise",
+        "clarity": "unsettled",
+        "tone": "matter-of-fact",
+        "form": "question",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "open",
+        "length": "typical",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p046",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "personal",
+        "scale": "open",
+        "relationship": "observer",
+        "agency": "organise",
+        "clarity": "proposal",
+        "tone": "open",
+        "form": "anecdote",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "revising",
+        "length": "brief",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p047",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "open",
+        "relationship": "observer",
+        "agency": "contribute",
+        "clarity": "wish",
+        "tone": "hopeful",
+        "form": "direct",
+        "register": "political",
+        "fluency": "searching",
+        "rhythm": "open",
+        "length": "expansive",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p048",
+      "situationId": "digital",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "group",
+        "relationship": "beneficiary",
+        "agency": "organise",
+        "clarity": "proposal",
+        "tone": "irritated",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "flowing",
+        "length": "expansive",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p049",
+      "situationId": "work",
+      "assignments": {
+        "interpretation": "relationship",
+        "scale": "group",
+        "relationship": "open",
+        "agency": "contribute",
+        "clarity": "wish",
+        "tone": "weary",
+        "form": "anecdote",
+        "register": "open",
+        "fluency": "fluent",
+        "rhythm": "open",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p050",
+      "situationId": "small-business",
+      "assignments": {
+        "interpretation": "relationship",
+        "scale": "household",
+        "relationship": "affected",
+        "agency": "open",
+        "clarity": "wish",
+        "tone": "irritated",
+        "form": "question",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "open",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p051",
+      "situationId": "mobility",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "national",
+        "relationship": "implicated",
+        "agency": "sceptical",
+        "clarity": "unsettled",
+        "tone": "open",
+        "form": "reflection",
+        "register": "technical",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p052",
+      "situationId": "learning",
+      "assignments": {
+        "interpretation": "relationship",
+        "scale": "open",
+        "relationship": "affected",
+        "agency": "delegate",
+        "clarity": "conflicted",
+        "tone": "hopeful",
+        "form": "practical",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "revising",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p053",
+      "situationId": "home",
+      "assignments": {
+        "interpretation": "open",
+        "scale": "global",
+        "relationship": "observer",
+        "agency": "delegate",
+        "clarity": "unsettled",
+        "tone": "open",
+        "form": "practical",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "open",
+        "length": "brief",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p054",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "open",
+        "scale": "national",
+        "relationship": "affected",
+        "agency": "organise",
+        "clarity": "conflicted",
+        "tone": "warm",
+        "form": "anecdote",
+        "register": "political",
+        "fluency": "open",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p055",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "global",
+        "relationship": "affected",
+        "agency": "need-support",
+        "clarity": "proposal",
+        "tone": "weary",
+        "form": "open",
+        "register": "political",
+        "fluency": "fluent",
+        "rhythm": "revising",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p056",
+      "situationId": "work",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "intimate",
+        "relationship": "affected",
+        "agency": "open",
+        "clarity": "open",
+        "tone": "hopeful",
+        "form": "anecdote",
+        "register": "technical",
+        "fluency": "fluent",
+        "rhythm": "revising",
+        "length": "expansive",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p057",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "open",
+        "relationship": "already-trying",
+        "agency": "contribute",
+        "clarity": "unsettled",
+        "tone": "dry",
+        "form": "reflection",
+        "register": "political",
+        "fluency": "fluent",
+        "rhythm": "compact",
+        "length": "typical",
+        "abstraction": "mixed"
+      }
+    },
+    {
+      "id": "p058",
+      "situationId": "open",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "national",
+        "relationship": "affected",
+        "agency": "contribute",
+        "clarity": "wish",
+        "tone": "mixed",
+        "form": "open",
+        "register": "open",
+        "fluency": "fluent",
+        "rhythm": "open",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p059",
+      "situationId": "neighbourhood",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "household",
+        "relationship": "open",
+        "agency": "organise",
+        "clarity": "wish",
+        "tone": "weary",
+        "form": "practical",
+        "register": "plain",
+        "fluency": "searching",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p060",
+      "situationId": "mobility",
+      "assignments": {
+        "interpretation": "shared-practice",
+        "scale": "group",
+        "relationship": "open",
+        "agency": "contribute",
+        "clarity": "proposal",
+        "tone": "irritated",
+        "form": "question",
+        "register": "political",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "typical",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p061",
+      "situationId": "digital",
+      "assignments": {
+        "interpretation": "institution",
+        "scale": "local",
+        "relationship": "implicated",
+        "agency": "contribute",
+        "clarity": "wish",
+        "tone": "mixed",
+        "form": "anecdote",
+        "register": "plain",
+        "fluency": "open",
+        "rhythm": "compact",
+        "length": "expansive",
+        "abstraction": "concrete"
+      }
+    },
+    {
+      "id": "p062",
+      "situationId": "mobility",
+      "assignments": {
+        "interpretation": "cultural",
+        "scale": "group",
+        "relationship": "affected",
+        "agency": "delegate",
+        "clarity": "wish",
+        "tone": "dry",
+        "form": "practical",
+        "register": "technical",
+        "fluency": "fluent",
+        "rhythm": "flowing",
+        "length": "brief",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p063",
+      "situationId": "public-life",
+      "assignments": {
+        "interpretation": "systemic",
+        "scale": "national",
+        "relationship": "already-trying",
+        "agency": "contribute",
+        "clarity": "proposal",
+        "tone": "hopeful",
+        "form": "question",
+        "register": "open",
+        "fluency": "open",
+        "rhythm": "revising",
+        "length": "brief",
+        "abstraction": "broad"
+      }
+    },
+    {
+      "id": "p064",
+      "situationId": "work",
+      "assignments": {
+        "interpretation": "open",
+        "scale": "local",
+        "relationship": "affected",
+        "agency": "sceptical",
+        "clarity": "proposal",
+        "tone": "open",
+        "form": "direct",
+        "register": "plain",
+        "fluency": "fluent",
+        "rhythm": "revising",
+        "length": "typical",
+        "abstraction": "broad"
+      }
+    }
+  ],
+  "subsets": [
+    {
+      "size": 8,
+      "ids": ["p002", "p031", "p025", "p021", "p030", "p051", "p012", "p032"]
+    },
+    {
+      "size": 16,
+      "ids": [
+        "p002",
+        "p031",
+        "p025",
+        "p021",
+        "p030",
+        "p051",
+        "p012",
+        "p032",
+        "p008",
+        "p016",
+        "p001",
+        "p027",
+        "p033",
+        "p060",
+        "p035",
+        "p010"
+      ]
+    },
+    {
+      "size": 32,
+      "ids": [
+        "p002",
+        "p031",
+        "p025",
+        "p021",
+        "p030",
+        "p051",
+        "p012",
+        "p032",
+        "p008",
+        "p016",
+        "p001",
+        "p027",
+        "p033",
+        "p060",
+        "p035",
+        "p010",
+        "p052",
+        "p029",
+        "p014",
+        "p028",
+        "p003",
+        "p044",
+        "p061",
+        "p050",
+        "p005",
+        "p038",
+        "p053",
+        "p059",
+        "p056",
+        "p057",
+        "p048",
+        "p036"
+      ]
+    },
+    {
+      "size": 64,
+      "ids": [
+        "p002",
+        "p031",
+        "p025",
+        "p021",
+        "p030",
+        "p051",
+        "p012",
+        "p032",
+        "p008",
+        "p016",
+        "p001",
+        "p027",
+        "p033",
+        "p060",
+        "p035",
+        "p010",
+        "p052",
+        "p029",
+        "p014",
+        "p028",
+        "p003",
+        "p044",
+        "p061",
+        "p050",
+        "p005",
+        "p038",
+        "p053",
+        "p059",
+        "p056",
+        "p057",
+        "p048",
+        "p036",
+        "p062",
+        "p045",
+        "p006",
+        "p046",
+        "p019",
+        "p041",
+        "p043",
+        "p049",
+        "p017",
+        "p055",
+        "p063",
+        "p024",
+        "p013",
+        "p020",
+        "p022",
+        "p026",
+        "p064",
+        "p011",
+        "p037",
+        "p018",
+        "p034",
+        "p004",
+        "p009",
+        "p040",
+        "p007",
+        "p058",
+        "p042",
+        "p047",
+        "p023",
+        "p054",
+        "p039",
+        "p015"
+      ]
+    }
+  ],
+  "optimisation": {
+    "initialPairCollisions": 7609,
+    "finalPairCollisions": 6730
+  },
+  "coverage": {
+    "full": {
+      "participants": 64,
+      "dimensions": [
+        {
+          "id": "interpretation",
+          "options": [
+            {
+              "id": "personal",
+              "targetIn64": 4,
+              "actual": 4
+            },
+            {
+              "id": "relationship",
+              "targetIn64": 4,
+              "actual": 4
+            },
+            {
+              "id": "shared-practice",
+              "targetIn64": 12,
+              "actual": 12
+            },
+            {
+              "id": "institution",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "cultural",
+              "targetIn64": 12,
+              "actual": 12
+            },
+            {
+              "id": "systemic",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 8
+            }
+          ]
+        },
+        {
+          "id": "scale",
+          "options": [
+            {
+              "id": "intimate",
+              "targetIn64": 4,
+              "actual": 4
+            },
+            {
+              "id": "household",
+              "targetIn64": 4,
+              "actual": 4
+            },
+            {
+              "id": "group",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "local",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "national",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "global",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 8
+            }
+          ]
+        },
+        {
+          "id": "relationship",
+          "options": [
+            {
+              "id": "affected",
+              "targetIn64": 24,
+              "actual": 24
+            },
+            {
+              "id": "observer",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "implicated",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "already-trying",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "beneficiary",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 8
+            }
+          ]
+        },
+        {
+          "id": "agency",
+          "options": [
+            {
+              "id": "organise",
+              "targetIn64": 12,
+              "actual": 12
+            },
+            {
+              "id": "contribute",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "delegate",
+              "targetIn64": 12,
+              "actual": 12
+            },
+            {
+              "id": "need-support",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "sceptical",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 8
+            }
+          ]
+        },
+        {
+          "id": "clarity",
+          "options": [
+            {
+              "id": "proposal",
+              "targetIn64": 12,
+              "actual": 12
+            },
+            {
+              "id": "wish",
+              "targetIn64": 20,
+              "actual": 20
+            },
+            {
+              "id": "unsettled",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "conflicted",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 8
+            }
+          ]
+        },
+        {
+          "id": "tone",
+          "options": [
+            {
+              "id": "hopeful",
+              "targetIn64": 12,
+              "actual": 12
+            },
+            {
+              "id": "irritated",
+              "targetIn64": 12,
+              "actual": 12
+            },
+            {
+              "id": "dry",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "weary",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "warm",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "matter-of-fact",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "mixed",
+              "targetIn64": 4,
+              "actual": 4
+            },
+            {
+              "id": "open",
+              "targetIn64": 4,
+              "actual": 4
+            }
+          ]
+        },
+        {
+          "id": "form",
+          "options": [
+            {
+              "id": "anecdote",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "direct",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "reflection",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "question",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "practical",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "digressive",
+              "targetIn64": 4,
+              "actual": 4
+            },
+            {
+              "id": "open",
+              "targetIn64": 4,
+              "actual": 4
+            }
+          ]
+        },
+        {
+          "id": "register",
+          "options": [
+            {
+              "id": "plain",
+              "targetIn64": 36,
+              "actual": 36
+            },
+            {
+              "id": "technical",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "political",
+              "targetIn64": 8,
+              "actual": 8
+            },
+            {
+              "id": "open",
+              "targetIn64": 12,
+              "actual": 12
+            }
+          ]
+        },
+        {
+          "id": "fluency",
+          "options": [
+            {
+              "id": "fluent",
+              "targetIn64": 32,
+              "actual": 32
+            },
+            {
+              "id": "searching",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "open",
+              "targetIn64": 16,
+              "actual": 16
+            }
+          ]
+        },
+        {
+          "id": "rhythm",
+          "options": [
+            {
+              "id": "compact",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "flowing",
+              "targetIn64": 20,
+              "actual": 20
+            },
+            {
+              "id": "revising",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "open",
+              "targetIn64": 12,
+              "actual": 12
+            }
+          ]
+        },
+        {
+          "id": "length",
+          "options": [
+            {
+              "id": "brief",
+              "targetIn64": 16,
+              "actual": 16
+            },
+            {
+              "id": "typical",
+              "targetIn64": 32,
+              "actual": 32
+            },
+            {
+              "id": "expansive",
+              "targetIn64": 16,
+              "actual": 16
+            }
+          ]
+        },
+        {
+          "id": "abstraction",
+          "options": [
+            {
+              "id": "concrete",
+              "targetIn64": 24,
+              "actual": 24
+            },
+            {
+              "id": "mixed",
+              "targetIn64": 24,
+              "actual": 24
+            },
+            {
+              "id": "broad",
+              "targetIn64": 16,
+              "actual": 16
+            }
+          ]
+        }
+      ],
+      "situations": [
+        {
+          "id": "home",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "work",
+          "targetIn64": 6,
+          "actual": 6
+        },
+        {
+          "id": "care",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "mobility",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "culture",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "digital",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "learning",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "neighbourhood",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "small-business",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "public-life",
+          "targetIn64": 6,
+          "actual": 6
+        },
+        {
+          "id": "friendships",
+          "targetIn64": 4,
+          "actual": 4
+        },
+        {
+          "id": "open",
+          "targetIn64": 16,
+          "actual": 16
+        }
+      ],
+      "pairs": [
+        {
+          "left": "interpretation",
+          "right": "scale",
+          "observedCombinations": 36,
+          "counts": {
+            "cultural|global": 3,
+            "cultural|group": 1,
+            "cultural|intimate": 2,
+            "cultural|local": 3,
+            "cultural|national": 2,
+            "cultural|open": 1,
+            "institution|global": 2,
+            "institution|group": 2,
+            "institution|local": 1,
+            "institution|national": 2,
+            "institution|open": 1,
+            "open|global": 3,
+            "open|local": 1,
+            "open|national": 3,
+            "open|open": 1,
+            "personal|global": 1,
+            "personal|household": 1,
+            "personal|national": 1,
+            "personal|open": 1,
+            "relationship|global": 1,
+            "relationship|group": 1,
+            "relationship|household": 1,
+            "relationship|open": 1,
+            "shared-practice|global": 2,
+            "shared-practice|group": 3,
+            "shared-practice|intimate": 1,
+            "shared-practice|local": 1,
+            "shared-practice|national": 4,
+            "shared-practice|open": 1,
+            "systemic|global": 4,
+            "systemic|group": 1,
+            "systemic|household": 2,
+            "systemic|intimate": 1,
+            "systemic|local": 2,
+            "systemic|national": 4,
+            "systemic|open": 2
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "relationship",
+          "observedCombinations": 29,
+          "counts": {
+            "cultural|affected": 5,
+            "cultural|already-trying": 2,
+            "cultural|beneficiary": 3,
+            "cultural|implicated": 2,
+            "institution|affected": 2,
+            "institution|already-trying": 2,
+            "institution|implicated": 2,
+            "institution|observer": 2,
+            "open|affected": 3,
+            "open|already-trying": 2,
+            "open|observer": 2,
+            "open|open": 1,
+            "personal|affected": 1,
+            "personal|beneficiary": 1,
+            "personal|observer": 1,
+            "personal|open": 1,
+            "relationship|affected": 3,
+            "relationship|open": 1,
+            "shared-practice|affected": 5,
+            "shared-practice|already-trying": 1,
+            "shared-practice|beneficiary": 3,
+            "shared-practice|implicated": 1,
+            "shared-practice|open": 2,
+            "systemic|affected": 5,
+            "systemic|already-trying": 1,
+            "systemic|beneficiary": 1,
+            "systemic|implicated": 3,
+            "systemic|observer": 3,
+            "systemic|open": 3
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "agency",
+          "observedCombinations": 36,
+          "counts": {
+            "cultural|contribute": 4,
+            "cultural|delegate": 3,
+            "cultural|need-support": 1,
+            "cultural|organise": 3,
+            "cultural|sceptical": 1,
+            "institution|contribute": 1,
+            "institution|delegate": 1,
+            "institution|need-support": 1,
+            "institution|open": 2,
+            "institution|organise": 2,
+            "institution|sceptical": 1,
+            "open|contribute": 2,
+            "open|delegate": 1,
+            "open|need-support": 1,
+            "open|open": 1,
+            "open|organise": 1,
+            "open|sceptical": 2,
+            "personal|delegate": 1,
+            "personal|need-support": 1,
+            "personal|organise": 1,
+            "personal|sceptical": 1,
+            "relationship|contribute": 2,
+            "relationship|delegate": 1,
+            "relationship|open": 1,
+            "shared-practice|contribute": 3,
+            "shared-practice|delegate": 2,
+            "shared-practice|need-support": 2,
+            "shared-practice|open": 1,
+            "shared-practice|organise": 3,
+            "shared-practice|sceptical": 1,
+            "systemic|contribute": 4,
+            "systemic|delegate": 3,
+            "systemic|need-support": 2,
+            "systemic|open": 3,
+            "systemic|organise": 2,
+            "systemic|sceptical": 2
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "clarity",
+          "observedCombinations": 30,
+          "counts": {
+            "cultural|conflicted": 2,
+            "cultural|open": 1,
+            "cultural|proposal": 1,
+            "cultural|unsettled": 3,
+            "cultural|wish": 5,
+            "institution|conflicted": 1,
+            "institution|open": 1,
+            "institution|proposal": 2,
+            "institution|unsettled": 2,
+            "institution|wish": 2,
+            "open|conflicted": 1,
+            "open|open": 1,
+            "open|proposal": 2,
+            "open|unsettled": 2,
+            "open|wish": 2,
+            "personal|open": 1,
+            "personal|proposal": 1,
+            "personal|unsettled": 1,
+            "personal|wish": 1,
+            "relationship|conflicted": 2,
+            "relationship|wish": 2,
+            "shared-practice|open": 1,
+            "shared-practice|proposal": 3,
+            "shared-practice|unsettled": 4,
+            "shared-practice|wish": 4,
+            "systemic|conflicted": 2,
+            "systemic|open": 3,
+            "systemic|proposal": 3,
+            "systemic|unsettled": 4,
+            "systemic|wish": 4
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "tone",
+          "observedCombinations": 40,
+          "counts": {
+            "cultural|dry": 2,
+            "cultural|hopeful": 1,
+            "cultural|irritated": 2,
+            "cultural|matter-of-fact": 2,
+            "cultural|mixed": 1,
+            "cultural|warm": 2,
+            "cultural|weary": 2,
+            "institution|dry": 1,
+            "institution|hopeful": 2,
+            "institution|irritated": 1,
+            "institution|matter-of-fact": 1,
+            "institution|mixed": 1,
+            "institution|warm": 1,
+            "institution|weary": 1,
+            "open|hopeful": 2,
+            "open|irritated": 3,
+            "open|open": 2,
+            "open|warm": 1,
+            "personal|dry": 1,
+            "personal|hopeful": 1,
+            "personal|open": 1,
+            "personal|warm": 1,
+            "relationship|dry": 1,
+            "relationship|hopeful": 1,
+            "relationship|irritated": 1,
+            "relationship|weary": 1,
+            "shared-practice|dry": 2,
+            "shared-practice|hopeful": 2,
+            "shared-practice|irritated": 2,
+            "shared-practice|matter-of-fact": 3,
+            "shared-practice|warm": 2,
+            "shared-practice|weary": 1,
+            "systemic|dry": 1,
+            "systemic|hopeful": 3,
+            "systemic|irritated": 3,
+            "systemic|matter-of-fact": 2,
+            "systemic|mixed": 2,
+            "systemic|open": 1,
+            "systemic|warm": 1,
+            "systemic|weary": 3
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "form",
+          "observedCombinations": 35,
+          "counts": {
+            "cultural|anecdote": 2,
+            "cultural|digressive": 1,
+            "cultural|direct": 3,
+            "cultural|open": 1,
+            "cultural|practical": 2,
+            "cultural|question": 1,
+            "cultural|reflection": 2,
+            "institution|anecdote": 2,
+            "institution|digressive": 1,
+            "institution|direct": 3,
+            "institution|practical": 1,
+            "institution|reflection": 1,
+            "open|anecdote": 4,
+            "open|digressive": 1,
+            "open|direct": 1,
+            "open|practical": 1,
+            "open|reflection": 1,
+            "personal|anecdote": 1,
+            "personal|direct": 3,
+            "relationship|anecdote": 2,
+            "relationship|practical": 1,
+            "relationship|question": 1,
+            "shared-practice|anecdote": 2,
+            "shared-practice|direct": 3,
+            "shared-practice|open": 1,
+            "shared-practice|practical": 1,
+            "shared-practice|question": 3,
+            "shared-practice|reflection": 2,
+            "systemic|anecdote": 3,
+            "systemic|digressive": 1,
+            "systemic|direct": 3,
+            "systemic|open": 2,
+            "systemic|practical": 2,
+            "systemic|question": 3,
+            "systemic|reflection": 2
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "register",
+          "observedCombinations": 24,
+          "counts": {
+            "cultural|open": 4,
+            "cultural|plain": 5,
+            "cultural|political": 1,
+            "cultural|technical": 2,
+            "institution|open": 1,
+            "institution|plain": 5,
+            "institution|political": 1,
+            "institution|technical": 1,
+            "open|open": 1,
+            "open|plain": 5,
+            "open|political": 1,
+            "open|technical": 1,
+            "personal|open": 1,
+            "personal|plain": 3,
+            "relationship|open": 1,
+            "relationship|plain": 3,
+            "shared-practice|open": 2,
+            "shared-practice|plain": 7,
+            "shared-practice|political": 1,
+            "shared-practice|technical": 2,
+            "systemic|open": 2,
+            "systemic|plain": 8,
+            "systemic|political": 4,
+            "systemic|technical": 2
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "fluency",
+          "observedCombinations": 20,
+          "counts": {
+            "cultural|fluent": 6,
+            "cultural|open": 2,
+            "cultural|searching": 4,
+            "institution|fluent": 5,
+            "institution|open": 2,
+            "institution|searching": 1,
+            "open|fluent": 4,
+            "open|open": 2,
+            "open|searching": 2,
+            "personal|fluent": 3,
+            "personal|open": 1,
+            "relationship|fluent": 2,
+            "relationship|open": 1,
+            "relationship|searching": 1,
+            "shared-practice|fluent": 4,
+            "shared-practice|open": 4,
+            "shared-practice|searching": 4,
+            "systemic|fluent": 8,
+            "systemic|open": 4,
+            "systemic|searching": 4
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "rhythm",
+          "observedCombinations": 26,
+          "counts": {
+            "cultural|compact": 4,
+            "cultural|flowing": 5,
+            "cultural|open": 2,
+            "cultural|revising": 1,
+            "institution|compact": 2,
+            "institution|flowing": 2,
+            "institution|open": 1,
+            "institution|revising": 3,
+            "open|compact": 1,
+            "open|flowing": 3,
+            "open|open": 2,
+            "open|revising": 2,
+            "personal|compact": 1,
+            "personal|flowing": 1,
+            "personal|revising": 2,
+            "relationship|flowing": 1,
+            "relationship|open": 2,
+            "relationship|revising": 1,
+            "shared-practice|compact": 4,
+            "shared-practice|flowing": 4,
+            "shared-practice|open": 2,
+            "shared-practice|revising": 2,
+            "systemic|compact": 4,
+            "systemic|flowing": 4,
+            "systemic|open": 3,
+            "systemic|revising": 5
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "length",
+          "observedCombinations": 20,
+          "counts": {
+            "cultural|brief": 4,
+            "cultural|expansive": 2,
+            "cultural|typical": 6,
+            "institution|brief": 1,
+            "institution|expansive": 3,
+            "institution|typical": 4,
+            "open|brief": 2,
+            "open|expansive": 2,
+            "open|typical": 4,
+            "personal|brief": 1,
+            "personal|expansive": 1,
+            "personal|typical": 2,
+            "relationship|expansive": 1,
+            "relationship|typical": 3,
+            "shared-practice|brief": 3,
+            "shared-practice|expansive": 3,
+            "shared-practice|typical": 6,
+            "systemic|brief": 5,
+            "systemic|expansive": 4,
+            "systemic|typical": 7
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "abstraction",
+          "observedCombinations": 20,
+          "counts": {
+            "cultural|broad": 4,
+            "cultural|concrete": 3,
+            "cultural|mixed": 5,
+            "institution|broad": 1,
+            "institution|concrete": 4,
+            "institution|mixed": 3,
+            "open|broad": 3,
+            "open|concrete": 2,
+            "open|mixed": 3,
+            "personal|broad": 1,
+            "personal|concrete": 2,
+            "personal|mixed": 1,
+            "relationship|concrete": 2,
+            "relationship|mixed": 2,
+            "shared-practice|broad": 3,
+            "shared-practice|concrete": 5,
+            "shared-practice|mixed": 4,
+            "systemic|broad": 4,
+            "systemic|concrete": 6,
+            "systemic|mixed": 6
+          }
+        },
+        {
+          "left": "scale",
+          "right": "relationship",
+          "observedCombinations": 29,
+          "counts": {
+            "global|affected": 6,
+            "global|already-trying": 3,
+            "global|beneficiary": 2,
+            "global|implicated": 2,
+            "global|observer": 2,
+            "global|open": 1,
+            "group|affected": 3,
+            "group|beneficiary": 1,
+            "group|observer": 2,
+            "group|open": 2,
+            "household|affected": 3,
+            "household|open": 1,
+            "intimate|affected": 2,
+            "intimate|implicated": 1,
+            "intimate|open": 1,
+            "local|affected": 2,
+            "local|already-trying": 1,
+            "local|beneficiary": 2,
+            "local|implicated": 2,
+            "local|open": 1,
+            "national|affected": 4,
+            "national|already-trying": 2,
+            "national|beneficiary": 3,
+            "national|implicated": 3,
+            "national|observer": 2,
+            "national|open": 2,
+            "open|affected": 4,
+            "open|already-trying": 2,
+            "open|observer": 2
+          }
+        },
+        {
+          "left": "scale",
+          "right": "agency",
+          "observedCombinations": 35,
+          "counts": {
+            "global|contribute": 3,
+            "global|delegate": 3,
+            "global|need-support": 3,
+            "global|open": 2,
+            "global|organise": 2,
+            "global|sceptical": 3,
+            "group|contribute": 3,
+            "group|delegate": 1,
+            "group|need-support": 1,
+            "group|open": 2,
+            "group|organise": 1,
+            "household|contribute": 1,
+            "household|open": 1,
+            "household|organise": 1,
+            "household|sceptical": 1,
+            "intimate|contribute": 1,
+            "intimate|need-support": 1,
+            "intimate|open": 1,
+            "intimate|organise": 1,
+            "local|contribute": 2,
+            "local|delegate": 2,
+            "local|need-support": 1,
+            "local|organise": 2,
+            "local|sceptical": 1,
+            "national|contribute": 4,
+            "national|delegate": 4,
+            "national|need-support": 1,
+            "national|open": 1,
+            "national|organise": 3,
+            "national|sceptical": 3,
+            "open|contribute": 2,
+            "open|delegate": 2,
+            "open|need-support": 1,
+            "open|open": 1,
+            "open|organise": 2
+          }
+        },
+        {
+          "left": "scale",
+          "right": "clarity",
+          "observedCombinations": 29,
+          "counts": {
+            "global|conflicted": 2,
+            "global|open": 2,
+            "global|proposal": 3,
+            "global|unsettled": 4,
+            "global|wish": 5,
+            "group|proposal": 3,
+            "group|unsettled": 1,
+            "group|wish": 4,
+            "household|open": 1,
+            "household|unsettled": 1,
+            "household|wish": 2,
+            "intimate|conflicted": 1,
+            "intimate|open": 1,
+            "intimate|proposal": 1,
+            "intimate|unsettled": 1,
+            "local|conflicted": 1,
+            "local|proposal": 1,
+            "local|unsettled": 3,
+            "local|wish": 3,
+            "national|conflicted": 3,
+            "national|open": 3,
+            "national|proposal": 3,
+            "national|unsettled": 3,
+            "national|wish": 4,
+            "open|conflicted": 1,
+            "open|open": 1,
+            "open|proposal": 1,
+            "open|unsettled": 3,
+            "open|wish": 2
+          }
+        },
+        {
+          "left": "scale",
+          "right": "tone",
+          "observedCombinations": 40,
+          "counts": {
+            "global|dry": 2,
+            "global|hopeful": 3,
+            "global|irritated": 2,
+            "global|matter-of-fact": 2,
+            "global|mixed": 1,
+            "global|open": 1,
+            "global|warm": 3,
+            "global|weary": 2,
+            "group|dry": 1,
+            "group|hopeful": 2,
+            "group|irritated": 2,
+            "group|warm": 1,
+            "group|weary": 2,
+            "household|irritated": 1,
+            "household|matter-of-fact": 1,
+            "household|warm": 1,
+            "household|weary": 1,
+            "intimate|hopeful": 1,
+            "intimate|irritated": 1,
+            "intimate|matter-of-fact": 2,
+            "local|dry": 1,
+            "local|hopeful": 1,
+            "local|irritated": 1,
+            "local|matter-of-fact": 1,
+            "local|mixed": 2,
+            "local|open": 1,
+            "local|weary": 1,
+            "national|dry": 2,
+            "national|hopeful": 3,
+            "national|irritated": 3,
+            "national|matter-of-fact": 2,
+            "national|mixed": 1,
+            "national|open": 1,
+            "national|warm": 2,
+            "national|weary": 2,
+            "open|dry": 2,
+            "open|hopeful": 2,
+            "open|irritated": 2,
+            "open|open": 1,
+            "open|warm": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "form",
+          "observedCombinations": 35,
+          "counts": {
+            "global|anecdote": 3,
+            "global|digressive": 2,
+            "global|direct": 4,
+            "global|open": 1,
+            "global|practical": 3,
+            "global|reflection": 3,
+            "group|anecdote": 2,
+            "group|direct": 1,
+            "group|practical": 1,
+            "group|question": 3,
+            "group|reflection": 1,
+            "household|direct": 2,
+            "household|practical": 1,
+            "household|question": 1,
+            "intimate|anecdote": 1,
+            "intimate|direct": 1,
+            "intimate|practical": 1,
+            "intimate|question": 1,
+            "local|anecdote": 3,
+            "local|direct": 3,
+            "local|open": 1,
+            "local|reflection": 1,
+            "national|anecdote": 5,
+            "national|digressive": 1,
+            "national|direct": 3,
+            "national|open": 2,
+            "national|practical": 1,
+            "national|question": 2,
+            "national|reflection": 2,
+            "open|anecdote": 2,
+            "open|digressive": 1,
+            "open|direct": 2,
+            "open|practical": 1,
+            "open|question": 1,
+            "open|reflection": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "register",
+          "observedCombinations": 23,
+          "counts": {
+            "global|open": 4,
+            "global|plain": 8,
+            "global|political": 2,
+            "global|technical": 2,
+            "group|open": 1,
+            "group|plain": 4,
+            "group|political": 1,
+            "group|technical": 2,
+            "household|plain": 3,
+            "household|political": 1,
+            "intimate|plain": 3,
+            "intimate|technical": 1,
+            "local|open": 1,
+            "local|plain": 5,
+            "local|political": 1,
+            "local|technical": 1,
+            "national|open": 4,
+            "national|plain": 9,
+            "national|political": 1,
+            "national|technical": 2,
+            "open|open": 2,
+            "open|plain": 4,
+            "open|political": 2
+          }
+        },
+        {
+          "left": "scale",
+          "right": "fluency",
+          "observedCombinations": 21,
+          "counts": {
+            "global|fluent": 8,
+            "global|open": 5,
+            "global|searching": 3,
+            "group|fluent": 4,
+            "group|open": 2,
+            "group|searching": 2,
+            "household|fluent": 2,
+            "household|open": 1,
+            "household|searching": 1,
+            "intimate|fluent": 2,
+            "intimate|open": 1,
+            "intimate|searching": 1,
+            "local|fluent": 4,
+            "local|open": 2,
+            "local|searching": 2,
+            "national|fluent": 8,
+            "national|open": 3,
+            "national|searching": 5,
+            "open|fluent": 4,
+            "open|open": 2,
+            "open|searching": 2
+          }
+        },
+        {
+          "left": "scale",
+          "right": "rhythm",
+          "observedCombinations": 26,
+          "counts": {
+            "global|compact": 3,
+            "global|flowing": 6,
+            "global|open": 3,
+            "global|revising": 4,
+            "group|compact": 1,
+            "group|flowing": 4,
+            "group|open": 1,
+            "group|revising": 2,
+            "household|compact": 1,
+            "household|flowing": 2,
+            "household|open": 1,
+            "intimate|compact": 1,
+            "intimate|open": 2,
+            "intimate|revising": 1,
+            "local|compact": 3,
+            "local|flowing": 1,
+            "local|open": 1,
+            "local|revising": 3,
+            "national|compact": 4,
+            "national|flowing": 5,
+            "national|open": 3,
+            "national|revising": 4,
+            "open|compact": 3,
+            "open|flowing": 2,
+            "open|open": 1,
+            "open|revising": 2
+          }
+        },
+        {
+          "left": "scale",
+          "right": "length",
+          "observedCombinations": 20,
+          "counts": {
+            "global|brief": 4,
+            "global|expansive": 3,
+            "global|typical": 9,
+            "group|brief": 2,
+            "group|expansive": 1,
+            "group|typical": 5,
+            "household|brief": 1,
+            "household|expansive": 1,
+            "household|typical": 2,
+            "intimate|brief": 2,
+            "intimate|expansive": 1,
+            "intimate|typical": 1,
+            "local|expansive": 3,
+            "local|typical": 5,
+            "national|brief": 5,
+            "national|expansive": 4,
+            "national|typical": 7,
+            "open|brief": 2,
+            "open|expansive": 3,
+            "open|typical": 3
+          }
+        },
+        {
+          "left": "scale",
+          "right": "abstraction",
+          "observedCombinations": 21,
+          "counts": {
+            "global|broad": 4,
+            "global|concrete": 6,
+            "global|mixed": 6,
+            "group|broad": 1,
+            "group|concrete": 3,
+            "group|mixed": 4,
+            "household|broad": 1,
+            "household|concrete": 2,
+            "household|mixed": 1,
+            "intimate|broad": 1,
+            "intimate|concrete": 1,
+            "intimate|mixed": 2,
+            "local|broad": 2,
+            "local|concrete": 3,
+            "local|mixed": 3,
+            "national|broad": 5,
+            "national|concrete": 7,
+            "national|mixed": 4,
+            "open|broad": 2,
+            "open|concrete": 2,
+            "open|mixed": 4
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "agency",
+          "observedCombinations": 34,
+          "counts": {
+            "affected|contribute": 5,
+            "affected|delegate": 4,
+            "affected|need-support": 3,
+            "affected|open": 4,
+            "affected|organise": 4,
+            "affected|sceptical": 4,
+            "already-trying|contribute": 3,
+            "already-trying|delegate": 1,
+            "already-trying|need-support": 1,
+            "already-trying|organise": 2,
+            "already-trying|sceptical": 1,
+            "beneficiary|contribute": 1,
+            "beneficiary|delegate": 2,
+            "beneficiary|need-support": 1,
+            "beneficiary|open": 1,
+            "beneficiary|organise": 2,
+            "beneficiary|sceptical": 1,
+            "implicated|contribute": 2,
+            "implicated|delegate": 2,
+            "implicated|need-support": 1,
+            "implicated|open": 1,
+            "implicated|organise": 1,
+            "implicated|sceptical": 1,
+            "observer|contribute": 3,
+            "observer|delegate": 1,
+            "observer|need-support": 1,
+            "observer|open": 1,
+            "observer|organise": 1,
+            "observer|sceptical": 1,
+            "open|contribute": 2,
+            "open|delegate": 2,
+            "open|need-support": 1,
+            "open|open": 1,
+            "open|organise": 2
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "clarity",
+          "observedCombinations": 27,
+          "counts": {
+            "affected|conflicted": 3,
+            "affected|open": 4,
+            "affected|proposal": 4,
+            "affected|unsettled": 6,
+            "affected|wish": 7,
+            "already-trying|open": 2,
+            "already-trying|proposal": 2,
+            "already-trying|unsettled": 1,
+            "already-trying|wish": 3,
+            "beneficiary|conflicted": 1,
+            "beneficiary|open": 1,
+            "beneficiary|proposal": 1,
+            "beneficiary|unsettled": 2,
+            "beneficiary|wish": 3,
+            "implicated|conflicted": 1,
+            "implicated|proposal": 1,
+            "implicated|unsettled": 3,
+            "implicated|wish": 3,
+            "observer|conflicted": 2,
+            "observer|proposal": 2,
+            "observer|unsettled": 2,
+            "observer|wish": 2,
+            "open|conflicted": 1,
+            "open|open": 1,
+            "open|proposal": 2,
+            "open|unsettled": 2,
+            "open|wish": 2
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "tone",
+          "observedCombinations": 39,
+          "counts": {
+            "affected|dry": 4,
+            "affected|hopeful": 4,
+            "affected|irritated": 4,
+            "affected|matter-of-fact": 3,
+            "affected|mixed": 1,
+            "affected|open": 1,
+            "affected|warm": 4,
+            "affected|weary": 3,
+            "already-trying|dry": 1,
+            "already-trying|hopeful": 2,
+            "already-trying|irritated": 2,
+            "already-trying|matter-of-fact": 1,
+            "already-trying|warm": 1,
+            "already-trying|weary": 1,
+            "beneficiary|hopeful": 2,
+            "beneficiary|irritated": 3,
+            "beneficiary|matter-of-fact": 1,
+            "beneficiary|warm": 1,
+            "beneficiary|weary": 1,
+            "implicated|dry": 1,
+            "implicated|hopeful": 1,
+            "implicated|irritated": 1,
+            "implicated|matter-of-fact": 1,
+            "implicated|mixed": 1,
+            "implicated|open": 1,
+            "implicated|warm": 1,
+            "implicated|weary": 1,
+            "observer|dry": 1,
+            "observer|hopeful": 2,
+            "observer|irritated": 1,
+            "observer|matter-of-fact": 1,
+            "observer|open": 2,
+            "observer|warm": 1,
+            "open|dry": 1,
+            "open|hopeful": 1,
+            "open|irritated": 1,
+            "open|matter-of-fact": 1,
+            "open|mixed": 2,
+            "open|weary": 2
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "form",
+          "observedCombinations": 32,
+          "counts": {
+            "affected|anecdote": 5,
+            "affected|digressive": 1,
+            "affected|direct": 5,
+            "affected|open": 3,
+            "affected|practical": 4,
+            "affected|question": 3,
+            "affected|reflection": 3,
+            "already-trying|anecdote": 3,
+            "already-trying|direct": 2,
+            "already-trying|question": 1,
+            "already-trying|reflection": 2,
+            "beneficiary|anecdote": 2,
+            "beneficiary|direct": 4,
+            "beneficiary|practical": 1,
+            "beneficiary|question": 1,
+            "implicated|anecdote": 2,
+            "implicated|digressive": 2,
+            "implicated|direct": 1,
+            "implicated|open": 1,
+            "implicated|practical": 1,
+            "implicated|reflection": 1,
+            "observer|anecdote": 2,
+            "observer|digressive": 1,
+            "observer|direct": 2,
+            "observer|practical": 1,
+            "observer|question": 1,
+            "observer|reflection": 1,
+            "open|anecdote": 2,
+            "open|direct": 2,
+            "open|practical": 1,
+            "open|question": 2,
+            "open|reflection": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "register",
+          "observedCombinations": 22,
+          "counts": {
+            "affected|open": 5,
+            "affected|plain": 11,
+            "affected|political": 4,
+            "affected|technical": 4,
+            "already-trying|open": 2,
+            "already-trying|plain": 4,
+            "already-trying|political": 1,
+            "already-trying|technical": 1,
+            "beneficiary|open": 2,
+            "beneficiary|plain": 4,
+            "beneficiary|political": 1,
+            "beneficiary|technical": 1,
+            "implicated|open": 1,
+            "implicated|plain": 6,
+            "implicated|technical": 1,
+            "observer|open": 1,
+            "observer|plain": 5,
+            "observer|political": 1,
+            "observer|technical": 1,
+            "open|open": 1,
+            "open|plain": 6,
+            "open|political": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "fluency",
+          "observedCombinations": 18,
+          "counts": {
+            "affected|fluent": 11,
+            "affected|open": 6,
+            "affected|searching": 7,
+            "already-trying|fluent": 4,
+            "already-trying|open": 2,
+            "already-trying|searching": 2,
+            "beneficiary|fluent": 4,
+            "beneficiary|open": 2,
+            "beneficiary|searching": 2,
+            "implicated|fluent": 4,
+            "implicated|open": 3,
+            "implicated|searching": 1,
+            "observer|fluent": 4,
+            "observer|open": 2,
+            "observer|searching": 2,
+            "open|fluent": 5,
+            "open|open": 1,
+            "open|searching": 2
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "rhythm",
+          "observedCombinations": 22,
+          "counts": {
+            "affected|compact": 4,
+            "affected|flowing": 8,
+            "affected|open": 5,
+            "affected|revising": 7,
+            "already-trying|compact": 3,
+            "already-trying|flowing": 1,
+            "already-trying|open": 1,
+            "already-trying|revising": 3,
+            "beneficiary|compact": 3,
+            "beneficiary|flowing": 4,
+            "beneficiary|open": 1,
+            "implicated|compact": 3,
+            "implicated|flowing": 3,
+            "implicated|revising": 2,
+            "observer|compact": 2,
+            "observer|flowing": 1,
+            "observer|open": 2,
+            "observer|revising": 3,
+            "open|compact": 1,
+            "open|flowing": 3,
+            "open|open": 3,
+            "open|revising": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "length",
+          "observedCombinations": 18,
+          "counts": {
+            "affected|brief": 5,
+            "affected|expansive": 8,
+            "affected|typical": 11,
+            "already-trying|brief": 3,
+            "already-trying|expansive": 1,
+            "already-trying|typical": 4,
+            "beneficiary|brief": 2,
+            "beneficiary|expansive": 2,
+            "beneficiary|typical": 4,
+            "implicated|brief": 2,
+            "implicated|expansive": 3,
+            "implicated|typical": 3,
+            "observer|brief": 3,
+            "observer|expansive": 1,
+            "observer|typical": 4,
+            "open|brief": 1,
+            "open|expansive": 1,
+            "open|typical": 6
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "abstraction",
+          "observedCombinations": 18,
+          "counts": {
+            "affected|broad": 6,
+            "affected|concrete": 8,
+            "affected|mixed": 10,
+            "already-trying|broad": 2,
+            "already-trying|concrete": 3,
+            "already-trying|mixed": 3,
+            "beneficiary|broad": 1,
+            "beneficiary|concrete": 4,
+            "beneficiary|mixed": 3,
+            "implicated|broad": 3,
+            "implicated|concrete": 3,
+            "implicated|mixed": 2,
+            "observer|broad": 2,
+            "observer|concrete": 2,
+            "observer|mixed": 4,
+            "open|broad": 2,
+            "open|concrete": 4,
+            "open|mixed": 2
+          }
+        },
+        {
+          "left": "agency",
+          "right": "clarity",
+          "observedCombinations": 29,
+          "counts": {
+            "contribute|conflicted": 2,
+            "contribute|open": 2,
+            "contribute|proposal": 2,
+            "contribute|unsettled": 4,
+            "contribute|wish": 6,
+            "delegate|conflicted": 3,
+            "delegate|open": 1,
+            "delegate|proposal": 2,
+            "delegate|unsettled": 3,
+            "delegate|wish": 3,
+            "need-support|conflicted": 1,
+            "need-support|open": 1,
+            "need-support|proposal": 3,
+            "need-support|unsettled": 1,
+            "need-support|wish": 2,
+            "open|open": 1,
+            "open|proposal": 2,
+            "open|unsettled": 2,
+            "open|wish": 3,
+            "organise|conflicted": 1,
+            "organise|open": 1,
+            "organise|proposal": 2,
+            "organise|unsettled": 3,
+            "organise|wish": 5,
+            "sceptical|conflicted": 1,
+            "sceptical|open": 2,
+            "sceptical|proposal": 1,
+            "sceptical|unsettled": 3,
+            "sceptical|wish": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "tone",
+          "observedCombinations": 37,
+          "counts": {
+            "contribute|dry": 2,
+            "contribute|hopeful": 3,
+            "contribute|irritated": 3,
+            "contribute|matter-of-fact": 2,
+            "contribute|mixed": 2,
+            "contribute|warm": 2,
+            "contribute|weary": 2,
+            "delegate|dry": 2,
+            "delegate|hopeful": 1,
+            "delegate|irritated": 2,
+            "delegate|matter-of-fact": 1,
+            "delegate|mixed": 1,
+            "delegate|open": 1,
+            "delegate|warm": 3,
+            "delegate|weary": 1,
+            "need-support|dry": 1,
+            "need-support|hopeful": 3,
+            "need-support|irritated": 2,
+            "need-support|matter-of-fact": 1,
+            "need-support|weary": 1,
+            "open|hopeful": 2,
+            "open|irritated": 2,
+            "open|matter-of-fact": 1,
+            "open|mixed": 1,
+            "open|weary": 2,
+            "organise|dry": 1,
+            "organise|hopeful": 2,
+            "organise|irritated": 1,
+            "organise|matter-of-fact": 3,
+            "organise|open": 1,
+            "organise|warm": 2,
+            "organise|weary": 2,
+            "sceptical|dry": 2,
+            "sceptical|hopeful": 1,
+            "sceptical|irritated": 2,
+            "sceptical|open": 2,
+            "sceptical|warm": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "form",
+          "observedCombinations": 34,
+          "counts": {
+            "contribute|anecdote": 4,
+            "contribute|direct": 5,
+            "contribute|open": 1,
+            "contribute|practical": 1,
+            "contribute|question": 3,
+            "contribute|reflection": 2,
+            "delegate|anecdote": 3,
+            "delegate|digressive": 1,
+            "delegate|direct": 2,
+            "delegate|practical": 3,
+            "delegate|question": 1,
+            "delegate|reflection": 2,
+            "need-support|anecdote": 1,
+            "need-support|digressive": 1,
+            "need-support|direct": 2,
+            "need-support|open": 2,
+            "need-support|practical": 1,
+            "need-support|question": 1,
+            "open|anecdote": 2,
+            "open|digressive": 1,
+            "open|direct": 2,
+            "open|practical": 1,
+            "open|question": 1,
+            "open|reflection": 1,
+            "organise|anecdote": 4,
+            "organise|digressive": 1,
+            "organise|direct": 2,
+            "organise|practical": 2,
+            "organise|question": 2,
+            "organise|reflection": 1,
+            "sceptical|anecdote": 2,
+            "sceptical|direct": 3,
+            "sceptical|open": 1,
+            "sceptical|reflection": 2
+          }
+        },
+        {
+          "left": "agency",
+          "right": "register",
+          "observedCombinations": 22,
+          "counts": {
+            "contribute|open": 3,
+            "contribute|plain": 7,
+            "contribute|political": 4,
+            "contribute|technical": 2,
+            "delegate|open": 2,
+            "delegate|plain": 7,
+            "delegate|political": 1,
+            "delegate|technical": 2,
+            "need-support|open": 1,
+            "need-support|plain": 5,
+            "need-support|political": 1,
+            "need-support|technical": 1,
+            "open|open": 2,
+            "open|plain": 5,
+            "open|technical": 1,
+            "organise|open": 2,
+            "organise|plain": 7,
+            "organise|political": 2,
+            "organise|technical": 1,
+            "sceptical|open": 2,
+            "sceptical|plain": 5,
+            "sceptical|technical": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "fluency",
+          "observedCombinations": 18,
+          "counts": {
+            "contribute|fluent": 7,
+            "contribute|open": 5,
+            "contribute|searching": 4,
+            "delegate|fluent": 5,
+            "delegate|open": 4,
+            "delegate|searching": 3,
+            "need-support|fluent": 5,
+            "need-support|open": 1,
+            "need-support|searching": 2,
+            "open|fluent": 3,
+            "open|open": 2,
+            "open|searching": 3,
+            "organise|fluent": 6,
+            "organise|open": 3,
+            "organise|searching": 3,
+            "sceptical|fluent": 6,
+            "sceptical|open": 1,
+            "sceptical|searching": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "rhythm",
+          "observedCombinations": 24,
+          "counts": {
+            "contribute|compact": 5,
+            "contribute|flowing": 4,
+            "contribute|open": 3,
+            "contribute|revising": 4,
+            "delegate|compact": 2,
+            "delegate|flowing": 4,
+            "delegate|open": 3,
+            "delegate|revising": 3,
+            "need-support|compact": 3,
+            "need-support|flowing": 1,
+            "need-support|open": 2,
+            "need-support|revising": 2,
+            "open|compact": 1,
+            "open|flowing": 4,
+            "open|open": 1,
+            "open|revising": 2,
+            "organise|compact": 3,
+            "organise|flowing": 5,
+            "organise|open": 1,
+            "organise|revising": 3,
+            "sceptical|compact": 2,
+            "sceptical|flowing": 2,
+            "sceptical|open": 2,
+            "sceptical|revising": 2
+          }
+        },
+        {
+          "left": "agency",
+          "right": "length",
+          "observedCombinations": 18,
+          "counts": {
+            "contribute|brief": 5,
+            "contribute|expansive": 4,
+            "contribute|typical": 7,
+            "delegate|brief": 3,
+            "delegate|expansive": 4,
+            "delegate|typical": 5,
+            "need-support|brief": 1,
+            "need-support|expansive": 2,
+            "need-support|typical": 5,
+            "open|brief": 2,
+            "open|expansive": 2,
+            "open|typical": 4,
+            "organise|brief": 3,
+            "organise|expansive": 3,
+            "organise|typical": 6,
+            "sceptical|brief": 2,
+            "sceptical|expansive": 1,
+            "sceptical|typical": 5
+          }
+        },
+        {
+          "left": "agency",
+          "right": "abstraction",
+          "observedCombinations": 18,
+          "counts": {
+            "contribute|broad": 5,
+            "contribute|concrete": 6,
+            "contribute|mixed": 5,
+            "delegate|broad": 4,
+            "delegate|concrete": 3,
+            "delegate|mixed": 5,
+            "need-support|broad": 2,
+            "need-support|concrete": 3,
+            "need-support|mixed": 3,
+            "open|broad": 1,
+            "open|concrete": 4,
+            "open|mixed": 3,
+            "organise|broad": 2,
+            "organise|concrete": 5,
+            "organise|mixed": 5,
+            "sceptical|broad": 2,
+            "sceptical|concrete": 3,
+            "sceptical|mixed": 3
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "tone",
+          "observedCombinations": 32,
+          "counts": {
+            "conflicted|dry": 2,
+            "conflicted|hopeful": 1,
+            "conflicted|matter-of-fact": 2,
+            "conflicted|mixed": 1,
+            "conflicted|warm": 1,
+            "conflicted|weary": 1,
+            "open|dry": 1,
+            "open|hopeful": 2,
+            "open|irritated": 2,
+            "open|matter-of-fact": 1,
+            "open|warm": 2,
+            "proposal|hopeful": 3,
+            "proposal|irritated": 3,
+            "proposal|matter-of-fact": 1,
+            "proposal|open": 2,
+            "proposal|warm": 1,
+            "proposal|weary": 2,
+            "unsettled|dry": 3,
+            "unsettled|hopeful": 2,
+            "unsettled|irritated": 3,
+            "unsettled|matter-of-fact": 1,
+            "unsettled|mixed": 1,
+            "unsettled|open": 2,
+            "unsettled|warm": 2,
+            "unsettled|weary": 2,
+            "wish|dry": 2,
+            "wish|hopeful": 4,
+            "wish|irritated": 4,
+            "wish|matter-of-fact": 3,
+            "wish|mixed": 2,
+            "wish|warm": 2,
+            "wish|weary": 3
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "form",
+          "observedCombinations": 31,
+          "counts": {
+            "conflicted|anecdote": 2,
+            "conflicted|digressive": 1,
+            "conflicted|direct": 2,
+            "conflicted|practical": 1,
+            "conflicted|question": 1,
+            "conflicted|reflection": 1,
+            "open|anecdote": 2,
+            "open|direct": 3,
+            "open|open": 1,
+            "open|practical": 1,
+            "open|reflection": 1,
+            "proposal|anecdote": 2,
+            "proposal|direct": 3,
+            "proposal|open": 1,
+            "proposal|practical": 2,
+            "proposal|question": 2,
+            "proposal|reflection": 2,
+            "unsettled|anecdote": 5,
+            "unsettled|digressive": 1,
+            "unsettled|direct": 4,
+            "unsettled|open": 1,
+            "unsettled|practical": 1,
+            "unsettled|question": 2,
+            "unsettled|reflection": 2,
+            "wish|anecdote": 5,
+            "wish|digressive": 2,
+            "wish|direct": 4,
+            "wish|open": 1,
+            "wish|practical": 3,
+            "wish|question": 3,
+            "wish|reflection": 2
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "register",
+          "observedCombinations": 19,
+          "counts": {
+            "conflicted|open": 1,
+            "conflicted|plain": 6,
+            "conflicted|political": 1,
+            "open|open": 1,
+            "open|plain": 5,
+            "open|political": 1,
+            "open|technical": 1,
+            "proposal|open": 3,
+            "proposal|plain": 6,
+            "proposal|political": 2,
+            "proposal|technical": 1,
+            "unsettled|open": 2,
+            "unsettled|plain": 9,
+            "unsettled|political": 2,
+            "unsettled|technical": 3,
+            "wish|open": 5,
+            "wish|plain": 10,
+            "wish|political": 2,
+            "wish|technical": 3
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "fluency",
+          "observedCombinations": 15,
+          "counts": {
+            "conflicted|fluent": 4,
+            "conflicted|open": 3,
+            "conflicted|searching": 1,
+            "open|fluent": 4,
+            "open|open": 1,
+            "open|searching": 3,
+            "proposal|fluent": 7,
+            "proposal|open": 3,
+            "proposal|searching": 2,
+            "unsettled|fluent": 8,
+            "unsettled|open": 4,
+            "unsettled|searching": 4,
+            "wish|fluent": 9,
+            "wish|open": 5,
+            "wish|searching": 6
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "rhythm",
+          "observedCombinations": 19,
+          "counts": {
+            "conflicted|compact": 3,
+            "conflicted|flowing": 3,
+            "conflicted|revising": 2,
+            "open|compact": 2,
+            "open|flowing": 3,
+            "open|open": 1,
+            "open|revising": 2,
+            "proposal|compact": 2,
+            "proposal|flowing": 3,
+            "proposal|open": 3,
+            "proposal|revising": 4,
+            "unsettled|compact": 5,
+            "unsettled|flowing": 5,
+            "unsettled|open": 3,
+            "unsettled|revising": 3,
+            "wish|compact": 4,
+            "wish|flowing": 6,
+            "wish|open": 5,
+            "wish|revising": 5
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "length",
+          "observedCombinations": 15,
+          "counts": {
+            "conflicted|brief": 1,
+            "conflicted|expansive": 2,
+            "conflicted|typical": 5,
+            "open|brief": 2,
+            "open|expansive": 1,
+            "open|typical": 5,
+            "proposal|brief": 3,
+            "proposal|expansive": 4,
+            "proposal|typical": 5,
+            "unsettled|brief": 5,
+            "unsettled|expansive": 4,
+            "unsettled|typical": 7,
+            "wish|brief": 5,
+            "wish|expansive": 5,
+            "wish|typical": 10
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "abstraction",
+          "observedCombinations": 15,
+          "counts": {
+            "conflicted|broad": 1,
+            "conflicted|concrete": 3,
+            "conflicted|mixed": 4,
+            "open|broad": 2,
+            "open|concrete": 3,
+            "open|mixed": 3,
+            "proposal|broad": 5,
+            "proposal|concrete": 4,
+            "proposal|mixed": 3,
+            "unsettled|broad": 4,
+            "unsettled|concrete": 6,
+            "unsettled|mixed": 6,
+            "wish|broad": 4,
+            "wish|concrete": 8,
+            "wish|mixed": 8
+          }
+        },
+        {
+          "left": "tone",
+          "right": "form",
+          "observedCombinations": 44,
+          "counts": {
+            "dry|anecdote": 1,
+            "dry|direct": 2,
+            "dry|open": 1,
+            "dry|practical": 1,
+            "dry|question": 1,
+            "dry|reflection": 2,
+            "hopeful|anecdote": 3,
+            "hopeful|digressive": 1,
+            "hopeful|direct": 4,
+            "hopeful|practical": 1,
+            "hopeful|question": 2,
+            "hopeful|reflection": 1,
+            "irritated|anecdote": 4,
+            "irritated|digressive": 1,
+            "irritated|direct": 2,
+            "irritated|open": 1,
+            "irritated|practical": 1,
+            "irritated|question": 2,
+            "irritated|reflection": 1,
+            "matter-of-fact|anecdote": 1,
+            "matter-of-fact|digressive": 1,
+            "matter-of-fact|direct": 3,
+            "matter-of-fact|practical": 1,
+            "matter-of-fact|question": 1,
+            "matter-of-fact|reflection": 1,
+            "mixed|anecdote": 1,
+            "mixed|direct": 1,
+            "mixed|open": 1,
+            "mixed|reflection": 1,
+            "open|anecdote": 1,
+            "open|direct": 1,
+            "open|practical": 1,
+            "open|reflection": 1,
+            "warm|anecdote": 2,
+            "warm|digressive": 1,
+            "warm|direct": 2,
+            "warm|practical": 1,
+            "warm|question": 1,
+            "warm|reflection": 1,
+            "weary|anecdote": 3,
+            "weary|direct": 1,
+            "weary|open": 1,
+            "weary|practical": 2,
+            "weary|question": 1
+          }
+        },
+        {
+          "left": "tone",
+          "right": "register",
+          "observedCombinations": 26,
+          "counts": {
+            "dry|open": 1,
+            "dry|plain": 5,
+            "dry|political": 1,
+            "dry|technical": 1,
+            "hopeful|open": 2,
+            "hopeful|plain": 5,
+            "hopeful|political": 1,
+            "hopeful|technical": 4,
+            "irritated|open": 2,
+            "irritated|plain": 7,
+            "irritated|political": 2,
+            "irritated|technical": 1,
+            "matter-of-fact|open": 2,
+            "matter-of-fact|plain": 4,
+            "matter-of-fact|political": 2,
+            "mixed|open": 1,
+            "mixed|plain": 3,
+            "open|plain": 3,
+            "open|technical": 1,
+            "warm|open": 2,
+            "warm|plain": 4,
+            "warm|political": 1,
+            "warm|technical": 1,
+            "weary|open": 2,
+            "weary|plain": 5,
+            "weary|political": 1
+          }
+        },
+        {
+          "left": "tone",
+          "right": "fluency",
+          "observedCombinations": 20,
+          "counts": {
+            "dry|fluent": 5,
+            "dry|open": 3,
+            "hopeful|fluent": 5,
+            "hopeful|open": 3,
+            "hopeful|searching": 4,
+            "irritated|fluent": 5,
+            "irritated|open": 4,
+            "irritated|searching": 3,
+            "matter-of-fact|fluent": 3,
+            "matter-of-fact|open": 2,
+            "matter-of-fact|searching": 3,
+            "mixed|fluent": 2,
+            "mixed|open": 1,
+            "mixed|searching": 1,
+            "open|fluent": 4,
+            "warm|fluent": 3,
+            "warm|open": 3,
+            "warm|searching": 2,
+            "weary|fluent": 5,
+            "weary|searching": 3
+          }
+        },
+        {
+          "left": "tone",
+          "right": "rhythm",
+          "observedCombinations": 30,
+          "counts": {
+            "dry|compact": 2,
+            "dry|flowing": 2,
+            "dry|open": 1,
+            "dry|revising": 3,
+            "hopeful|compact": 2,
+            "hopeful|flowing": 4,
+            "hopeful|open": 2,
+            "hopeful|revising": 4,
+            "irritated|compact": 3,
+            "irritated|flowing": 3,
+            "irritated|open": 4,
+            "irritated|revising": 2,
+            "matter-of-fact|compact": 3,
+            "matter-of-fact|flowing": 2,
+            "matter-of-fact|open": 1,
+            "matter-of-fact|revising": 2,
+            "mixed|compact": 2,
+            "mixed|flowing": 1,
+            "mixed|open": 1,
+            "open|flowing": 1,
+            "open|open": 1,
+            "open|revising": 2,
+            "warm|compact": 2,
+            "warm|flowing": 4,
+            "warm|open": 1,
+            "warm|revising": 1,
+            "weary|compact": 2,
+            "weary|flowing": 3,
+            "weary|open": 1,
+            "weary|revising": 2
+          }
+        },
+        {
+          "left": "tone",
+          "right": "length",
+          "observedCombinations": 23,
+          "counts": {
+            "dry|brief": 1,
+            "dry|expansive": 3,
+            "dry|typical": 4,
+            "hopeful|brief": 2,
+            "hopeful|expansive": 3,
+            "hopeful|typical": 7,
+            "irritated|brief": 4,
+            "irritated|expansive": 3,
+            "irritated|typical": 5,
+            "matter-of-fact|brief": 3,
+            "matter-of-fact|expansive": 2,
+            "matter-of-fact|typical": 3,
+            "mixed|brief": 1,
+            "mixed|expansive": 1,
+            "mixed|typical": 2,
+            "open|brief": 2,
+            "open|typical": 2,
+            "warm|brief": 2,
+            "warm|expansive": 2,
+            "warm|typical": 4,
+            "weary|brief": 1,
+            "weary|expansive": 2,
+            "weary|typical": 5
+          }
+        },
+        {
+          "left": "tone",
+          "right": "abstraction",
+          "observedCombinations": 22,
+          "counts": {
+            "dry|broad": 2,
+            "dry|concrete": 2,
+            "dry|mixed": 4,
+            "hopeful|broad": 3,
+            "hopeful|concrete": 5,
+            "hopeful|mixed": 4,
+            "irritated|broad": 3,
+            "irritated|concrete": 4,
+            "irritated|mixed": 5,
+            "matter-of-fact|broad": 2,
+            "matter-of-fact|concrete": 4,
+            "matter-of-fact|mixed": 2,
+            "mixed|concrete": 3,
+            "mixed|mixed": 1,
+            "open|broad": 2,
+            "open|mixed": 2,
+            "warm|broad": 1,
+            "warm|concrete": 4,
+            "warm|mixed": 3,
+            "weary|broad": 3,
+            "weary|concrete": 2,
+            "weary|mixed": 3
+          }
+        },
+        {
+          "left": "form",
+          "right": "register",
+          "observedCombinations": 25,
+          "counts": {
+            "anecdote|open": 4,
+            "anecdote|plain": 8,
+            "anecdote|political": 2,
+            "anecdote|technical": 2,
+            "digressive|open": 1,
+            "digressive|plain": 3,
+            "direct|open": 2,
+            "direct|plain": 9,
+            "direct|political": 2,
+            "direct|technical": 3,
+            "open|open": 1,
+            "open|plain": 2,
+            "open|political": 1,
+            "practical|open": 1,
+            "practical|plain": 5,
+            "practical|political": 1,
+            "practical|technical": 1,
+            "question|open": 1,
+            "question|plain": 5,
+            "question|political": 1,
+            "question|technical": 1,
+            "reflection|open": 2,
+            "reflection|plain": 4,
+            "reflection|political": 1,
+            "reflection|technical": 1
+          }
+        },
+        {
+          "left": "form",
+          "right": "fluency",
+          "observedCombinations": 17,
+          "counts": {
+            "anecdote|fluent": 7,
+            "anecdote|open": 4,
+            "anecdote|searching": 5,
+            "digressive|fluent": 2,
+            "digressive|open": 2,
+            "direct|fluent": 8,
+            "direct|open": 4,
+            "direct|searching": 4,
+            "open|fluent": 4,
+            "practical|fluent": 4,
+            "practical|searching": 4,
+            "question|fluent": 4,
+            "question|open": 3,
+            "question|searching": 1,
+            "reflection|fluent": 3,
+            "reflection|open": 3,
+            "reflection|searching": 2
+          }
+        },
+        {
+          "left": "form",
+          "right": "rhythm",
+          "observedCombinations": 24,
+          "counts": {
+            "anecdote|compact": 4,
+            "anecdote|flowing": 4,
+            "anecdote|open": 3,
+            "anecdote|revising": 5,
+            "digressive|compact": 1,
+            "digressive|flowing": 3,
+            "direct|compact": 4,
+            "direct|flowing": 6,
+            "direct|open": 2,
+            "direct|revising": 4,
+            "open|open": 2,
+            "open|revising": 2,
+            "practical|compact": 2,
+            "practical|flowing": 2,
+            "practical|open": 2,
+            "practical|revising": 2,
+            "question|compact": 2,
+            "question|flowing": 2,
+            "question|open": 2,
+            "question|revising": 2,
+            "reflection|compact": 3,
+            "reflection|flowing": 3,
+            "reflection|open": 1,
+            "reflection|revising": 1
+          }
+        },
+        {
+          "left": "form",
+          "right": "length",
+          "observedCombinations": 21,
+          "counts": {
+            "anecdote|brief": 4,
+            "anecdote|expansive": 5,
+            "anecdote|typical": 7,
+            "digressive|brief": 1,
+            "digressive|expansive": 1,
+            "digressive|typical": 2,
+            "direct|brief": 4,
+            "direct|expansive": 5,
+            "direct|typical": 7,
+            "open|brief": 1,
+            "open|expansive": 1,
+            "open|typical": 2,
+            "practical|brief": 3,
+            "practical|expansive": 1,
+            "practical|typical": 4,
+            "question|brief": 2,
+            "question|expansive": 2,
+            "question|typical": 4,
+            "reflection|brief": 1,
+            "reflection|expansive": 1,
+            "reflection|typical": 6
+          }
+        },
+        {
+          "left": "form",
+          "right": "abstraction",
+          "observedCombinations": 20,
+          "counts": {
+            "anecdote|broad": 4,
+            "anecdote|concrete": 6,
+            "anecdote|mixed": 6,
+            "digressive|broad": 1,
+            "digressive|concrete": 2,
+            "digressive|mixed": 1,
+            "direct|broad": 5,
+            "direct|concrete": 5,
+            "direct|mixed": 6,
+            "open|concrete": 3,
+            "open|mixed": 1,
+            "practical|broad": 2,
+            "practical|concrete": 3,
+            "practical|mixed": 3,
+            "question|broad": 3,
+            "question|concrete": 2,
+            "question|mixed": 3,
+            "reflection|broad": 1,
+            "reflection|concrete": 3,
+            "reflection|mixed": 4
+          }
+        },
+        {
+          "left": "register",
+          "right": "fluency",
+          "observedCombinations": 12,
+          "counts": {
+            "open|fluent": 7,
+            "open|open": 2,
+            "open|searching": 3,
+            "plain|fluent": 15,
+            "plain|open": 11,
+            "plain|searching": 10,
+            "political|fluent": 5,
+            "political|open": 2,
+            "political|searching": 1,
+            "technical|fluent": 5,
+            "technical|open": 1,
+            "technical|searching": 2
+          }
+        },
+        {
+          "left": "register",
+          "right": "rhythm",
+          "observedCombinations": 16,
+          "counts": {
+            "open|compact": 3,
+            "open|flowing": 4,
+            "open|open": 2,
+            "open|revising": 3,
+            "plain|compact": 9,
+            "plain|flowing": 11,
+            "plain|open": 7,
+            "plain|revising": 9,
+            "political|compact": 1,
+            "political|flowing": 3,
+            "political|open": 2,
+            "political|revising": 2,
+            "technical|compact": 3,
+            "technical|flowing": 2,
+            "technical|open": 1,
+            "technical|revising": 2
+          }
+        },
+        {
+          "left": "register",
+          "right": "length",
+          "observedCombinations": 12,
+          "counts": {
+            "open|brief": 3,
+            "open|expansive": 2,
+            "open|typical": 7,
+            "plain|brief": 11,
+            "plain|expansive": 10,
+            "plain|typical": 15,
+            "political|brief": 1,
+            "political|expansive": 2,
+            "political|typical": 5,
+            "technical|brief": 1,
+            "technical|expansive": 2,
+            "technical|typical": 5
+          }
+        },
+        {
+          "left": "register",
+          "right": "abstraction",
+          "observedCombinations": 12,
+          "counts": {
+            "open|broad": 2,
+            "open|concrete": 6,
+            "open|mixed": 4,
+            "plain|broad": 10,
+            "plain|concrete": 14,
+            "plain|mixed": 12,
+            "political|broad": 1,
+            "political|concrete": 2,
+            "political|mixed": 5,
+            "technical|broad": 3,
+            "technical|concrete": 2,
+            "technical|mixed": 3
+          }
+        },
+        {
+          "left": "fluency",
+          "right": "rhythm",
+          "observedCombinations": 12,
+          "counts": {
+            "fluent|compact": 8,
+            "fluent|flowing": 9,
+            "fluent|open": 7,
+            "fluent|revising": 8,
+            "open|compact": 4,
+            "open|flowing": 5,
+            "open|open": 3,
+            "open|revising": 4,
+            "searching|compact": 4,
+            "searching|flowing": 6,
+            "searching|open": 2,
+            "searching|revising": 4
+          }
+        },
+        {
+          "left": "fluency",
+          "right": "length",
+          "observedCombinations": 9,
+          "counts": {
+            "fluent|brief": 9,
+            "fluent|expansive": 9,
+            "fluent|typical": 14,
+            "open|brief": 4,
+            "open|expansive": 3,
+            "open|typical": 9,
+            "searching|brief": 3,
+            "searching|expansive": 4,
+            "searching|typical": 9
+          }
+        },
+        {
+          "left": "fluency",
+          "right": "abstraction",
+          "observedCombinations": 9,
+          "counts": {
+            "fluent|broad": 9,
+            "fluent|concrete": 11,
+            "fluent|mixed": 12,
+            "open|broad": 4,
+            "open|concrete": 6,
+            "open|mixed": 6,
+            "searching|broad": 3,
+            "searching|concrete": 7,
+            "searching|mixed": 6
+          }
+        },
+        {
+          "left": "rhythm",
+          "right": "length",
+          "observedCombinations": 12,
+          "counts": {
+            "compact|brief": 3,
+            "compact|expansive": 4,
+            "compact|typical": 9,
+            "flowing|brief": 6,
+            "flowing|expansive": 5,
+            "flowing|typical": 9,
+            "open|brief": 3,
+            "open|expansive": 3,
+            "open|typical": 6,
+            "revising|brief": 4,
+            "revising|expansive": 4,
+            "revising|typical": 8
+          }
+        },
+        {
+          "left": "rhythm",
+          "right": "abstraction",
+          "observedCombinations": 12,
+          "counts": {
+            "compact|broad": 3,
+            "compact|concrete": 7,
+            "compact|mixed": 6,
+            "flowing|broad": 5,
+            "flowing|concrete": 8,
+            "flowing|mixed": 7,
+            "open|broad": 3,
+            "open|concrete": 4,
+            "open|mixed": 5,
+            "revising|broad": 5,
+            "revising|concrete": 5,
+            "revising|mixed": 6
+          }
+        },
+        {
+          "left": "length",
+          "right": "abstraction",
+          "observedCombinations": 9,
+          "counts": {
+            "brief|broad": 4,
+            "brief|concrete": 6,
+            "brief|mixed": 6,
+            "expansive|broad": 4,
+            "expansive|concrete": 7,
+            "expansive|mixed": 5,
+            "typical|broad": 8,
+            "typical|concrete": 11,
+            "typical|mixed": 13
+          }
+        }
+      ]
+    },
+    "pilot": {
+      "participants": 8,
+      "dimensions": [
+        {
+          "id": "interpretation",
+          "options": [
+            {
+              "id": "personal",
+              "targetIn64": 4,
+              "actual": 1
+            },
+            {
+              "id": "relationship",
+              "targetIn64": 4,
+              "actual": 1
+            },
+            {
+              "id": "shared-practice",
+              "targetIn64": 12,
+              "actual": 1
+            },
+            {
+              "id": "institution",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "cultural",
+              "targetIn64": 12,
+              "actual": 3
+            },
+            {
+              "id": "systemic",
+              "targetIn64": 16,
+              "actual": 1
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "id": "scale",
+          "options": [
+            {
+              "id": "intimate",
+              "targetIn64": 4,
+              "actual": 1
+            },
+            {
+              "id": "household",
+              "targetIn64": 4,
+              "actual": 1
+            },
+            {
+              "id": "group",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "local",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "national",
+              "targetIn64": 16,
+              "actual": 2
+            },
+            {
+              "id": "global",
+              "targetIn64": 16,
+              "actual": 2
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "id": "relationship",
+          "options": [
+            {
+              "id": "affected",
+              "targetIn64": 24,
+              "actual": 4
+            },
+            {
+              "id": "observer",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "implicated",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "already-trying",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "beneficiary",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "id": "agency",
+          "options": [
+            {
+              "id": "organise",
+              "targetIn64": 12,
+              "actual": 1
+            },
+            {
+              "id": "contribute",
+              "targetIn64": 16,
+              "actual": 2
+            },
+            {
+              "id": "delegate",
+              "targetIn64": 12,
+              "actual": 1
+            },
+            {
+              "id": "need-support",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "sceptical",
+              "targetIn64": 8,
+              "actual": 2
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 1
+            }
+          ]
+        },
+        {
+          "id": "clarity",
+          "options": [
+            {
+              "id": "proposal",
+              "targetIn64": 12,
+              "actual": 2
+            },
+            {
+              "id": "wish",
+              "targetIn64": 20,
+              "actual": 1
+            },
+            {
+              "id": "unsettled",
+              "targetIn64": 16,
+              "actual": 3
+            },
+            {
+              "id": "conflicted",
+              "targetIn64": 8,
+              "actual": 2
+            },
+            {
+              "id": "open",
+              "targetIn64": 8,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "id": "tone",
+          "options": [
+            {
+              "id": "hopeful",
+              "targetIn64": 12,
+              "actual": 2
+            },
+            {
+              "id": "irritated",
+              "targetIn64": 12,
+              "actual": 1
+            },
+            {
+              "id": "dry",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "weary",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "warm",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "matter-of-fact",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "mixed",
+              "targetIn64": 4,
+              "actual": 0
+            },
+            {
+              "id": "open",
+              "targetIn64": 4,
+              "actual": 1
+            }
+          ]
+        },
+        {
+          "id": "form",
+          "options": [
+            {
+              "id": "anecdote",
+              "targetIn64": 16,
+              "actual": 2
+            },
+            {
+              "id": "direct",
+              "targetIn64": 16,
+              "actual": 2
+            },
+            {
+              "id": "reflection",
+              "targetIn64": 8,
+              "actual": 2
+            },
+            {
+              "id": "question",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "practical",
+              "targetIn64": 8,
+              "actual": 1
+            },
+            {
+              "id": "digressive",
+              "targetIn64": 4,
+              "actual": 0
+            },
+            {
+              "id": "open",
+              "targetIn64": 4,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "id": "register",
+          "options": [
+            {
+              "id": "plain",
+              "targetIn64": 36,
+              "actual": 5
+            },
+            {
+              "id": "technical",
+              "targetIn64": 8,
+              "actual": 2
+            },
+            {
+              "id": "political",
+              "targetIn64": 8,
+              "actual": 0
+            },
+            {
+              "id": "open",
+              "targetIn64": 12,
+              "actual": 1
+            }
+          ]
+        },
+        {
+          "id": "fluency",
+          "options": [
+            {
+              "id": "fluent",
+              "targetIn64": 32,
+              "actual": 4
+            },
+            {
+              "id": "searching",
+              "targetIn64": 16,
+              "actual": 2
+            },
+            {
+              "id": "open",
+              "targetIn64": 16,
+              "actual": 2
+            }
+          ]
+        },
+        {
+          "id": "rhythm",
+          "options": [
+            {
+              "id": "compact",
+              "targetIn64": 16,
+              "actual": 1
+            },
+            {
+              "id": "flowing",
+              "targetIn64": 20,
+              "actual": 4
+            },
+            {
+              "id": "revising",
+              "targetIn64": 16,
+              "actual": 2
+            },
+            {
+              "id": "open",
+              "targetIn64": 12,
+              "actual": 1
+            }
+          ]
+        },
+        {
+          "id": "length",
+          "options": [
+            {
+              "id": "brief",
+              "targetIn64": 16,
+              "actual": 1
+            },
+            {
+              "id": "typical",
+              "targetIn64": 32,
+              "actual": 4
+            },
+            {
+              "id": "expansive",
+              "targetIn64": 16,
+              "actual": 3
+            }
+          ]
+        },
+        {
+          "id": "abstraction",
+          "options": [
+            {
+              "id": "concrete",
+              "targetIn64": 24,
+              "actual": 3
+            },
+            {
+              "id": "mixed",
+              "targetIn64": 24,
+              "actual": 3
+            },
+            {
+              "id": "broad",
+              "targetIn64": 16,
+              "actual": 2
+            }
+          ]
+        }
+      ],
+      "situations": [
+        {
+          "id": "home",
+          "targetIn64": 4,
+          "actual": 1
+        },
+        {
+          "id": "work",
+          "targetIn64": 6,
+          "actual": 0
+        },
+        {
+          "id": "care",
+          "targetIn64": 4,
+          "actual": 0
+        },
+        {
+          "id": "mobility",
+          "targetIn64": 4,
+          "actual": 1
+        },
+        {
+          "id": "culture",
+          "targetIn64": 4,
+          "actual": 1
+        },
+        {
+          "id": "digital",
+          "targetIn64": 4,
+          "actual": 1
+        },
+        {
+          "id": "learning",
+          "targetIn64": 4,
+          "actual": 1
+        },
+        {
+          "id": "neighbourhood",
+          "targetIn64": 4,
+          "actual": 1
+        },
+        {
+          "id": "small-business",
+          "targetIn64": 4,
+          "actual": 1
+        },
+        {
+          "id": "public-life",
+          "targetIn64": 6,
+          "actual": 0
+        },
+        {
+          "id": "friendships",
+          "targetIn64": 4,
+          "actual": 0
+        },
+        {
+          "id": "open",
+          "targetIn64": 16,
+          "actual": 1
+        }
+      ],
+      "pairs": [
+        {
+          "left": "interpretation",
+          "right": "scale",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|intimate": 1,
+            "cultural|local": 1,
+            "cultural|national": 1,
+            "institution|group": 1,
+            "personal|household": 1,
+            "relationship|global": 1,
+            "shared-practice|global": 1,
+            "systemic|national": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "relationship",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|affected": 1,
+            "cultural|already-trying": 1,
+            "cultural|beneficiary": 1,
+            "institution|observer": 1,
+            "personal|affected": 1,
+            "relationship|affected": 1,
+            "shared-practice|affected": 1,
+            "systemic|implicated": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "agency",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|delegate": 1,
+            "cultural|need-support": 1,
+            "cultural|organise": 1,
+            "institution|open": 1,
+            "personal|sceptical": 1,
+            "relationship|contribute": 1,
+            "shared-practice|contribute": 1,
+            "systemic|sceptical": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "clarity",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|conflicted": 1,
+            "cultural|proposal": 1,
+            "cultural|wish": 1,
+            "institution|proposal": 1,
+            "personal|unsettled": 1,
+            "relationship|conflicted": 1,
+            "shared-practice|unsettled": 1,
+            "systemic|unsettled": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "tone",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|irritated": 1,
+            "cultural|matter-of-fact": 1,
+            "cultural|weary": 1,
+            "institution|hopeful": 1,
+            "personal|warm": 1,
+            "relationship|dry": 1,
+            "shared-practice|hopeful": 1,
+            "systemic|open": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "form",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|anecdote": 1,
+            "cultural|practical": 1,
+            "cultural|question": 1,
+            "institution|reflection": 1,
+            "personal|direct": 1,
+            "relationship|anecdote": 1,
+            "shared-practice|direct": 1,
+            "systemic|reflection": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "register",
+          "observedCombinations": 7,
+          "counts": {
+            "cultural|open": 1,
+            "cultural|plain": 2,
+            "institution|plain": 1,
+            "personal|plain": 1,
+            "relationship|plain": 1,
+            "shared-practice|technical": 1,
+            "systemic|technical": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "fluency",
+          "observedCombinations": 7,
+          "counts": {
+            "cultural|fluent": 1,
+            "cultural|searching": 2,
+            "institution|open": 1,
+            "personal|fluent": 1,
+            "relationship|fluent": 1,
+            "shared-practice|open": 1,
+            "systemic|fluent": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "rhythm",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|flowing": 1,
+            "cultural|open": 1,
+            "cultural|revising": 1,
+            "institution|flowing": 1,
+            "personal|compact": 1,
+            "relationship|flowing": 1,
+            "shared-practice|revising": 1,
+            "systemic|flowing": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "length",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|brief": 1,
+            "cultural|expansive": 1,
+            "cultural|typical": 1,
+            "institution|typical": 1,
+            "personal|expansive": 1,
+            "relationship|expansive": 1,
+            "shared-practice|typical": 1,
+            "systemic|typical": 1
+          }
+        },
+        {
+          "left": "interpretation",
+          "right": "abstraction",
+          "observedCombinations": 8,
+          "counts": {
+            "cultural|broad": 1,
+            "cultural|concrete": 1,
+            "cultural|mixed": 1,
+            "institution|concrete": 1,
+            "personal|concrete": 1,
+            "relationship|mixed": 1,
+            "shared-practice|broad": 1,
+            "systemic|mixed": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "relationship",
+          "observedCombinations": 7,
+          "counts": {
+            "global|affected": 2,
+            "group|observer": 1,
+            "household|affected": 1,
+            "intimate|affected": 1,
+            "local|already-trying": 1,
+            "national|beneficiary": 1,
+            "national|implicated": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "agency",
+          "observedCombinations": 7,
+          "counts": {
+            "global|contribute": 2,
+            "group|open": 1,
+            "household|sceptical": 1,
+            "intimate|need-support": 1,
+            "local|organise": 1,
+            "national|delegate": 1,
+            "national|sceptical": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "clarity",
+          "observedCombinations": 8,
+          "counts": {
+            "global|conflicted": 1,
+            "global|unsettled": 1,
+            "group|proposal": 1,
+            "household|unsettled": 1,
+            "intimate|proposal": 1,
+            "local|wish": 1,
+            "national|conflicted": 1,
+            "national|unsettled": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "tone",
+          "observedCombinations": 8,
+          "counts": {
+            "global|dry": 1,
+            "global|hopeful": 1,
+            "group|hopeful": 1,
+            "household|warm": 1,
+            "intimate|irritated": 1,
+            "local|matter-of-fact": 1,
+            "national|open": 1,
+            "national|weary": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "form",
+          "observedCombinations": 8,
+          "counts": {
+            "global|anecdote": 1,
+            "global|direct": 1,
+            "group|reflection": 1,
+            "household|direct": 1,
+            "intimate|practical": 1,
+            "local|anecdote": 1,
+            "national|question": 1,
+            "national|reflection": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "register",
+          "observedCombinations": 8,
+          "counts": {
+            "global|plain": 1,
+            "global|technical": 1,
+            "group|plain": 1,
+            "household|plain": 1,
+            "intimate|plain": 1,
+            "local|open": 1,
+            "national|plain": 1,
+            "national|technical": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "fluency",
+          "observedCombinations": 7,
+          "counts": {
+            "global|fluent": 1,
+            "global|open": 1,
+            "group|open": 1,
+            "household|fluent": 1,
+            "intimate|searching": 1,
+            "local|searching": 1,
+            "national|fluent": 2
+          }
+        },
+        {
+          "left": "scale",
+          "right": "rhythm",
+          "observedCombinations": 7,
+          "counts": {
+            "global|flowing": 1,
+            "global|revising": 1,
+            "group|flowing": 1,
+            "household|compact": 1,
+            "intimate|open": 1,
+            "local|revising": 1,
+            "national|flowing": 2
+          }
+        },
+        {
+          "left": "scale",
+          "right": "length",
+          "observedCombinations": 8,
+          "counts": {
+            "global|expansive": 1,
+            "global|typical": 1,
+            "group|typical": 1,
+            "household|expansive": 1,
+            "intimate|brief": 1,
+            "local|typical": 1,
+            "national|expansive": 1,
+            "national|typical": 1
+          }
+        },
+        {
+          "left": "scale",
+          "right": "abstraction",
+          "observedCombinations": 8,
+          "counts": {
+            "global|broad": 1,
+            "global|mixed": 1,
+            "group|concrete": 1,
+            "household|concrete": 1,
+            "intimate|mixed": 1,
+            "local|concrete": 1,
+            "national|broad": 1,
+            "national|mixed": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "agency",
+          "observedCombinations": 7,
+          "counts": {
+            "affected|contribute": 2,
+            "affected|need-support": 1,
+            "affected|sceptical": 1,
+            "already-trying|organise": 1,
+            "beneficiary|delegate": 1,
+            "implicated|sceptical": 1,
+            "observer|open": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "clarity",
+          "observedCombinations": 7,
+          "counts": {
+            "affected|conflicted": 1,
+            "affected|proposal": 1,
+            "affected|unsettled": 2,
+            "already-trying|wish": 1,
+            "beneficiary|conflicted": 1,
+            "implicated|unsettled": 1,
+            "observer|proposal": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "tone",
+          "observedCombinations": 8,
+          "counts": {
+            "affected|dry": 1,
+            "affected|hopeful": 1,
+            "affected|irritated": 1,
+            "affected|warm": 1,
+            "already-trying|matter-of-fact": 1,
+            "beneficiary|weary": 1,
+            "implicated|open": 1,
+            "observer|hopeful": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "form",
+          "observedCombinations": 7,
+          "counts": {
+            "affected|anecdote": 1,
+            "affected|direct": 2,
+            "affected|practical": 1,
+            "already-trying|anecdote": 1,
+            "beneficiary|question": 1,
+            "implicated|reflection": 1,
+            "observer|reflection": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "register",
+          "observedCombinations": 6,
+          "counts": {
+            "affected|plain": 3,
+            "affected|technical": 1,
+            "already-trying|open": 1,
+            "beneficiary|plain": 1,
+            "implicated|technical": 1,
+            "observer|plain": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "fluency",
+          "observedCombinations": 7,
+          "counts": {
+            "affected|fluent": 2,
+            "affected|open": 1,
+            "affected|searching": 1,
+            "already-trying|searching": 1,
+            "beneficiary|fluent": 1,
+            "implicated|fluent": 1,
+            "observer|open": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "rhythm",
+          "observedCombinations": 8,
+          "counts": {
+            "affected|compact": 1,
+            "affected|flowing": 1,
+            "affected|open": 1,
+            "affected|revising": 1,
+            "already-trying|revising": 1,
+            "beneficiary|flowing": 1,
+            "implicated|flowing": 1,
+            "observer|flowing": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "length",
+          "observedCombinations": 7,
+          "counts": {
+            "affected|brief": 1,
+            "affected|expansive": 2,
+            "affected|typical": 1,
+            "already-trying|typical": 1,
+            "beneficiary|expansive": 1,
+            "implicated|typical": 1,
+            "observer|typical": 1
+          }
+        },
+        {
+          "left": "relationship",
+          "right": "abstraction",
+          "observedCombinations": 7,
+          "counts": {
+            "affected|broad": 1,
+            "affected|concrete": 1,
+            "affected|mixed": 2,
+            "already-trying|concrete": 1,
+            "beneficiary|broad": 1,
+            "implicated|mixed": 1,
+            "observer|concrete": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "clarity",
+          "observedCombinations": 7,
+          "counts": {
+            "contribute|conflicted": 1,
+            "contribute|unsettled": 1,
+            "delegate|conflicted": 1,
+            "need-support|proposal": 1,
+            "open|proposal": 1,
+            "organise|wish": 1,
+            "sceptical|unsettled": 2
+          }
+        },
+        {
+          "left": "agency",
+          "right": "tone",
+          "observedCombinations": 8,
+          "counts": {
+            "contribute|dry": 1,
+            "contribute|hopeful": 1,
+            "delegate|weary": 1,
+            "need-support|irritated": 1,
+            "open|hopeful": 1,
+            "organise|matter-of-fact": 1,
+            "sceptical|open": 1,
+            "sceptical|warm": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "form",
+          "observedCombinations": 8,
+          "counts": {
+            "contribute|anecdote": 1,
+            "contribute|direct": 1,
+            "delegate|question": 1,
+            "need-support|practical": 1,
+            "open|reflection": 1,
+            "organise|anecdote": 1,
+            "sceptical|direct": 1,
+            "sceptical|reflection": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "register",
+          "observedCombinations": 8,
+          "counts": {
+            "contribute|plain": 1,
+            "contribute|technical": 1,
+            "delegate|plain": 1,
+            "need-support|plain": 1,
+            "open|plain": 1,
+            "organise|open": 1,
+            "sceptical|plain": 1,
+            "sceptical|technical": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "fluency",
+          "observedCombinations": 7,
+          "counts": {
+            "contribute|fluent": 1,
+            "contribute|open": 1,
+            "delegate|fluent": 1,
+            "need-support|searching": 1,
+            "open|open": 1,
+            "organise|searching": 1,
+            "sceptical|fluent": 2
+          }
+        },
+        {
+          "left": "agency",
+          "right": "rhythm",
+          "observedCombinations": 8,
+          "counts": {
+            "contribute|flowing": 1,
+            "contribute|revising": 1,
+            "delegate|flowing": 1,
+            "need-support|open": 1,
+            "open|flowing": 1,
+            "organise|revising": 1,
+            "sceptical|compact": 1,
+            "sceptical|flowing": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "length",
+          "observedCombinations": 8,
+          "counts": {
+            "contribute|expansive": 1,
+            "contribute|typical": 1,
+            "delegate|expansive": 1,
+            "need-support|brief": 1,
+            "open|typical": 1,
+            "organise|typical": 1,
+            "sceptical|expansive": 1,
+            "sceptical|typical": 1
+          }
+        },
+        {
+          "left": "agency",
+          "right": "abstraction",
+          "observedCombinations": 8,
+          "counts": {
+            "contribute|broad": 1,
+            "contribute|mixed": 1,
+            "delegate|broad": 1,
+            "need-support|mixed": 1,
+            "open|concrete": 1,
+            "organise|concrete": 1,
+            "sceptical|concrete": 1,
+            "sceptical|mixed": 1
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "tone",
+          "observedCombinations": 8,
+          "counts": {
+            "conflicted|dry": 1,
+            "conflicted|weary": 1,
+            "proposal|hopeful": 1,
+            "proposal|irritated": 1,
+            "unsettled|hopeful": 1,
+            "unsettled|open": 1,
+            "unsettled|warm": 1,
+            "wish|matter-of-fact": 1
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "form",
+          "observedCombinations": 7,
+          "counts": {
+            "conflicted|anecdote": 1,
+            "conflicted|question": 1,
+            "proposal|practical": 1,
+            "proposal|reflection": 1,
+            "unsettled|direct": 2,
+            "unsettled|reflection": 1,
+            "wish|anecdote": 1
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "register",
+          "observedCombinations": 5,
+          "counts": {
+            "conflicted|plain": 2,
+            "proposal|plain": 2,
+            "unsettled|plain": 1,
+            "unsettled|technical": 2,
+            "wish|open": 1
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "fluency",
+          "observedCombinations": 6,
+          "counts": {
+            "conflicted|fluent": 2,
+            "proposal|open": 1,
+            "proposal|searching": 1,
+            "unsettled|fluent": 2,
+            "unsettled|open": 1,
+            "wish|searching": 1
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "rhythm",
+          "observedCombinations": 7,
+          "counts": {
+            "conflicted|flowing": 2,
+            "proposal|flowing": 1,
+            "proposal|open": 1,
+            "unsettled|compact": 1,
+            "unsettled|flowing": 1,
+            "unsettled|revising": 1,
+            "wish|revising": 1
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "length",
+          "observedCombinations": 6,
+          "counts": {
+            "conflicted|expansive": 2,
+            "proposal|brief": 1,
+            "proposal|typical": 1,
+            "unsettled|expansive": 1,
+            "unsettled|typical": 2,
+            "wish|typical": 1
+          }
+        },
+        {
+          "left": "clarity",
+          "right": "abstraction",
+          "observedCombinations": 8,
+          "counts": {
+            "conflicted|broad": 1,
+            "conflicted|mixed": 1,
+            "proposal|concrete": 1,
+            "proposal|mixed": 1,
+            "unsettled|broad": 1,
+            "unsettled|concrete": 1,
+            "unsettled|mixed": 1,
+            "wish|concrete": 1
+          }
+        },
+        {
+          "left": "tone",
+          "right": "form",
+          "observedCombinations": 8,
+          "counts": {
+            "dry|anecdote": 1,
+            "hopeful|direct": 1,
+            "hopeful|reflection": 1,
+            "irritated|practical": 1,
+            "matter-of-fact|anecdote": 1,
+            "open|reflection": 1,
+            "warm|direct": 1,
+            "weary|question": 1
+          }
+        },
+        {
+          "left": "tone",
+          "right": "register",
+          "observedCombinations": 8,
+          "counts": {
+            "dry|plain": 1,
+            "hopeful|plain": 1,
+            "hopeful|technical": 1,
+            "irritated|plain": 1,
+            "matter-of-fact|open": 1,
+            "open|technical": 1,
+            "warm|plain": 1,
+            "weary|plain": 1
+          }
+        },
+        {
+          "left": "tone",
+          "right": "fluency",
+          "observedCombinations": 7,
+          "counts": {
+            "dry|fluent": 1,
+            "hopeful|open": 2,
+            "irritated|searching": 1,
+            "matter-of-fact|searching": 1,
+            "open|fluent": 1,
+            "warm|fluent": 1,
+            "weary|fluent": 1
+          }
+        },
+        {
+          "left": "tone",
+          "right": "rhythm",
+          "observedCombinations": 8,
+          "counts": {
+            "dry|flowing": 1,
+            "hopeful|flowing": 1,
+            "hopeful|revising": 1,
+            "irritated|open": 1,
+            "matter-of-fact|revising": 1,
+            "open|flowing": 1,
+            "warm|compact": 1,
+            "weary|flowing": 1
+          }
+        },
+        {
+          "left": "tone",
+          "right": "length",
+          "observedCombinations": 7,
+          "counts": {
+            "dry|expansive": 1,
+            "hopeful|typical": 2,
+            "irritated|brief": 1,
+            "matter-of-fact|typical": 1,
+            "open|typical": 1,
+            "warm|expansive": 1,
+            "weary|expansive": 1
+          }
+        },
+        {
+          "left": "tone",
+          "right": "abstraction",
+          "observedCombinations": 8,
+          "counts": {
+            "dry|mixed": 1,
+            "hopeful|broad": 1,
+            "hopeful|concrete": 1,
+            "irritated|mixed": 1,
+            "matter-of-fact|concrete": 1,
+            "open|mixed": 1,
+            "warm|concrete": 1,
+            "weary|broad": 1
+          }
+        },
+        {
+          "left": "form",
+          "right": "register",
+          "observedCombinations": 8,
+          "counts": {
+            "anecdote|open": 1,
+            "anecdote|plain": 1,
+            "direct|plain": 1,
+            "direct|technical": 1,
+            "practical|plain": 1,
+            "question|plain": 1,
+            "reflection|plain": 1,
+            "reflection|technical": 1
+          }
+        },
+        {
+          "left": "form",
+          "right": "fluency",
+          "observedCombinations": 8,
+          "counts": {
+            "anecdote|fluent": 1,
+            "anecdote|searching": 1,
+            "direct|fluent": 1,
+            "direct|open": 1,
+            "practical|searching": 1,
+            "question|fluent": 1,
+            "reflection|fluent": 1,
+            "reflection|open": 1
+          }
+        },
+        {
+          "left": "form",
+          "right": "rhythm",
+          "observedCombinations": 7,
+          "counts": {
+            "anecdote|flowing": 1,
+            "anecdote|revising": 1,
+            "direct|compact": 1,
+            "direct|revising": 1,
+            "practical|open": 1,
+            "question|flowing": 1,
+            "reflection|flowing": 2
+          }
+        },
+        {
+          "left": "form",
+          "right": "length",
+          "observedCombinations": 7,
+          "counts": {
+            "anecdote|expansive": 1,
+            "anecdote|typical": 1,
+            "direct|expansive": 1,
+            "direct|typical": 1,
+            "practical|brief": 1,
+            "question|expansive": 1,
+            "reflection|typical": 2
+          }
+        },
+        {
+          "left": "form",
+          "right": "abstraction",
+          "observedCombinations": 8,
+          "counts": {
+            "anecdote|concrete": 1,
+            "anecdote|mixed": 1,
+            "direct|broad": 1,
+            "direct|concrete": 1,
+            "practical|mixed": 1,
+            "question|broad": 1,
+            "reflection|concrete": 1,
+            "reflection|mixed": 1
+          }
+        },
+        {
+          "left": "register",
+          "right": "fluency",
+          "observedCombinations": 6,
+          "counts": {
+            "open|searching": 1,
+            "plain|fluent": 3,
+            "plain|open": 1,
+            "plain|searching": 1,
+            "technical|fluent": 1,
+            "technical|open": 1
+          }
+        },
+        {
+          "left": "register",
+          "right": "rhythm",
+          "observedCombinations": 6,
+          "counts": {
+            "open|revising": 1,
+            "plain|compact": 1,
+            "plain|flowing": 3,
+            "plain|open": 1,
+            "technical|flowing": 1,
+            "technical|revising": 1
+          }
+        },
+        {
+          "left": "register",
+          "right": "length",
+          "observedCombinations": 5,
+          "counts": {
+            "open|typical": 1,
+            "plain|brief": 1,
+            "plain|expansive": 3,
+            "plain|typical": 1,
+            "technical|typical": 2
+          }
+        },
+        {
+          "left": "register",
+          "right": "abstraction",
+          "observedCombinations": 6,
+          "counts": {
+            "open|concrete": 1,
+            "plain|broad": 1,
+            "plain|concrete": 2,
+            "plain|mixed": 2,
+            "technical|broad": 1,
+            "technical|mixed": 1
+          }
+        },
+        {
+          "left": "fluency",
+          "right": "rhythm",
+          "observedCombinations": 6,
+          "counts": {
+            "fluent|compact": 1,
+            "fluent|flowing": 3,
+            "open|flowing": 1,
+            "open|revising": 1,
+            "searching|open": 1,
+            "searching|revising": 1
+          }
+        },
+        {
+          "left": "fluency",
+          "right": "length",
+          "observedCombinations": 5,
+          "counts": {
+            "fluent|expansive": 3,
+            "fluent|typical": 1,
+            "open|typical": 2,
+            "searching|brief": 1,
+            "searching|typical": 1
+          }
+        },
+        {
+          "left": "fluency",
+          "right": "abstraction",
+          "observedCombinations": 7,
+          "counts": {
+            "fluent|broad": 1,
+            "fluent|concrete": 1,
+            "fluent|mixed": 2,
+            "open|broad": 1,
+            "open|concrete": 1,
+            "searching|concrete": 1,
+            "searching|mixed": 1
+          }
+        },
+        {
+          "left": "rhythm",
+          "right": "length",
+          "observedCombinations": 5,
+          "counts": {
+            "compact|expansive": 1,
+            "flowing|expansive": 2,
+            "flowing|typical": 2,
+            "open|brief": 1,
+            "revising|typical": 2
+          }
+        },
+        {
+          "left": "rhythm",
+          "right": "abstraction",
+          "observedCombinations": 7,
+          "counts": {
+            "compact|concrete": 1,
+            "flowing|broad": 1,
+            "flowing|concrete": 1,
+            "flowing|mixed": 2,
+            "open|mixed": 1,
+            "revising|broad": 1,
+            "revising|concrete": 1
+          }
+        },
+        {
+          "left": "length",
+          "right": "abstraction",
+          "observedCombinations": 7,
+          "counts": {
+            "brief|mixed": 1,
+            "expansive|broad": 1,
+            "expansive|concrete": 1,
+            "expansive|mixed": 1,
+            "typical|broad": 1,
+            "typical|concrete": 2,
+            "typical|mixed": 1
+          }
+        }
+      ]
+    }
+  },
+  "requests": [
+    {
+      "id": "p002",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Write one fictional person's spoken answer to the invitation, in English. They are answering on the spot, without preparing what to say.\nUse the assignments as background, not a checklist. “Open” means you choose. Their circumstances need not be their topic.\nLet them discover what they mean while speaking. They may start generally and find a focus, move between concerns, revise a thought or leave it unresolved. Others may already know what they want to say. Preserve that variation rather than giving everyone a polished argument or decorative hesitations.\nAim for about one minute, using the assigned length as a loose guide. Return only their words."
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"invitation\": {\n    \"main\": \"What is something you’d like to change, but can’t change on your own?\",\n    \"optionalSupporting\": [\n      \"What would you like to be different?\",\n      \"What would you need to make that change?\"\n    ]\n  },\n  \"privateCircumstances\": \"Digital tools are part of how you keep in touch or get things done. Your feelings about them are not predetermined.\",\n  \"privateDirections\": [\n    {\n      \"dimension\": \"Interpretation\",\n      \"direction\": \"A change in an expectation, norm or cultural practice.\"\n    },\n    {\n      \"dimension\": \"Scale\",\n      \"direction\": \"Address a society-wide or national political concern, rather than reducing it to a local problem.\"\n    },\n    {\n      \"dimension\": \"Relationship to the issue\",\n      \"direction\": \"Something about the current situation also benefits you.\"\n    },\n    {\n      \"dimension\": \"Relationship to acting with others\",\n      \"direction\": \"You would prefer someone with responsibility or expertise to act.\"\n    },\n    {\n      \"dimension\": \"Clarity\",\n      \"direction\": \"You want things that do not fit together easily.\"\n    },\n    {\n      \"dimension\": \"Emotional tone\",\n      \"direction\": \"You sound a little weary of the situation.\"\n    },\n    {\n      \"dimension\": \"Way of answering\",\n      \"direction\": \"You tend to explore the issue through questions.\"\n    },\n    {\n      \"dimension\": \"Vocabulary\",\n      \"direction\": \"Use mostly everyday vocabulary.\"\n    },\n    {\n      \"dimension\": \"English fluency\",\n      \"direction\": \"You are comfortable expressing yourself in English.\"\n    },\n    {\n      \"dimension\": \"Speaking rhythm\",\n      \"direction\": \"Your speech tends to flow through connected thoughts.\"\n    },\n    {\n      \"dimension\": \"Loose length guide\",\n      \"direction\": \"Roughly 140–180 words may suit this contribution.\"\n    },\n    {\n      \"dimension\": \"Level of abstraction\",\n      \"direction\": \"Express a broad concern, value or wish. It can remain general; no personal anecdote, concrete project or practical solution is required.\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "id": "p031",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Write one fictional person's spoken answer to the invitation, in English. They are answering on the spot, without preparing what to say.\nUse the assignments as background, not a checklist. “Open” means you choose. Their circumstances need not be their topic.\nLet them discover what they mean while speaking. They may start generally and find a focus, move between concerns, revise a thought or leave it unresolved. Others may already know what they want to say. Preserve that variation rather than giving everyone a polished argument or decorative hesitations.\nAim for about one minute, using the assigned length as a loose guide. Return only their words."
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"invitation\": {\n    \"main\": \"What is something you’d like to change, but can’t change on your own?\",\n    \"optionalSupporting\": [\n      \"What would you like to be different?\",\n      \"What would you need to make that change?\"\n    ]\n  },\n  \"privateCircumstances\": \"You live with other adults and have some recurring responsibilities at home.\",\n  \"privateDirections\": [\n    {\n      \"dimension\": \"Interpretation\",\n      \"direction\": \"A change in an expectation, norm or cultural practice.\"\n    },\n    {\n      \"dimension\": \"Scale\",\n      \"direction\": \"A neighbourhood, town or local network is the relevant scale.\"\n    },\n    {\n      \"dimension\": \"Relationship to the issue\",\n      \"direction\": \"You have already tried something, without settling the issue.\"\n    },\n    {\n      \"dimension\": \"Relationship to acting with others\",\n      \"direction\": \"You would be willing to help organise a change.\"\n    },\n    {\n      \"dimension\": \"Clarity\",\n      \"direction\": \"You know what you want to be different but not how to get there.\"\n    },\n    {\n      \"dimension\": \"Emotional tone\",\n      \"direction\": \"You speak in a matter-of-fact way.\"\n    },\n    {\n      \"dimension\": \"Way of answering\",\n      \"direction\": \"You tend to start with something that happened.\"\n    },\n    {\n      \"dimension\": \"Vocabulary\",\n      \"direction\": \"Choose the vocabulary that fits this person.\"\n    },\n    {\n      \"dimension\": \"English fluency\",\n      \"direction\": \"You sometimes search for a word or rephrase in English; keep it natural, without accent spelling or manufactured errors.\"\n    },\n    {\n      \"dimension\": \"Speaking rhythm\",\n      \"direction\": \"You sometimes revise what you just said.\"\n    },\n    {\n      \"dimension\": \"Loose length guide\",\n      \"direction\": \"Roughly 110–150 words may suit this contribution.\"\n    },\n    {\n      \"dimension\": \"Level of abstraction\",\n      \"direction\": \"Focus on a specific situation or desired change.\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "id": "p025",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Write one fictional person's spoken answer to the invitation, in English. They are answering on the spot, without preparing what to say.\nUse the assignments as background, not a checklist. “Open” means you choose. Their circumstances need not be their topic.\nLet them discover what they mean while speaking. They may start generally and find a focus, move between concerns, revise a thought or leave it unresolved. Others may already know what they want to say. Preserve that variation rather than giving everyone a polished argument or decorative hesitations.\nAim for about one minute, using the assigned length as a loose guide. Return only their words."
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"invitation\": {\n    \"main\": \"What is something you’d like to change, but can’t change on your own?\",\n    \"optionalSupporting\": [\n      \"What would you like to be different?\",\n      \"What would you need to make that change?\"\n    ]\n  },\n  \"privateCircumstances\": \"You live in a neighbourhood where you know some people and do not know many others.\",\n  \"privateDirections\": [\n    {\n      \"dimension\": \"Interpretation\",\n      \"direction\": \"A change in how people do something together.\"\n    },\n    {\n      \"dimension\": \"Scale\",\n      \"direction\": \"Address a global or transnational concern, rather than reducing it to an individual habit.\"\n    },\n    {\n      \"dimension\": \"Relationship to the issue\",\n      \"direction\": \"You are directly affected by the situation.\"\n    },\n    {\n      \"dimension\": \"Relationship to acting with others\",\n      \"direction\": \"You could contribute something, without taking on organising.\"\n    },\n    {\n      \"dimension\": \"Clarity\",\n      \"direction\": \"You are still working out what bothers you or what you want.\"\n    },\n    {\n      \"dimension\": \"Emotional tone\",\n      \"direction\": \"There is some hope in how you speak.\"\n    },\n    {\n      \"dimension\": \"Way of answering\",\n      \"direction\": \"You tend to get straight to what you want to change.\"\n    },\n    {\n      \"dimension\": \"Vocabulary\",\n      \"direction\": \"You have relevant specialist vocabulary available; use only what fits.\"\n    },\n    {\n      \"dimension\": \"English fluency\",\n      \"direction\": \"Choose the level of fluency independently of the person's knowledge.\"\n    },\n    {\n      \"dimension\": \"Speaking rhythm\",\n      \"direction\": \"You sometimes revise what you just said.\"\n    },\n    {\n      \"dimension\": \"Loose length guide\",\n      \"direction\": \"Roughly 110–150 words may suit this contribution.\"\n    },\n    {\n      \"dimension\": \"Level of abstraction\",\n      \"direction\": \"Express a broad concern, value or wish. It can remain general; no personal anecdote, concrete project or practical solution is required.\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "id": "p021",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Write one fictional person's spoken answer to the invitation, in English. They are answering on the spot, without preparing what to say.\nUse the assignments as background, not a checklist. “Open” means you choose. Their circumstances need not be their topic.\nLet them discover what they mean while speaking. They may start generally and find a focus, move between concerns, revise a thought or leave it unresolved. Others may already know what they want to say. Preserve that variation rather than giving everyone a polished argument or decorative hesitations.\nAim for about one minute, using the assigned length as a loose guide. Return only their words."
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"invitation\": {\n    \"main\": \"What is something you’d like to change, but can’t change on your own?\",\n    \"optionalSupporting\": [\n      \"What would you like to be different?\",\n      \"What would you need to make that change?\"\n    ]\n  },\n  \"privateCircumstances\": \"You help keep a small business or independent practice going and make decisions that affect others.\",\n  \"privateDirections\": [\n    {\n      \"dimension\": \"Interpretation\",\n      \"direction\": \"A change in an expectation, norm or cultural practice.\"\n    },\n    {\n      \"dimension\": \"Scale\",\n      \"direction\": \"The concern is at the level of a personal relationship.\"\n    },\n    {\n      \"dimension\": \"Relationship to the issue\",\n      \"direction\": \"You are directly affected by the situation.\"\n    },\n    {\n      \"dimension\": \"Relationship to acting with others\",\n      \"direction\": \"You would need support before being able to act.\"\n    },\n    {\n      \"dimension\": \"Clarity\",\n      \"direction\": \"You have a fairly specific idea of what could change.\"\n    },\n    {\n      \"dimension\": \"Emotional tone\",\n      \"direction\": \"You sound irritated, without needing a dramatic grievance.\"\n    },\n    {\n      \"dimension\": \"Way of answering\",\n      \"direction\": \"You tend to explain practical details.\"\n    },\n    {\n      \"dimension\": \"Vocabulary\",\n      \"direction\": \"Use mostly everyday vocabulary.\"\n    },\n    {\n      \"dimension\": \"English fluency\",\n      \"direction\": \"You sometimes search for a word or rephrase in English; keep it natural, without accent spelling or manufactured errors.\"\n    },\n    {\n      \"dimension\": \"Speaking rhythm\",\n      \"direction\": \"Let the rhythm emerge without adding compulsory hesitations.\"\n    },\n    {\n      \"dimension\": \"Loose length guide\",\n      \"direction\": \"Roughly 90–120 words may suit this contribution.\"\n    },\n    {\n      \"dimension\": \"Level of abstraction\",\n      \"direction\": \"Move between a wider concern and particular experiences or possibilities.\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "id": "p030",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Write one fictional person's spoken answer to the invitation, in English. They are answering on the spot, without preparing what to say.\nUse the assignments as background, not a checklist. “Open” means you choose. Their circumstances need not be their topic.\nLet them discover what they mean while speaking. They may start generally and find a focus, move between concerns, revise a thought or leave it unresolved. Others may already know what they want to say. Preserve that variation rather than giving everyone a polished argument or decorative hesitations.\nAim for about one minute, using the assigned length as a loose guide. Return only their words."
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"invitation\": {\n    \"main\": \"What is something you’d like to change, but can’t change on your own?\",\n    \"optionalSupporting\": [\n      \"What would you like to be different?\",\n      \"What would you need to make that change?\"\n    ]\n  },\n  \"privateCircumstances\": \"You are learning something alongside other commitments and have differing amounts of confidence in different settings.\",\n  \"privateDirections\": [\n    {\n      \"dimension\": \"Interpretation\",\n      \"direction\": \"A change in your own habits or capacities that involves other people.\"\n    },\n    {\n      \"dimension\": \"Scale\",\n      \"direction\": \"The concern is at the level of a household or home.\"\n    },\n    {\n      \"dimension\": \"Relationship to the issue\",\n      \"direction\": \"You are directly affected by the situation.\"\n    },\n    {\n      \"dimension\": \"Relationship to acting with others\",\n      \"direction\": \"You doubt whether acting with a group would help.\"\n    },\n    {\n      \"dimension\": \"Clarity\",\n      \"direction\": \"You are still working out what bothers you or what you want.\"\n    },\n    {\n      \"dimension\": \"Emotional tone\",\n      \"direction\": \"You speak with warmth or affection for someone or something involved.\"\n    },\n    {\n      \"dimension\": \"Way of answering\",\n      \"direction\": \"You tend to get straight to what you want to change.\"\n    },\n    {\n      \"dimension\": \"Vocabulary\",\n      \"direction\": \"Use mostly everyday vocabulary.\"\n    },\n    {\n      \"dimension\": \"English fluency\",\n      \"direction\": \"You are comfortable expressing yourself in English.\"\n    },\n    {\n      \"dimension\": \"Speaking rhythm\",\n      \"direction\": \"Your sentences tend to be compact.\"\n    },\n    {\n      \"dimension\": \"Loose length guide\",\n      \"direction\": \"Roughly 140–180 words may suit this contribution.\"\n    },\n    {\n      \"dimension\": \"Level of abstraction\",\n      \"direction\": \"Focus on a specific situation or desired change.\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "id": "p051",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Write one fictional person's spoken answer to the invitation, in English. They are answering on the spot, without preparing what to say.\nUse the assignments as background, not a checklist. “Open” means you choose. Their circumstances need not be their topic.\nLet them discover what they mean while speaking. They may start generally and find a focus, move between concerns, revise a thought or leave it unresolved. Others may already know what they want to say. Preserve that variation rather than giving everyone a polished argument or decorative hesitations.\nAim for about one minute, using the assigned length as a loose guide. Return only their words."
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"invitation\": {\n    \"main\": \"What is something you’d like to change, but can’t change on your own?\",\n    \"optionalSupporting\": [\n      \"What would you like to be different?\",\n      \"What would you need to make that change?\"\n    ]\n  },\n  \"privateCircumstances\": \"Your ordinary journeys involve both your own choices and arrangements made by others.\",\n  \"privateDirections\": [\n    {\n      \"dimension\": \"Interpretation\",\n      \"direction\": \"A change in wider material or social conditions.\"\n    },\n    {\n      \"dimension\": \"Scale\",\n      \"direction\": \"Address a society-wide or national political concern, rather than reducing it to a local problem.\"\n    },\n    {\n      \"dimension\": \"Relationship to the issue\",\n      \"direction\": \"Your own behaviour contributes to the situation in some way.\"\n    },\n    {\n      \"dimension\": \"Relationship to acting with others\",\n      \"direction\": \"You doubt whether acting with a group would help.\"\n    },\n    {\n      \"dimension\": \"Clarity\",\n      \"direction\": \"You are still working out what bothers you or what you want.\"\n    },\n    {\n      \"dimension\": \"Emotional tone\",\n      \"direction\": \"Let the tone emerge from the answer.\"\n    },\n    {\n      \"dimension\": \"Way of answering\",\n      \"direction\": \"You tend to reflect on a broader idea.\"\n    },\n    {\n      \"dimension\": \"Vocabulary\",\n      \"direction\": \"You have relevant specialist vocabulary available; use only what fits.\"\n    },\n    {\n      \"dimension\": \"English fluency\",\n      \"direction\": \"You are comfortable expressing yourself in English.\"\n    },\n    {\n      \"dimension\": \"Speaking rhythm\",\n      \"direction\": \"Your speech tends to flow through connected thoughts.\"\n    },\n    {\n      \"dimension\": \"Loose length guide\",\n      \"direction\": \"Roughly 110–150 words may suit this contribution.\"\n    },\n    {\n      \"dimension\": \"Level of abstraction\",\n      \"direction\": \"Move between a wider concern and particular experiences or possibilities.\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "id": "p012",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Write one fictional person's spoken answer to the invitation, in English. They are answering on the spot, without preparing what to say.\nUse the assignments as background, not a checklist. “Open” means you choose. Their circumstances need not be their topic.\nLet them discover what they mean while speaking. They may start generally and find a focus, move between concerns, revise a thought or leave it unresolved. Others may already know what they want to say. Preserve that variation rather than giving everyone a polished argument or decorative hesitations.\nAim for about one minute, using the assigned length as a loose guide. Return only their words."
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"invitation\": {\n    \"main\": \"What is something you’d like to change, but can’t change on your own?\",\n    \"optionalSupporting\": [\n      \"What would you like to be different?\",\n      \"What would you need to make that change?\"\n    ]\n  },\n  \"privateCircumstances\": \"Choose the person's circumstances; do not assume a particular issue.\",\n  \"privateDirections\": [\n    {\n      \"dimension\": \"Interpretation\",\n      \"direction\": \"A change in an organisation's decisions or arrangements.\"\n    },\n    {\n      \"dimension\": \"Scale\",\n      \"direction\": \"A group, workplace or organisation is the relevant scale.\"\n    },\n    {\n      \"dimension\": \"Relationship to the issue\",\n      \"direction\": \"You have noticed the situation affecting people around you.\"\n    },\n    {\n      \"dimension\": \"Relationship to acting with others\",\n      \"direction\": \"Leave your willingness or role open if that fits.\"\n    },\n    {\n      \"dimension\": \"Clarity\",\n      \"direction\": \"You have a fairly specific idea of what could change.\"\n    },\n    {\n      \"dimension\": \"Emotional tone\",\n      \"direction\": \"There is some hope in how you speak.\"\n    },\n    {\n      \"dimension\": \"Way of answering\",\n      \"direction\": \"You tend to reflect on a broader idea.\"\n    },\n    {\n      \"dimension\": \"Vocabulary\",\n      \"direction\": \"Use mostly everyday vocabulary.\"\n    },\n    {\n      \"dimension\": \"English fluency\",\n      \"direction\": \"Choose the level of fluency independently of the person's knowledge.\"\n    },\n    {\n      \"dimension\": \"Speaking rhythm\",\n      \"direction\": \"Your speech tends to flow through connected thoughts.\"\n    },\n    {\n      \"dimension\": \"Loose length guide\",\n      \"direction\": \"Roughly 110–150 words may suit this contribution.\"\n    },\n    {\n      \"dimension\": \"Level of abstraction\",\n      \"direction\": \"Focus on a specific situation or desired change.\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "id": "p032",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Write one fictional person's spoken answer to the invitation, in English. They are answering on the spot, without preparing what to say.\nUse the assignments as background, not a checklist. “Open” means you choose. Their circumstances need not be their topic.\nLet them discover what they mean while speaking. They may start generally and find a focus, move between concerns, revise a thought or leave it unresolved. Others may already know what they want to say. Preserve that variation rather than giving everyone a polished argument or decorative hesitations.\nAim for about one minute, using the assigned length as a loose guide. Return only their words."
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"invitation\": {\n    \"main\": \"What is something you’d like to change, but can’t change on your own?\",\n    \"optionalSupporting\": [\n      \"What would you like to be different?\",\n      \"What would you need to make that change?\"\n    ]\n  },\n  \"privateCircumstances\": \"You sometimes take part in a cultural activity with others, but it is not your whole identity.\",\n  \"privateDirections\": [\n    {\n      \"dimension\": \"Interpretation\",\n      \"direction\": \"A change in a relationship between people.\"\n    },\n    {\n      \"dimension\": \"Scale\",\n      \"direction\": \"Address a global or transnational concern, rather than reducing it to an individual habit.\"\n    },\n    {\n      \"dimension\": \"Relationship to the issue\",\n      \"direction\": \"You are directly affected by the situation.\"\n    },\n    {\n      \"dimension\": \"Relationship to acting with others\",\n      \"direction\": \"You could contribute something, without taking on organising.\"\n    },\n    {\n      \"dimension\": \"Clarity\",\n      \"direction\": \"You want things that do not fit together easily.\"\n    },\n    {\n      \"dimension\": \"Emotional tone\",\n      \"direction\": \"There is room for understated or dry humour.\"\n    },\n    {\n      \"dimension\": \"Way of answering\",\n      \"direction\": \"You tend to start with something that happened.\"\n    },\n    {\n      \"dimension\": \"Vocabulary\",\n      \"direction\": \"Use mostly everyday vocabulary.\"\n    },\n    {\n      \"dimension\": \"English fluency\",\n      \"direction\": \"You are comfortable expressing yourself in English.\"\n    },\n    {\n      \"dimension\": \"Speaking rhythm\",\n      \"direction\": \"Your speech tends to flow through connected thoughts.\"\n    },\n    {\n      \"dimension\": \"Loose length guide\",\n      \"direction\": \"Roughly 140–180 words may suit this contribution.\"\n    },\n    {\n      \"dimension\": \"Level of abstraction\",\n      \"direction\": \"Move between a wider concern and particular experiences or possibilities.\"\n    }\n  ]\n}"
+        }
+      ]
+    }
+  ],
+  "fingerprint": "b1422d0e2867768ce4b99223f137e6fd6f09a34a8a8286ac5c520d80984765c2"
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "title": "Fictional timed replay: where do we belong?",
+  "invitation": "Where in this town do you feel you belong, or feel out of place?",
+  "durationMs": 20000,
+  "voices": [
+    { "id": "ari", "name": "Ari" },
+    { "id": "bea", "name": "Bea" },
+    { "id": "chen", "name": "Chen" },
+    { "id": "dev", "name": "Dev" }
+  ],
+  "events": [
+    {
+      "id": "a1",
+      "atMs": 0,
+      "participantId": "ari",
+      "text": "After the late shift I wait beside the closed bakery. The street is dark and I called it lonely. There is a blue bench with a crack in it. I know which end stays dry when it rains. I sometimes think that is all belonging means: knowing where to sit."
+    },
+    {
+      "id": "b1",
+      "atMs": 0,
+      "participantId": "bea",
+      "text": "The station makes me feel free. I like standing under the departures board without anybody asking where I am going. Being recognised is not always a comfort. In the village where I grew up, everyone had an opinion about who I should be. I like being one face among many."
+    },
+    {
+      "id": "c1",
+      "atMs": 0,
+      "participantId": "chen",
+      "text": "I go to the library because I can stay without buying anything. At first I thought it was the silence I liked. The upstairs window looks onto the market roofs. Sometimes I sit with a book open and do not read a page. Nobody asks me to explain why I am there."
+    },
+    {
+      "id": "d1",
+      "atMs": 0,
+      "participantId": "dev",
+      "text": "The market square is where people call my name. Someone always tells me which tomatoes to buy. I like that noise, but some mornings I cross the road to avoid it. I want to be able to belong without having to give an account of myself every time I arrive."
+    },
+    {
+      "id": "a2",
+      "atMs": 3200,
+      "participantId": "ari",
+      "text": " I called the bus stop lonely, but that is not quite it. The driver knows to wait when she sees me running from the bakery. That dark corner can feel wel"
+    },
+    {
+      "id": "c2",
+      "atMs": 4500,
+      "participantId": "chen",
+      "text": " Yesterday two people were speaking my first language at the next table. The room felt different before I understood what they were saying. Perhaps I do not need silence so much as space where I do not have to translate myself."
+    },
+    {
+      "id": "a3",
+      "atMs": 6500,
+      "participantId": "ari",
+      "text": "coming, even with the shutters down. I would not want the square's noise there. The small sign that somebody has noticed me is enough."
+    },
+    {
+      "id": "b2",
+      "atMs": 8500,
+      "participantId": "bea",
+      "text": " When the announcements mispronounce my home town, I find myself saying it properly under my breath. I want the freedom of being unknown, but I still want the place I came from to sound like itself."
+    },
+    {
+      "id": "d2",
+      "atMs": 9500,
+      "participantId": "dev",
+      "text": " I do not want us to decide that being noticed is always better than being left alone. Perhaps the welcome is knowing I could stop to talk, without having to. I would like to hear how the square sounds to somebody who has just arrived."
+    }
+  ]
+}

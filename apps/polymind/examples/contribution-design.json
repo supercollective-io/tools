@@ -1,0 +1,478 @@
+{
+  "schemaVersion": 1,
+  "title": "Rehearsing We — 64 fictional contributions",
+  "seed": 20261105,
+  "participantCount": 64,
+  "pilotSize": 8,
+  "optimisationSteps": 6000,
+  "invitation": {
+    "main": "What is something you’d like to change, but can’t change on your own?",
+    "optionalSupporting": [
+      "What would you like to be different?",
+      "What would you need to make that change?"
+    ]
+  },
+  "dimensions": [
+    {
+      "id": "interpretation",
+      "label": "Interpretation",
+      "options": [
+        {
+          "id": "personal",
+          "count": 4,
+          "instruction": "A change in your own habits or capacities that involves other people."
+        },
+        {
+          "id": "relationship",
+          "count": 4,
+          "instruction": "A change in a relationship between people."
+        },
+        {
+          "id": "shared-practice",
+          "count": 12,
+          "instruction": "A change in how people do something together."
+        },
+        {
+          "id": "institution",
+          "count": 8,
+          "instruction": "A change in an organisation's decisions or arrangements."
+        },
+        {
+          "id": "cultural",
+          "count": 12,
+          "instruction": "A change in an expectation, norm or cultural practice."
+        },
+        {
+          "id": "systemic",
+          "count": 16,
+          "instruction": "A change in wider material or social conditions."
+        },
+        {
+          "id": "open",
+          "count": 8,
+          "instruction": "Choose your own interpretation, including questioning the premise."
+        }
+      ]
+    },
+    {
+      "id": "scale",
+      "label": "Scale",
+      "options": [
+        {
+          "id": "intimate",
+          "count": 4,
+          "instruction": "The concern is at the level of a personal relationship."
+        },
+        {
+          "id": "household",
+          "count": 4,
+          "instruction": "The concern is at the level of a household or home."
+        },
+        {
+          "id": "group",
+          "count": 8,
+          "instruction": "A group, workplace or organisation is the relevant scale."
+        },
+        {
+          "id": "local",
+          "count": 8,
+          "instruction": "A neighbourhood, town or local network is the relevant scale."
+        },
+        {
+          "id": "national",
+          "count": 16,
+          "instruction": "Address a society-wide or national political concern, rather than reducing it to a local problem."
+        },
+        {
+          "id": "global",
+          "count": 16,
+          "instruction": "Address a global or transnational concern, rather than reducing it to an individual habit."
+        },
+        {
+          "id": "open",
+          "count": 8,
+          "instruction": "Choose the scale yourself, including concerns that cross scales."
+        }
+      ]
+    },
+    {
+      "id": "relationship",
+      "label": "Relationship to the issue",
+      "options": [
+        {
+          "id": "affected",
+          "count": 24,
+          "instruction": "You are directly affected by the situation."
+        },
+        {
+          "id": "observer",
+          "count": 8,
+          "instruction": "You have noticed the situation affecting people around you."
+        },
+        {
+          "id": "implicated",
+          "count": 8,
+          "instruction": "Your own behaviour contributes to the situation in some way."
+        },
+        {
+          "id": "already-trying",
+          "count": 8,
+          "instruction": "You have already tried something, without settling the issue."
+        },
+        {
+          "id": "beneficiary",
+          "count": 8,
+          "instruction": "Something about the current situation also benefits you."
+        },
+        {
+          "id": "open",
+          "count": 8,
+          "instruction": "Choose your relationship to the issue."
+        }
+      ]
+    },
+    {
+      "id": "agency",
+      "label": "Relationship to acting with others",
+      "options": [
+        {
+          "id": "organise",
+          "count": 12,
+          "instruction": "You would be willing to help organise a change."
+        },
+        {
+          "id": "contribute",
+          "count": 16,
+          "instruction": "You could contribute something, without taking on organising."
+        },
+        {
+          "id": "delegate",
+          "count": 12,
+          "instruction": "You would prefer someone with responsibility or expertise to act."
+        },
+        {
+          "id": "need-support",
+          "count": 8,
+          "instruction": "You would need support before being able to act."
+        },
+        {
+          "id": "sceptical",
+          "count": 8,
+          "instruction": "You doubt whether acting with a group would help."
+        },
+        {
+          "id": "open",
+          "count": 8,
+          "instruction": "Leave your willingness or role open if that fits."
+        }
+      ]
+    },
+    {
+      "id": "clarity",
+      "label": "Clarity",
+      "options": [
+        {
+          "id": "proposal",
+          "count": 12,
+          "instruction": "You have a fairly specific idea of what could change."
+        },
+        {
+          "id": "wish",
+          "count": 20,
+          "instruction": "You know what you want to be different but not how to get there."
+        },
+        {
+          "id": "unsettled",
+          "count": 16,
+          "instruction": "You are still working out what bothers you or what you want."
+        },
+        {
+          "id": "conflicted",
+          "count": 8,
+          "instruction": "You want things that do not fit together easily."
+        },
+        {
+          "id": "open",
+          "count": 8,
+          "instruction": "Choose how certain or specific to be."
+        }
+      ]
+    },
+    {
+      "id": "tone",
+      "label": "Emotional tone",
+      "options": [
+        {
+          "id": "hopeful",
+          "count": 12,
+          "instruction": "There is some hope in how you speak."
+        },
+        {
+          "id": "irritated",
+          "count": 12,
+          "instruction": "You sound irritated, without needing a dramatic grievance."
+        },
+        {
+          "id": "dry",
+          "count": 8,
+          "instruction": "There is room for understated or dry humour."
+        },
+        {
+          "id": "weary",
+          "count": 8,
+          "instruction": "You sound a little weary of the situation."
+        },
+        {
+          "id": "warm",
+          "count": 8,
+          "instruction": "You speak with warmth or affection for someone or something involved."
+        },
+        {
+          "id": "matter-of-fact",
+          "count": 8,
+          "instruction": "You speak in a matter-of-fact way."
+        },
+        {
+          "id": "mixed",
+          "count": 4,
+          "instruction": "Your feelings are mixed."
+        },
+        {
+          "id": "open",
+          "count": 4,
+          "instruction": "Let the tone emerge from the answer."
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "label": "Way of answering",
+      "options": [
+        {
+          "id": "anecdote",
+          "count": 16,
+          "instruction": "You tend to start with something that happened."
+        },
+        {
+          "id": "direct",
+          "count": 16,
+          "instruction": "You tend to get straight to what you want to change."
+        },
+        {
+          "id": "reflection",
+          "count": 8,
+          "instruction": "You tend to reflect on a broader idea."
+        },
+        {
+          "id": "question",
+          "count": 8,
+          "instruction": "You tend to explore the issue through questions."
+        },
+        {
+          "id": "practical",
+          "count": 8,
+          "instruction": "You tend to explain practical details."
+        },
+        {
+          "id": "digressive",
+          "count": 4,
+          "instruction": "Your thought can wander or take a tangent."
+        },
+        {
+          "id": "open",
+          "count": 4,
+          "instruction": "Choose the shape of the answer."
+        }
+      ]
+    },
+    {
+      "id": "register",
+      "label": "Vocabulary",
+      "options": [
+        {
+          "id": "plain",
+          "count": 36,
+          "instruction": "Use mostly everyday vocabulary."
+        },
+        {
+          "id": "technical",
+          "count": 8,
+          "instruction": "You have relevant specialist vocabulary available; use only what fits."
+        },
+        {
+          "id": "political",
+          "count": 8,
+          "instruction": "Political language is part of how you think about this."
+        },
+        {
+          "id": "open",
+          "count": 12,
+          "instruction": "Choose the vocabulary that fits this person."
+        }
+      ]
+    },
+    {
+      "id": "fluency",
+      "label": "English fluency",
+      "options": [
+        {
+          "id": "fluent",
+          "count": 32,
+          "instruction": "You are comfortable expressing yourself in English."
+        },
+        {
+          "id": "searching",
+          "count": 16,
+          "instruction": "You sometimes search for a word or rephrase in English; keep it natural, without accent spelling or manufactured errors."
+        },
+        {
+          "id": "open",
+          "count": 16,
+          "instruction": "Choose the level of fluency independently of the person's knowledge."
+        }
+      ]
+    },
+    {
+      "id": "rhythm",
+      "label": "Speaking rhythm",
+      "options": [
+        {
+          "id": "compact",
+          "count": 16,
+          "instruction": "Your sentences tend to be compact."
+        },
+        {
+          "id": "flowing",
+          "count": 20,
+          "instruction": "Your speech tends to flow through connected thoughts."
+        },
+        {
+          "id": "revising",
+          "count": 16,
+          "instruction": "You sometimes revise what you just said."
+        },
+        {
+          "id": "open",
+          "count": 12,
+          "instruction": "Let the rhythm emerge without adding compulsory hesitations."
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Loose length guide",
+      "options": [
+        {
+          "id": "brief",
+          "count": 16,
+          "instruction": "Roughly 90–120 words may suit this contribution."
+        },
+        {
+          "id": "typical",
+          "count": 32,
+          "instruction": "Roughly 110–150 words may suit this contribution."
+        },
+        {
+          "id": "expansive",
+          "count": 16,
+          "instruction": "Roughly 140–180 words may suit this contribution."
+        }
+      ]
+    },
+    {
+      "id": "abstraction",
+      "label": "Level of abstraction",
+      "options": [
+        {
+          "id": "concrete",
+          "count": 24,
+          "instruction": "Focus on a specific situation or desired change."
+        },
+        {
+          "id": "mixed",
+          "count": 24,
+          "instruction": "Move between a wider concern and particular experiences or possibilities."
+        },
+        {
+          "id": "broad",
+          "count": 16,
+          "instruction": "Express a broad concern, value or wish. It can remain general; no personal anecdote, concrete project or practical solution is required."
+        }
+      ]
+    }
+  ],
+  "situations": [
+    {
+      "id": "home",
+      "count": 4,
+      "context": "You live with other adults and have some recurring responsibilities at home.",
+      "allowed": {}
+    },
+    {
+      "id": "work",
+      "count": 6,
+      "context": "You work alongside other people. Your time and income depend partly on arrangements you do not set alone.",
+      "allowed": {}
+    },
+    {
+      "id": "care",
+      "count": 4,
+      "context": "You have a regular caring responsibility alongside other parts of your life.",
+      "allowed": {}
+    },
+    {
+      "id": "mobility",
+      "count": 4,
+      "context": "Your ordinary journeys involve both your own choices and arrangements made by others.",
+      "allowed": {}
+    },
+    {
+      "id": "culture",
+      "count": 4,
+      "context": "You sometimes take part in a cultural activity with others, but it is not your whole identity.",
+      "allowed": {}
+    },
+    {
+      "id": "digital",
+      "count": 4,
+      "context": "Digital tools are part of how you keep in touch or get things done. Your feelings about them are not predetermined.",
+      "allowed": {}
+    },
+    {
+      "id": "learning",
+      "count": 4,
+      "context": "You are learning something alongside other commitments and have differing amounts of confidence in different settings.",
+      "allowed": {}
+    },
+    {
+      "id": "neighbourhood",
+      "count": 4,
+      "context": "You live in a neighbourhood where you know some people and do not know many others.",
+      "allowed": {}
+    },
+    {
+      "id": "small-business",
+      "count": 4,
+      "context": "You help keep a small business or independent practice going and make decisions that affect others.",
+      "allowed": {}
+    },
+    {
+      "id": "public-life",
+      "count": 6,
+      "context": "You follow some public debates and political decisions, with your own interests, uncertainties and commitments.",
+      "allowed": {}
+    },
+    {
+      "id": "friendships",
+      "count": 4,
+      "context": "Your friendships involve different schedules, habits and expectations.",
+      "allowed": {}
+    },
+    {
+      "id": "open",
+      "count": 16,
+      "context": "Choose the person's circumstances; do not assume a particular issue.",
+      "allowed": {}
+    }
+  ]
+}

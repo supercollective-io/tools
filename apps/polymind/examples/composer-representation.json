@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "services",
+      "sourceFile": "examples/score.json",
+      "voiceIds": ["chris", "rosa", "alex", "mo"],
+      "cutoffMs": null,
+      "prefix": "We want a say that goes beyond being asked to choose between cuts, and we want the people responsible for services to explain their decisions."
+    },
+    {
+      "id": "belonging-unfinished",
+      "sourceFile": "examples/composer-belonging-unused.json",
+      "voiceIds": ["ari", "bea", "chen", "dev"],
+      "cutoffMs": 4500,
+      "prefix": "We can be in the same town and find different ways of feeling at home."
+    },
+    {
+      "id": "belonging-developed",
+      "sourceFile": "examples/composer-belonging-unused.json",
+      "voiceIds": ["ari", "bea", "chen", "dev"],
+      "cutoffMs": 9500,
+      "prefix": "We can be in the same town and find different ways of feeling at home."
+    }
+  ]
+}

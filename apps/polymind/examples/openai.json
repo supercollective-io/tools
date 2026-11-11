@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "composer": {
+    "provider": "openai",
+    "model": "REPLACE_WITH_CLOUD_MODEL",
+    "maxOutputTokens": 1024,
+    "timeoutMs": 120000
+  },
+  "instructions": "Write in plain, spoken British English. Speak as part of the group, not as a commentator. Keep the thought grounded in what people have said, including disagreement. Avoid slogans and poetic metaphors.",
+  "history": {
+    "maxPassages": 6,
+    "maxCharacters": 12000
+  }
+}

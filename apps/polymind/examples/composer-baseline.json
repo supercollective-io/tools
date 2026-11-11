@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "composer": {
+    "provider": "ollama",
+    "model": "gemma4:12b-mlx",
+    "baseUrl": "http://127.0.0.1:11434",
+    "rawPrefill": true,
+    "think": false,
+    "numCtx": 8192,
+    "maxOutputTokens": 96,
+    "timeoutMs": 120000
+  },
+  "instructions": "Write in plain, spoken British English. Speak as part of the group, not as a commentator. Keep the thought grounded in what people have said, including disagreement. Avoid slogans and poetic metaphors.",
+  "history": {
+    "maxPassages": 6,
+    "maxCharacters": 12000
+  }
+}

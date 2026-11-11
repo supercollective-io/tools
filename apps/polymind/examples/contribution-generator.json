@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "generator": {
+    "provider": "openai",
+    "model": "gpt-6.1-terra",
+    "reasoningEffort": "none",
+    "maxOutputTokens": 1024,
+    "timeoutMs": 120000
+  }
+}

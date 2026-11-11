@@ -1,0 +1,26 @@
+:root {
+  font:
+    18px / 1.5 system-ui,
+    sans-serif;
+  color-scheme: light dark;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 42rem;
+  margin: auto;
+  padding: 1rem;
+}
+label {
+  display: block;
+}
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  font: inherit;
+  padding: 0.5rem;
+}
+#status {
+  min-height: 1.5em;
+}

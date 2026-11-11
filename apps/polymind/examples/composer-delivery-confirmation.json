@@ -1,0 +1,54 @@
+[
+  {
+    "id": "courtyard-laundry",
+    "title": "The courtyard clothesline",
+    "voices": [
+      {
+        "id": "chris",
+        "name": "Chris",
+        "text": "I put my work shirts on the courtyard line before the early shift because they dry much faster outside. The pegs keep going missing, so I bring my own in a tin and take them home again. I don't mind seeing other people's washing; it makes the place feel used, not staged. Rosa asked if I could leave the middle section free for her sheets, and I said yes. Some mornings I am in such a hurry that I hang things wherever there is room. Last week I found a red sock in my basket that wasn't mine. I was going to put it on the rail, but the rain started. It belongs to the child in the flat above; her dad recognised it from the window and laughed."
+      },
+      {
+        "id": "rosa",
+        "name": "Rosa",
+        "text": "The courtyard gets sun from about eleven until three, which is just enough to dry the heavy sheets if I turn them once. I like the smell when I bring them in. The line sags in the middle, though, and a damp sheet can touch the paving if someone hangs a coat beside it. I asked Chris to leave that section clear, then felt fussy when he said he sometimes has to rush out. We could put another line up, but it would shade the pots along the wall. I've spent years trying to keep basil alive there. The bigger sheet I washed yesterday has a tear near the corner. I had thought the peg had pulled it; now I can see the stitching was already coming away, and I should mend it before it gets worse."
+      },
+      {
+        "id": "alex",
+        "name": "Alex",
+        "text": "I use a folding rack by the kitchen window because the courtyard steps are awkward with a laundry basket. It takes two days for towels to dry indoors, and then the room smells a bit sour. I don't want anyone to carry things for me every week; I can manage if I take smaller loads. The outside line is useful when it is empty, but sometimes there are shirts across every gap and nowhere for a towel. I thought a second line would solve it until I noticed the low branches would brush against the sheets. My neighbour offered to move the pots, which is kind, but I don't know if that fixes the shade. Yesterday I dried one towel outside after all. The sunlight reached the end section, and that is enough for the smaller things I wash."
+      },
+      {
+        "id": "mo",
+        "name": "Mo",
+        "text": "I used to hang everything outside, even if the forecast looked doubtful. Now I bring the basket in when the wind turns because one of my shirts landed on the garage roof last year. I can reach the line with a wooden pole, but the pegs near the wall are hard to see from my flat. Chris once brought in a towel he thought was mine; it was actually Rosa's, and we all had a laugh about the colour. I don't mind sharing the line, as long as things don't stay there all night. The courtyard is quiet then, and I like to sit by the open door. I was about to say the missing pegs are the main nuisance, but I found a handful behind the old flowerpot this morning. They must have blown there in the storm."
+      }
+    ]
+  },
+  {
+    "id": "summer-nights",
+    "title": "Keeping cool on a hot night",
+    "voices": [
+      {
+        "id": "chris",
+        "name": "Chris",
+        "text": "I leave the bedroom window open when the room gets hot, even though the buses start before six. If I shut it, I wake up with a dry mouth and the pillow damp. My partner sleeps better with the curtains closed, so we keep arguing about whether to pull them back after sunset. The small fan points at the bed but mostly moves warm air from one side to the other. I used to think the street noise was the thing keeping me awake. Last Thursday I moved the fan to the floor and turned it towards the doorway. It made a cooler strip across the room, and I slept for nearly five hours without waking. I still heard the first bus, but I didn't mind it as much as I expected."
+      },
+      {
+        "id": "rosa",
+        "name": "Rosa",
+        "text": "I open the kitchen window at night and shut it before the sun reaches the cooker. The flat stays cooler that way, but the upstairs room is always warm because the roof holds the heat. I bought a light cotton sheet and stopped using the quilt, which helped more than the fan did. My daughter likes the fan on high and says the sound covers the traffic. I find that low rattling note impossible to ignore. Last week I put a bowl of water by the window because someone said it cooled the air. It didn't seem to do anything, and I nearly tipped it over in the dark. The surprising difference was moving the lamp away from the bed; it had been on for hours and gave off more heat than I noticed."
+      },
+      {
+        "id": "alex",
+        "name": "Alex",
+        "text": "The room facing the road gets the breeze, but also all the sound from people coming home late. My son sleeps in there because it is bigger, and he says the noise doesn't bother him. I take the back room, where the air barely moves. We tried swapping rooms for a few nights, but then I couldn't hear when he called from the other end of the flat. A fan helps if it is pointed at the wall, not directly at my face. I thought that was just preference until I tried it after a shower and could actually fall asleep. I have been putting a cold cloth at the foot of the bed. Last night my son brought his own small fan in from the front room, then offered to swap back because the road was quieter than usual."
+      },
+      {
+        "id": "mo",
+        "name": "Mo",
+        "text": "I keep the blinds down during the afternoon and open the window after the sun has moved off the brick wall. That works unless the air outside is just as hot, which happened for three days last month. I have a fan but can't leave it running all night because the hum gets into my head. A damp cloth on the back of my neck is less comfortable than it sounds; it makes the pillow wet. I told Chris that the buses are not what wakes me, and I still think that's true. What I hadn't noticed was the kitchen fridge starting up every half-hour in the warm weather. I moved my bed away from the shared wall by about a metre. The room is not cooler, exactly, but I no longer wake at every low buzz."
+      }
+    ]
+  }
+]

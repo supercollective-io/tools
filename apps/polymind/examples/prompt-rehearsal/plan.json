@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "title": "Simultaneous prompt rehearsal — fictional demonstration",
+  "invitation": "What is something you’d like to change, but can’t change on your own?",
+  "hypothesis": "Later details develop the opening thought rather than adding a list.",
+  "config": "../live-projection.json",
+  "tailMs": 10000,
+  "tracks": [
+    {
+      "id": "a",
+      "timingNote": "Fictional cue timings, not a human recording.",
+      "cues": [
+        {
+          "endMs": 1000,
+          "text": "I want our building to be warmer."
+        },
+        {
+          "endMs": 12000,
+          "text": "But I cannot afford a rent increase to pay for it."
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "timingNote": "Fictional cue timings, not a human recording.",
+      "cues": [
+        {
+          "endMs": 2000,
+          "text": "I would like to know my neighbours."
+        },
+        {
+          "endMs": 15000,
+          "text": "I work nights, so the meetings always happen while I am asleep."
+        }
+      ]
+    }
+  ],
+  "prompt": "baseline-g.txt"
+}

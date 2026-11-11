@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f3ec" />
+    <meta name="description" content="A live workspace for rehearsing a collective voice." />
+    <title>Collective Microphone</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header class="masthead">
+      <h1><a href="#main">Collective Microphone</a></h1>
+      <div class="session-controls">
+        <label id="saved-label" class="visually-hidden" for="saved" hidden>Open a saved rehearsal</label>
+        <select id="saved" class="compact-select" aria-labelledby="saved-label" hidden><option value="">Open saved…</option></select>
+        <span id="session-status" class="visually-hidden" role="status">Waiting for session</span>
+        <span class="visually-hidden">Rehearsal elapsed time:</span><time id="elapsed" title="Rehearsal elapsed time">00:00</time>
+        <fieldset class="controls" aria-label="Rehearsal controls"><button type="button" id="new" class="button" hidden>New</button><button type="button" id="start" class="button primary" disabled>Start</button><button type="button" id="pause" class="button" disabled>Pause</button><button type="button" id="end" class="button" disabled>End</button></fieldset>
+      </div>
+    </header>
+    <main id="main">
+      <p id="invitation" class="invitation"></p>
+      <p id="connection" class="connection" role="status">Connecting…</p>
+      <div id="error" class="error" role="alert" hidden></div>
+      <section id="setup" class="setup" aria-label="New rehearsal" hidden>
+        <div class="setup-fields">
+          <label>Mode<select id="mode"><option value="continuous">Continuous</option><option value="chunked">Chunked</option><option value="fixed">Prewritten</option></select></label>
+          <label>Model<select id="model"></select></label>
+          <label>Participants<select id="participant-count"></select></label>
+        </div>
+        <p id="mode-hint" class="mode-hint"></p>
+      </section>
+      <a href="/projection" target="collective-projection" class="button">Open projection</a>
+      <section id="join" hidden><a id="join-link" href="/" target="_blank" rel="noopener">Join on your phone</a><img id="join-qr" alt="Scan to join this session" width="180" height="180" /></section>
+      <div id="workspace" class="workspace">
+        <section class="collective-column" aria-labelledby="collective-title">
+          <div class="section-heading"><h2 id="collective-title">Collective</h2><span id="collective-phase" class="phase">Waiting</span></div>
+          <!-- biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll the growing text. -->
+          <section id="collective-text" class="collective-text text-scroll" tabindex="0" aria-label="Full growing collective text"><p class="empty">Waiting for text…</p></section>
+          <button type="button" id="collective-follow" class="follow" hidden>Follow latest ↓</button>
+        </section>
+        <section class="participants-column" aria-label="Participants">
+          <div id="participants" class="participant-grid"></div>
+        </section>
+      </div>
+    </main>
+    <template id="participant-template">
+      <article class="participant-card">
+        <div class="participant-header"><h3>Participant</h3><span class="phase"></span></div>
+        <!-- biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll the growing text. -->
+        <section class="participant-text text-scroll" aria-label="Participant contribution" tabindex="0"></section>
+        <button type="button" class="follow" hidden>Follow latest ↓</button>
+      </article>
+    </template>
+  </body>
+</html>
