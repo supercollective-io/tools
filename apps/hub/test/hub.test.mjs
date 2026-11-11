@@ -47,7 +47,7 @@ test('operator transitions survive restart and public output contains only the c
     assert.equal((await fetch(`${app.base}/api/operator/state`, { method: 'PUT' })).status, 401);
     const privateResponse = await fetch(`${app.base}/operator`, { headers: authenticated });
     assert.equal(privateResponse.status, 200);
-    assert.match(await privateResponse.text(), /Private operator desk/);
+    assert.match(await privateResponse.text(), /id="programme"/);
     const state = await (await fetch(`${app.base}/api/operator/state`, { headers: authenticated })).json();
     const digital = state.activities.find(activity => activity.id === 'polymind');
     digital.status = 'ready'; digital.url = 'https://polymind.supercollective.io/join?session=synthetic';

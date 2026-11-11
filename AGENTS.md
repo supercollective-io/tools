@@ -19,6 +19,7 @@ Run commands below from the repository root with `mise exec --`.
 
 | Task | Start here | Completion evidence |
 | --- | --- | --- |
+| UI design, refinement or visual review | [UI design workflow](docs/ui-design.md), then the affected app's instructions | Brief and rendered evidence proportionate to scope; relevant browser checks and root verification for implementation |
 | Session, browser or continuous voice changes | [Polymind instructions](apps/polymind/AGENTS.md), then [contributor map](apps/polymind/CONTRIBUTING.md) | Focused tests, root verification; browser changes also need `just test-browser` |
 | Puck mechanics, interface or operation | [Puck instructions](apps/puck/AGENTS.md), then [architecture](apps/puck/docs/architecture.md) | Root verification; transport, UI and lifecycle changes also need `just test-browser-puck` |
 | Hub entrance, navigation or packaging | [Hub instructions](apps/hub/AGENTS.md), then [hub guide](apps/hub/README.md) | Root verification; navigation changes also need `just test-browser-hub`; packaging changes need the hub container recipes |
@@ -28,6 +29,10 @@ Run commands below from the repository root with `mise exec --`.
 | Deployment | [Deployment guide](deploy/README.md) | Release checks and authorised staging smoke evidence; preparation alone does not authorise deployment |
 
 ## Development loop
+
+For UI work, use the repository-local Impeccable design skill and Vercel
+web-design-guidelines review skill through the [design workflow](docs/ui-design.md).
+Read [tooling setup](docs/design-tooling.md) before running Impeccable's context loader.
 
 - Bootstrap: follow [root setup](README.md#run), then `mise exec -- just doctor`.
   Tests do not require an operator token, provider credentials or a running model.

@@ -1,6 +1,6 @@
 :root {
   color-scheme: dark;
-  font-family: system-ui, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: #111;
   color: #fafafa;
 }
@@ -13,11 +13,13 @@ body {
   overflow: hidden;
   padding: 7vh 8vw;
   font-size: clamp(28px, 3.2vw, 124px);
-  line-height: 1.4;
+  line-height: 1.3;
+  font-weight: 550;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 #fullscreen {
+  min-height: 44px;
   position: fixed;
   top: 12px;
   right: 12px;
@@ -33,4 +35,9 @@ body {
 }
 :fullscreen {
   cursor: none;
+}
+
+#fullscreen:focus-visible {
+  outline: 3px solid #e3fa49;
+  outline-offset: 4px;
 }

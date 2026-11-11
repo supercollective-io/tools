@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T22:17:06Z",
+  "title": "Design System: Supercollective Tools",
+  "extensions": {
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Bold primary headings; Hub scales this down on narrow screens."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading and form content in the shared local Helvetica stack."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Compact field, control, and status labels."
+      }
+    },
+    "breakpoints": [
+      { "name": "phone", "value": "400px", "purpose": "Hub narrow form and toolbar reflow." },
+      { "name": "compact", "value": "480px", "purpose": "Puck arena label adjustment." },
+      { "name": "participant", "value": "550px", "purpose": "Polymind participant form row reflow." },
+      { "name": "session", "value": "700px", "purpose": "Polymind live session workspace reflow." },
+      { "name": "hub", "value": "760px", "purpose": "Hub invitation and operator grids reflow." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Dark, square action button used across Hub, Polymind, and Puck.",
+      "html": "<button class=\"ds-button-primary\">Continue</button>",
+      "css": ".ds-button-primary { min-height: 44px; padding: 7px 12px; border: 1px solid #191919; border-radius: 0; background: #191919; color: #ffffff; font: 400 18px/1.5 \"Helvetica Neue\", Helvetica, Arial, sans-serif; cursor: pointer; } .ds-button-primary:hover { background: #383a32; } .ds-button-primary:focus-visible { outline: 3px solid #2455cc; outline-offset: 3px; } .ds-button-primary:disabled { opacity: 0.5; cursor: default; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Square, bordered secondary control with a light surface.",
+      "html": "<button class=\"ds-button-secondary\">Back</button>",
+      "css": ".ds-button-secondary { min-height: 44px; padding: 7px 12px; border: 1px solid #bfc1b8; border-radius: 0; background: #f3f3ef; color: #191919; font: 400 18px/1.5 \"Helvetica Neue\", Helvetica, Arial, sans-serif; cursor: pointer; } .ds-button-secondary:hover { background: #e3e5dc; } .ds-button-secondary:focus-visible { outline: 3px solid #2455cc; outline-offset: 3px; } .ds-button-secondary:disabled { opacity: 0.5; cursor: default; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "White, square field with a neutral outline and visible keyboard focus.",
+      "html": "<input class=\"ds-input\" aria-label=\"Response\" value=\"\">",
+      "css": ".ds-input { width: 100%; min-width: 0; padding: 12px; border: 1px solid #85877e; border-radius: 0; background: #ffffff; color: #191919; font: 400 18px/1.5 \"Helvetica Neue\", Helvetica, Arial, sans-serif; } .ds-input:focus-visible { outline: 3px solid #2455cc; outline-offset: 4px; } .ds-input:disabled { background: #e5e7df; }"
+    },
+    {
+      "name": "Lime State Marker",
+      "kind": "chip",
+      "description": "Flat state marker used on Hub and Polymind session surfaces.",
+      "html": "<span class=\"ds-state-lime\">Selected</span>",
+      "css": ".ds-state-lime { display: inline-block; padding: 4px 8px; border-radius: 0; background: #e3fa49; color: #191919; font: 700 14px/1.4 \"Helvetica Neue\", Helvetica, Arial, sans-serif; }"
+    },
+    {
+      "name": "Participant Card",
+      "kind": "card",
+      "description": "White, square participant container separated by a fine neutral border.",
+      "html": "<section class=\"ds-card\"><strong>Participant</strong><p>Response text</p></section>",
+      "css": ".ds-card { min-width: 0; padding: 14px 16px; border: 0; border-top: 2px solid #191919; border-radius: 0; background: #ffffff; color: #191919; font: 400 14px/1.7 \"Helvetica Neue\", Helvetica, Arial, sans-serif; } .ds-card p { margin: 8px 0 0; color: #555650; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Functional confidence",
+    "overview": "The interfaces use a strict, high-contrast graphic language: near-black ink, a warm neutral ground, bold type, strong rules, and square controls. The result is direct and assertive while keeping the participant’s current task easy to find. Helvetica Neue with Helvetica and Arial fallbacks is an intentional local stack.\n\nHub, Polymind, and Puck are separate applications with related visual foundations and some surface-specific choices. Their controls communicate real actions and states. Do not add slogans, performance rhetoric, or other non-functional interface copy.",
+    "keyCharacteristics": [
+      "Functional, almost Swiss structure with a bold typographic hierarchy.",
+      "Flat surfaces, square corners, and clear borders.",
+      "State accents vary by application and surface; preserve those distinctions."
+    ],
+    "rules": [
+      {
+        "name": "Surface-specific state colour",
+        "body": "Use lime for Hub and Polymind session/projection emphasis. Olive marks Puck links and arena graphics, and legacy Polymind status/follow text; it is not a general primary or focus colour. Preserve the lime fill and olive outline on selected Puck arena targets.",
+        "section": "colors"
+      },
+      {
+        "name": "Flat controls",
+        "body": "Keep controls square and flat. Use borders, contrast, spacing, and state fills to show structure.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the local Helvetica stack and observed ink, paper, and white foundations.",
+      "Do keep controls square, flat, bordered, and easy to identify as actions.",
+      "Do preserve visible keyboard focus and responsive single-column reflow."
+    ],
+    "donts": [
+      "Don't add slogans, performance rhetoric, or non-functional text to the interface.",
+      "Don't replace the square control language with rounded pills, soft cards, or decorative shadows.",
+      "Don't use olive as a primary button or focus colour; it marks local links, arena graphics, and legacy status text."
+    ]
+  }
+}

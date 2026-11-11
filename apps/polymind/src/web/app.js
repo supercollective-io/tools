@@ -327,7 +327,7 @@ function render() {
           ? "Rehearsal running"
           : state.status === "paused"
             ? "Rehearsal paused"
-            : "Ready when you are";
+            : "Ready";
   updateControls();
   updateClock();
 }

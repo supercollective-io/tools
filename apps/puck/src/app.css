@@ -1,7 +1,7 @@
 :root {
-  font-family: system-ui, sans-serif;
-  color: #202421;
-  background: #fff;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #191919;
+  background: #f3f3ef;
   font-synthesis: none;
   line-height: 1.5;
 }
@@ -13,7 +13,7 @@ body {
 }
 nav,
 main {
-  width: min(100% - 32px, 680px);
+  width: min(100% - 40px, 1120px);
   margin-inline: auto;
 }
 nav {
@@ -23,7 +23,7 @@ main {
   padding-bottom: 32px;
 }
 h1 {
-  font-size: 1.35rem;
+  font-size: 2rem;
   line-height: 1.35;
   font-weight: 600;
   margin: 0 0 20px;
@@ -38,7 +38,7 @@ p {
   margin: 12px 0;
 }
 a {
-  color: #216343;
+  color: #354f12;
   text-underline-offset: 3px;
 }
 nav a {
@@ -51,12 +51,18 @@ input,
 textarea {
   font: inherit;
 }
+input,
+textarea,
+select {
+  font-weight: 400;
+}
 button {
-  min-height: 40px;
+  touch-action: manipulation;
+  min-height: 44px;
   padding: 7px 12px;
-  border: 1px solid #c8ceca;
-  border-radius: 5px;
-  background: #fff;
+  border: 1px solid #bfc1b8;
+  border-radius: 0;
+  background: #f3f3ef;
   color: inherit;
   cursor: pointer;
 }
@@ -68,15 +74,15 @@ button:disabled {
   cursor: default;
 }
 button.primary {
-  background: #216343;
-  border-color: #216343;
+  background: #354f12;
+  border-color: #354f12;
   color: white;
 }
 button.primary:hover:not(:disabled) {
-  background: #174a31;
+  background: #25390b;
 }
 :focus-visible {
-  outline: 2px solid #216343;
+  outline: 2px solid #354f12;
   outline-offset: 3px;
 }
 input:not([type="range"]),
@@ -84,8 +90,8 @@ textarea {
   width: 100%;
   min-width: 0;
   padding: 9px 10px;
-  border: 1px solid #b6beb8;
-  border-radius: 4px;
+  border: 1px solid #85877e;
+  border-radius: 0;
   color: inherit;
   background: white;
 }
@@ -101,7 +107,7 @@ form {
   gap: 20px;
 }
 .form-page {
-  max-width: 440px;
+  max-width: 520px;
   margin: 16px auto 0;
 }
 fieldset {
@@ -131,7 +137,7 @@ legend {
 }
 .muted,
 .arena-hint {
-  color: #5e6861;
+  color: #555650;
   font-size: 0.875rem;
 }
 .error {
@@ -171,14 +177,14 @@ legend {
   height: 100%;
 }
 .target {
-  fill: #f4f7f5;
-  stroke: #b5c4ba;
+  fill: #f0f1e9;
+  stroke: #8b907f;
   stroke-width: 2;
 }
 .target.chosen,
 .target.dwelling {
-  fill: #d6ebde;
-  stroke: #216343;
+  fill: #e3fa49;
+  stroke: #354f12;
   stroke-width: 4;
 }
 .target-label {
@@ -193,15 +199,15 @@ legend {
   overflow-wrap: anywhere;
 }
 .puck {
-  fill: #202421;
+  fill: #191919;
 }
 .magnet {
-  fill: #216343;
+  fill: #354f12;
   stroke: white;
   stroke-width: 3;
 }
 .pull-line {
-  stroke: #216343;
+  stroke: #354f12;
   stroke-width: 2;
   opacity: 0.2;
   stroke-dasharray: 6 6;
@@ -211,16 +217,16 @@ legend {
   stroke-dasharray: none;
 }
 .replay-pull {
-  stroke: #216343;
+  stroke: #354f12;
   stroke-width: 2;
   opacity: 0.3;
 }
 .replay-magnet {
-  fill: #216343;
+  fill: #354f12;
 }
 .dwell-ring {
   fill: none;
-  stroke: #216343;
+  stroke: #354f12;
   stroke-width: 5;
 }
 .countdown-overlay {
@@ -242,7 +248,7 @@ legend {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #216343;
+  background: #354f12;
   flex-shrink: 0;
 }
 .support {
@@ -269,7 +275,7 @@ li {
 .replay-controls input {
   flex: 1;
   min-width: 0;
-  accent-color: #216343;
+  accent-color: #354f12;
 }
 @media (max-width: 480px) {
   .target-label {
@@ -281,8 +287,8 @@ select {
   font: inherit;
   padding: 8px;
   max-width: 100%;
-  border: 1px solid #b6beb8;
-  border-radius: 4px;
+  border: 1px solid #85877e;
+  border-radius: 0;
   background: white;
   color: inherit;
 }
@@ -290,4 +296,125 @@ select {
   stroke: #b85d05;
   stroke-width: 7;
   stroke-linecap: round;
+}
+
+:root {
+  color-scheme: light;
+}
+::selection {
+  background: #e3fa49;
+  color: #191919;
+}
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  border-bottom: 3px solid #191919;
+  margin-bottom: 32px;
+  padding-block: 24px 16px;
+}
+nav a {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+h1 {
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+h2 {
+  font-size: 1.15rem;
+}
+button.primary {
+  background: #191919;
+  border-color: #191919;
+  font-weight: 700;
+}
+button.primary:hover:not(:disabled) {
+  background: #383a32;
+}
+:focus-visible {
+  outline-color: #2455cc;
+  outline-width: 3px;
+}
+label,
+legend {
+  font-weight: 650;
+}
+.create-page {
+  max-width: 620px;
+  margin: 32px auto 0;
+}
+.create-page form {
+  border-top: 3px solid #191919;
+  padding-top: 24px;
+}
+.create-page h1 {
+  font-size: 2rem;
+}
+.option-input button {
+  flex-basis: 44px;
+  width: 44px;
+}
+.session {
+  max-width: 800px;
+  margin-inline: auto;
+}
+.toolbar {
+  border-block: 1px solid #bfc1b8;
+  padding-block: 12px;
+}
+.round-status {
+  padding-block: 8px;
+}
+.arena {
+  background: white;
+  border: 1px solid #bfc1b8;
+}
+.timer {
+  background: #e3fa49;
+  padding: 4px 8px;
+  font-weight: 750;
+}
+.support {
+  border-top: 2px solid #191919;
+  padding-top: 16px;
+}
+.support details {
+  border-bottom: 1px solid #bfc1b8;
+  padding-bottom: 12px;
+}
+summary {
+  min-height: 44px;
+  padding-block: 10px;
+}
+.skip-link {
+  position: absolute;
+  left: 20px;
+  top: -100px;
+  padding: 12px;
+  background: #e3fa49;
+  color: #191919;
+  z-index: 10;
+}
+.skip-link:focus {
+  top: 8px;
+}
+@media (max-width: 760px) {
+  .create-page {
+    display: block;
+    margin-top: 24px;
+  }
+
+  nav {
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    font-size: 1.65rem;
+  }
 }

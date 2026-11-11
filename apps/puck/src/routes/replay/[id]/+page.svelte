@@ -75,7 +75,9 @@ onMount(() => {
         ? 'Option contributions — before cancellation'
         : perspective
           ? 'Personal view — own magnet'
-          : 'Shared view — resultant pulls'}
+          : personalised(recording.config.mode ?? 'baseline')
+            ? 'Shared view — resultant pulls'
+            : 'All participants’ magnets'}
     </p>
     {#if personalised(recording.config.mode ?? 'baseline')}
       <label

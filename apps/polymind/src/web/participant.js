@@ -44,7 +44,7 @@ text.addEventListener("input", () => {
   draft.text = text.value;
   try {
     save();
-    status.textContent = "Saving automatically…";
+    status.textContent = "Saving…";
   } catch {
     status.textContent = "Device storage unavailable. Keep this page open.";
   }
@@ -100,10 +100,10 @@ async function cycle() {
         state.status === "ended"
           ? "Session ended. Any unsaved writing remains on this device."
           : draft.text !== draft.savedText || draft.pending
-            ? "Saving automatically…"
+            ? "Saving…"
             : state.status !== "running"
-              ? "Saved. Available when the collective resumes."
-              : "Saved. Available to the collective.";
+              ? "Saved. Waiting for the voice."
+              : "Saved.";
   } catch (error) {
     if (error.status === 409) conflict = true;
     status.textContent =

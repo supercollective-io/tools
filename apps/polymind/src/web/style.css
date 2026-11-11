@@ -1,14 +1,12 @@
 :root {
-  font-family:
-    Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  color: #292933;
-  background: #f5f3ec;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #191919;
+  background: #f3f3ef;
   font-synthesis: none;
   line-height: 1.5;
-  --muted: #77766f;
-  --border: #dfddd4;
-  --accent: #386a59;
+  --muted: #555650;
+  --border: #bfc1b8;
+  --accent: #354f12;
 }
 * {
   box-sizing: border-box;
@@ -83,11 +81,11 @@ h1 a {
 .compact-select {
   max-width: 200px;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 0;
   padding: 5px 8px;
   background: transparent;
   color: inherit;
-  font-size: 12px;
+  font-size: 14px;
 }
 .setup {
   margin: 16px 0 32px;
@@ -102,16 +100,16 @@ h1 a {
   display: grid;
   gap: 6px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
 }
 .setup-fields select {
   min-width: 110px;
   max-width: 100%;
   padding: 7px 28px 7px 9px;
   border: 1px solid var(--border);
-  border-radius: 5px;
-  background: #faf9f4;
-  color: #292933;
+  border-radius: 0;
+  background: #ffffff;
+  color: #191919;
   font-size: 14px;
 }
 .mode-hint {
@@ -136,14 +134,14 @@ time {
 .button {
   border: 1px solid var(--border);
   background: transparent;
-  border-radius: 5px;
+  border-radius: 0;
   padding: 5px 11px;
-  font-size: 12px;
+  font-size: 14px;
   color: inherit;
 }
 .button.primary {
-  background: #292933;
-  border-color: #292933;
+  background: #191919;
+  border-color: #191919;
   color: #fffefa;
 }
 .button:not(:disabled):hover {
@@ -159,7 +157,7 @@ main {
   max-width: 1000px;
   font-size: 15px;
   line-height: 1.6;
-  color: #66655e;
+  color: #555650;
 }
 .invitation:empty {
   display: none;
@@ -219,14 +217,14 @@ h3 {
 .collective-text {
   height: clamp(300px, calc(100dvh - 190px), 1000px);
   padding-right: 16px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: inherit;
   font-size: clamp(23px, 2.2vw, 32px);
   line-height: 1.65;
   letter-spacing: -0.3px;
 }
 .empty {
   margin: 0;
-  color: #a19e94;
+  color: #62645c;
   font-style: italic;
   white-space: normal;
 }
@@ -239,18 +237,18 @@ h3 {
   min-width: 0;
   padding: 14px 16px;
   border: 1px solid var(--border);
-  border-radius: 5px;
-  background: #faf9f4;
+  border-radius: 0;
+  background: #ffffff;
 }
 .participant-text {
   height: 170px;
   padding-right: 5px;
   font-size: 14px;
   line-height: 1.7;
-  color: #626159;
+  color: #555650;
 }
 .unseen {
-  color: #292933;
+  color: #191919;
 }
 .fixed-source .participant-text {
   height: 250px;
@@ -260,7 +258,7 @@ h3 {
   background: #e5eee7;
 }
 .source-pending {
-  color: #77766f;
+  color: #555650;
 }
 .follow {
   display: block;
@@ -326,5 +324,58 @@ h3 {
   }
   .participant-text {
     height: 180px;
+  }
+}
+
+::selection {
+  background: #e3fa49;
+  color: #191919;
+}
+.masthead {
+  border-bottom: 3px solid #191919;
+}
+h1 {
+  font-size: 1.35rem;
+  font-weight: 750;
+}
+.button,
+.compact-select,
+.setup-fields select {
+  min-height: 44px;
+}
+h2,
+h3 {
+  font-size: 1rem;
+}
+.section-heading {
+  border-bottom: 2px solid #191919;
+  padding-bottom: 12px;
+}
+.collective-text {
+  font-weight: 550;
+  line-height: 1.45;
+}
+.participant-card {
+  border: 0;
+  border-top: 2px solid #191919;
+}
+.phase {
+  font-size: 12px;
+}
+.follow {
+  min-height: 44px;
+  font-size: 14px;
+  padding-inline: 10px;
+}
+:focus-visible {
+  outline: 3px solid #2455cc;
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .controls {
+    flex-wrap: wrap;
+  }
+  .participant-header {
+    flex-wrap: wrap;
   }
 }

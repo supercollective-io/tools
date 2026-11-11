@@ -1,26 +1,70 @@
 :root {
   font:
-    18px / 1.5 system-ui,
+    18px / 1.5 "Helvetica Neue",
+    Helvetica,
+    Arial,
     sans-serif;
-  color-scheme: light dark;
+  color-scheme: light;
+  background: #f3f3ef;
+  color: #191919;
+}
+* {
+  box-sizing: border-box;
 }
 body {
   margin: 0;
 }
 main {
-  max-width: 42rem;
+  max-width: 44rem;
   margin: auto;
-  padding: 1rem;
+  padding: 24px 20px 48px;
+}
+header {
+  border-bottom: 3px solid #191919;
+  padding-bottom: 16px;
+  margin-bottom: 32px;
+}
+h1 {
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+#invitation {
+  font-size: 1.8rem;
+  line-height: 1.2;
+  font-weight: 700;
+  text-wrap: balance;
+  margin-block: 32px;
 }
 label {
   display: block;
+  font-weight: 700;
+  margin-bottom: 12px;
 }
 textarea {
-  box-sizing: border-box;
   width: 100%;
   font: inherit;
-  padding: 0.5rem;
+  padding: 16px;
+  resize: vertical;
+  border: 1px solid #85877e;
+  border-radius: 0;
+  background: #fff;
+  color: #191919;
+  caret-color: #191919;
+}
+textarea:disabled {
+  background: #e5e7df;
+}
+:focus-visible {
+  outline: 3px solid #2455cc;
+  outline-offset: 4px;
+}
+::selection {
+  background: #e3fa49;
+  color: #191919;
 }
 #status {
   min-height: 1.5em;
+  color: #555650;
+  overflow-wrap: anywhere;
 }
