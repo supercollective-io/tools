@@ -226,8 +226,7 @@ export async function startSessionServer(options: {
       const session = store.session(sessionId);
       const participant = store.identify(
         sessionId,
-        cookie(req, `pm_${sessionId}`) ||
-          cookie(req, `collective_${sessionId.slice(0, 8)}`),
+        cookie(req, `pm_${sessionId}`),
       );
       const own = () => {
         if (!participant)

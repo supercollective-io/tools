@@ -74,6 +74,13 @@ it("enforces operator, participant, Host and Origin boundaries with same-browser
   const self = await request("/api/state", undefined, a.cookie);
   expect(self.body.participant.name).toBe("A");
   expect(JSON.stringify(self.body)).not.toContain(b.body.participant.id);
+  const oldCookie = a.cookie.replace(
+    `pm_${session.id}`,
+    `collective_${session.id.slice(0, 8)}`,
+  );
+  expect(
+    (await request("/api/state", undefined, oldCookie)).body.participant,
+  ).toBeUndefined();
   const duplicate = await request("/api/join", { name: "Duplicate" }, a.cookie);
   expect(duplicate.body.participant.id).toBe(a.body.participant.id);
   const wrong = await fetch(`${origin}/api/join?session=${session.id}`, {

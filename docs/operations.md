@@ -12,4 +12,4 @@ Recording is optional and requires an explicitly configured transcription model.
 
 For an explicitly budgeted private model rehearsal, `just rehearse-models /absolute/request.json` accepts `authorisation: "run-provider-rehearsal"`, `kind`, `snapshot` (the versioned authorised export), `config`, `maxProviderCalls` and a new `outputDirectory`. It refuses existing output directories, uses only the selected provider, saves a private result and does not publish. Never use automated verification as a reason to make paid calls.
 
-See [backup and legacy import](ops-backup.md). Stop the writer before a consistent backup; code rollback does not undo database changes. Keep the original microphone journals untouched until public cutover and human rehearsal pass.
+See [backup and restore](ops-backup.md). Stop the writer before a consistent backup; code rollback does not undo database changes. Initial deployment starts with fresh data; Tools has never been deployed and needs no legacy data migration.
