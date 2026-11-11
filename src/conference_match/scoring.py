@@ -15,12 +15,13 @@ class Scorer(Protocol):
 
 
 class JevScorer:
-    def __init__(self, model: str = "jev-latest") -> None:
+    def __init__(self, model: str = "jev-latest", *, max_retries: int = 2) -> None:
         load_dotenv()
         self.api_key = os.environ.get("JEV_API_KEY") or os.environ.get("TYPESAFE_API_KEY")
         if not self.api_key:
             raise ValueError("Set JEV_API_KEY in .env or the environment")
         self.model = model
+        self.max_retries = max_retries
 
     def score(self, event: Event, a: Participant, b: Participant) -> Assessment:
         if a.id == b.id:
@@ -32,10 +33,10 @@ class JevScorer:
             )
             for key, question in rubric.QUESTIONS.items()
         }
-        # SDK handles transient status/connection failures: initial attempt + two retries.
+        # Standalone scoring retries twice; background jobs account for each call explicitly.
         try:
             with TypeSafeClient(
-                api_key=self.api_key, timeout=30, retry=RetryPolicy(max_retries=2)
+                api_key=self.api_key, timeout=30, retry=RetryPolicy(max_retries=self.max_retries)
             ) as client:
                 response = client.system_one(
                     state={

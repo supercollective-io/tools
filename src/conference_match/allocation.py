@@ -1,12 +1,11 @@
-"""Global one-to-one allocation from saved assessments, without model calls."""
+"""Collaboration score transformation and backwards-compatible pair allocation."""
 
 import math
 from itertools import combinations
 from statistics import mean, pstdev
 from typing import Literal
 
-import networkx as nx
-
+from conference_match.edges import Edge, allocate_edges
 from conference_match.models import METRICS, Assessment, Event, Record
 
 
@@ -44,14 +43,13 @@ class Allocation(Record):
     minimum_weight: float
 
 
-def allocate(
+def collaboration_scores(
     event: Event, assessments: list[Assessment], normalisation: str = "none"
-) -> Allocation:
+) -> tuple[dict[str, Distribution], dict[tuple[str, str], tuple[dict[str, float], float]]]:
+    """Retain directional relevance pooling and summed collaboration semantics."""
     if normalisation not in ("none", "zscore"):
         raise ValueError("Normalisation must be none or zscore")
     ids = sorted(p.id for p in event.participants)
-    if len(ids) % 2:
-        raise ValueError("Allocation requires an even participant count; trios are not supported")
     expected = set(combinations(ids, 2))
     lookup = {(min(r.a, r.b), max(r.a, r.b)): r for r in assessments}
     if set(lookup) != expected or len(assessments) != len(expected):
@@ -65,8 +63,6 @@ def allocate(
             [r.metrics["shared_inquiry"].normalised for r in ordered]
         ),
     }
-    graph = nx.Graph()
-    graph.add_nodes_from(ids)
     scored: dict[tuple[str, str], tuple[dict[str, float], float]] = {}
     for key in sorted(lookup):
         raw = lookup[key].components
@@ -78,15 +74,26 @@ def allocate(
             else raw[metric]
             for metric in METRICS
         }
-        weight = math.fsum(transformed.values())
-        scored[key] = transformed, weight
-        graph.add_edge(*key, weight=weight)
-    matches = nx.max_weight_matching(graph, maxcardinality=True, weight="weight")
-    paired_ids = [node for pair in matches for node in pair]
-    if len(paired_ids) != len(ids) or set(paired_ids) != set(ids):
-        raise RuntimeError("Solver did not return a complete disjoint allocation")
+        scored[key] = transformed, math.fsum(transformed.values())
+    return statistics, scored
+
+
+def allocate(
+    event: Event, assessments: list[Assessment], normalisation: str = "none"
+) -> Allocation:
+    if normalisation not in ("none", "zscore"):
+        raise ValueError("Normalisation must be none or zscore")
+    ids = sorted(p.id for p in event.participants)
+    if len(ids) % 2:
+        raise ValueError("Allocation requires an even participant count; trios are not supported")
+    statistics, scored = collaboration_scores(event, assessments, normalisation)
+    allocation = allocate_edges(
+        ids, [Edge(a=key[0], b=key[1], weight=value[1]) for key, value in scored.items()]
+    )
+    lookup = {(min(r.a, r.b), max(r.a, r.b)): r for r in assessments}
     selected: list[SelectedPair] = []
-    for key in sorted(tuple(sorted(pair)) for pair in matches):
+    for group in allocation.groups:
+        key = (group.members[0], group.members[1])
         result = lookup[key]
         transformed, weight = scored[key]
         selected.append(
