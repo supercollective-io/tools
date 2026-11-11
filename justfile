@@ -12,6 +12,13 @@ dev: dev-bounded
 dev-bounded:
     pnpm --dir apps/polymind bounded
 
+dev-puck:
+    pnpm --dir apps/puck dev
+
+# Puck arguments run relative to its application directory.
+puck *args:
+    pnpm --dir apps/puck "$@"
+
 dev-voice:
     pnpm --dir apps/polymind exec node --env-file-if-exists=../../.env src/start.ts
 
@@ -56,6 +63,16 @@ load-polymind participants="140": build
 
 test-browser: build
     pnpm --dir apps/polymind exec node scripts/session-browser.mjs
+    pnpm --dir apps/puck exec playwright test
+
+test-browser-puck:
+    pnpm --dir apps/puck test:e2e
+
+build-puck-container:
+    docker build --file apps/puck/Dockerfile --tag puck:local-candidate .
+
+test-puck-container:
+    node scripts/test-puck-container.mjs
 
 doctor:
     node --env-file-if-exists=.env scripts/doctor.mjs
