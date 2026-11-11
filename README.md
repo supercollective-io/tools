@@ -4,6 +4,10 @@ Tools for collective understanding, coordination and action. **Polymind** combin
 
 For agent task routes and focused checks, start with [AGENTS.md](AGENTS.md).
 
+For UI work, follow the [design workflow](docs/ui-design.md): establish the brief,
+compare directions when redesigning, inspect the running interface and revise
+against specific visual and interaction findings.
+
 ## Run
 
 Install the versions in `mise.toml`, then:

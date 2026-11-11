@@ -9,6 +9,7 @@ coverage/
 !/.env.dist
 runs/
 data/
+!/.agents/skills/impeccable/scripts/data/
 .venv/
 __pycache__/
 *.tsbuildinfo
