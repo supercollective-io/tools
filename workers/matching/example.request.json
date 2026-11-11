@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "jobId": "synthetic-example",
+  "snapshot": {"id": "snapshot-example", "hash": "synthetic-snapshot-hash"},
+  "roster": [
+    {"participantId": "participant-a", "text": "Synthetic contribution about collective learning.", "sourceRefs": ["revision-a"], "embedding": [1, 0]},
+    {"participantId": "participant-b", "text": "Synthetic contribution about shared inquiry.", "sourceRefs": ["revision-b"], "embedding": [0.9, 0.1]}
+  ],
+  "mode": "similarity",
+  "config": {"model": "synthetic-two-dimensional-vectors", "eventDescription": "Synthetic contract smoke test", "oddPolicy": "reject", "normalisation": "none", "maxCalls": 0},
+  "outputDir": "/tmp/polymind-matching-example"
+}

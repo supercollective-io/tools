@@ -1,0 +1,34 @@
+{
+  "kind": "synthetic local worker benchmark; no human material or provider calls",
+  "python": "3.12.13",
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "peakRssBytes": 195788800,
+  "measurements": [
+    {
+      "participants": 140,
+      "groups": 70,
+      "elapsedSeconds": 1.891,
+      "providerCalls": 0,
+      "trioReviewRequired": false
+    },
+    {
+      "participants": 139,
+      "groups": 69,
+      "elapsedSeconds": 2.697,
+      "providerCalls": 0,
+      "trioReviewRequired": true
+    },
+    {
+      "participants": 180,
+      "groups": 90,
+      "elapsedSeconds": 3.26,
+      "providerCalls": 0,
+      "trioReviewRequired": false
+    }
+  ],
+  "limits": [
+    "Supplied synthetic eight-dimensional vectors; not model latency or artistic quality",
+    "Single local process; no deployed-container or venue-network evidence",
+    "140-person six-minute real-provider gate remains pending"
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "$defs": {
+    "Config": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "eventDescription": {
+          "minLength": 1,
+          "title": "Eventdescription",
+          "type": "string"
+        },
+        "oddPolicy": {
+          "default": "reject",
+          "enum": [
+            "reject",
+            "trio"
+          ],
+          "title": "Oddpolicy",
+          "type": "string"
+        },
+        "normalisation": {
+          "default": "none",
+          "enum": [
+            "none",
+            "zscore"
+          ],
+          "title": "Normalisation",
+          "type": "string"
+        },
+        "concurrency": {
+          "default": 4,
+          "maximum": 16,
+          "minimum": 1,
+          "title": "Concurrency",
+          "type": "integer"
+        },
+        "timeoutSeconds": {
+          "default": 360,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Timeoutseconds",
+          "type": "number"
+        },
+        "maxAttempts": {
+          "default": 3,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        },
+        "maxCalls": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxcalls"
+        }
+      },
+      "required": [
+        "model",
+        "eventDescription"
+      ],
+      "title": "Config",
+      "type": "object"
+    },
+    "Person": {
+      "additionalProperties": false,
+      "properties": {
+        "participantId": {
+          "minLength": 1,
+          "title": "Participantid",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "sourceRefs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Sourcerefs",
+          "type": "array"
+        },
+        "embedding": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Embedding"
+        }
+      },
+      "required": [
+        "participantId",
+        "text",
+        "sourceRefs"
+      ],
+      "title": "Person",
+      "type": "object"
+    },
+    "Snapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "hash": {
+          "minLength": 1,
+          "title": "Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "hash"
+      ],
+      "title": "Snapshot",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "jobId": {
+      "minLength": 1,
+      "title": "Jobid",
+      "type": "string"
+    },
+    "snapshot": {
+      "$ref": "#/$defs/Snapshot"
+    },
+    "roster": {
+      "items": {
+        "$ref": "#/$defs/Person"
+      },
+      "minItems": 2,
+      "title": "Roster",
+      "type": "array"
+    },
+    "mode": {
+      "enum": [
+        "collaboration",
+        "similarity"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "config": {
+      "$ref": "#/$defs/Config"
+    },
+    "outputDir": {
+      "title": "Outputdir",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "jobId",
+    "snapshot",
+    "roster",
+    "mode",
+    "config",
+    "outputDir"
+  ],
+  "title": "Request",
+  "type": "object"
+}

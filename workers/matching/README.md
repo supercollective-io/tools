@@ -1,0 +1,19 @@
+# Matching worker
+
+This worker installs the reviewed Match wheel in `vendor/`, rather than reading a sibling checkout. Python 3.12.13 and uv 0.11.28 are the deployment pins. From this directory, run `uv sync --frozen --no-dev`; then launch `uv run --frozen --no-dev python -m conference_match.worker /absolute/path/request.json`. Pass the request path as a process argument with `shell: false`.
+
+`request.schema.json` defines schema version 1. `example.request.json` uses synthetic, supplied embeddings and makes no provider calls. Generate a fresh private output directory for each immutable job. Snapshot hashes are caller references; the worker additionally hashes the complete authorised texts, roster, source references, mode, configuration and collaboration rubric. Changed inputs require a new job directory. Names, contact details and credentials are absent from requests.
+
+Collaboration preserves Match's summed directional help and shared inquiry rubric, with optional pooled z-score normalisation. It scores all pairs: 1,225 at 50 people, 4,950 at 100 and 9,730 at 140. Require explicit `config.model` and `config.maxCalls` before invoking it. `maxCalls` is a persisted total count of provider score requests across attempts; include retry headroom deliberately. The worker disables SDK retries so a score call cannot silently multiply the budget. Actual provider prices and real latency require an authorised rehearsal. Credentials come from `JEV_API_KEY` or `TYPESAFE_API_KEY` in the process environment.
+
+Similarity requires every roster entry to carry an `embedding: number[]`, with one shared dimension and nonzero finite vectors. `config.model` identifies their source; cosine weights are computed locally. The producer must embed the exact frozen authorised text. This mode calls no provider and makes no claims about disagreement or collaboration quality.
+
+`oddPolicy: "reject"` fails before scoring for an odd roster. Explicit `"trio"` tries complete triangles by descending mean edge weight, choosing the first whose remainder admits complete pair matching. The remainder uses maximum-weight pairs. This trio rule is a heuristic, not a global mixed optimum; `reviewRequired: true` marks the trio. No participant is dropped or fabricated. The generic allocator also rejects sparse candidate graphs that cannot cover the eligible roster.
+
+The output directory contains the private immutable request, `state.json`, `result.json`, cached successful pair assessments and an OS ownership lock. All JSON files are replaced atomically. Stdout contains JSON progress states; stderr carries sanitised diagnostics. A result includes the job/snapshot/fingerprint, stable group IDs, participant IDs and per-person contribution revision references. Completion never publishes the result.
+
+Ownership uses an advisory OS file lock, released on process death. Relaunching the same request resumes cached successful assessments; it never repeats a completed job. A previous `running` state is recorded as `interrupted` on restart. `maxAttempts` bounds launches, and provider-call accounting survives restart. Failed provider calls consume budget; successful cached pairs do not. SIGTERM records interruption when possible; SIGKILL is detected on restart. Retry launches are explicit operator actions.
+
+`timeoutSeconds` stops scheduling further calls; calls already running may finish within the provider's 30-second request timeout. The Node supervisor must enforce its own process deadline and kill an unresponsive child. An abruptly killed request may have been billed before its response was saved; the persisted charged-call count bounds this unavoidable uncertainty. A timeout does not replace a venue-scale rehearsal.
+
+No live provider performance, real phone encounter or deployment is established by synthetic tests. Standalone `match` commands and pilot assets remain packaged.
