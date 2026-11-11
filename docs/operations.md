@@ -57,6 +57,73 @@ Use a Git-backed **Application** with the Dockerfile build strategy, repository 
 
 The participant room page links back to [Rehearsing We](https://we.supercollective.io). The hub and Puck remain separately deployed.
 
+### Focused checks and diagnostics
+
+Run from the repository root, using the pinned tools:
+
+```sh
+mise exec -- pnpm test tests/engine.test.ts
+mise exec -- pnpm build
+mise exec -- pnpm exec playwright test tests/e2e/round.spec.ts
+```
+
+The direct Playwright command uses the existing build; rebuild after application
+changes, or use `pnpm test:e2e` to build and run the entire browser suite. Unit
+tests do not need a running server. Browser tests start their own server, refuse
+to reuse an existing one and remove their temporary database on normal exit.
+
+The default E2E port is 4173. If it is occupied, select a free port with
+`E2E_PORT=4273 mise exec -- pnpm test:e2e`. Separate worktrees need different
+ports; do not run simultaneous builds or test runners in the same checkout,
+because build output and `test-results/` are shared there. Do not stop unrelated
+processes to free a port.
+
+Failures retain traces and screenshots under `test-results/`. Inspect the error
+and artefacts before retrying. Open a trace with
+`mise exec -- pnpm exec playwright show-trace <path-to-trace.zip>`.
+These are Playwright's [test artefact options](https://playwright.dev/docs/test-use-options).
+If Chromium is missing, run `mise exec -- pnpm exec playwright install chromium`
+(Linux CI uses `--with-deps`). A socket `EPERM` in a restricted runner is an
+environment failure: local server sockets and browser execution must be allowed.
+Do not count skipped browser tests as passed.
+
+### Disposable manual and load checks
+
+After building, run the existing test server in one terminal:
+
+```sh
+HOST=127.0.0.1 PORT=4273 PUBLIC_ORIGIN=http://localhost:4273 mise exec -- pnpm exec tsx scripts/test-server.ts
+```
+
+It creates a temporary SQLite database and deletes it on normal exit. It ignores
+an inherited `DATABASE_PATH`. Check `http://localhost:4273/healthz` for
+`{"status":"ok"}`, then use the interface or run, in another terminal:
+
+```sh
+mise exec -- pnpm load:smoke -- http://localhost:4273
+```
+
+Expect a successful exit and JSON reporting the requested participant count and an agreed result.
+Stop only this server with Ctrl-C when finished. Forced termination can leave its
+`puck-e2e-*` temporary directory behind. This exercise does not verify backups or
+production deployment.
+
+### Agent readiness trial
+
+Instruction discovery and agent performance require a separate fresh-session
+trial; the software checks above do not measure them. In a disposable checkout
+with the pinned tools and Chromium installed, start a fresh agent at the root,
+then repeat from `src/lib/core`. Give each session this task with a 10-minute
+limit: “Find the repository guidance, run the focused engine tests and the round
+browser tests on port 4273, and explain the limits of that evidence. Do not edit
+files or use persistent participant data.”
+
+Check the tool transcript for discovery of the root `AGENTS.md`, correct mise
+commands, a build before Playwright, successful test exits and no writes to
+`data/`. Require the answer to distinguish software behaviour from decision
+quality. Record revision, agent/model, elapsed time, failures and interventions;
+compare equivalent before/after checkouts before claiming improved agent outcomes.
+
 ## Known operational limits
 
 Completed recordings are written as one JSON value. Active frames are buffered until the round ends. A crash preserves the interrupted round marker but not buffered frames. There is no automatic retention/deletion policy yet. The host's browser cookie is the host capability; there is no account recovery.

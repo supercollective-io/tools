@@ -51,6 +51,11 @@ Run commands through `mise exec --` unless mise is activated in your shell.
 
 Install the browser once with `mise exec -- pnpm exec playwright install chromium`. CI also installs its Linux dependencies. The E2E server uses an isolated temporary database.
 
+For focused tests, disposable servers, port conflicts and failure artefacts, see
+[Verification and troubleshooting](docs/operations.md#verification).
+
+For a Coolify Dockerfile Application, see the [deployment contract](docs/operations.md#coolify-packaging). The container listens on port 3000 and stores SQLite data under `/data`.
+
 Lefthook checks staged files with Biome before commits and runs `pnpm verify` before pushes. CI additionally runs browser tests. No hook silently modifies staged files.
 
 ## Tooling policy
@@ -61,6 +66,7 @@ Biome owns lint and formatting, including its opt-in Svelte support. `svelte-che
 
 ## Read next
 
+- [Agent task entry points and constraints](AGENTS.md)
 - [Architecture and baseline mechanics](docs/architecture.md)
 - [Research and source distinctions](docs/research.md)
 - [Vertical slices and remaining work](docs/implementation-plan.md)
@@ -72,7 +78,7 @@ Run one server process against a durable local database. A room's membership is 
 
 Completed recordings are durable. Active frames are buffered in memory; a process crash preserves an interrupted round marker, not its unfinished trajectory. Clearing browser cookies loses the guest identity and host control. Anonymous join links are suitable for trusted pilots, not proof of one real person per participant. `PUCK_ROOM_CAPACITY` defaults to 140 and accepts 2–180. The 180 setting is for overload rehearsal; it is not the recommended room size. `PUCK_HTTP_MUTATION_LIMIT` defaults to 240 requests per minute per direct client address so a venue network can admit a full room; configure edge protection before public use.
 
-The pilot capacity is a configured limit. Local synthetic tests do not establish internet-scale capacity, accessibility equivalence or improved decision quality. Geometry corrections, adaptive weighting and controlled human comparisons remain future slices.
+The pilot capacity is a configured limit. Local synthetic tests do not establish internet-scale capacity, accessibility equivalence or improved decision quality. Positional correction and personalised layouts are implemented experiments; controlled human comparisons remain future work. Adaptive participant weighting is excluded from the current scope.
 
 ## Experimental modes
 
