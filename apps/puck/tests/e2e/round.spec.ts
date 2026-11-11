@@ -64,7 +64,7 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   expect(recording.frames.length).toBeGreaterThan(60);
   expect(recording.result.phase).toBe('cancelled');
   const stranger = await browser.newContext();
-  expect((await stranger.request.get(`http://localhost:4173${href}`)).status()).toBe(403);
+  expect((await stranger.request.get(new URL(href, roomUrl).href)).status()).toBe(403);
   await stranger.close();
   await page.getByRole('button', { name: 'Play', exact: true }).click();
   await expect
