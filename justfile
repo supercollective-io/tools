@@ -50,7 +50,7 @@ hooks-check:
     uv run --project packages/match --frozen pre-commit run --all-files
 
 build-container:
-    docker build --file deploy/Dockerfile --tag polymind:local-candidate .
+    docker build --file apps/polymind/Dockerfile --tag polymind:local-candidate .
 
 test-matching-container:
     docker run --rm --network none --entrypoint /app/packages/match/.venv/bin/python polymind:local-candidate -m unittest discover -s packages/match/tests -p test_contract.py
