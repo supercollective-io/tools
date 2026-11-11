@@ -1,0 +1,229 @@
+:root {
+  color-scheme: light;
+  --ink: #173b32;
+  --paper: #f6f3e9;
+  --accent: #ccff60;
+  --line: #c8d1bf;
+  font-family: system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  min-height: 100vh;
+  margin: 0;
+}
+main {
+  max-width: 44rem;
+  margin: auto;
+  padding: 2rem 1.25rem 4rem;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+.brand {
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  font-size: 1.5rem;
+}
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+h1 {
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  margin: 0.8rem 0 1.5rem;
+}
+h2 {
+  font-size: 1.35rem;
+  margin-top: 2rem;
+}
+p {
+  line-height: 1.6;
+}
+label {
+  display: block;
+  margin: 1rem 0 0.4rem;
+  font-weight: 600;
+}
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+input:not([type="checkbox"]),
+textarea,
+select {
+  width: 100%;
+  background: #fffef9;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.85rem;
+}
+textarea {
+  resize: vertical;
+  line-height: 1.55;
+}
+button {
+  border: 1px solid var(--ink);
+  border-radius: 2rem;
+  background: var(--ink);
+  color: white;
+  padding: 0.8rem 1.25rem;
+  min-height: 44px;
+  cursor: pointer;
+  margin: 0.5rem 0.35rem 0.5rem 0;
+}
+button.secondary {
+  background: transparent;
+  color: var(--ink);
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid #749524;
+  outline-offset: 3px;
+}
+input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  vertical-align: middle;
+  margin-right: 0.4rem;
+}
+section,
+.card {
+  border-top: 1px solid var(--line);
+  padding: 1.3rem 0;
+}
+.muted {
+  color: #54675d;
+  font-size: 0.9rem;
+}
+.badge {
+  background: var(--accent);
+  padding: 0.4rem 0.75rem;
+  border-radius: 2rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+#status {
+  min-height: 1.7rem;
+  white-space: pre-wrap;
+}
+#status[data-error="true"] {
+  color: #9f2822;
+}
+.recovery {
+  overflow-wrap: anywhere;
+  background: #e8ebdb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+details {
+  margin: 1rem 0;
+}
+summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+audio {
+  max-width: 100%;
+  display: block;
+  margin: 1rem 0;
+}
+.row {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+}
+.row > * {
+  flex: 1;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+  background: #e8ebdb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.9rem;
+}
+th,
+td {
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  padding: 0.6rem;
+}
+#operator-main {
+  max-width: 68rem;
+}
+.job {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.job h3 {
+  margin-top: 0;
+}
+body.projection {
+  background: #102a24;
+  color: var(--paper);
+}
+.projection main {
+  max-width: 80rem;
+  padding: 5vw;
+}
+.projection header {
+  margin-bottom: 6vh;
+}
+.projection h1 {
+  font-size: clamp(2.5rem, 5vw, 6rem);
+}
+.projection #idea {
+  font-size: clamp(2rem, 4vw, 5rem);
+  line-height: 1.3;
+  max-width: 32ch;
+}
+.projection .muted {
+  color: #c0d3bd;
+}
+.projection button {
+  background: transparent;
+  color: inherit;
+  border-color: #819c86;
+}
+[hidden] {
+  display: none;
+}
+@media (max-width: 550px) {
+  .row {
+    display: block;
+  }
+  header {
+    margin-bottom: 2rem;
+  }
+  main {
+    padding-top: 1.5rem;
+  }
+}
