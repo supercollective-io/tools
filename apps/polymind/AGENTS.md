@@ -6,7 +6,7 @@ implementation provides a browser workspace and retains earlier CLI modes.
 
 ## Commands
 
-Run from the repository root. Use `mise exec --` so an older system Node does
+Run from `apps/polymind`, or use the root `just` recipes. Use `mise exec --` so an older system Node does
 not silently replace the pinned runtime. Follow [setup](README.md#set-up) on a
 fresh checkout; dependency installation is `mise exec -- pnpm install --frozen-lockfile`.
 

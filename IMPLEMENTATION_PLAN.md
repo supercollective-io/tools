@@ -1,10 +1,10 @@
 # Supercollective Tools implementation plan
 
-Prepared on Wednesday 11 November 2026 for Rehearsing We at ZKM on Saturday 14 November 2026. Scheduling uses Europe/Berlin time. Status: proposed implementation sequence; writing this plan does not implement, commit or deploy the applications.
+Prepared on Wednesday 11 November 2026 for Rehearsing We at ZKM on Saturday 14 November 2026. Scheduling uses Europe/Berlin time. Status: implementation is in progress. See [verified work and remaining gates](docs/implementation-status.md); unchecked human and deployment gates are not completed by code alone.
 
 Build Polymind in `supercollective-io/tools`, starting from the current Collective Microphone implementation. Separate participant sessions and contributions from operations that consume them. Reuse Match as a Python package, borrow selected interactions from the earlier Supermind/Polymind prototype, and keep Puck and Flight by Committee independent. Build the performance hub in `rehearsing-we/hub`.
 
-This plan is currently saved in `rehearsing-we` because this task's write permissions do not include the newly added `tools` directory. Its intended canonical destination is `tools/IMPLEMENTATION_PLAN.md`. Move it there when that directory is writable; retain a link here rather than two independently maintained plans.
+This is the canonical plan in `tools/IMPLEMENTATION_PLAN.md`. The original `rehearsing-we/TOOLS_IMPLEMENTATION_PLAN.md` now links here.
 
 This is an implementation checklist, not an assertion that every feature can be completed before Saturday. Complete the first end-to-end experience early. Optional branches have explicit gates. Record actual completion evidence beside each phase.
 

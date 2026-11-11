@@ -68,5 +68,33 @@
       "verified": false,
       "evidence": null
     }
+  },
+  "localCandidates": {
+    "polymind": {
+      "sourceRevision": "5a60fdc2948c477f8cd685f338655fe9b8b8c71e",
+      "imageId": "sha256:8e33846ffe6460ae0cb4c07e5f24166247908d33b660b53c6149cea426a850c2",
+      "platform": "linux/arm64",
+      "evidence": "docs/verification/polymind-container.json"
+    },
+    "matching": {
+      "sourceRevision": "fe3f00951e009ffa35fe9af721409df250bd5563",
+      "wheel": "conference_match-0.1.0+polymind.d505c8452a3c-py3-none-any.whl",
+      "sha256": "f90f1e6cdff539f8321f074844ffdabb1d28b5482bd86aded93b999494f2428c"
+    },
+    "puck": {
+      "sourceRevision": "229fab174665ffd8010df474adefef11effac855",
+      "imageId": "sha256:09c7dc371424ec1f68685816fb03cc39f83efa21d11b256920b0018062a89f3c",
+      "platform": "linux/arm64"
+    },
+    "flight": {
+      "sourceRevision": "3344a5e4580eafc908abe82d05f591e6c31eef6d",
+      "imageId": "sha256:20eab264f4dd429d448a3f3958a7bd0557cc9e763935ca0d71184807c87eb969",
+      "platform": "linux/arm64"
+    },
+    "hub": {
+      "sourceRevision": "8588c59ab3bcdc43fa737f949a0e62bafb166ce8",
+      "imageId": "sha256:7600ca200e0626df1362dcdea6e925fdf913fbc12f2cae4d09950fc079f70f10",
+      "platform": "linux/arm64"
+    }
   }
 }
