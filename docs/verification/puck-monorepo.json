@@ -1,0 +1,116 @@
+{
+  "kind": "local monorepo import verification; synthetic fixtures only",
+  "date": "2026-11-11",
+  "integration_revision": "34895261edf31635b9d04c3d0b4e777791d97b31",
+  "puck_source_revision": "87e59bc7cb8379a64d5edff0c8cd8ef8b60b8b6e",
+  "source_work_commits": [
+    "448e196",
+    "87e59bc"
+  ],
+  "history": {
+    "initial_subtree_merge": "1a8304a",
+    "committed_work_subtree_merge": "034c4f1",
+    "exact_import_tree_verified": true,
+    "original_working_file_hashes_preserved": true,
+    "original_checkout_clean": true,
+    "source_commits_reachable": 16,
+    "common_credential_pattern_scan_matches": 0
+  },
+  "checks": {
+    "frozen_setup": "passed",
+    "doctor": "passed",
+    "root_verify": {
+      "status": "passed",
+      "polymind_tests": 563,
+      "puck_tests": 21,
+      "match_tests": 84,
+      "lint_types_builds": "passed",
+      "existing_polymind_lint_warnings": 2
+    },
+    "root_browser": {
+      "status": "passed",
+      "polymind_operator_participant_flow": "passed",
+      "puck_chromium_tests": 5
+    },
+    "puck_pre_commit_hooks": "lint, types and unit tests passed",
+    "puck_image": {
+      "status": "passed",
+      "id": "sha256:153e99893fd81f1bf6efecd034344ff3fd214ea58ad66c25bff47c923c8d5296",
+      "platform": "linux/arm64",
+      "bytes": 481481192,
+      "uid": 1000,
+      "checks": [
+        "health",
+        "selected development tools and unrelated runtimes absent",
+        "two-client HTTP/WebSocket round",
+        "reconnect and replay",
+        "room and host credential survive restart"
+      ]
+    },
+    "polymind_image": {
+      "status": "passed",
+      "id": "sha256:5e8cd8c978f14a564e7b456e139f4931bbffae1ec45523f507775201020e3807",
+      "platform": "linux/arm64",
+      "offline_match_contract_tests": 3
+    }
+  },
+  "initial_failures": [
+    "Restricted runner blocked uv cache and browser sockets; checks passed with required access.",
+    "Concurrent application Vitest pools timed out in Puck storage test. Serial application execution still timed out in an existing Polymind CLI test. Root tests now run serially with maxWorkers=4; complete gate passed."
+  ],
+  "limits": [
+    "No branch publication or live deployment.",
+    "No private runtime data moved.",
+    "No paid provider calls.",
+    "No physical-phone, venue or human decision-quality validation.",
+    "Credential-pattern scan is limited, not a guarantee about arbitrary secret formats."
+  ],
+  "sha256": {
+    "package.json": "576f36f344a28b4f7fa1ccc3fba5852a18ed3b62c8df2ee29cd8bd7bd601526a",
+    "pnpm-lock.yaml": "f0726c59862300fd3c6dcdfa04eebf9fea4af9f7a8e40d65704b9325c3f46499",
+    "pnpm-workspace.yaml": "2ef0545c0bf456d238d01993beb4bf6933cbd161283277eb1126d3c1e96b7429",
+    ".dockerignore": "dcf803baf7e15cf3ae22d0e1c12bb52cde75dbd3449b3b244ea1882fe9c180f6",
+    "deploy/Dockerfile": "cc161e378c0560e34b36af15a5603717535f2157f1ef8143176c6be91c3ac179",
+    "scripts/test-puck-container.mjs": "a5aa4ff5733a50b00636f3bc23c701dcf43037dbfb90ed178c01289eb99ce949",
+    "apps/puck/.env.example": "f6177e172e6efb697263c67620174926494585731dc3630dc196676d4f582f5e",
+    "apps/puck/.gitignore": "7fd0fa7484820225291a561c292d0e7e75c91a66374287327e51ba269fe02917",
+    "apps/puck/Dockerfile": "77d8d01254449ffe19346bba7792d4f28d56c2996536ef8e198625e01bca1cf7",
+    "apps/puck/biome.json": "f17d53af1b04e335198541f120395753a8c5869cf7ee5424df57d03e5904e014",
+    "apps/puck/package.json": "b3a1c30cb2d827f1cdc837af54c02600354bf513cf274436d937c1be16fb647a",
+    "apps/puck/playwright.config.ts": "b45a4815a01cd0b70cfcde764028abf95d3cf5799e0ddf3c8009e38d39e3d948",
+    "apps/puck/scripts/backup.ts": "5f7b86b59c467ae96405f26a095cf604cad2c97ba00ae0f46a1de1fe1a04b0f1",
+    "apps/puck/scripts/load-smoke.ts": "66b891b3175805ca6054d195d50836dfcdc375353bfea710db73666e0f701076",
+    "apps/puck/scripts/test-server.ts": "8810fc2e91c7adcc59b76eb134f0007d1b7e1e91b7c77e9f1d689da3aa9f73ab",
+    "apps/puck/server/index.ts": "fa562ff018ff10293e59115cd192446583cac9ce24484dc374f7ebd1d4d60ef3",
+    "apps/puck/server/network.ts": "0f1f85b072c9fe7fd82b7d3a1a13617e654fc87cd9f00d31d9495c11dcb6574d",
+    "apps/puck/server/service.ts": "9ef03effe73c635443f667ae6beef732507d6b22b6e88972388121d4584e0353",
+    "apps/puck/server/store.ts": "ca26afa083f48a09602e133df8cddb59ec7832bba7f7d17310930e8db54e2538",
+    "apps/puck/src/app.css": "4a1306a73755e4a38c43000605265559515f319426d1a3083580d40b800b307d",
+    "apps/puck/src/app.html": "f685827179bfdf5db2631aa2dccdd95809ffd494b1703993b9b7dd386bc3464e",
+    "apps/puck/src/lib/api.ts": "fd20faa323860da49c89df012411ff28ca5d385969a6fdabe1d9bf0dba9c835c",
+    "apps/puck/src/lib/components/Arena.svelte": "9fe5335260aeef161b632020666a8fc0e604357e3533d1d213e88f7f45e23868",
+    "apps/puck/src/lib/components/InviteQr.svelte": "bdef77938edb5be0a65edc894b94a10ec1299a927ae3fe320b2e369e995f28bf",
+    "apps/puck/src/lib/components/ModeNotice.svelte": "380083bda4eb46fbc568c995f3f8590f97aa5f4af224ca86b4cf7d8e72f0d87c",
+    "apps/puck/src/lib/core/engine.ts": "f1091c64842e7d97f60bd386f040bc3c1b1f97c8493b78024b22d2e2503d89fb",
+    "apps/puck/src/lib/core/experiments.ts": "2cf5fe8a5418d9b657f54f4c0f6f86e4b6658292ca091eccf4b9f0313c3ecb32",
+    "apps/puck/src/lib/core/protocol.ts": "c8c2b194a6b3a5a432e2ac58b1f9f4cdbdc424947b0d0dcdae686d16b6d17a91",
+    "apps/puck/src/lib/core/replay.ts": "60faee5b05ec7cbff923c39cfdecc12cee2204fedb466951feb888e802a00572",
+    "apps/puck/src/routes/+layout.svelte": "b826bcd5fa2c65957c0a6018e1b9450063679a35a7ae52cfde06bcb636fd430b",
+    "apps/puck/src/routes/+page.svelte": "c7ba8b44d69d82ef5a533bc0fce4d1bf8b576e93f785a53a12e872ee64f6b348",
+    "apps/puck/src/routes/replay/[id]/+page.svelte": "55fce92bb6ec1c140566d2a963c1cc9ab05b3697e914038b4c782beeed620086",
+    "apps/puck/src/routes/room/[id]/+page.svelte": "09d3d6c7a9a95495f7125c3d0adeed032f094ae2cd14a1959734cbc2b3f6dc78",
+    "apps/puck/tests/capacity.test.ts": "633103ebb8d41318fa65eb4e76d32bd5b68ab474ffa57cdce0fb67ce8bdb4d6d",
+    "apps/puck/tests/e2e/experiments.spec.ts": "a195fbf371b6a2eaf7f85084d94714ccb28fd2bb88e1d73cb56a6fd0a52a93c6",
+    "apps/puck/tests/e2e/round.spec.ts": "13c8c4f16ae6573654138b013377624c42a615d0fed2d379895747665876e839",
+    "apps/puck/tests/engine.test.ts": "d94089ec7d12854fa999c98d3a61ec47da964daae6c3981c5e52eecae7f69735",
+    "apps/puck/tests/experiments.test.ts": "d2f28d90fb60487a236b3a70aac84fa26c8029d8a92cc285ed0370d0524c301e",
+    "apps/puck/tests/network.test.ts": "5c5ed0803c1cf09b0b7994be67fcc73404d1c351aa4edd212d9f47de95cd15b4",
+    "apps/puck/tests/protocol.test.ts": "4ffbc484a2699a10f83fed14b456a94900cd937b59a12ee2d29ddedc5911fa46",
+    "apps/puck/tests/replay.test.ts": "edd33687c25a5776d7da87ff463cd3340301d3871e5d2d28ad420a76664513b5",
+    "apps/puck/tests/store.test.ts": "773801516b82d26239d5ce5d8420cdf6fd93d50b74910c34c9524ee50cbd40ac",
+    "apps/puck/tsconfig.json": "2295cf912043cd27a44efdbd01e14a842423d5da19cbdad70446efb784ad07ec",
+    "apps/puck/tsconfig.server.json": "a1d9025872cd4a266d281568d63e3bee8d6b56ecd3e5f5777faf404def6aa9dd",
+    "apps/puck/vite.config.ts": "2ae8469bf3bb2653e1fe2d24e3b57e9b8c44a4b6c442ad46b38eb470f2762660",
+    "apps/puck/vitest.config.ts": "1ba6d2b5cb75229fd46a6b773c71d06ae1e9e55bb479def43674174b1c6c1456"
+  }
+}

@@ -10,7 +10,7 @@ Run from `apps/polymind`, or use the root `just` recipes. Use `mise exec --` so 
 not silently replace the pinned runtime. Follow [setup](README.md#set-up) on a
 fresh checkout; dependency installation is `mise exec -- pnpm install --frozen-lockfile`.
 
-- Package checks (root CI also checks Match): `mise exec -- pnpm run verify`.
+- Package checks (root CI also checks Puck and Match): `mise exec -- pnpm run verify`.
 - Focused tests: `mise exec -- pnpm test tests/workspace.test.ts` (substitute the relevant file).
 - Run outcome: `mise exec -- pnpm inspect --run runs/<file>.jsonl`.
   Add `--json` for structured output or `--full` for complete saved writing.

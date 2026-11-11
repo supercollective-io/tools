@@ -2,7 +2,7 @@
 
 Prepared on Wednesday 11 November 2026 for Rehearsing We at ZKM on Saturday 14 November 2026. Scheduling uses Europe/Berlin time. Status: implementation is in progress. See [verified work and remaining gates](docs/implementation-status.md); unchecked human and deployment gates are not completed by code alone.
 
-Build Polymind in `supercollective-io/tools`, starting from the current Collective Microphone implementation. Separate participant sessions and contributions from operations that consume them. Maintain Match as a Python package in this monorepo, borrow selected interactions from the earlier Supermind/Polymind prototype, and keep Puck and Flight by Committee independent. Build the performance hub in `rehearsing-we/hub`.
+Build Polymind in `supercollective-io/tools`, starting from the current Collective Microphone implementation. Separate participant sessions and contributions from operations that consume them. Maintain Match as a Python package in this monorepo, borrow selected interactions from the earlier Supermind/Polymind prototype, and maintain Puck in `apps/puck` with an independent deployment, and keep Flight by Committee independent. Build the performance hub in `rehearsing-we/hub`.
 
 This is the canonical plan in `tools/IMPLEMENTATION_PLAN.md`. The original `rehearsing-we/TOOLS_IMPLEMENTATION_PLAN.md` now links here.
 
@@ -32,7 +32,7 @@ This is an implementation checklist, not an assertion that every feature can be 
 - Audience: expected 50–100; room maximum 140. Verify support for 140, with separately recorded overload testing above that number.
 - Polymind owns event-scoped guest identity. No compulsory accounts or shared sign-in across all tools.
 - Public HTTPS audience interfaces are preferred, usable through mobile data or venue internet. FlightGear remains local, connected through an outbound bridge.
-- Puck and Flight retain independent repositories and deployments. Hyperchat development is paused; reconsider only if the emerging score needs it.
+- Puck shares this repository as `apps/puck` but retains an independent deployment. Flight retains its independent repository and deployment. Hyperchat development is paused; reconsider only if the emerging score needs it.
 - Use `mise` for pinned tools/runtime environments and `just` for the human and CI command interface.
 - The performance favours playful short experiments and a sense of possibility. Tool count, order and prompts remain programme decisions.
 
@@ -67,7 +67,7 @@ As inspected, `/Users/jo/Documents/dev/tools` is an empty directory without loca
 | `tools/packages/match` | Authoritative Python `conference_match` package; scoring/allocation, research and tests; standalone interface remains usable |
 | Existing `supermind` | Reference interactions and selected algorithms; no second expanded Polymind to develop in parallel |
 | `rehearsing-we` | Hub, running order, prompts, floor plan, equipment and show runbook |
-| Existing `puck` | Decision engine, participant app, recordings and deployment |
+| `apps/puck` | Decision engine, participant app, recordings and deployment |
 | Existing `flight-by-committee` | Simulator, control aggregation, hosted relay, local bridge and projection |
 | Existing `hyperchat` | Parked unless explicitly restored to the programme |
 
@@ -153,7 +153,7 @@ Proposed plan commit: `docs(plan): record toolkit and performance implementation
 
 `mise` selects exact tool versions and environment. `just` provides commands. pnpm handles JS workspace dependencies; uv handles the Python worker. Do not duplicate the task graph in mise tasks and just recipes.
 
-Start with the inspected microphone pins: Node `26.13.0`, pnpm `12.16.1`. Choose and pin exact compatible Python (at least 3.12), uv and just versions after checking availability; do not invent pins or upgrade unrelated dependencies during import. Puck's pnpm pin is currently `12.18.0` and remains its own repository's concern.
+The shared workspace pins Node `26.13.0` and pnpm `12.18.0`, aligned during the Puck import. Python, uv and just remain pinned in root `mise.toml`. Preserve application dependency versions and independent runtime boundaries during imports.
 
 Preserve dependency-build allowlists. Retain the imported lockfile initially; migrate to the root workspace lockfile in a separate reviewed commit and compare resolved dependencies. Remove contradictory nested runtime pins only when root commands work. Match is imported with full ancestry into `packages/match` after committing its required working changes. The worker uses that in-repository source and locked dependencies; no sibling absolute path, floating branch or vendored wheel is needed. See [migration evidence](docs/migration/match.md).
 
@@ -379,7 +379,7 @@ Keep this distinct from bounded recording. Implement only after the main end-to-
 
 ### Phase 9 — Adapt Puck to the room and internet deployment
 
-**Depends on:** agreed audience capacity and link conventions. **Repo:** `puck`; independent of Polymind extraction.
+**Depends on:** agreed audience capacity and link conventions. **Source:** `apps/puck`; independently deployed from Polymind.
 
 1. Read its AGENTS.md and experimental-mode documentation. Preserve baseline mechanics and historic recording compatibility.
 2. Replace the hardcoded 32 bound with an explicit configured room capacity and validate 140. Distinguish registered, connected, active and frozen starting roster counts.
@@ -684,7 +684,7 @@ Local source paths refer to the inspected workspace; after migration, record the
 | `packages/match/pyproject.toml` and `packages/match/src/conference_match/` | Importable Python package, rubric, scoring, runs, allocation and pilot |
 | `../supermind/src/lib/server/actions/` | Earlier analysis and embedding-based matching |
 | `../supermind/src/routes/input/+page.svelte` | Earlier contribution and match-reveal experience |
-| `../puck/AGENTS.md`, `README.md`, `docs/operations.md`, `docs/experimental-modes.md` | Engine constraints, deployment, modes and verification |
+| `apps/puck/AGENTS.md`, `apps/puck/README.md`, `apps/puck/docs/operations.md`, `apps/puck/docs/experimental-modes.md` | Engine constraints, deployment, modes and verification |
 | `../flight-by-committee/docs/phone-controls.md` and `docs/projection.md` | Actual controls, freshness, local bridge and OBS setup |
 | `../hyperchat/docs/10-first-human-pilot.md` | Pending human-pilot gates if reintroduced |
 | `README.md`, `notes.md`, `original-proposal.md` in `rehearsing-we` | Performance description, options and artistic intent |

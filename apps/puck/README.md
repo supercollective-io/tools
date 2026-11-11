@@ -6,19 +6,19 @@ Puck is an independent experimental implementation. It reproduces the documented
 
 ## Run locally
 
-Install [mise](https://mise.jdx.dev/), then run from this checkout:
+Install [mise](https://mise.jdx.dev/), then run from the monorepo root:
 
 ```sh
 mise trust
 mise install
-mise exec -- pnpm install --frozen-lockfile
-mise exec -- pnpm hooks:install
-mise exec -- pnpm dev
+mise exec -- just setup
+mise exec -- just hooks-install
+mise exec -- just dev-puck
 ```
 
 Open <http://localhost:3000>. Development mode also listens on the local network. Copy invite link and Show QR code use the detected network address, so phones on the same Wi-Fi can join even when the host uses localhost. The terminal prints that address; set `PUBLIC_ORIGIN` to override it when several networks are connected. Creating a room makes you the host without adding you as a participant. Use “Join as a participant” on the room page if you also want to pull. Open its invitation in a different browser profile or private window. Two tabs in one profile represent the same participant; the latest tab takes control of that participant's magnet.
 
-`mise.toml` pins Node 26 and pnpm. `package.json` enforces the supported Node major and package-manager version. There is no separate runtime version file. All dependencies are exact and `pnpm-lock.yaml` is committed.
+The root `mise.toml` pins Node 26 and pnpm. `package.json` enforces the supported Node major and package-manager version. There is no separate runtime version file. All dependencies are exact and `pnpm-lock.yaml` is committed.
 
 ## What works
 
@@ -34,7 +34,7 @@ The live arena shows only your own magnet. Replay reveals all participants' appl
 
 ## Commands
 
-Run commands through `mise exec --` unless mise is activated in your shell.
+Run the commands below from `apps/puck` through `mise exec --`. From the monorepo root, use `mise exec -- just puck <command>`. Root `just verify` checks Puck, Polymind and Match; `just test-browser` checks both applications. Use `just test-browser-puck` for Puck alone.
 
 | Command                                        | Purpose                                                          |
 | ---------------------------------------------- | ---------------------------------------------------------------- |
@@ -56,11 +56,11 @@ For focused tests, disposable servers, port conflicts and failure artefacts, see
 
 For a Coolify Dockerfile Application, see the [deployment contract](docs/operations.md#coolify-packaging). The container listens on port 3000 and stores SQLite data under `/data`.
 
-Lefthook checks staged files with Biome before commits and runs `pnpm verify` before pushes. CI additionally runs browser tests. No hook silently modifies staged files.
+Root pre-commit hooks run Puck lint, types and unit tests for Puck changes. Install them from the monorepo root with `mise exec -- just hooks-install`. Root CI additionally runs browser tests and the independent Puck image smoke test. Hooks do not silently modify files.
 
 ## Tooling policy
 
-pnpm 12 reads project policy from `pnpm-workspace.yaml`, including in a single-package repository. `.npmrc` contains registry configuration only. Dependency scripts are allowed only for `better-sqlite3` (native binding), `esbuild` (platform binary) and `lefthook` (hook/binary setup). Unknown builds fail. The exact `ws` release-age exception was recorded during the initial dependency resolution; future exceptions require an explicit decision.
+pnpm 12 reads policy from the root `pnpm-workspace.yaml` and uses the root lockfile. Dependency scripts are allowed only for `better-sqlite3` (native binding) and `esbuild` (platform binary); Lefthook builds are disabled in favour of root pre-commit hooks. Unknown builds fail. The exact `ws` release-age exception was recorded during the initial dependency resolution; future exceptions require an explicit decision.
 
 Biome owns lint and formatting, including its opt-in Svelte support. `svelte-check` adds framework diagnostics. Changesets are unnecessary for this private application.
 

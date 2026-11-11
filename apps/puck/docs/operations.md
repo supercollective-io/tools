@@ -1,5 +1,7 @@
 # Running Puck
 
+Run package commands below from `apps/puck`; tool versions, dependency policy and the lockfile live at the monorepo root. From that root, `mise exec -- just puck <command>` selects Puck.
+
 ## Development
 
 Use the mise commands in the README. Development mode binds to `0.0.0.0`, port `3000`, and detects private IPv4 addresses for phone invites. Localhost and those detected origins are allowed for mutations and WebSockets. QR codes and copied invitations use the preferred network address, or `PUBLIC_ORIGIN` when set. Production keeps the default bind address `127.0.0.1` and permits only `PUBLIC_ORIGIN`. Set `HOST=127.0.0.1` to keep development local to this device.
@@ -53,13 +55,13 @@ The load smoke test creates a new room and recording. It produces one recording 
 
 ### Coolify packaging
 
-Use a Git-backed **Application** with the Dockerfile build strategy, repository root as Base Directory, `Dockerfile` as Dockerfile Location, and internal port `3000`. Configure the domain as `https://puck.supercollective.io` targeting port 3000. Set runtime variables `PUBLIC_ORIGIN=https://puck.supercollective.io`, `HOST=0.0.0.0`, `PORT=3000`, `DATABASE_PATH=/data/puck.sqlite`, and `PUCK_ROOM_CAPACITY=140`. Attach durable writable storage at `/data`; retain one application process and one SQLite database. The image health check calls `/healthz`. Verify the Coolify proxy forwards WebSocket upgrades and has an idle timeout longer than the 60-second round. Configure backups for the mounted database and practise restoration before participant use. This repository change prepares the image; it does not configure Coolify, DNS, TLS or a live deployment.
+Use a Git-backed **Application** with the Dockerfile build strategy, Tools monorepo root as Base Directory, `apps/puck/Dockerfile` as Dockerfile Location, and internal port `3000`. Configure the domain as `https://puck.supercollective.io` targeting port 3000. Set runtime variables `PUBLIC_ORIGIN=https://puck.supercollective.io`, `HOST=0.0.0.0`, `PORT=3000`, `DATABASE_PATH=/data/puck.sqlite`, and `PUCK_ROOM_CAPACITY=140`. Attach durable writable storage at `/data`; retain one application process and one SQLite database. The image health check calls `/healthz`. Verify the Coolify proxy forwards WebSocket upgrades and has an idle timeout longer than the 60-second round. Configure backups for the mounted database and practise restoration before participant use. This repository change prepares the image; it does not configure Coolify, DNS, TLS or a live deployment.
 
 The participant room page links back to [Rehearsing We](https://we.supercollective.io). The hub and Puck remain separately deployed.
 
 ### Focused checks and diagnostics
 
-Run from the repository root, using the pinned tools:
+Run from `apps/puck`, using the root-pinned tools:
 
 ```sh
 mise exec -- pnpm test tests/engine.test.ts
@@ -112,13 +114,13 @@ production deployment.
 
 Instruction discovery and agent performance require a separate fresh-session
 trial; the software checks above do not measure them. In a disposable checkout
-with the pinned tools and Chromium installed, start a fresh agent at the root,
-then repeat from `src/lib/core`. Give each session this task with a 10-minute
+with the pinned tools and Chromium installed, start a fresh agent at `apps/puck`,
+then repeat from `apps/puck/src/lib/core`. Give each session this task with a 10-minute
 limit: “Find the repository guidance, run the focused engine tests and the round
 browser tests on port 4273, and explain the limits of that evidence. Do not edit
 files or use persistent participant data.”
 
-Check the tool transcript for discovery of the root `AGENTS.md`, correct mise
+Check the tool transcript for discovery of root and Puck `AGENTS.md` files, correct mise
 commands, a build before Playwright, successful test exits and no writes to
 `data/`. Require the answer to distinguish software behaviour from decision
 quality. Record revision, agent/model, elapsed time, failures and interventions;

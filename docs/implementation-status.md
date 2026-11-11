@@ -32,10 +32,12 @@ Local implementation is substantially complete; this is **not a public release o
 
 No real provider calls were made as part of verification. Synthetic loopback timings do not measure the venue network, human comprehension, representation quality or actual model usefulness.
 
+Puck now shares the Tools workspace. The [Puck import record](migration/puck.md) and [verification evidence](verification/puck-monorepo.json) cover preserved history, the complete root gate, both browser flows and independent production images. These are local checks, not hosted cutover evidence.
+
 ## Cutover and rollback
 
-The original microphone checkout and private runs remain available. Do not add a relocation notice declaring success until hosted cutover passes. Tools uses branch `implement-polymind` without a base-branch upstream. Match now shares the Tools source history and Polymind image. Puck, Flight and the hub retain separate repositories and deployment lifecycles; no release tag or public deployment is implied.
+The original microphone checkout and private runs remain available. Do not add a relocation notice declaring success until hosted cutover passes. Tools uses branch `implement-polymind` without a base-branch upstream. Match now shares the Tools source history and Polymind image. Puck now lives in `apps/puck` with an independent deployment lifecycle; Flight and the hub retain separate repositories and deployment lifecycles; no release tag or public deployment is implied.
 
 The candidate manifest in `deploy/release-candidate.json` deliberately records unverified release gates. `just release-check` fails until real evidence and exact deployed artefacts are recorded. Coolify's login route is reachable, but this task has no working authenticated connection; no server resources or GitHub App permissions have been changed.
 
-Local application candidates and image IDs are recorded separately in the manifest; they are not deployed artefacts. The hub has no configured Git remote yet. Nothing has been pushed by this task. Puck's local commits are on its existing `main`; publishing must first use a task branch, not push them directly to `main`.
+Local application candidates and image IDs are recorded separately in the manifest; they are not deployed artefacts. The hub has no configured Git remote yet. Nothing has been pushed by this task. Puck history and outstanding source work are imported into the Tools task branch; see [the import record](migration/puck.md). The original checkout remains intact. Publishing must use the reviewed task branch, not push directly to `main`.

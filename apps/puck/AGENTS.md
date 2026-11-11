@@ -11,10 +11,11 @@
 
 ## Commands
 
-Run from the repository root through `mise exec --` unless mise is activated.
-Use the versions in `mise.toml` and the committed pnpm lockfile; the ambient Node
-or pnpm may differ. Follow [setup](README.md#run-locally); hook installation is
-optional for a disposable agent checkout. No credentials or external service are
+Run package commands from `apps/puck` through `mise exec --` unless mise is activated.
+Use the versions in root `mise.toml` and the root pnpm lockfile; the ambient Node
+or pnpm may differ. Follow [setup](README.md#run-locally); root hook installation is
+optional for a disposable agent checkout. Root `just verify` checks every package;
+`just test-browser-puck` runs Puck's browser suite. No credentials or external service are
 needed for local checks.
 
 - Install: `mise exec -- pnpm install --frozen-lockfile`.
@@ -39,7 +40,7 @@ needed for local checks.
   applied inputs and mode/layout configuration; keep historical recordings viewable.
 - Build output in `build/` and `.svelte-kit/` is generated. Edit source, then use
   `pnpm build` or `pnpm typecheck` to regenerate it. Keep dependency policy in
-  `pnpm-workspace.yaml`; do not bypass its build-script allowlist.
+  the root `pnpm-workspace.yaml`; do not bypass its build-script allowlist.
 - Use disposable databases for trials and load smoke tests; they write rooms and
   recordings. Never substitute real participant data for fixtures. Deployment and
   restoration are separate operational actions, not part of ordinary verification.

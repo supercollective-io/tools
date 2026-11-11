@@ -51,7 +51,7 @@ mise exec -- pnpm install --frozen-lockfile
 mise exec -- pnpm hooks:install
 ```
 
-The repository pins Node 26.13.0 and pnpm 12.16.1. Use `mise exec --` before
+The repository pins Node 26.13.0 and pnpm 12.18.0. Use `mise exec --` before
 commands below if mise is not activated in your shell. Project dependencies
 are locked. pnpm policy lives in `pnpm-workspace.yaml`; unknown dependency
 build scripts fail installation. Lefthook installation is explicit rather

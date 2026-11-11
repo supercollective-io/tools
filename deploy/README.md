@@ -5,9 +5,11 @@ Target instance: `https://deploy.radicaldata.org`. Use four independent GitHub A
 | Application | Repository/context | Dockerfile | Public domain | Container port | Durable path |
 |---|---|---|---|---|---|
 | Polymind | `supercollective-io/tools`, `/` | `/deploy/Dockerfile` | `https://polymind.supercollective.io` | 3000 | `/data` |
-| Puck | Puck repository, `/` | `/Dockerfile` | `https://puck.supercollective.io` | See Puck deployment guide | See Puck deployment guide |
+| Puck | `supercollective-io/tools`, `/` | `/apps/puck/Dockerfile` | `https://puck.supercollective.io` | 3000 | `/data` |
 | Flight | Flight repository, `/` | `/Dockerfile` | `https://flight.supercollective.io` | See Flight relay guide | See Flight relay guide |
 | Hub | Hub repository, `/` | `/Dockerfile` | `https://we.supercollective.io` | 3000 | `/data` |
+
+Puck remains a separate Coolify Application. Use the repository root as build context, never `apps/puck`, because its image uses the root lockfile. Its own volume at `/data` must be writable by UID/GID 1000; do not share Polymind's volume. See [Puck runtime settings](../apps/puck/docs/operations.md#coolify-packaging). Run `just build-puck-container` and `just test-puck-container` for a disposable local image check. Changing the source repository does not migrate data or authorise a live deployment.
 
 Create a `Rehearsing We` project/environment and select the actual destination server. Connect the existing GitHub App, granting only the selected repositories. Repository/branch selection must identify the reviewed commits; local unpushed branches cannot deploy. GitHub permissions and DNS/TLS must be verified in that account, not inferred from these files.
 
