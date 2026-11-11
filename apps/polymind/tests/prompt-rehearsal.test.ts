@@ -68,6 +68,7 @@ it("freezes simultaneous defaults, source text and explicit staggered offsets", 
   const { path, source } = await fixture();
   const plan = await prepareRehearsal(path);
   expect(plan.arrangement).toBe("simultaneous");
+  expect(plan.admissionIntervalMs).toBe(2000);
   expect(plan.timeline.map((e) => e.atMs)).toEqual([0, 0, 50]);
   expect(plan.timeline.at(-1)?.text).toBe("First we need room to think");
   await writeFile(
@@ -88,7 +89,8 @@ it("freezes simultaneous defaults, source text and explicit staggered offsets", 
 });
 it("uses coalesced phone revisions and records exact requests and saved output", async () => {
   const { dir, path } = await fixture();
-  const plan = await prepareRehearsal(path);
+  // Coalesce the 0/50 ms cues, then leave the synthetic model most of the tail.
+  const plan = { ...(await prepareRehearsal(path)), admissionIntervalMs: 100 };
   const out = join(dir, "run");
   const report = await runRehearsal(plan, out, async (_, token) => {
     await token("We can develop this. ");
@@ -128,13 +130,10 @@ it("interrupts safely, preserving pending input rather than reporting completion
 it("retains failed provider attempts without saving raw errors", async () => {
   const { dir, path } = await fixture();
   const out = join(dir, "failed");
-  const report = await runRehearsal(
-    await prepareRehearsal(path),
-    out,
-    async () => {
-      throw new Error("secret-provider-error");
-    },
-  );
+  const plan = { ...(await prepareRehearsal(path)), admissionIntervalMs: 100 };
+  const report = await runRehearsal(plan, out, async () => {
+    throw new Error("secret-provider-error");
+  });
   expect(report.status).toBe("paused");
   expect(report.completion.failedAttempts).toHaveLength(1);
   expect(await readFile(join(out, "live.jsonl"), "utf8")).not.toContain(
