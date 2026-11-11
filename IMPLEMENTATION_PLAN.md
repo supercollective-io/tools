@@ -7,8 +7,8 @@ migration, old-cookie transition or production cutover is required.
 Use [implementation status](docs/implementation-status.md) for current
 capabilities, [architecture](docs/adr/0001-boundaries.md) for ownership and
 [operations](docs/operations.md) for the operator workflow. Polymind and Match
-share an image; Puck has its own image and data volume. Flight and the Rehearsing
-We hub remain separate repositories and deployments.
+share an image; Puck and the hub each have their own image and data volume.
+The hub lives in `apps/hub`; Flight remains a separate repository and deployment.
 
 ## Deployment and recovery
 

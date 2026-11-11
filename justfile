@@ -12,6 +12,13 @@ dev: dev-bounded
 dev-bounded:
     pnpm --dir apps/polymind bounded
 
+dev-hub:
+    pnpm --dir apps/hub dev
+
+# Hub arguments run relative to its application directory.
+hub *args:
+    pnpm --dir apps/hub "$@"
+
 dev-puck:
     pnpm --dir apps/puck dev
 
@@ -64,6 +71,7 @@ load-polymind participants="140": build
 test-browser: build
     pnpm --dir apps/polymind exec node scripts/session-browser.mjs
     pnpm --dir apps/puck exec playwright test
+    just test-browser-hub
 
 test-browser-puck:
     pnpm --dir apps/puck test:e2e
@@ -94,3 +102,13 @@ deploy-staging:
 
 smoke-staging origin="https://polymind.supercollective.io":
     node scripts/smoke-staging.mjs "$1"
+
+# Reuse installed browser test tooling; the hub has no dependencies.
+test-browser-hub:
+    node apps/hub/scripts/browser-smoke.mjs apps/polymind/node_modules/@playwright/test/index.mjs
+
+build-hub-container:
+    docker build --file apps/hub/Dockerfile --tag hub:local-candidate .
+
+test-hub-container:
+    node apps/hub/scripts/container-smoke.mjs hub:local-candidate

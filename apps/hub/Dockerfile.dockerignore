@@ -1,0 +1,9 @@
+*
+!apps/
+apps/*
+!apps/hub/
+apps/hub/*
+!apps/hub/package.json
+!apps/hub/server.mjs
+!apps/hub/public/
+!apps/hub/public/**
