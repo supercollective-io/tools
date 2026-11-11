@@ -6,6 +6,7 @@ export const liveConfigSchema = baseConfigSchema
     schemaVersion: z.literal(2),
     live: z.strictObject({
       participants: baseConfigSchema.shape.composer,
+      maxParticipants: z.number().int().min(2).max(180).optional(),
       instructions: z.string().trim().min(1).max(12_000),
       maxDurationMs: z.number().int().min(1_000).max(3_600_000),
       feedbackIntervalMs: z.number().int().min(100).max(60_000),

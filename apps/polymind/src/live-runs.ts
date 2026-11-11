@@ -41,19 +41,19 @@ const bodySchema = z.discriminatedUnion("type", [
     type: z.literal("input.revised"),
     id: z.string().min(1).max(200),
     participantId: z.uuid(),
-    text: z.string().max(4000),
+    text: z.string().max(12000),
   }),
   z.strictObject({
     type: z.literal("input.admitted"),
     id: z.string().min(1).max(200),
     participantId: z.uuid(),
-    text: z.string().min(1).max(4000),
+    text: z.string().min(1).max(12000),
   }),
 
   z.strictObject({
     type: z.literal("live.created"),
     scenario: scenarioSchema.safeExtend({
-      voices: z.array(scenarioSchema.shape.voices.element).max(100),
+      voices: z.array(scenarioSchema.shape.voices.element).max(180),
     }),
     config: liveConfigSchema,
   }),
@@ -249,7 +249,7 @@ function advanceLive(
       if (
         mode !== "typed" ||
         scenario.voices.some((v) => v.id === event.id) ||
-        scenario.voices.length >= 100
+        scenario.voices.length >= (state.config.live.maxParticipants ?? 100)
       )
         throw new Error("Invalid participant join.");
       scenario.voices.push({
