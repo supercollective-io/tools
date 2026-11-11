@@ -43,3 +43,9 @@ repos:
         language: system
         files: ^apps/puck/
         pass_filenames: false
+      - id: polymind-check
+        name: polymind lint and format
+        entry: mise exec -- pnpm --dir apps/polymind check
+        language: system
+        files: ^apps/polymind/
+        pass_filenames: false
