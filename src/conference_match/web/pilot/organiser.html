@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Organise matches</title><link rel="stylesheet" href="/style.css"><script type="module" src="/organiser.js"></script></head>
+<body><main>
+<p id="event"></p><p id="message" role="status" aria-live="polite"></p>
+<label>Participant registration link <input id="join-link" readonly></label><button id="copy-link" type="button">Copy link</button>
+<p id="state"></p><p id="run-note"></p>
+<button id="start" type="button" hidden>Run matching</button>
+<button id="reopen" type="button" hidden>Reopen registration</button>
+<button id="release" type="button" hidden>Release partners</button>
+<button id="refresh" type="button">Refresh</button>
+<section><h1>Participants</h1><div id="participants"></div></section>
+<section id="matches" hidden><h2>Pairs</h2><p id="match-note"></p><div id="pairs"></div></section>
+</main></body></html>

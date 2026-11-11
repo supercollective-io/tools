@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Event matching</title><link rel="stylesheet" href="/style.css"><script type="module" src="/participant.js"></script></head>
+<body><main>
+<p id="event"></p><p id="message" role="status" aria-live="polite"></p>
+<p id="state"></p>
+<form id="profile-form">
+<label>Name <input id="name" maxlength="200" required autocomplete="name"></label>
+<label>What can you contribute? <textarea id="offers" rows="5" maxlength="12000" required></textarea></label>
+<label>What are you looking for? <textarea id="needs" rows="5" maxlength="12000" required></textarea></label>
+<label>How can your partner contact you? (optional) <input id="contact" maxlength="1000"></label>
+<label id="consent-label"><input id="consent" type="checkbox" required> Use my offers and needs for matching with Jev, and share my name, profile and contact details with my assigned partner.</label>
+<button id="save">Join event</button>
+</form>
+<section id="return-link" hidden><label>Your private return link — keep it to edit your profile and see your partner <input id="private-link" readonly></label><button id="copy-link" type="button">Copy link</button></section>
+<section id="partner" hidden><h1>Your partner</h1><div id="partner-profile"></div></section>
+<button id="refresh" type="button">Check for updates</button>
+</main></body></html>

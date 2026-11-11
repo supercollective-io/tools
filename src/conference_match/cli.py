@@ -68,8 +68,24 @@ def main() -> int:
     rank.add_argument("--reverse", type=Path, required=True)
     rank.add_argument("--run", type=Path, required=True)
     rank.add_argument("--output", type=Path, required=True)
+    pilot = commands.add_parser("serve", help="Run participant registration and organiser matching")
+    pilot.add_argument("--workspace", type=Path, default=Path("runs/pilot"))
+    pilot.add_argument("--description")
+    pilot.add_argument("--model", default="jev-1.14.0")
+    pilot.add_argument("--host", default="127.0.0.1")
+    pilot.add_argument("--port", type=int, default=8767)
+    pilot.add_argument("--public-url")
     args = parser.parse_args()
     try:
+        if args.command == "serve":
+            from conference_match.pilot_server import serve_pilot
+
+            if not 0 <= args.port <= 65535:
+                raise ValueError("Port must be between 0 and 65535")
+            serve_pilot(
+                args.workspace, args.description, args.model, args.host, args.port, args.public_url
+            )
+            return 0
         if args.command in ("expert-prepare", "expert-rank"):
             from conference_match.expert import ExpertAnswers, make_packet, rank_reviews
             from conference_match.review import ReviewSession

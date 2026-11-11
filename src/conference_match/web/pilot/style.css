@@ -1,0 +1,16 @@
+:root { font-family: system-ui, sans-serif; line-height: 1.5; color-scheme: light dark; }
+body { margin: 1rem; }
+main { max-width: 48rem; margin: auto; }
+label { display: block; margin: 1rem 0; }
+input, textarea, button { font: inherit; box-sizing: border-box; }
+input:not([type=checkbox]), textarea { display: block; width: 100%; padding: .4rem; }
+button { padding: .4rem .6rem; margin: 0 .5rem .5rem 0; cursor: pointer; }
+button:disabled { cursor: default; }
+h1, h2 { font-size: 1.2rem; }
+h3 { font-size: 1rem; }
+summary { cursor: pointer; }
+details { margin: 1rem 0; }
+.profile-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+#message:empty { display: none; }
+#message { border-inline-start: .2rem solid; padding: .5rem; }
+[hidden] { display: none !important; }

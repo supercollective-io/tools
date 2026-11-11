@@ -1,7 +1,7 @@
 # Match
 
 A lean organiser CLI for testing whether whole-text contributions and needs produce useful pairs.
-Python 3.12+, managed with uv. Includes a local operator review interface; no hosted service or database.
+Python 3.12+, managed with uv. Includes local operator review and participant matching interfaces; no hosted service or database.
 
 ```sh
 uv sync
@@ -213,3 +213,67 @@ These are targeted diagnostic batches, **not a representative accuracy sample**.
 The old split names remain for compatibility; targeted selection does not turn them
 into independent validation. Separately collect a randomly sampled, genuinely unseen
 human evaluation set. Agreement between expert and Jev can still be wrong.
+
+
+## Participant-to-partner pilot
+
+```sh
+uv run match serve --workspace runs/pilot \
+  --description "A meetup for people looking to collaborate on small projects"
+```
+
+The command prints a participant registration link and a **private organiser link**.
+Default address: <http://127.0.0.1:8767>. The organiser link grants control of the event;
+share only the participant registration link. Each participant gets their own private
+return link for editing their profile and viewing their released partner. There is no
+feedback step, password account, email sending or participant directory.
+
+1. Participants enter their name, offers, needs and optional contact details, and
+   agree to matching via Jev and sharing their profile with their assigned partner.
+2. The organiser inspects registrations and clicks **Run matching**. This freezes
+   profiles and uses the configured Jev API key. The UI shows the number of pairs
+   before running. The existing scorer pins the model and resumes saved successes.
+3. The organiser reviews proposed pairs and clicks **Release partners**.
+4. Participants use their private links and **Check for updates** to see their partner.
+   Before release, the API returns no partner information. After release it returns
+   only the assigned partner, with no model scores or other participant records.
+
+All matching uses the current v11 rubric and raw-sum allocation. An even count of at
+least two participants is required, with a limit of 100 per event. Every participant
+receives one partner. The organiser can remove registrations while the event is open.
+Failed matching can be retried; ready or failed events can be reopened for corrections,
+which clears the active proposal and creates a new scoring round on the next run.
+Released pairs are final for this event; create a new workspace for another event.
+
+Restart with the same workspace to retain profiles, private links and results:
+
+```sh
+uv run match serve --workspace runs/pilot
+```
+
+Event state and the organiser key are stored with owner-only file permissions in the
+workspace; scoring snapshots are retained in `round-N/`. Participant access tokens
+are stored as hashes; the organiser key is needed to restore the organiser link.
+Keep the workspace private and back it up. Lost participant links cannot currently
+be recovered through the UI. Names and contact details are not sent to the model;
+full offers/needs and event context are. HTTP request logging is disabled.
+
+The default listener is local. For a pilot on other devices, explicitly bind to a
+reachable address and supply the browser origin with `--public-url`. For example,
+behind an HTTPS reverse proxy that preserves the public Host header:
+
+```sh
+uv run match serve --workspace runs/pilot --host 0.0.0.0 \
+  --public-url https://match.example.org
+```
+
+This does not provision hosting or TLS. Private links grant access to profiles, so
+use HTTPS outside localhost. The built-in server is a small pilot server, not a
+managed public registration service. Only one process can use the workspace at once.
+After an abrupt stop, confirm the old process has ended before removing its `.lock`;
+a scoring round may also have its own `.lock`. Retry resumes saved pair assessments.
+
+The end-to-end browser check uses synthetic test profiles and a fake scorer. Automated
+tests cover save/edit, freezing, failed-run retry, reopening, release, restart, odd
+counts and participant/organiser access boundaries. This verifies the product flow,
+not match quality.
