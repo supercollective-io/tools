@@ -1,0 +1,83 @@
+{
+  "synthetic": true,
+  "transport": "loopback HTTP with one persistent node:http Agent/socket per client",
+  "participants": 140,
+  "capacity": 140,
+  "admitted": 140,
+  "overloadRejected": 0,
+  "rounds": 20,
+  "acknowledgedRevisions": 2800,
+  "maxConcurrentSaves": 140,
+  "maxConcurrentRequests": 140,
+  "setup": {
+    "warmupBatchSize": 40,
+    "warmupMs": 43,
+    "joinMs": 118,
+    "totalMs": 174,
+    "join": {
+      "samples": 140,
+      "p50Ms": 114.09,
+      "p95Ms": 114.66,
+      "maxMs": 114.68
+    }
+  },
+  "loadMs": 1087,
+  "saves": {
+    "samples": 2800,
+    "p50Ms": 46.58,
+    "p95Ms": 55.56,
+    "maxMs": 70.27
+  },
+  "p50SaveMs": 46.58,
+  "p95SaveMs": 55.56,
+  "duplicateRequests": 420,
+  "duplicatesVerified": true,
+  "reconnect": {
+    "clients": 28,
+    "percentage": 20,
+    "whileOtherClientsSave": true,
+    "interruptsInFlightWrites": false,
+    "durationMs": 67,
+    "identityAndSavesVerified": true
+  },
+  "restart": {
+    "durationMs": 139,
+    "sameCredentialsRejoined": 140,
+    "allAcknowledgedRevisionsVerified": true,
+    "frozenSnapshotVerified": true
+  },
+  "restartVerified": true,
+  "requests": 3977,
+  "responsesByStatus": {
+    "200": 3837,
+    "201": 140
+  },
+  "errors": [],
+  "automaticRetries": 0,
+  "persistentSocketReuses": 3668,
+  "socketsOpened": 309,
+  "database": {
+    "before": {
+      "databaseBytes": 4096,
+      "walBytes": 164832,
+      "shmBytes": 32768,
+      "totalBytes": 201696
+    },
+    "afterLoad": {
+      "databaseBytes": 2813952,
+      "walBytes": 4157112,
+      "shmBytes": 32768,
+      "totalBytes": 7003832
+    },
+    "afterRestart": {
+      "databaseBytes": 3092480,
+      "walBytes": 4152,
+      "shmBytes": 32768,
+      "totalBytes": 3129400
+    },
+    "growthBytes": 6802136
+  },
+  "sqliteWalBytes": 4157112,
+  "durationMs": 1419,
+  "providerCalls": 0
+}
