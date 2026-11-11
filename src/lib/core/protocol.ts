@@ -33,6 +33,13 @@ export type RoomView = {
   localOptions: Option[];
   me: { id: string; name: string; host: boolean; participating: boolean } | null;
   participants: { id: string; name: string; connected: boolean }[];
+  membership: {
+    capacity: number;
+    registered: number;
+    connected: number;
+    active: number;
+    frozenRoster: number | null;
+  };
   round: { id: string; state: State } | null;
   history: { id: string; status: string; startedAt: string; selectedLabel: string | null }[];
 };

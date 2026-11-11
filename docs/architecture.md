@@ -11,7 +11,7 @@ The custom Node HTTP server serves the SvelteKit application and handles `/api/`
 - `server/index.ts`: HTTP, cookies, origin checks, socket upgrade and shutdown.
 - `src/lib/components/Arena.svelte`: rendering and pointer/keyboard input; no authoritative physics.
 
-One process can own several rooms. There are at most 4 active rounds, 32 registered participants per room, and 100 cached rooms. Idle rooms can be evicted from memory and loaded from SQLite. These are initial resource bounds, not measured production capacity promises.
+One process can own several rooms. There are at most 4 active rounds, 140 registered participants per room by default (configurable from 2 to 180), and 100 cached rooms. Idle rooms can be evicted from memory and loaded from SQLite. These are configured resource bounds, not measured production capacity promises.
 
 ## Baseline v1
 
@@ -33,7 +33,7 @@ A stationary magnet remains a stationary point in arena coordinates. It does not
 
 A countdown, active round and terminal result are server-owned. Terminal outcomes are `selected`, `timed-out`, `cancelled` and `interrupted`. Centre deadlock never selects an option. Re-entering a target starts a new dwell period. Selection is not labelled unanimity.
 
-The client interpolates snapshots for display. Reduced-motion mode removes interpolation. Baseline uses the same server coordinates for force and selection regardless of screen dimensions. Experimental personalised modes project those coordinates and map local inputs by option proportions; selection remains canonical. See [Experimental modes](experimental-modes.md).
+The round freezes its starting roster from the registered participants with live sockets. The `participantCount` in the recorded configuration remains the force normalisation denominator for the full round; later disconnects do not change it. Room status distinguishes registered, connected, recently engaged, and frozen starting-roster counts. The client interpolates snapshots for display. Reduced-motion mode removes interpolation. Baseline uses the same server coordinates for force and selection regardless of screen dimensions. Experimental personalised modes project those coordinates and map local inputs by option proportions; selection remains canonical. See [Experimental modes](experimental-modes.md).
 
 ## Network and authority
 

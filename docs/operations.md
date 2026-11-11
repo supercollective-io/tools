@@ -29,7 +29,7 @@ Replace the example hostname and database path. The process user must own the da
 
 `GET /healthz` returns a readiness response. SIGTERM stops admission, records active rounds as interrupted and closes connections. Restarted clients reconnect automatically and may start a new round; ongoing decisions are not silently resumed.
 
-HTTP mutation rate limits currently use the direct socket address: 60 requests per minute. Behind a proxy this may be shared by clients. Configure edge rate limiting and revisit trusted-proxy address handling before opening a public service. Do not trust arbitrary client-provided forwarding headers.
+HTTP mutation rate limits use the direct socket address: 240 requests per minute by default, configurable with `PUCK_HTTP_MUTATION_LIMIT` from 60 to 1000. This supports room admission behind a shared venue NAT. Behind a proxy the address is shared by clients. Configure edge rate limiting and revisit trusted-proxy address handling before opening a public service. Do not trust arbitrary client-provided forwarding headers.
 
 ## Backup and restore
 
@@ -47,9 +47,15 @@ Backups contain participant names, room questions and recorded inputs. Keep them
 
 - `pnpm verify`: formatting/lint, types, unit tests and production build.
 - `pnpm test:e2e`: two separate browser contexts, shared motion, reconnect, replay permissions and narrow-screen keyboard controls.
-- `pnpm load:smoke -- http://localhost:3000`: 32 synthetic participants, capacity enforcement, host-only controls and a shared selected result. Snapshot-gap measurements are local transport observations, not internet latency benchmarks.
+- `pnpm load:smoke -- http://localhost:3000 [participants]`: synthetic participants exercise HTTP admission and actual WebSocket fan-out, reconnect, stale-input expiry and completed replay. Run it at 50, 100 and 140 with default `PUCK_ROOM_CAPACITY=140`. For the 180-participant overload scenario, start a disposable server with `PUCK_ROOM_CAPACITY=180`. Snapshot-gap measurements are local transport observations, not internet latency benchmarks.
 
-The load smoke test creates a new room and recording. Run it against a disposable database when persistent synthetic sessions are unwanted.
+The load smoke test creates a new room and recording. It produces one recording whose size grows with participants and frames. Run it against a disposable database when persistent synthetic sessions are unwanted; it does not establish public-internet or real-device capacity.
+
+### Coolify packaging
+
+Use a Git-backed **Application** with the Dockerfile build strategy, repository root as Base Directory, `Dockerfile` as Dockerfile Location, and internal port `3000`. Configure the domain as `https://puck.supercollective.io` targeting port 3000. Set runtime variables `PUBLIC_ORIGIN=https://puck.supercollective.io`, `HOST=0.0.0.0`, `PORT=3000`, `DATABASE_PATH=/data/puck.sqlite`, and `PUCK_ROOM_CAPACITY=140`. Attach durable writable storage at `/data`; retain one application process and one SQLite database. The image health check calls `/healthz`. Verify the Coolify proxy forwards WebSocket upgrades and has an idle timeout longer than the 60-second round. Configure backups for the mounted database and practise restoration before participant use. This repository change prepares the image; it does not configure Coolify, DNS, TLS or a live deployment.
+
+The participant room page links back to [Rehearsing We](https://we.supercollective.io). The hub and Puck remain separately deployed.
 
 ## Known operational limits
 

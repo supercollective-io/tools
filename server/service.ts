@@ -24,7 +24,15 @@ import {
 } from '../src/lib/core/experiments.ts';
 import { inputMessage, type RoomView } from '../src/lib/core/protocol.ts';
 import type { Participant, Store, StoredRoom } from './store.ts';
-export const MAX_PARTICIPANTS = 32;
+export const MAX_PARTICIPANTS = 180;
+export const DEFAULT_ROOM_CAPACITY = 140;
+export function configuredRoomCapacity(value = process.env.PUCK_ROOM_CAPACITY): number {
+  if (value === undefined || value === '') return DEFAULT_ROOM_CAPACITY;
+  const capacity = Number(value);
+  if (!Number.isInteger(capacity) || capacity < 2 || capacity > MAX_PARTICIPANTS)
+    throw new Error(`PUCK_ROOM_CAPACITY must be an integer from 2 to ${MAX_PARTICIPANTS}.`);
+  return capacity;
+}
 const id = () => randomBytes(12).toString('base64url');
 export const hash = (token: string) => createHash('sha256').update(token).digest('hex');
 export class ClientError extends Error {
@@ -55,7 +63,10 @@ export class SessionService {
   private timer: ReturnType<typeof setInterval>;
   private last = performance.now();
   private accumulator = 0;
-  constructor(public store: Store) {
+  constructor(
+    public store: Store,
+    private readonly capacity = configuredRoomCapacity(),
+  ) {
     this.timer = setInterval(() => this.advance(), 25);
   }
   private get(roomId: string): LiveRoom {
@@ -112,8 +123,8 @@ export class SessionService {
     const room = this.get(roomId);
     if (room.state && !terminal(room.state.phase))
       throw new ClientError('A round is running. Join after it finishes.', 409);
-    if (room.participants.filter((p) => p.participating).length >= MAX_PARTICIPANTS)
-      throw new ClientError('This room has reached its 32-participant limit.', 409);
+    if (room.participants.filter((p) => p.participating).length >= this.capacity)
+      throw new ClientError(`This room has reached its ${this.capacity}-participant limit.`, 409);
     if (existing && token) {
       this.store.joinHost(existing.id, name);
       existing.name = name;
@@ -163,6 +174,19 @@ export class SessionService {
               connected: room.connections.has(p.id),
             }))
         : [],
+      membership: {
+        capacity: this.capacity,
+        registered: room.participants.filter((p) => p.participating).length,
+        connected: room.participants.filter((p) => p.participating && room.connections.has(p.id))
+          .length,
+        active: room.participants.filter((p) => {
+          const connection = room.connections.get(p.id);
+          return Boolean(
+            connection?.input.engaged && performance.now() - connection.updatedAt < 750,
+          );
+        }).length,
+        frozenRoster: room.recording?.config.participantCount ?? null,
+      },
       round: room.recording && room.state ? { id: room.recording.id, state: room.state } : null,
       history: participant ? room.history : [],
     };

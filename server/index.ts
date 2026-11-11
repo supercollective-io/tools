@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { WebSocketServer } from 'ws';
 import { createRequest, joinRequest } from '../src/lib/core/protocol.ts';
 import { localNetworkOrigins } from './network.ts';
-import { ClientError, SessionService } from './service.ts';
+import { ClientError, configuredRoomCapacity, SessionService } from './service.ts';
 import { Store } from './store.ts';
 
 const dev = process.argv.includes('--dev');
@@ -15,11 +15,14 @@ const origin = process.env.PUBLIC_ORIGIN ?? `http://localhost:${port}`;
 const inviteOrigin = process.env.PUBLIC_ORIGIN ?? networkOrigins[0] ?? origin;
 const allowedOrigins = new Set([origin, ...(dev ? networkOrigins : [])]);
 const store = new Store(process.env.DATABASE_PATH ?? 'data/puck.sqlite');
-const service = new SessionService(store);
+const service = new SessionService(store, configuredRoomCapacity());
 const sockets = new WebSocketServer({ noServer: true, maxPayload: 2048, perMessageDeflate: false });
 let stopping = false;
 let webHandler: (req: IncomingMessage, res: ServerResponse) => void;
 const rates = new Map<string, { count: number; since: number }>();
+const mutationLimit = Number(process.env.PUCK_HTTP_MUTATION_LIMIT ?? 240);
+if (!Number.isInteger(mutationLimit) || mutationLimit < 60 || mutationLimit > 1000)
+  throw new Error('PUCK_HTTP_MUTATION_LIMIT must be an integer from 60 to 1000.');
 const cookieName = (id: string) => `puck_${id}`;
 function token(req: IncomingMessage, roomId: string) {
   return (req.headers.cookie ?? '')
@@ -63,7 +66,7 @@ function rateLimit(req: IncomingMessage) {
   const rate = rates.get(key) ?? { count: 0, since: now };
   rate.count++;
   rates.set(key, rate);
-  if (rate.count > 60 || rates.size > 10000)
+  if (rate.count > mutationLimit || rates.size > 10000)
     throw new ClientError('Too many requests. Try again in a minute.', 429);
 }
 async function api(req: IncomingMessage, res: ServerResponse, url: URL) {

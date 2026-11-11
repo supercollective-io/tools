@@ -270,8 +270,19 @@ async function copy() {
       </p>
     {/if}
     <div class="support">
+      <p class="muted"><a href="https://we.supercollective.io">Return to Rehearsing We</a></p>
       <details>
-        <summary>{connected} online</summary>
+        <summary>
+          <span>{connected} online</span>
+          · {room.membership.registered}/{room.membership.capacity}
+          joined
+        </summary>
+        <p class="muted">
+          {room.membership.active}
+          active now{room.membership.frozenRoster !== null
+            ? ` · ${room.membership.frozenRoster} in this round’s starting roster`
+            : ''}.
+        </p>
         <ul>
           {#each room.participants as participant}
             <li>

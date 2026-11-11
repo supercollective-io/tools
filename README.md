@@ -22,7 +22,7 @@ Open <http://localhost:3000>. Development mode also listens on the local network
 
 ## What works
 
-- Questions with 2–6 distinct options; up to 32 registered participants per room.
+- Questions with 2–6 distinct options; up to 140 registered participants per room by default (configurable to 180 for explicit overload rehearsals).
 - Shared countdown, server-controlled puck, 60-second rounds and continuous target dwell.
 - Mouse/touch hold-and-drag and keyboard magnet controls.
 - One magnet per participant, connection recovery and stale-input expiry.
@@ -36,18 +36,18 @@ The live arena shows only your own magnet. Replay reveals all participants' appl
 
 Run commands through `mise exec --` unless mise is activated in your shell.
 
-| Command                                       | Purpose                                                  |
-| --------------------------------------------- | -------------------------------------------------------- |
-| `pnpm dev`                                    | Development server, including the real WebSocket service |
-| `pnpm check`                                  | Biome formatting and recommended lint rules              |
-| `pnpm fmt`                                    | Format tracked source formats                            |
-| `pnpm typecheck`                              | Svelte diagnostics and TypeScript checks                 |
-| `pnpm test`                                   | Engine, protocol and persistence tests                   |
-| `pnpm test:e2e`                               | Build and exercise the production server in Chromium     |
-| `pnpm verify`                                 | Check, typecheck, unit tests and production build        |
-| `pnpm build` / `pnpm start`                   | Build / run the production server                        |
-| `pnpm backup -- /absolute/path/backup.sqlite` | Consistent SQLite backup                                 |
-| `pnpm load:smoke -- http://localhost:3000`    | Create a synthetic 32-participant local round            |
+| Command                                        | Purpose                                                          |
+| ---------------------------------------------- | ---------------------------------------------------------------- |
+| `pnpm dev`                                     | Development server, including the real WebSocket service         |
+| `pnpm check`                                   | Biome formatting and recommended lint rules                      |
+| `pnpm fmt`                                     | Format tracked source formats                                    |
+| `pnpm typecheck`                               | Svelte diagnostics and TypeScript checks                         |
+| `pnpm test`                                    | Engine, protocol and persistence tests                           |
+| `pnpm test:e2e`                                | Build and exercise the production server in Chromium             |
+| `pnpm verify`                                  | Check, typecheck, unit tests and production build                |
+| `pnpm build` / `pnpm start`                    | Build / run the production server                                |
+| `pnpm backup -- /absolute/path/backup.sqlite`  | Consistent SQLite backup                                         |
+| `pnpm load:smoke -- http://localhost:3000 140` | Exercise HTTP admission, WebSocket fan-out, reconnect and replay |
 
 Install the browser once with `mise exec -- pnpm exec playwright install chromium`. CI also installs its Linux dependencies. The E2E server uses an isolated temporary database.
 
@@ -70,7 +70,7 @@ Biome owns lint and formatting, including its opt-in Svelte support. `svelte-che
 
 Run one server process against a durable local database. A room's membership is fixed during a running round. Existing participants can reconnect. Losing all connections or stalling the simulation for more than 1 second interrupts the round.
 
-Completed recordings are durable. Active frames are buffered in memory; a process crash preserves an interrupted round marker, not its unfinished trajectory. Clearing browser cookies loses the guest identity and host control. Anonymous join links are suitable for trusted pilots, not proof of one real person per participant.
+Completed recordings are durable. Active frames are buffered in memory; a process crash preserves an interrupted round marker, not its unfinished trajectory. Clearing browser cookies loses the guest identity and host control. Anonymous join links are suitable for trusted pilots, not proof of one real person per participant. `PUCK_ROOM_CAPACITY` defaults to 140 and accepts 2–180. The 180 setting is for overload rehearsal; it is not the recommended room size. `PUCK_HTTP_MUTATION_LIMIT` defaults to 240 requests per minute per direct client address so a venue network can admit a full room; configure edge protection before public use.
 
 The pilot capacity is a configured limit. Local synthetic tests do not establish internet-scale capacity, accessibility equivalence or improved decision quality. Geometry corrections, adaptive weighting and controlled human comparisons remain future slices.
 
