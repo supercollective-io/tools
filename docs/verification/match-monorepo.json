@@ -1,7 +1,7 @@
 {
   "kind": "local monorepo migration verification; fake providers and synthetic fixtures only",
   "date": "2026-11-11",
-  "sourceRevision": "aeaf427cb7c5f953cbd27fb47fec52bd1db9307a",
+  "sourceRevision": "6596a5ea132c2bcd5ad4011c10636a50dc20ae9b",
   "importMerge": "fbf1edb9e8c509a403ed24b209a04c1b94cf2c98",
   "importedMatchRevision": "437329e92dbf53980c1026d1e8af38caae45d4f6",
   "importedFiles": 66,
@@ -13,15 +13,16 @@
     "frozenSetup": true,
     "lintAndTypes": true,
     "polymindTests": 562,
-    "matchTests": 81,
-    "workerContractTests": 3,
+    "matchTests": 84,
     "applicationAndPythonPackageBuilds": true,
     "standaloneCliHelp": true,
     "chromiumFlow": true,
-    "firstGate": "Three existing Polymind timing tests failed during a concurrent Docker build; complete unmodified gate passed on rerun without that build load."
+    "includedWorkerContractTests": 3,
+    "preCommitHooks": true,
+    "initialImportGate": "Three existing Polymind timing tests failed during a concurrent Docker build; complete unmodified gate passed on rerun without that build load."
   },
   "container": {
-    "imageId": "sha256:c78e89d48138a322c9fe985818ed6e9dcf05ea49200b947c7416e336901e38be",
+    "imageId": "sha256:0baaa27a2c8f6594fa49a89d6432d279c2c272cb4ab1377c05a7f50cd2e86a8f",
     "platform": "linux/arm64",
     "user": "10001:10001",
     "python": "3.12.13",
@@ -32,11 +33,16 @@
     "contractNetwork": "none",
     "healthz": 200,
     "installedInSitePackages": true,
-    "vendorDirectoryAbsent": true
+    "vendorDirectoryAbsent": true,
+    "workerProjectAbsent": true,
+    "developmentToolsAbsent": true,
+    "defaultNodeToPythonLaunch": true,
+    "idempotentNodeRetry": true
   },
   "limits": [
     "No live provider calls or latency/cost validation",
     "No public deployment or human/venue validation",
     "Prior persistence and benchmark reports remain evidence for their recorded revisions"
-  ]
+  ],
+  "singlePythonProject": "packages/match"
 }

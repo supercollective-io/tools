@@ -71,15 +71,15 @@
   },
   "localCandidates": {
     "polymind": {
-      "sourceRevision": "aeaf427cb7c5f953cbd27fb47fec52bd1db9307a",
-      "imageId": "sha256:c78e89d48138a322c9fe985818ed6e9dcf05ea49200b947c7416e336901e38be",
+      "sourceRevision": "6596a5ea132c2bcd5ad4011c10636a50dc20ae9b",
+      "imageId": "sha256:0baaa27a2c8f6594fa49a89d6432d279c2c272cb4ab1377c05a7f50cd2e86a8f",
       "platform": "linux/arm64",
       "evidence": "docs/verification/match-monorepo.json"
     },
     "matching": {
-      "sourceRevision": "aeaf427cb7c5f953cbd27fb47fec52bd1db9307a",
+      "sourceRevision": "6596a5ea132c2bcd5ad4011c10636a50dc20ae9b",
       "package": "packages/match",
-      "imageId": "sha256:c78e89d48138a322c9fe985818ed6e9dcf05ea49200b947c7416e336901e38be",
+      "imageId": "sha256:0baaa27a2c8f6594fa49a89d6432d279c2c272cb4ab1377c05a7f50cd2e86a8f",
       "evidence": "docs/verification/match-monorepo.json"
     },
     "puck": {

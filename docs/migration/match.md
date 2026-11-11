@@ -30,20 +30,24 @@ credential patterns; that is not a guarantee about arbitrary secret formats.
 
 ## Build and development
 
-- `workers/matching` depends on `../../packages/match`, installed editably for
-  development. Source edits need no version bump, wheel copy or provenance update.
-- Container builds copy the package manifest and runtime source from the same
-  checkout, then install non-editably using the worker's frozen lockfile. No
-  sibling repository or runtime installation is required.
+- `packages/match` is the only Python project, with one manifest, lockfile and
+  environment. Polymind launches `conference_match.worker` directly from it.
+  The redundant worker project, lockfile, environment and dual-lock recipe were removed.
+- Container builds install from that same package and lockfile, non-editably and
+  without development dependencies. No sibling repository or runtime installation
+  is required. Source edits need no version bump or package hand-off.
 - Root `just setup`, `check`, `typecheck`, `test`, `build` and `verify` include
   Match. `just match` runs its CLI from the package directory, preserving relative
   example paths. Private workspaces can be supplied explicitly from the old checkout.
-- The package's development lock and the worker's production lock remain separate.
-  `just lock-matching` updates both when dependency declarations change. No retained
-  third-party dependency version changed during migration. The build backend is
-  pinned to the previously used `uv_build==0.13.4`.
-- Root CI replaces the imported standalone workflow and hooks. The redundant
-  pre-commit dependency and its unused transitive dependencies were removed.
+- Worker contracts live in `packages/match/contracts`, their tests in Match's
+  normal test suite, and their guide in `packages/match/docs/worker.md`. The prior
+  synthetic benchmark is retained in `docs/verification/matching-benchmark.json`.
+- No retained third-party dependency version changed. The build backend remains
+  pinned to `uv_build==0.13.4`.
+- Root CI replaces the imported standalone workflow. Root pre-commit hooks run
+  Ruff, Pyright and pytest through the same uv environment; install them with
+  `just hooks-install`. Pre-commit is a development dependency and is excluded
+  from the production image.
 - The vendored wheel, checksum, provenance manifest and wheel-digest test were
   removed. Schema, subprocess/restart and CLI/asset contracts remain. CI also
   runs those contracts inside the production image with networking disabled.
@@ -57,10 +61,13 @@ not versioned dependencies handed between repositories.
 The import tree and source ancestry were checked directly with Git. Frozen setup
 and the root CLI help command pass. The production image builds from this checkout,
 and its three matching contracts pass as the non-root runtime user without network
-access. The complete root gate passes 562 Polymind tests, 81 Match tests, three
-worker contracts, lint, types and both builds. Chromium verification also passes.
+access. The complete root gate passes 562 Polymind tests and 84 Match tests
+(including the three worker contracts), lint, types and both builds. Chromium verification also passes.
 The final image also passes its HTTP health check as UID 10001; Match imports
-from site-packages and the vendor directory is absent. See the
+from site-packages, development tools are absent, and Polymind's default Python
+launch and idempotent retry pass using synthetic cached vectors. Root pre-commit
+hooks pass Ruff, Pyright and pytest checks. The worker project and vendor directory
+are absent. See the
 [verification record](../verification/match-monorepo.json).
 
 The first combined gate encountered three timing failures in existing Polymind

@@ -3,7 +3,9 @@
 A lean organiser CLI for testing whether whole-text contributions and needs produce useful pairs.
 Python 3.12+, managed with uv inside Supercollective Tools. Includes local operator review and participant matching interfaces; no hosted service or database.
 
-This is the authoritative Match source. From the monorepo root, run `mise exec -- just setup`, `mise exec -- just verify`, or `mise exec -- just match --help`. The examples below run from `packages/match` after root setup. Private `runs/`, `data/` and credentials from the former checkout were not moved; supply an explicit private workspace path when resuming existing work.
+This is the authoritative Match source. From the monorepo root, run `mise exec -- just setup`, `mise exec -- just verify`, or `mise exec -- just match --help`. Python configuration lives in `pyproject.toml`: uv manages dependencies and builds, Ruff checks formatting and imports, Pyright uses its `nodejs` extra, and pytest runs the tests. From the monorepo root, `mise exec -- just hooks-install` installs the scoped pre-commit hooks; `just hooks-check` runs them on all tracked Python files. CI calls the root verification commands.
+
+The [worker contract](docs/worker.md) describes Polymind integration; development and deployment use this package's single lockfile and environment. The examples below run from `packages/match` after root setup. Private `runs/`, `data/` and credentials from the former checkout were not moved; supply an explicit private workspace path when resuming existing work.
 
 ```sh
 # Run mise exec -- just setup from the monorepo root first.

@@ -84,7 +84,6 @@ The old Collective Microphone checkout becomes a retained reference after succes
 | `packages/collective-voice/` | Existing composer behind an explicit interface |
 | `packages/analysis/` | Bounded analysis with source-linked results |
 | `packages/match/` | Match source and complete imported history; standalone CLI, research and tests |
-| `workers/matching/` | Python worker environment depending on the in-repository Match package |
 | `deploy/` | Container build, health, deployment and rollback instructions |
 | `docs/adr/` | Short architectural decisions |
 | `docs/migration/` | Source manifests and cutover evidence without private data |
@@ -313,7 +312,7 @@ For each phase record branch, commits, checks, observed outcome, remaining limit
 8. Define a worker request carrying schema version, job ID, snapshot reference/hash, eligible roster, full authorised texts, mode/configuration and output location. Do not send credentials or unnecessary names/contact details to providers.
 9. Worker returns structured progress/result/error data using atomic file output or a local API. Launch with structured process arguments, never a constructed shell string from participant content. Logs and machine-readable output must be separate.
 10. Persist job ownership, retries, timeouts and interruption state. Reuse saved successful assessments for the same frozen run. Do not rerun paid work simply because the page refreshed.
-11. Install the in-repository Match package through the worker's lockfile. Build it into the deployment; do not depend on a sibling checkout at runtime.
+11. Install the in-repository Match package using its own lockfile. Build it into the deployment; do not depend on a sibling checkout at runtime.
 12. Add a Polymind adapter mapping stable participant IDs, snapshot source references and result IDs. Matching requires no separate participant registration and no running composer.
 
 **Matching capability commits (originally in `match`, now preserved in `packages/match`):**
