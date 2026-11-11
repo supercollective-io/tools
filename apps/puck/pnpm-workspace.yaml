@@ -1,0 +1,11 @@
+# pnpm 12 stores project policy here, including for a single-package repository.
+saveExact: true
+engineStrict: true
+strictDepBuilds: true
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
+  lefthook: true
+minimumReleaseAgeExclude:
+  - ws@8.22.2
+minimumReleaseAgeStrict: true
