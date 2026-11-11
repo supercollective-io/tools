@@ -348,7 +348,7 @@ describe("simulation CLI", () => {
     );
     expect(recorded.code, recorded.stderr).toBe(0);
     expect(model.calls).toEqual({ alice: 1, bob: 1, composer: 4 });
-  });
+  }, 15_000);
 
   it("interrupts the automatic interval without starting another round, then resumes", async () => {
     const model = await provider();

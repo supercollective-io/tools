@@ -403,8 +403,10 @@ it("passes released encounters through to Match as forbidden pairs", async () =>
       (group) =>
         !previousPairs.some(
           ([a, b]) =>
-            group.participantIds.includes(a!) &&
-            group.participantIds.includes(b!),
+            a !== undefined &&
+            b !== undefined &&
+            group.participantIds.includes(a) &&
+            group.participantIds.includes(b),
         ),
     ),
   ).toBe(true);

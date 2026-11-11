@@ -292,20 +292,46 @@ describe("browser workspace", () => {
   });
 
   it("preserves explicit configuration and does not prepare an already running session", async () => {
-    const f = await fixture({ useDefaults: false });
+    // Keep the session alive while CI performs journal and HTTP round trips.
+    const explicitConfig = {
+      ...config,
+      composer: { ...model, timeoutMs: 60_000 },
+      live: {
+        ...config.live,
+        participants: { ...model, timeoutMs: 60_000 },
+        maxDurationMs: 60_000,
+      },
+    };
+    const f = await fixture({
+      useDefaults: false,
+      config: explicitConfig,
+      models: [
+        {
+          id: "qwen3b",
+          label: "Fixture model",
+          modes: ["continuous"],
+          composer: explicitConfig.composer,
+          participants: explicitConfig.live.participants,
+        },
+      ],
+    });
     expect((await post(f.url, "start", selected)).status).toBe(200);
     const path = f.snapshot().path;
     if (!path) throw new Error("Missing journal");
     const state = (await readLiveRun(path)).state;
-    expect(state.config.live.maxDurationMs).toBe(config.live.maxDurationMs);
+    expect(state.config.live.maxDurationMs).toBe(
+      explicitConfig.live.maxDurationMs,
+    );
     expect(state.config.live.refreshIntervalMs).toBe(
       config.live.refreshIntervalMs,
     );
     expect(state.config.live.maxContextCharacters).toBe(
       config.live.maxContextCharacters,
     );
-    expect(state.config.composer).toEqual(model);
-    expect(state.config.live.participants).toEqual(model);
+    expect(state.config.composer).toEqual(explicitConfig.composer);
+    expect(state.config.live.participants).toEqual(
+      explicitConfig.live.participants,
+    );
     expect((await post(f.url, "start")).status).toBe(200);
     expect(f.prepare).toHaveBeenCalledTimes(1);
     expect((await post(f.url, "new")).status).toBe(200);
