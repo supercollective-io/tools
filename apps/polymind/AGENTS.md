@@ -1,8 +1,8 @@
 # Agent guidance
 
-Collective Microphone combines many contributions into an evolving collective
-voice. It is being developed for participatory performance. The current
-implementation provides a browser workspace and retains earlier CLI modes.
+Polymind provides event sessions, contributions, analysis and matching.
+Collective Microphone is its continuous voice mode. The application includes
+participant/operator browsers and retains research CLI modes.
 
 ## Commands
 

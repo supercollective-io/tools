@@ -142,8 +142,7 @@ Each participant and the collective have one growing text for the whole session.
 Inference requests continue that text; they are not participant turns. Save all
 incoming writing, including interrupted prefixes. Budget boundaries and context
 refreshes continue the same contribution without a semantic acceptance gate.
-Preserve Stage 1 and Stage 2A. The previous bounded-turn experiment remains
-historical documentation in [stage-2b.md](stage-2b.md).
+Preserve Stage 1 and Stage 2A. Historical bounded-turn journals remain readable.
 
 Give each writer its full saved prefix. Give the composer every participant's
 full text and `newFrom` offsets identifying newly available source. Keep private

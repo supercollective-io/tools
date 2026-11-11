@@ -1,6 +1,6 @@
 # Working on Supercollective Tools
 
-Use British English and metric units. Python uses pyproject.toml, uv, Ruff, Pyright with nodejs and pytest. Root pre-commit hooks cover Match and Puck. Run root commands through `mise exec -- just`; `just verify` is the local gate, and `just test-browser` checks browser flows. Providers are fake in ordinary tests. Never run a paid rehearsal implicitly.
+Use British English and metric units. Python uses pyproject.toml, uv, Ruff, Pyright with nodejs and pytest. Root pre-commit hooks cover Polymind, Match and Puck. Run root commands through `mise exec -- just`; `just verify` is the local gate, and `just test-browser` checks browser flows. Providers are fake in ordinary tests. Never run a paid rehearsal implicitly.
 
 Puck lives in `apps/puck`; read its `AGENTS.md` before changing its engine, transport or recordings. It has its own server, identity, SQLite database and deployment. Root verification includes both applications and Match.
 

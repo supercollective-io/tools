@@ -1,4 +1,9 @@
-# Collective Microphone
+# Polymind
+
+Polymind provides event sessions, confirmed contributions, bounded analysis,
+matching, audio capture and continuous collective voice. Start with the root
+[operator workflow](../../README.md#run). This guide covers Collective Microphone,
+its voice workspace, CLI modes and artistic research.
 
 The goal is for each participant to feel both:
 
@@ -24,16 +29,17 @@ encountering the collective can shape what people contribute next. See the
 for the goal and its evaluation. Responsive AI-participant rehearsals provide
 evidence about both aspects; human rehearsal tests transfer to the audience.
 
-The current live rehearsal gives every participant and the collective one
+The continuous voice mode gives every participant and the collective one
 growing text, with context refreshed during writing. A local browser workspace
 shows their progress. It supports local Ollama and OpenAI through modular
 LangChain integrations. Stage 1 scripts and Stage 2A round-based simulation remain
-available; performance projection and live phone speech come later.
+available. Session projection and bounded audio capture are implemented; live
+phone speech remains deferred.
 
 The first artistic context is **Rehearsing We**, a participatory performance
 exploring collective power. The [piece brief and agreed test question](docs/rehearsing-we.md)
-describe that context. Prompt exploration is now parked; the next slice is
-[projected rehearsal](docs/plan.md#stage-3-projected-rehearsal). The
+describe that context. Prompt exploration is parked; see the root [remaining work](../../IMPLEMENTATION_PLAN.md)
+for deployment and human rehearsal gates. The
 [human-six experiments](docs/human-composition-experiments.md) retain the candidate
 prompts and artistic findings.
 The earlier fictional corpus remains a historical comparison, with a
@@ -42,20 +48,14 @@ Scores and composer instructions remain configurable for other topics.
 
 ## Set up
 
-Install [mise](https://mise.jdx.dev/), then run from this checkout:
+Follow the repository [setup](../../README.md#run) from its root. Root
+`mise exec -- just hooks-install` installs the shared pre-commit hooks.
+Use `mise exec -- just dev` for the session operator and participant application.
 
-```sh
-mise trust
-mise install
-mise exec -- pnpm install --frozen-lockfile
-mise exec -- pnpm hooks:install
-```
-
-The repository pins Node 26.13.0 and pnpm 12.18.0. Use `mise exec --` before
-commands below if mise is not activated in your shell. Project dependencies
-are locked. pnpm policy lives in `pnpm-workspace.yaml`; unknown dependency
-build scripts fail installation. Lefthook installation is explicit rather
-than an automatic dependency lifecycle script.
+The commands below run from `apps/polymind` and describe the continuous voice
+workspace and research CLI. Use `mise exec --` before commands if mise is not
+activated in your shell. Runtime versions and dependency policy live at the
+repository root; package-local verification covers Polymind only.
 
 ## Start
 
@@ -219,8 +219,7 @@ keeps its complete-round behaviour alongside live co-writing.
 
 The earlier bounded-turn Stage 2B design is superseded by the
 [live co-writing model](docs/live-rehearsal.md). Existing historical logs remain
-readable. Its [design notes](docs/stage-2b.md) are retained for that history;
-new `simulate-continuous` runs use schema-version-2 live configuration and the
+readable. New `simulate-continuous` runs use schema-version-2 live configuration and the
 same continuous writer model as the browser workspace.
 
 ## Use a cloud model
@@ -364,8 +363,8 @@ mise exec -- pnpm run verify
 mise exec -- node dist/cli.js --help
 ```
 
-`pnpm run fmt` applies formatting; `pnpm run lint` runs lint checks. Lefthook
-checks staged supported files without rewriting them. CI uses the same toolchain,
+`pnpm run fmt` applies formatting; `pnpm run lint` runs lint checks. The root
+pre-commit hooks check Polymind formatting and lint without rewriting files. CI uses the same toolchain,
 a frozen install, checks, type checking, tests and a build; it needs no model keys.
 
 Tests use deterministic model doubles, real temporary journals and local fake
@@ -374,9 +373,9 @@ automatic CI calls. Compiled execution reads credentials from the environment;
 use `node --env-file=.env dist/cli.js …` when needed.
 
 See [the rehearsal procedure](docs/rehearsal.md) for the Stage 1 gate and
-[the implementation plan](docs/plan.md) for later stages. Coolify packaging is
-deliberately deferred until performance readiness; the architecture remains a
-single persistent Node process with durable storage.
+[remaining release work](../../IMPLEMENTATION_PLAN.md) for deployment and rehearsal.
+[Coolify packaging](../../deploy/README.md) is available; the architecture remains
+a single persistent Node process with durable storage.
 
 ## Typed phone rehearsal
 
