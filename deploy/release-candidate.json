@@ -1,0 +1,72 @@
+{
+  "status": "not-released",
+  "applications": {
+    "polymind": {
+      "revision": null,
+      "artefact": null,
+      "deployed": false
+    },
+    "matching": {
+      "revision": null,
+      "artefact": null,
+      "deployed": false
+    },
+    "puck": {
+      "revision": null,
+      "artefact": null,
+      "deployed": false
+    },
+    "flight": {
+      "revision": null,
+      "artefact": null,
+      "deployed": false
+    },
+    "hub": {
+      "revision": null,
+      "artefact": null,
+      "deployed": false
+    }
+  },
+  "gates": {
+    "publicHttps": {
+      "verified": false,
+      "evidence": null
+    },
+    "phoneReturn": {
+      "verified": false,
+      "evidence": null
+    },
+    "mobileAudio": {
+      "verified": false,
+      "evidence": null
+    },
+    "providerBudgetAndLatency": {
+      "verified": false,
+      "evidence": null
+    },
+    "privateEncounterRehearsal": {
+      "verified": false,
+      "evidence": null
+    },
+    "backupRestore": {
+      "verified": false,
+      "evidence": null
+    },
+    "flightGearBridge": {
+      "verified": false,
+      "evidence": null
+    },
+    "venueProjection": {
+      "verified": false,
+      "evidence": null
+    },
+    "accessibleMeetingLocations": {
+      "verified": false,
+      "evidence": null
+    },
+    "timedHumanRehearsal": {
+      "verified": false,
+      "evidence": null
+    }
+  }
+}
