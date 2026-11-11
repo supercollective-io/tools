@@ -1,0 +1,36 @@
+{
+  "imageId": "sha256:8e33846ffe6460ae0cb4c07e5f24166247908d33b660b53c6149cea426a850c2",
+  "architecture": "arm64",
+  "versions": {
+    "node": "26.13.0",
+    "python": "3.12.13",
+    "uv": "0.11.28",
+    "conferenceMatch": "0.1.0+polymind.d505c8452a3c"
+  },
+  "runtimeUid": 10001,
+  "health": "healthy",
+  "matchingContractChecks": 4,
+  "acknowledgedContributionsAfterRestart": 3,
+  "identityAndSnapshotSurviveRestart": true,
+  "secondWriterRejected": true,
+  "backupFiles": 1,
+  "restore": {
+    "status": "passed",
+    "files": 1,
+    "databases": 1,
+    "journals": 0,
+    "isolatedCopyRemoved": true
+  },
+  "sourceHashes": {
+    "apps/polymind/src/session/jobs.ts": "f9348d95ba05a777452ec4d28467d7027d5ed8025eab5d56ca312b6ddb750adb",
+    "apps/polymind/src/session/recordings.ts": "c55ffcd31df42219a18bf262eb63b6e65d8a510216a69b3ad3aab3680516fa17",
+    "apps/polymind/src/web/session.js": "4cf41ad39628abd67495a39d2b0da5c33bb5d2f80f389f5c87d25bb0ad465fc8",
+    "apps/polymind/src/web/session.html": "75780237a8b197ed11e83e0b3e889a6024e8888e1e08a5efab805d97b5e08aab",
+    "apps/polymind/src/session/server.ts": "eadc754fc6de25862ee5218f0928dcba050152c00a3e39821e250e1eedf02a13"
+  },
+  "providerCalls": 0,
+  "limitations": [
+    "Synthetic local Linux/arm64 image only",
+    "No live provider, Coolify, public DNS/TLS or physical phone evidence"
+  ]
+}

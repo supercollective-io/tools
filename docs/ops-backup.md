@@ -84,6 +84,10 @@ source until the imported event has passed recovery and backup checks.
 
 ## Create a stopped-writer backup
 
+The container stores application data at `/data/polymind` inside the `/data`
+volume. Use that application directory as the backup source; the image includes
+these scripts under `/app/scripts`.
+
 ```sh
 mise exec -- node scripts/backup.mjs \
   --source /private/path/polymind-data \
