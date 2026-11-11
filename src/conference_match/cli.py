@@ -50,8 +50,64 @@ def main() -> int:
     evaluation.add_argument("--split", choices=["development", "holdout"], default="development")
     evaluation.add_argument("--include-drafts", action="store_true")
     evaluation.add_argument("--from-run", type=Path)
+    review = commands.add_parser("review", help="Open the local operator review interface")
+    review.add_argument("input", type=Path)
+    review.add_argument("--workspace", type=Path, default=Path("runs/operator-review"))
+    review.add_argument("--run", type=Path)
+    review.add_argument("--fixtures", type=Path)
+    review.add_argument("--port", type=int, default=8765)
+    review.add_argument("--expert-report", type=Path)
+    prepare = commands.add_parser("expert-prepare", help="Export blind expert input packets")
+    prepare.add_argument("archive", type=Path)
+    prepare.add_argument("--output", type=Path, required=True)
+    rank = commands.add_parser(
+        "expert-rank", help="Compare independent expert answers with saved Jev scores"
+    )
+    rank.add_argument("archive", type=Path)
+    rank.add_argument("--forward", type=Path, required=True)
+    rank.add_argument("--reverse", type=Path, required=True)
+    rank.add_argument("--run", type=Path, required=True)
+    rank.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
+        if args.command in ("expert-prepare", "expert-rank"):
+            from conference_match.expert import ExpertAnswers, make_packet, rank_reviews
+            from conference_match.review import ReviewSession
+
+            session = ReviewSession.model_validate_json(args.archive.read_text())
+            if args.command == "expert-prepare":
+                if args.output.exists():
+                    raise ValueError("Expert output directory exists; choose a new directory")
+                write_json(args.output / "forward-input.json", make_packet(session))
+                write_json(args.output / "reverse-input.json", make_packet(session, reverse=True))
+                print("Independent input packets saved; no human answers or model scores included")
+            else:
+                if args.output.exists():
+                    raise ValueError("Expert report exists; choose a new file")
+                protect_output(args.output, [args.archive, args.forward, args.reverse], [args.run])
+                report = rank_reviews(
+                    session,
+                    ExpertAnswers.model_validate_json(args.forward.read_text()),
+                    ExpertAnswers.model_validate_json(args.reverse.read_text()),
+                    args.run,
+                )
+                write_json(args.output, report.model_dump(mode="json"))
+                print(f"Private triage report saved for {len(report.items)} comparisons")
+            return 0
+        if args.command == "review":
+            from conference_match.operator import serve
+
+            if not 0 <= args.port <= 65535:
+                raise ValueError("Port must be between 0 and 65535")
+            serve(
+                load_event(args.input),
+                args.workspace,
+                args.run,
+                Fixtures.model_validate_json(args.fixtures.read_text()) if args.fixtures else None,
+                args.port,
+                args.expert_report,
+            )
+            return 0
         if args.command == "evaluate":
             protect_output(
                 args.output, [args.input, args.fixtures], [args.from_run] if args.from_run else []

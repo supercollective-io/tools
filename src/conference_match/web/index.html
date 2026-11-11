@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en-GB">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Match review</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body><main>
+<p id="message" role="status" aria-live="polite"></p>
+<details><summary>Import an event</summary>
+<form id="import-form"><label>Event JSON <input id="event-file" type="file" accept=".json,application/json" required></label>
+<label>Existing comparisons JSON (optional; excludes previously used people from holdout) <input id="fixtures-file" type="file" accept=".json,application/json"></label>
+<button>Import</button></form><p>Each event has its own saved reviews. Reimport the same event to resume.</p></details>
+<details><summary>Inspect profiles</summary><label>Participant <select id="person"></select></label><div id="profile"></div></details>
+<section aria-labelledby="review-title"><h1 id="review-title">Review comparisons</h1><p id="description"></p>
+<p id="progress"></p><label>Comparison <select id="proposal"></select></label>
+<p id="question"></p><p id="holdout-note"></p><div id="pairs"></div>
+<form id="review-form">
+<fieldset><legend>Your judgement</legend><label><input type="radio" name="choice" value="left" required> A</label><label><input type="radio" name="choice" value="right"> B</label><label><input type="radio" name="choice" value="unclear"> Can’t choose</label></fieldset>
+<label>Note (optional) <textarea id="reason" rows="2"></textarea></label>
+<button id="save">Save and next</button></form>
+<p id="batch-status" role="status"></p><button id="next-batch" type="button" hidden>Review another five</button>
+<p><button id="export-fixtures" type="button">Export approved comparisons</button> <button id="export-archive" type="button">Export review archive</button></p>
+</section>
+<details id="allocation-panel"><summary>Inspect allocation</summary>
+<p>Review reserved holdout comparisons first. Revealing scores locks those judgements. Everyone is paired; odd participant counts are not supported.</p>
+<label>Normalisation <select id="normalisation"><option value="none">Raw sum</option><option value="zscore">Z-score</option></select></label>
+<button id="allocate" type="button">Reveal allocation scores</button> <button id="export-allocation" type="button" disabled>Export allocation</button>
+<p id="allocation-note"></p><div id="allocation"></div></details>
+</main></body></html>

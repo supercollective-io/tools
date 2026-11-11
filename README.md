@@ -1,7 +1,7 @@
 # Match
 
 A lean organiser CLI for testing whether whole-text contributions and needs produce useful pairs.
-Python 3.12+, managed with uv. No web service or database.
+Python 3.12+, managed with uv. Includes a local operator review interface; no hosted service or database.
 
 ```sh
 uv sync
@@ -39,8 +39,8 @@ uv run pytest
 ```
 
 Tests use fake scorers; CI does not need secrets or private data. Model-quality
-assessment requires separate human review. No extraction, introductions, website,
-follow-up pairing or claims of validated collaboration prediction yet.
+assessment requires separate human review. No extraction, automated messaging, follow-up pairing or claims of validated
+collaboration prediction yet.
 
 ## Score and inspect an event
 
@@ -95,3 +95,121 @@ human review and do not establish successful collaboration.
 checks the model's ranking against those judgements. Writer–writer and composer–composer
 judgements are in `examples/comparisons.json`, with the user’s review notes and
 ordering confidence and perceived score separation. See `docs/prompt-evaluation.md` for review, CLI commands and the development loop.
+
+
+## Review in a browser
+
+```sh
+uv run match review examples/event.json \
+  --fixtures examples/comparisons.json \
+  --run runs/reddit-v11
+```
+
+Open <http://127.0.0.1:8765>. The interface uses plain forms and tables to import
+an event, inspect full profiles, review blind pair comparisons, save judgements,
+and inspect/export a saved allocation. It makes no model calls. Omit `--run` if
+no scoring run is available. Use `--port` to choose another port.
+
+Reviews are saved atomically under `runs/operator-review/`, separately for each
+event fingerprint. Restart with the same event and workspace to resume. Use
+`--workspace` for another review workspace. Only one server can use a workspace
+at a time; after a crash, remove its `.lock` only once the server has stopped.
+The server binds to loopback and is intended for one local operator, not hosting.
+
+The forty-person example produces 40 neutral comparison prompts: 30 development
+and 10 reserved holdout comparisons. New questions assess one metric at a time:
+directional support or shared inquiry. Overall comparisons are not generated.
+Existing sessions retire unanswered overall questions on reopening; recorded
+judgements and their history are preserved. The shared participant appears once.
+For support questions, candidates’ offers are visible and their needs can be
+expanded. The recipient’s needs appear first, with their offers expandable for
+context when judging additional help. Unstructured profiles remain intact.
+
+The reserved people are disjoint from the
+development group and from people referenced in `--fixtures`. Smaller events can
+produce fewer questions or no holdout. No preferred answer is generated.
+This is a review queue, not new ground truth or proof of an unseen test set.
+
+Choose A, B, or “Can’t choose”, with an optional note. Browser reviews are attributed
+to “Local operator”; no name, confidence or separation entry is required. Unclear judgements
+remain in the archive and are excluded from ranked exports. Save and next resumes
+the first unanswered question; choose a reviewed question to amend it. The archive
+retains the edit history, timestamps, event snapshot and score-exposure information.
+
+Review reserved holdout questions before revealing an allocation. Once scores
+are revealed, holdout judgements are locked; development reviews can still be
+edited and are recorded as having seen scores. Allocation uses the existing
+solver, displays weakest pairs first, and exports model/rubric/input provenance.
+The original rules still apply: a complete scoring run, an even participant count,
+and one partner for everyone. The interface does not introduce pairing overrides.
+
+Export approved comparisons to a file, then use it with the existing evaluator:
+
+```sh
+uv run match evaluate examples/event.json runs/operator-comparisons.json \
+  --model jev-1.14.0 --output runs/operator-evaluation.json
+```
+
+Use `--split holdout` only once a candidate is ready for held-out evaluation.
+Keep the review archive alongside the fixture export. Supply all relevant prior
+comparisons when starting a new workspace. Reserving people automatically cannot
+undo previous exposure to their scores, or guarantee coverage of important cases.
+For independent validation, collect genuinely fresh profiles and human judgements.
+Imported event files use the same schema as the CLI; existing comparisons are
+optional during import. Reimporting an unchanged event resumes its saved session.
+
+## Expert-assisted blind batches
+
+The expert supplies **machine judgements for triage**, not approved human labels.
+Use two fresh expert contexts: one sees the forward packet, the other sees reversed
+A/B order. Both receive complete profiles and a single metric per question, without
+human answers, Jev scores, or each other's answers. Keep the existing human answers
+as an initial diagnostic instead of supplying them as examples.
+
+```sh
+uv run match expert-prepare runs/expert-assessment/source-review.json \
+  --output runs/expert-inputs-next
+```
+
+Each expert returns `{input_hash, judge, assessments}`. Each assessment contains
+`proposal_id`, `choice` (`left`, `right`, `unclear`), `reason`, and `ambiguous`
+(boolean). Choices refer to the packet that expert received. The ranker maps the
+reverse pass back to the original orientation, validates complete unique coverage,
+and compares the requested metric against the saved Jev run:
+
+```sh
+uv run match expert-rank runs/expert-assessment/source-review.json \
+  --forward runs/expert-assessment/forward-output.json \
+  --reverse runs/expert-assessment/reverse-output.json \
+  --run runs/reddit-v11 --output runs/expert-assessment/triage-next.json
+```
+
+The first assessment was performed in two fresh Codex agent contexts. It is not
+an external provider API integration or evidence from two different model families.
+The packets, expert answers and private triage report remain under ignored `runs/`.
+Future assessments require running an expert on the exported packets and importing
+its answers; the browser makes no model calls.
+
+The prepared review workspace preserves the three previous human judgements and
+presents the 23 unanswered questions in batches of 5, 5, 5, 5 and 3:
+
+```sh
+uv run match review examples/event.json --workspace runs/expert-review \
+  --expert-report runs/expert-assessment/triage.json --port 8766
+```
+
+Open <http://127.0.0.1:8766>. Finish a batch, then stop or explicitly choose
+**Review another five**. Progress survives restarts. The queue prioritises order
+instability, disagreement and ambiguity, and includes an agreement audit per batch
+where available. It randomises question order within each batch and persists random
+A/B orientation. Completed human judgements are never reoriented or asked again.
+
+The browser receives only the active batch and human review records. It never
+receives expert choices, rationales, Jev scores or selection reasons. Allocation
+score disclosure is disabled in this workspace. Original sessions remain separate.
+Exports still contain human judgements only, with uncertainty retained in the archive.
+
+These are targeted diagnostic batches, **not a representative accuracy sample**.
+The old split names remain for compatibility; targeted selection does not turn them
+into independent validation. Separately collect a randomly sampled, genuinely unseen
+human evaluation set. Agreement between expert and Jev can still be wrong.
