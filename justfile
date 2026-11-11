@@ -36,6 +36,12 @@ build:
 match *args:
     uv run --directory packages/match --frozen match "$@"
 
+hooks-install:
+    uv run --project packages/match --frozen pre-commit install
+
+hooks-check:
+    uv run --project packages/match --frozen pre-commit run --all-files
+
 build-container:
     docker build --file deploy/Dockerfile --tag polymind:local-candidate .
 

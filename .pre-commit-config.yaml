@@ -1,0 +1,27 @@
+repos:
+  - repo: local
+    hooks:
+      - id: match-ruff
+        name: match ruff check
+        entry: mise exec -- uv run --directory packages/match --frozen ruff check .
+        language: system
+        files: ^packages/match/(.*\.py$|pyproject\.toml$)
+        pass_filenames: false
+      - id: match-format
+        name: match ruff format check
+        entry: mise exec -- uv run --directory packages/match --frozen ruff format --check .
+        language: system
+        files: ^packages/match/(.*\.py$|pyproject\.toml$)
+        pass_filenames: false
+      - id: match-pyright
+        name: match pyright
+        entry: mise exec -- uv run --directory packages/match --frozen pyright
+        language: system
+        files: ^packages/match/(src/|tests/|experiments/|pyproject\.toml$|uv\.lock$)
+        pass_filenames: false
+      - id: match-pytest
+        name: match pytest
+        entry: mise exec -- uv run --directory packages/match --frozen pytest
+        language: system
+        files: ^packages/match/(src/|tests/|experiments/|contracts/|examples/|pyproject\.toml$|uv\.lock$)
+        pass_filenames: false
