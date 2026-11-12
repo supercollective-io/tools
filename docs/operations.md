@@ -33,6 +33,17 @@ Use one server process per data directory. Health is `/healthz`; operator contro
    for absent partners, declines and late arrivals; never silently replace a
    released encounter. A subsequent round can avoid previously released partners.
 
+After analysis, the optional **Atlas** section builds a similarity network from the
+same frozen snapshot using the selected OpenAI embedding model. This is a separate
+provider request and recoverable job; it does not rerun analysis. Review every
+original contribution, tick the publication approval and choose **Publish original
+writing in atlas** before showing it. This makes the snapshot's original words
+public, unlike the normal overview. Use **Projection focus** to select a finding,
+**Show atlas on projection** to present it, and the previous/next text controls to
+page through sources. **Show analysis on projection** returns to the overview.
+Do not publish historical writing collected under a promise of non-publication
+without appropriate permission. See [atlas boundaries](design/analysis-atlas.md).
+
 Failure leaves the frozen writing intact. Retry explicitly, or choose **Continue
 without analysis** after failure, cancellation or interruption to proceed to matching.
 Personal release is optional. Previous results remain stored when a new round starts.
