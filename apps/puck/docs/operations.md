@@ -135,7 +135,7 @@ compare equivalent before/after checkouts before claiming improved agent outcome
 
 Completed recordings are written as one JSON value. Active frames are buffered until the round ends. A crash preserves the interrupted round marker but not buffered frames. There is no automatic retention/deletion policy yet. The host's browser cookie is the host capability; there is no account recovery.
 
-The service logs round completions and simulation overruns. It does not yet provide historical latency dashboards or managed alerting. An actual host deployment, load profile and human pilot remain necessary before claiming production readiness.
+The service logs round completions and simulation overruns. It does not yet provide historical latency dashboards or managed alerting. The public deployment interface and health were checked on 12 November 2026; see the [deployment review](../../../docs/verification/public-deployments-2026-11-12.md). A deployed WebSocket round, host load profile, recovery trial and human pilot remain necessary before claiming production readiness.
 
 ## Dependency audit
 

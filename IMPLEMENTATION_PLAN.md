@@ -1,8 +1,10 @@
 # Remaining work before the first release
 
-Tools has never been deployed. Repository consolidation is complete; source
-history remains in Git. Start deployment with fresh data. No legacy session
-migration, old-cookie transition or production cutover is required.
+The hub, Puck, Flight, Hyperchat and Polymind are deployed. Public HTTPS interfaces
+and health checks passed on 12 November 2026; see the
+[deployment review](docs/verification/public-deployments-2026-11-12.md). Repository
+consolidation is complete; source history remains in Git. Preserve production
+data and credentials when updating these existing deployments.
 
 Use [implementation status](docs/implementation-status.md) for current
 capabilities, [architecture](docs/adr/0001-boundaries.md) for ownership and
@@ -12,8 +14,10 @@ The hub lives in `apps/hub`; Flight remains a separate repository and deployment
 
 ## Deployment and recovery
 
-- [ ] Select hosting and public HTTPS domains; configure authenticated operator
-  access and participant destinations using the [deployment guide](deploy/README.md).
+- [x] Confirm public HTTPS deployment and service health for all five domains
+  (12 November 2026).
+- [ ] Verify authenticated operator workflows and participant destinations using
+  the [deployment guide](deploy/README.md).
 - [ ] Build and verify the exact candidate images. Record deployed revisions and
   immutable artefacts in [the release manifest](deploy/release-candidate.json).
 - [ ] Check join, save, same-browser return, new-browser recovery, private result
@@ -26,8 +30,9 @@ The hub lives in `apps/hub`; Flight remains a separate repository and deployment
   connection loss, local override, OBS/projection and recovery.
 - [ ] Configure hub destinations and rehearse the complete entrance/return sequence.
 
-Deployment is a separate authorised action. Local builds and synthetic trials
-are preparation, not evidence that a public deployment exists.
+Future deployment changes remain separate authorised actions. Public deployment
+is confirmed; local builds and synthetic trials do not establish that those exact
+images are running or that the remaining operational gates have passed.
 
 ## Participant and provider rehearsal
 

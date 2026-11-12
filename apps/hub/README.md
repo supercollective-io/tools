@@ -1,6 +1,6 @@
 # Rehearsing We hub
 
-The independent participant entrance is intended for **https://we.supercollective.io**. It shows one current invitation, polls saved revisions every two seconds and opens participant activities as full pages in the same tab. Returning to the hub refreshes the invitation. The hub never navigates another app remotely.
+The independent participant entrance is deployed at **https://we.supercollective.io**. It shows one current invitation, polls saved revisions every two seconds and opens participant activities as full pages in the same tab. Returning to the hub refreshes the invitation. The hub never navigates another app remotely.
 
 A ready digital activity shows its state, title and a “Join activity” link. Room instructions appear only when there is no activity to open (waiting, unavailable, in-person or closed states). The operator instruction field is hidden for ready digital activities; saved instructions remain available if the activity becomes unavailable. Connection information appears only on failure and clears after recovery. Default activity names apply to new programmes; existing saved names are not migrated.
 
@@ -52,7 +52,7 @@ mise exec -- just build-hub-container
 mise exec -- just test-hub-container
 ```
 
-Configuration and a local image build do not establish DNS, TLS or live deployment. Verify the final public origin from outside the developer LAN, then scan the printed QR and complete the full transition sequence on actual phones.
+Public HTTPS, the waiting entrance, readiness endpoint, printable entrance card and anonymous operator API rejection were checked on 12 November 2026; see the [deployment review](../../docs/verification/public-deployments-2026-11-12.md). Scanning the printed QR and completing the full transition sequence on actual phones remain outstanding.
 
 ## Operate, back up and restore
 

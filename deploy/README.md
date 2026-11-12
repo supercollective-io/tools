@@ -1,12 +1,13 @@
 # Coolify deployment
 
-Target instance: `https://deploy.radicaldata.org`. Use four independent GitHub App-backed **Applications**, with Dockerfile builds. This follows [Coolify's Git Dockerfile workflow](https://coolify.io/docs/applications/builds/dockerfile). Polymind and Puck were reported deployed by the operator on 11 November 2026. This records that report, not independent verification of the live configuration, phone behaviour or release gates.
+Target instance: `https://deploy.radicaldata.org`. Use independent GitHub App-backed **Applications**, with Dockerfile builds for the Tools apps and Flight; follow Hyperchat’s own deployment guide for its web/API services. This follows [Coolify's Git Dockerfile workflow](https://coolify.io/docs/applications/builds/dockerfile). The hub, Puck, Flight, Hyperchat and Polymind were independently checked over public HTTPS on 12 November 2026. Their interfaces and service health responded successfully; see the [dated review](../docs/verification/public-deployments-2026-11-12.md). Exact running revisions/images, private configuration, phone behaviour and full release gates remain to be verified.
 
 | Application | Repository/context | Dockerfile | Public domain | Container port | Durable path |
 |---|---|---|---|---|---|
 | Polymind | `supercollective-io/tools`, `/` | `/apps/polymind/Dockerfile` | `https://polymind.supercollective.io` | 3000 | `/data` |
 | Puck | `supercollective-io/tools`, `/` | `/apps/puck/Dockerfile` | `https://puck.supercollective.io` | 3000 | `/data` |
-| Flight | Flight repository, `/` | `/Dockerfile` | `https://flight.supercollective.io` | See Flight relay guide | See Flight relay guide |
+| Flight | Flight repository, `/` | `/Dockerfile` | `https://fly.supercollective.io` | See Flight relay guide | See Flight relay guide |
+| Hyperchat | Hyperchat repository | See Hyperchat deployment guide | `https://chat.supercollective.io` | See Hyperchat deployment guide | See Hyperchat deployment guide |
 | Hub | `supercollective-io/tools`, `/` | `/apps/hub/Dockerfile` | `https://we.supercollective.io` | 3000 | `/data` |
 
 ## Import application settings
