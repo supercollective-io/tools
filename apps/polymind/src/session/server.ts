@@ -9,7 +9,9 @@ import { join } from "node:path";
 import lockfile from "proper-lockfile";
 import { z } from "zod";
 import { liveConfigSchema } from "../live-schema.ts";
+import { publicAnalysis } from "./analysis.ts";
 import {
+  analysisV2Schema,
   id,
   operationConfigSchema,
   revisionSchema,
@@ -125,6 +127,7 @@ export async function startSessionServer(options: {
     ["/session-operator.js", "session-operator.js"],
     ["/session-projection.js", "session-projection.js"],
     ["/session.css", "session.css"],
+    ["/show.css", "show.css"],
   ]);
   const limits = new Map<string, { count: number; expires: number }>();
   let closing = false;
@@ -237,8 +240,18 @@ export async function startSessionServer(options: {
         const rounds = store.rounds(sessionId);
         const current = rounds.at(-1);
         return json(res, {
-          session,
+          session: {
+            id: session.id,
+            title: session.title,
+            capacity: session.capacity,
+            open: session.open,
+            createdAt: session.createdAt,
+          },
           round: current,
+          show: store.show(sessionId),
+          personalAnalysis: participant
+            ? store.perspective(sessionId, participant.id)
+            : undefined,
           hubUrl: hubUrl.href,
           participant,
           contribution:
@@ -255,7 +268,7 @@ export async function startSessionServer(options: {
             model: options.transcriptionModel,
             maxSeconds: 60,
             retention:
-              "Audio is deleted after successful transcription; failed audio expires after 24 hours. Text is kept privately for this event until the organiser deletes the session. In continuous rounds, saved text goes to the selected model while the voice is running and may inform the public voice, without confirmation. In bounded rounds, confirmed contributions are eligible for frozen processing and the organiser controls publication. Matching shares a short excerpt with your allocated partners.",
+              "Audio is deleted after successful transcription; failed audio expires after 24 hours. Text is kept privately for this event until the organiser deletes the session. In continuous rounds, saved text goes to the selected model while the voice is running and may inform the public voice, without confirmation. In bounded rounds, saved non-empty writing is included in analysis and matching. Closing writing freezes saved text; completed collective analysis is then shown publicly. Personal perspectives are released separately by the organiser. Matching shares a short excerpt with your allocated partners.",
           },
         });
       }
@@ -266,10 +279,18 @@ export async function startSessionServer(options: {
         return json(res, {
           title: session.title,
           voice: voice.state(sessionId),
+          presentation:
+            store.projection(sessionId)?.kind === "voice"
+              ? { kind: "voice", text: voice.state(sessionId)?.text ?? "" }
+              : store.projection(sessionId),
           results: operations.map((op) => ({
             id: op.id,
             kind: op.kind,
-            result: op.result,
+            result:
+              op.config.promptVersion === "analysis-v2" &&
+              op.kind === "analysis"
+                ? publicAnalysis(analysisV2Schema.parse(op.result))
+                : op.result,
           })),
         });
       }
@@ -340,17 +361,71 @@ export async function startSessionServer(options: {
           throw new SessionError("Wrong session.", 403);
         return op;
       };
-      if (url.pathname === "/api/operator/state" && req.method === "GET")
+      if (url.pathname === "/api/operator/state" && req.method === "GET") {
+        const rounds = store.rounds(sessionId);
+        const currentRound = rounds.at(-1);
+        const participants = store.participants(sessionId);
         return json(res, {
           session,
-          participants: store.participants(sessionId),
-          rounds: store.rounds(sessionId),
+          show: store.show(sessionId),
+          contributionCount: currentRound
+            ? participants.filter((p) =>
+                store.current(p.id, currentRound.id)?.text.trim(),
+              ).length
+            : 0,
+          participants,
+          rounds,
           snapshots: store.snapshots(sessionId),
-          operations: store.operations(sessionId),
+          operations: store
+            .operations(sessionId)
+            .map((op) =>
+              op.kind === "matching" && op.published
+                ? { ...op, encounter: store.releasedEncounter(op.id) }
+                : op,
+            ),
           help: store.help(sessionId),
           voice: voice.state(sessionId),
         });
+      }
       if (!mutating) throw new SessionError("Not found.", 404);
+      if (url.pathname === "/api/operator/analyse") {
+        const d = z
+          .object({ roundId: id, config: operationConfigSchema })
+          .parse(data);
+        if (store.round(d.roundId).sessionId !== sessionId)
+          throw new SessionError("Wrong session.", 403);
+        const op = store.analyse(d.roundId, d.config);
+        // Closure is durable even if another operation currently occupies a slot.
+        // A queued operation remains visible and explicitly startable.
+        try {
+          runner.start(op.id);
+        } catch (error) {
+          if (!(error instanceof SessionError) || error.status !== 409)
+            throw error;
+        }
+        return json(res, store.operation(op.id), 202);
+      }
+      if (url.pathname === "/api/operator/personal-release") {
+        const d = z.object({ id }).parse(data);
+        belongs(d.id);
+        return json(res, store.releasePersonal(d.id));
+      }
+      if (url.pathname === "/api/operator/skip-analysis") {
+        const d = z.object({ roundId: id }).parse(data);
+        if (store.round(d.roundId).sessionId !== sessionId)
+          throw new SessionError("Wrong session.", 403);
+        return json(res, store.skipAnalysis(d.roundId));
+      }
+      if (url.pathname === "/api/operator/presentation") {
+        const d = z
+          .discriminatedUnion("kind", [
+            z.object({ kind: z.literal("analysis"), operationId: id }),
+            z.object({ kind: z.literal("voice") }),
+          ])
+          .parse(data);
+        store.selectPresentation(sessionId, d);
+        return json(res, store.show(sessionId));
+      }
       if (url.pathname === "/api/operator/close")
         return json(res, store.closeSession(sessionId));
       if (url.pathname === "/api/operator/rounds") {
@@ -417,10 +492,15 @@ export async function startSessionServer(options: {
             config: liveConfigSchema.optional(),
           })
           .parse(data);
-        return json(
-          res,
-          await voice.control(d.action, sessionId, d.roundId, d.config),
+        const result = await voice.control(
+          d.action,
+          sessionId,
+          d.roundId,
+          d.config,
         );
+        if (d.action === "start")
+          store.selectPresentation(sessionId, { kind: "voice" });
+        return json(res, result);
       }
       throw new SessionError("Not found.", 404);
     };
@@ -464,7 +544,19 @@ export async function startSessionServer(options: {
     await unlock();
     throw error;
   }
+  // Resolve an explicitly requested ephemeral loopback origin only after binding.
+  // Fixed public origins (including reverse proxies) remain authoritative.
+  const address = server.address();
+  if (
+    options.port === 0 &&
+    origin.protocol === "http:" &&
+    origin.port === "0" &&
+    address &&
+    typeof address !== "string"
+  )
+    origin.port = String(address.port);
   return {
+    origin: origin.origin,
     server,
     store,
     runner,

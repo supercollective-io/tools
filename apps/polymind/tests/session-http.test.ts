@@ -13,12 +13,10 @@ const token = "synthetic-operator-token-with-32-characters";
 async function setup() {
   const directory = await mkdtemp(join(tmpdir(), "polymind-http-"));
   dirs.push(directory);
-  const port = 34000 + Math.floor(Math.random() * 10000),
-    origin = `http://127.0.0.1:${port}`;
   const app = await startSessionServer({
     directory,
-    port,
-    origin,
+    port: 0,
+    origin: "http://127.0.0.1:0",
     operatorToken: token,
     executor: async (_op, snap) => ({
       text: "A bounded collective thought.",
@@ -27,6 +25,7 @@ async function setup() {
     transcribe: async () => "A transcript to correct.",
   });
   apps.push(app);
+  const { origin } = app;
   const session = app.store.createSession("Synthetic room", 180);
   const round = app.store.createRound(session.id, "What matters?", "bounded");
   async function request(
@@ -62,6 +61,31 @@ afterEach(async () => {
   await Promise.all(
     dirs.splice(0).map((d) => rm(d, { recursive: true, force: true })),
   );
+});
+
+it("allocates distinct ports for concurrent servers and rejects the other server's origin", async () => {
+  const [first, second] = await Promise.all([setup(), setup()]);
+  expect(first.origin).not.toBe(second.origin);
+  for (const { app, origin, request } of [first, second]) {
+    const address = app.server.address();
+    if (!address || typeof address === "string")
+      throw new Error("Expected a listening TCP server.");
+    expect(address.port).toBeGreaterThan(0);
+    expect(new URL(origin).port).toBe(String(address.port));
+    expect(
+      (await request("/api/operator/state", undefined, "", true)).response
+        .status,
+    ).toBe(200);
+  }
+  const response = await fetch(
+    `${first.origin}/api/join?session=${first.session.id}`,
+    {
+      method: "POST",
+      headers: { Origin: second.origin, "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "Wrong origin" }),
+    },
+  );
+  expect(response.status).toBe(403);
 });
 
 it("enforces operator, participant, Host and Origin boundaries with same-browser recovery", async () => {

@@ -4,7 +4,7 @@
     "polymind": {
       "revision": null,
       "artefact": null,
-      "deployed": false
+      "deployed": true
     },
     "matching": {
       "revision": null,
@@ -14,23 +14,23 @@
     "puck": {
       "revision": null,
       "artefact": null,
-      "deployed": false
+      "deployed": true
     },
     "flight": {
       "revision": null,
       "artefact": null,
-      "deployed": false
+      "deployed": true
     },
     "hub": {
       "revision": null,
       "artefact": null,
-      "deployed": false
+      "deployed": true
     }
   },
   "gates": {
     "publicHttps": {
-      "verified": false,
-      "evidence": null
+      "verified": true,
+      "evidence": "docs/verification/public-deployments-2026-11-12.md"
     },
     "phoneReturn": {
       "verified": false,

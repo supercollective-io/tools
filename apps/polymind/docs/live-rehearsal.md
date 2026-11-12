@@ -313,5 +313,7 @@ These are operator checks, not a claim that a real-provider audit has passed.
    service settings, elapsed time and any repeated joins or ignored differences.
 
 Keep deterministic lifecycle checks separate from judgement about the writing.
-Record actual provider results in a dated rehearsal report. The projection rehearsal is described above. Phone participation and deployment
-remain future work.
+Record actual provider results in a dated rehearsal report. The projection rehearsal is described above. This protocol does not verify phone
+participation or hosting. The current session service is deployed; see the
+[public deployment review](../../../docs/verification/public-deployments-2026-11-12.md)
+for the checks completed and the remaining rehearsal gates.

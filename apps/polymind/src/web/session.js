@@ -19,7 +19,8 @@ let state,
   sourceRecording,
   roundId,
   participantId,
-  editorGeneration = 0;
+  editorGeneration = 0,
+  personalSignature = "";
 const draftKey = (round) => `polymind:${session}:${participantId}:${round}`;
 function status(message, error = false, kind = "action") {
   $("status").textContent = message;
@@ -181,7 +182,9 @@ async function save() {
     } else status(`${error.message} Your words remain in this browser.`, true);
     $("saved").textContent = conflict
       ? "Not saved — choose which text to keep."
-      : "Not yet saved — retrying…";
+      : error.status === 409
+        ? "Writing closed. These unsaved changes are not included."
+        : "Not yet saved — retrying…";
   } finally {
     if (generation === editorGeneration) saving = false;
   }
@@ -288,6 +291,80 @@ function matches(items) {
     $("matches").append(box);
   }
 }
+function renderPerspective(next) {
+  const closed = next.round?.mode === "bounded" && !next.round.open;
+  $("closed-writing").hidden = !closed || !next.participant;
+  const perspective = next.personalAnalysis;
+  const own = perspective?.contribution ?? next.contribution;
+  $("frozen-question").textContent = own?.prompt ?? next.round?.prompt ?? "";
+  $("frozen-writing").textContent =
+    own?.text || "No writing was included from you in this round.";
+  let draft;
+  try {
+    draft = JSON.parse(localStorage.getItem(draftKey(roundId)) ?? "null");
+  } catch {
+    /* Preserve an unreadable draft without presenting it as saved. */
+  }
+  const excluded =
+    closed && draft && draft.text !== (next.contribution?.text ?? "");
+  $("excluded-draft").hidden = !excluded;
+  $("excluded-text").textContent = excluded ? draft.text : "";
+  $("personal").hidden = !next.participant || !perspective;
+  const signature = JSON.stringify(perspective ?? null);
+  if (signature === personalSignature) return;
+  personalSignature = signature;
+  $("personal-findings").replaceChildren();
+  if (!perspective) return;
+  const categories = {
+    commonGround: "Common ground",
+    differences: "Differences",
+    questions: "Core questions",
+    otherConcerns: "Other concerns",
+  };
+  let count = 0;
+  for (const [key, label] of Object.entries(categories)) {
+    const findings = perspective.analysis?.[key] ?? [];
+    if (!findings.length) continue;
+    const section = document.createElement("section");
+    const heading = document.createElement("h3");
+    heading.textContent = label;
+    section.append(heading);
+    for (const finding of findings) {
+      count++;
+      const title = document.createElement("h4");
+      title.textContent = finding.title;
+      const text = document.createElement("p");
+      text.textContent = finding.text;
+      section.append(title, text);
+      for (const evidence of finding.evidence ?? []) {
+        const quote = document.createElement("blockquote");
+        quote.textContent = evidence.text;
+        section.append(quote);
+      }
+    }
+    $("personal-findings").append(section);
+  }
+  const note = document.createElement("p");
+  note.textContent = count
+    ? "Your contribution appears in these findings."
+    : perspective.contribution
+      ? "Your contribution is not explicitly represented in this overview."
+      : "No writing was included from you in this round.";
+  $("personal-findings").append(note);
+}
+function boundedStatus(next) {
+  if (next.round?.mode !== "bounded" || next.round.open) return null;
+  if (
+    next.encounters?.some(
+      (item) => !item.roundId || item.roundId === next.round.id,
+    )
+  )
+    return "Your encounter";
+  if (next.show?.analysisState === "succeeded") return "Analysis complete";
+  if (["queued", "running"].includes(next.show?.analysisState))
+    return "Writing closed. Analysis in progress.";
+  return "Writing closed";
+}
 function resetEditor() {
   editorGeneration++;
   editVersion++;
@@ -321,6 +398,10 @@ function resetEditor() {
   if ($("playback").src.startsWith("blob:"))
     URL.revokeObjectURL($("playback").src);
   $("playback").src = "";
+  personalSignature = "";
+  $("personal").hidden = true;
+  $("personal-findings").replaceChildren();
+  $("closed-writing").hidden = true;
   status("", false, "routine");
 }
 async function refresh() {
@@ -347,10 +428,15 @@ async function refresh() {
     state = next;
     $("hub").href = next.hubUrl;
     $("prompt").textContent =
-      next.round?.prompt ?? "Waiting for the next question.";
+      boundedStatus(next) ??
+      next.round?.prompt ??
+      "Waiting for the next question.";
     $("join").hidden = !!next.participant || !next.session.open;
     $("recover").hidden = !!next.participant;
-    $("capture").hidden = !next.participant || !next.round;
+    $("capture").hidden =
+      !next.participant ||
+      !next.round ||
+      (next.round.mode === "bounded" && !next.round.open);
     $("encounters").hidden = !next.participant;
     if (next.participant) {
       $("identity").textContent = next.participant.name;
@@ -381,10 +467,10 @@ async function refresh() {
       if (conflict)
         $("rebase").disabled = !next.round?.open || !next.session.open;
       const continuous = next.round?.mode === "continuous";
-      $("participation-notice").hidden = !continuous;
+      $("participation-notice").hidden = false;
       $("participation-notice").textContent = continuous
         ? "While the voice runs, saved text goes to the selected model and may inform the public voice. "
-        : "";
+        : "Saved writing is included in collective analysis and matching. Original writing is not published on the projection.";
       $("audio-controls").hidden =
         !next.capture.enabled || !open || !window.MediaRecorder;
       $("retention").textContent =
@@ -407,13 +493,22 @@ async function refresh() {
       $("help").disabled = !$("help-reason").value;
       matches(next.encounters);
       if (pending && !conflict && open) void save();
+      if (!open) {
+        clearTimeout(debounce);
+        if (recorder?.state === "recording") recorder.stop();
+        $("use-transcript").hidden = true;
+        $("transcribe").hidden = true;
+      }
+      renderPerspective(next);
       if (recovered && statusKind === "transient")
         status("Connection restored.", false, "routine");
       else if (statusKind === "routine")
         status(
           open
             ? ""
-            : "Contributions are closed. Your matches remain available.",
+            : next.round?.mode === "bounded"
+              ? ""
+              : "Contributions are closed. Your matches remain available.",
           false,
           "routine",
         );
@@ -425,7 +520,9 @@ async function refresh() {
         false,
         recovered && statusKind === "transient" ? "routine" : statusKind,
       );
-    $("collective").hidden = !next.voice?.text;
+    $("collective").hidden =
+      !next.voice?.text ||
+      Boolean(next.show?.presentation && next.show.presentation !== "voice");
     $("voice").textContent = next.voice?.text ?? "";
   } catch (e) {
     reconnecting = true;
@@ -584,7 +681,9 @@ $("use-transcript").onclick = () => {
   if (
     !transcriptRecordingId ||
     transcriptRecordingId !== recordingId ||
-    recordingRound !== roundId
+    recordingRound !== roundId ||
+    !state?.round?.open ||
+    !state?.session?.open
   ) {
     status("This recording belongs to an earlier round.", true);
     return;

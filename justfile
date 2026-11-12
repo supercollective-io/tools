@@ -71,6 +71,7 @@ load-polymind participants="140": build
 
 test-browser: build
     pnpm --dir apps/polymind exec node scripts/session-browser.mjs
+    pnpm --dir apps/polymind exec node scripts/show-flow-browser.mjs
     pnpm --dir apps/puck exec playwright test
     just test-browser-hub
 

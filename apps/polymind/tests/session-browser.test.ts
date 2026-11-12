@@ -425,7 +425,10 @@ it("sends continuous text to the voice without bounded confirmation", async () =
   });
   state = bounded;
   await page.refresh();
-  expect(page.get("participation-notice").hidden).toBe(true);
+  expect(page.get("participation-notice").hidden).toBe(false);
+  expect(page.get("participation-notice").textContent).toContain(
+    "Saved writing is included",
+  );
 });
 
 it("does not include an empty bounded contribution", async () => {
@@ -518,4 +521,42 @@ it("only offers partner-specific assistance after an encounter is released", asy
   expect(page.get("help-absent").hidden).toBe(false);
   expect(page.get("help-decline").disabled).toBe(false);
   expect(page.get("matches-title").hidden).toBe(false);
+});
+
+it("keeps a previous voice off the phone during bounded writing and analysis", async () => {
+  let state = {
+    ...initialState(),
+    voice: { text: "Earlier voice" },
+    show: { presentation: "writing" },
+  };
+  const page = await browser(async () => response(state));
+  expect(page.get("collective").hidden).toBe(true);
+  state = { ...state, show: { presentation: "analysis" } };
+  await page.refresh();
+  expect(page.get("collective").hidden).toBe(true);
+  state = { ...state, show: { presentation: "voice" } };
+  await page.refresh();
+  expect(page.get("collective").hidden).toBe(false);
+});
+
+it("retains and labels unsaved text excluded when the operator closes writing", async () => {
+  let state = initialState({
+    revision: 1,
+    text: "Saved version",
+    confirmed: true,
+    matching: true,
+  });
+  const page = await browser(async () => response(state));
+  page.get("text").value = "New local version";
+  page.get("text").listeners.get("input")?.();
+  state = { ...state, round: { ...state.round, open: false } };
+  await page.refresh();
+  expect(page.get("capture").hidden).toBe(true);
+  expect(page.get("closed-writing").hidden).toBe(false);
+  expect(page.get("frozen-writing").textContent).toBe("Saved version");
+  expect(page.get("excluded-draft").hidden).toBe(false);
+  expect(page.get("excluded-text").textContent).toBe("New local version");
+  expect(page.local.get("polymind:session-1:participant-1:round-1")).toContain(
+    "New local version",
+  );
 });

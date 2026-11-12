@@ -197,7 +197,9 @@ operator server, QR joining, automatic SQLite contribution revisions and fair ad
 journal/controller. It uses Node's built-in SQLite driver; the earlier ORM/driver
 proposal below is not a prerequisite for this local slice. See the
 [typed rehearsal guide](typed-participation.md). A 5–10-person human rehearsal and
-venue/device testing remain outstanding; hosted deployment is not implemented.
+venue/device testing remain outstanding. This describes the historical local typed
+slice; the current session service is deployed, with public checks recorded in the
+[deployment review](../../../docs/verification/public-deployments-2026-11-12.md).
 
 
 Add QR joining, anonymous session-scoped identities and submission feedback.

@@ -5,6 +5,13 @@ matching, audio capture and continuous collective voice. Start with the root
 [operator workflow](../../README.md#run). This guide covers Collective Microphone,
 its voice workspace, CLI modes and artistic research.
 
+The main show flow is **writing → collective analysis → matching**. The operator
+sets each round question, closes writing to trigger an automatically published
+overview, optionally releases source-linked personal perspectives, and starts
+matching after the room chooses its criterion. Collective Microphone is a separate
+activity. See the [show operating sequence](../../docs/operations.md#bounded-show-flow)
+and [analysis evaluation](docs/bounded-analysis-evaluation.md).
+
 The goal is for each participant to feel both:
 
 1. **Represented in the collective.**
