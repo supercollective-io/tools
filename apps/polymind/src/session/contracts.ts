@@ -32,6 +32,7 @@ export const contributionSchema = z.strictObject({
   recordingId: id.optional(),
   savedAt: z.iso.datetime(),
 });
+export type Contribution = z.infer<typeof contributionSchema>;
 export const snapshotSchema = z.strictObject({
   schemaVersion: z.literal(1),
   id,
@@ -50,7 +51,8 @@ export const modelSchema = z.strictObject({
 });
 export const operationConfigSchema = z.strictObject({
   model: modelSchema,
-  promptVersion: z.literal("bounded-v1"),
+  promptVersion: z.enum(["bounded-v1", "analysis-v2"]),
+  autoPublish: z.boolean().default(false),
   maxInputCharacters: z.number().int().min(1).max(2000000),
   mode: z.enum(["collaboration", "similarity"]).optional(),
   oddPolicy: z.enum(["reject", "trio"]).optional(),
@@ -84,6 +86,7 @@ export type Operation = {
   error?: string;
   result?: unknown;
   published: boolean;
+  personalReleased?: boolean;
 };
 const finding = z.strictObject({
   text: z.string().min(1).max(800),
@@ -97,6 +100,47 @@ export const analysisSchema = z.strictObject({
   outlyingConcerns: z.array(finding).max(12),
   questions: z.array(finding).max(12),
 });
+const analysisText = (maximum: number) =>
+  z
+    .string()
+    .min(1)
+    .max(maximum)
+    .refine((value) => value.trim().length > 0);
+const analysisFindingSchema = z.strictObject({
+  id: analysisText(80),
+  title: analysisText(60),
+  text: analysisText(180),
+  sourceRefs: z
+    .array(z.string().min(1))
+    .min(1)
+    .max(180)
+    .refine(
+      (refs) => new Set(refs).size === refs.length,
+      "Duplicate source references.",
+    ),
+  evidence: z
+    .array(
+      z.strictObject({ sourceRef: z.string().min(1), text: analysisText(160) }),
+    )
+    .max(2)
+    .optional(),
+});
+export const analysisV2Schema = z.strictObject({
+  version: z.literal("analysis-v2"),
+  commonGround: z.array(analysisFindingSchema).max(4),
+  differences: z
+    .array(
+      analysisFindingSchema.extend({
+        distinction: z.enum(["emphasis", "tension", "disagreement"]),
+      }),
+    )
+    .max(3),
+  questions: z.array(analysisFindingSchema).max(3),
+  otherConcerns: z.array(analysisFindingSchema).max(2),
+});
+export type AnalysisV2 = z.infer<typeof analysisV2Schema>;
+export type AnalysisFinding = AnalysisV2["commonGround"][number];
+export type AnalysisDifference = AnalysisV2["differences"][number];
 export const voiceSchema = z.strictObject({
   text: z.string().min(1).max(8000),
   sourceRefs: z.array(z.string()).min(1),
