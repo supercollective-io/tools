@@ -1,0 +1,33 @@
+# Opt-in Git-backed Coolify Compose Application for OpenAI-enabled Polymind.
+# Base Directory: /   Docker Compose Location: /compose.polymind.yaml
+# See deploy/polymind-compose.md before changing an existing deployment.
+services:
+  polymind:
+    build:
+      context: .
+      dockerfile: apps/polymind/Dockerfile
+    restart: unless-stopped
+    stop_grace_period: 30s
+    deploy:
+      replicas: 1
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "3000"
+      DATA_DIR: /data/polymind
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Set the canonical public HTTPS origin}
+      HUB_URL: ${HUB_URL:-https://we.supercollective.io}
+      OPERATOR_TOKEN: ${OPERATOR_TOKEN:?Set the existing private operator token}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set the OpenAI API key for analysis and similarity matching}
+      # These capabilities remain opt-in; no model is selected by deployment.
+      TRANSCRIPTION_MODEL: ${TRANSCRIPTION_MODEL:-}
+      JEV_API_KEY: ${JEV_API_KEY:-}
+    expose:
+      - "3000"
+    volumes:
+      - polymind-data:/data
+    # The Dockerfile supplies the non-root user and Node-native health check.
+
+# Project-scoped, managed storage: do not add a global name or share it with previews.
+volumes:
+  polymind-data:
