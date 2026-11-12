@@ -103,6 +103,37 @@ try {
     .click();
   await expect(operator.locator("#round-status")).toContainText("Writing open");
   const destination = await operator.locator("#join-link").getAttribute("href");
+  // A Hub control link must select its session even when another session exists.
+  const otherSession = await operator.evaluate(async () => {
+    const result = await fetch("/api/operator/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Other synthetic session", capacity: 140 }),
+    });
+    if (!result.ok)
+      throw new Error("Could not create synthetic second session");
+    return result.json();
+  });
+  await operator.goto(
+    `${origin}/operator?session=${encodeURIComponent(otherSession.id)}`,
+  );
+  await expect(operator.locator("#sessions")).toHaveValue(otherSession.id);
+  await expect(operator.locator("#join-link")).toHaveAttribute(
+    "href",
+    `/?session=${otherSession.id}`,
+  );
+  await operator.goto(`${origin}/operator?session=missing-synthetic-session`);
+  await expect(operator.locator("#status")).toContainText(
+    "linked session was not found",
+  );
+  await expect(operator.locator("#workspace")).toBeHidden();
+  await operator.goto(
+    `${origin}/operator${new URL(`${origin}${destination}`).search}`,
+  );
+  await expect(operator.locator("#join-link")).toHaveAttribute(
+    "href",
+    destination,
+  );
   await participant.goto(`${origin}${destination}`);
   await captureReview(participant, "participant-join");
   await participant.getByLabel("Your name").fill("Robin");

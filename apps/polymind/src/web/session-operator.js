@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+let requestedSession = new URL(location.href).searchParams.get("session");
 let session,
   state,
   loading = false,
@@ -15,14 +16,17 @@ function status(message, error = false) {
   $("status").textContent = message;
   $("status").dataset.error = String(error);
 }
-async function api(path, data, scoped = true) {
+async function api(path, data, scoped = true, requestId) {
   const response = await fetch(
     path + (scoped ? `?session=${encodeURIComponent(session)}` : ""),
     data === undefined
       ? {}
       : {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(requestId ? { "Idempotency-Key": requestId } : {}),
+          },
           body: JSON.stringify(data),
         },
   );
@@ -95,27 +99,48 @@ function analysisConfig() {
 }
 async function sessions() {
   const list = await api("/api/operator/sessions", undefined, false);
+  if (requestedSession !== null) {
+    if (!list.some((item) => item.id === requestedSession)) {
+      session = undefined;
+      $("workspace").hidden = true;
+      $("login").hidden = true;
+      status("The linked session was not found. ", true);
+      const chooser = element("a", "Choose another session");
+      chooser.href = "/operator";
+      $("status").append(chooser);
+      return false;
+    }
+    session = requestedSession;
+    requestedSession = null;
+  }
   $("sessions").replaceChildren();
   for (const item of list)
     option(
       $("sessions"),
       item.id,
-      `${item.title}${item.open ? "" : " · closed"}`,
+      `${item.title}${item.open ? "" : " · closed"}${item.status === "writing-open" ? " · writing open" : ""}`,
     );
   session = list.some((s) => s.id === session) ? session : list[0]?.id;
   $("sessions").value = session ?? "";
   $("workspace").hidden = false;
   $("login").hidden = true;
   $("setup").open = !session;
+  rememberSession();
   if (session) await refresh();
+  return true;
+}
+function rememberSession() {
+  const url = new URL(location.href);
+  if (session) url.searchParams.set("session", session);
+  else url.searchParams.delete("session");
+  history.replaceState(null, "", url);
 }
 $("login").onsubmit = async (event) => {
   event.preventDefault();
   try {
     await api("/api/login", { token: $("token").value }, false);
     $("token").value = "";
-    await sessions();
-    status("Signed in.");
+    if (await sessions()) status("Signed in.");
   } catch (e) {
     status(e.message, true);
   }
@@ -127,11 +152,37 @@ $("logout").onclick = async () => {
 $("create-session").onsubmit = async (event) => {
   event.preventDefault();
   try {
+    const settings = {
+      title: $("title").value,
+      capacity: Number($("capacity").value),
+    };
+    let pending = JSON.parse(
+      sessionStorage.getItem("polymind-session-creation") ?? "null",
+    );
+    if (
+      pending &&
+      JSON.stringify(pending.settings) !== JSON.stringify(settings)
+    ) {
+      if (
+        !confirm(
+          "The previous creation request may have succeeded. Create a separate session with these new settings?",
+        )
+      )
+        return;
+      pending = null;
+    }
+    pending ??= { requestId: crypto.randomUUID(), settings };
+    sessionStorage.setItem(
+      "polymind-session-creation",
+      JSON.stringify(pending),
+    );
     const next = await api(
       "/api/operator/sessions",
-      { title: $("title").value, capacity: Number($("capacity").value) },
+      settings,
       false,
+      pending.requestId,
     );
+    sessionStorage.removeItem("polymind-session-creation");
     session = next.id;
     await sessions();
     status("Session created.");
@@ -141,6 +192,7 @@ $("create-session").onsubmit = async (event) => {
 };
 $("sessions").onchange = () => {
   session = $("sessions").value;
+  rememberSession();
   void refresh();
 };
 $("round").onsubmit = async (event) => {
@@ -613,7 +665,8 @@ async function refresh() {
       $("matching-mode").value = "";
       matchingScope = nextMatchingScope;
     }
-    $("join-link").href = `/?session=${session}`;
+    const entrance = new URL(state.session.participantUrl);
+    $("join-link").href = entrance.pathname + entrance.search;
     $("projection-link").href = `/projection?session=${session}`;
     $("counts").textContent =
       `${state.participants.length} / ${state.session.capacity} registered · ${state.session.open ? "joining open" : "closed"}`;
@@ -676,6 +729,17 @@ async function refresh() {
   } finally {
     loading = false;
   }
+}
+try {
+  const pending = JSON.parse(
+    sessionStorage.getItem("polymind-session-creation") ?? "null",
+  );
+  if (pending?.settings) {
+    $("title").value = pending.settings.title;
+    $("capacity").value = pending.settings.capacity;
+  }
+} catch {
+  /* Saved sessions remain available if browser draft storage is unavailable. */
 }
 void sessions().catch(() => status("Sign in to manage sessions."));
 setInterval(refresh, 3000);

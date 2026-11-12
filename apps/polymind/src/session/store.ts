@@ -116,7 +116,34 @@ export class SessionStore {
       .all()
       .map((r) => decode<Session>(r) as Session);
   }
-  createSession(title: string, capacity: number) {
+  createSession(title: string, capacity: number, request?: string): Session {
+    if (request !== undefined) {
+      if (!/^[a-zA-Z0-9_-]{16,100}$/.test(request))
+        throw new SessionError(
+          "Use an idempotency key of 16–100 letters, digits, underscores or hyphens.",
+        );
+      const fingerprint = JSON.stringify([title.trim(), capacity]);
+      return this.transaction(() => {
+        const previous = this.db
+          .prepare(
+            "SELECT fingerprint, session FROM session_creation_requests WHERE request=?",
+          )
+          .get(request);
+        if (previous) {
+          if (previous.fingerprint !== fingerprint)
+            throw new SessionError(
+              "This creation request was already used with different settings.",
+              409,
+            );
+          return this.session(String(previous.session));
+        }
+        const session = this.createSession(title, capacity);
+        this.db
+          .prepare("INSERT INTO session_creation_requests VALUES (?,?,?)")
+          .run(request, fingerprint, session.id);
+        return session;
+      });
+    }
     if (
       !title.trim() ||
       title.length > 200 ||

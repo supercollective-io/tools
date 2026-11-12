@@ -40,6 +40,8 @@ changed. Browser rendering still needs visual inspection when layout or
 interaction changes; HTTP tests alone do not establish visual quality. The
 TypeScript check covers `.ts` files, not the browser's plain JavaScript.
 
+The operator interface and API clients share the [session resource API](docs/session-api.md).
+
 ## Find the implementation
 
 The application is one Node process, with plain browser assets and versioned
