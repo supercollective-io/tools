@@ -84,8 +84,7 @@ function connect() {
 async function load() {
   try {
     room = await request<RoomView>(`/api/rooms/${roomId}`);
-    const invite = await request<{ origin: string }>('/api/invite-origin');
-    inviteUrl = new URL(`/room/${roomId}`, invite.origin).href;
+    inviteUrl = room.participantUrl ?? new URL(`/room/${roomId}`, location.origin).href;
     if (room.me) {
       if (!socket) connect();
     } else connection = 'Not joined';

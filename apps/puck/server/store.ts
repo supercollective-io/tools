@@ -61,6 +61,13 @@ export class Store {
       this.addParticipant(participant);
     })();
   }
+  roomIds() {
+    return (
+      this.db.prepare('SELECT id FROM rooms ORDER BY created_at DESC LIMIT 200').all() as {
+        id: string;
+      }[]
+    ).map((row) => row.id);
+  }
   room(id: string): StoredRoom | undefined {
     const row = this.db.prepare('SELECT * FROM rooms WHERE id = ?').get(id) as
       | { id: string; question: string; options: string; created_at: string; mode: Mode }

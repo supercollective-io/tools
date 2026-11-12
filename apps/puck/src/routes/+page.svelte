@@ -82,4 +82,5 @@ async function create(event: SubmitEvent) {
       {busy ? 'Creating…' : 'Create room'}
     </button>
   </form>
+  <p class="muted"><a href="/operator">Operator sign-in</a></p>
 </section>
