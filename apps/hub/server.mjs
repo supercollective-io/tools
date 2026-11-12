@@ -9,6 +9,8 @@ const root = dirname(fileURLToPath(import.meta.url));
 const kinds = new Set(['activity', 'analogue', 'waiting', 'closed']);
 const privateSegments = /(^|\/)(operator|admin|host|control|controls|projection|projector|presenter)(\/|$)/i;
 const forbiddenQuery = /(token|password|secret|credential|auth|operator|admin|api[_-]?key)|^key$/i;
+const flightAudienceOrigin = 'https://fly.supercollective.io';
+const flightAudienceSearch = /^\?key=[A-Za-z0-9_-]{24,128}$/;
 
 export class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -59,9 +61,16 @@ export function participantUrl(value, config) {
   let path;
   try { path = decodeURIComponent(url.pathname); }
   catch { throw new HttpError(400, 'Invalid participant URL path'); }
+  // Flight uses this exact public audience URL shape. The Hub validates its
+  // destination and opaque-key format, not whether the key is the participant
+  // key rather than another Flight secret; operators must paste the audience
+  // invitation supplied by Flight.
+  const flightAudienceInvite = url.origin === flightAudienceOrigin && path === '/' &&
+    flightAudienceSearch.test(url.search);
   if (url.protocol !== 'https:' || url.username || url.password || url.hash ||
       !config.allowedOrigins.has(url.origin) || path.includes('%') || privateSegments.test(path) ||
-      [...url.searchParams].some(([key, value]) => forbiddenQuery.test(key) ||
+      [...url.searchParams].some(([key, value]) =>
+        (forbiddenQuery.test(key) && !(flightAudienceInvite && key === 'key')) ||
         /^(operator|admin|control|projection)$/i.test(value))) {
     throw new HttpError(400, 'Use an allowed HTTPS participant destination without operator credentials');
   }

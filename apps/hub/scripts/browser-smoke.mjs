@@ -14,7 +14,8 @@ const output = resolve(process.argv[3] ?? join(tmpdir(), 'rehearsing-we-hub-smok
 await mkdir(output, { recursive: true });
 const password = 'synthetic-browser-check-password';
 const config = configuration({ HUB_OPERATOR_PASSWORD: password, HUB_DATA_DIR: temporary,
-  HUB_PUBLIC_ORIGIN: 'http://127.0.0.1:3000' });
+  HUB_PUBLIC_ORIGIN: 'http://127.0.0.1:3000',
+  HUB_ALLOWED_ORIGINS: 'https://polymind.supercollective.io,https://fly.supercollective.io' });
 const server = await createHub(config);
 let browser;
 try {
@@ -54,6 +55,20 @@ try {
   await expect(page.getByRole('heading', { name: 'Polymind', exact: true })).toBeVisible();
   await expect(page.locator('#instruction')).toBeHidden();
   await page.screenshot({ path: join(output, 'mobile-activity.png'), fullPage: true });
+  const flightUrl = `https://fly.supercollective.io/?key=${'S'.repeat(32)}`;
+  const flight = operator.getByRole('group', { name: 'Flight' });
+  await flight.getByLabel('Availability').selectOption('ready');
+  await flight.getByLabel('Participant destination (HTTPS)').fill(flightUrl);
+  await flight.getByRole('radio').check();
+  await operator.getByRole('button', { name: 'Save programme' }).click();
+  await expect(operator.getByRole('status')).toContainText('Invitation saved · revision 3');
+  await expect(page.getByRole('link', { name: 'Join activity' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Flight', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Join activity' })).toHaveAttribute('href', flightUrl);
+  await digital.getByRole('radio').check();
+  await operator.getByRole('button', { name: 'Save programme' }).click();
+  await expect(operator.getByRole('status')).toContainText('Invitation saved · revision 4');
+  await expect(page.getByRole('heading', { name: 'Polymind', exact: true })).toBeVisible();
   await context.route('https://polymind.supercollective.io/**', route => route.fulfill({ contentType: 'text/html',
     body: `<html><head><title>Synthetic destination</title></head><body><h1>Synthetic destination</h1><script>localStorage.setItem('syntheticVisits',Number(localStorage.getItem('syntheticVisits')||0)+1)</script><a href="${base}">Return to the room</a></body></html>` }));
   await page.getByRole('link', { name: 'Join activity' }).click();
@@ -67,7 +82,7 @@ try {
   await page.getByRole('link', { name: 'Return to the room' }).click();
   await operator.getByRole('group', { name: 'In-person activity' }).getByRole('radio').check();
   await operator.getByRole('button', { name: 'Save programme' }).click();
-  await expect(operator.getByRole('status')).toContainText('Invitation saved · revision 3');
+  await expect(operator.getByRole('status')).toContainText('Invitation saved · revision 5');
   await expect(page.getByRole('heading', { name: 'In-person activity' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Join activity' })).toBeHidden();
   await expect(page.locator('#phase')).toBeHidden();
