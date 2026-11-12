@@ -24,10 +24,20 @@ export type PromptMessage = {
   content: string;
 };
 
+export type ModelResponseFormat = {
+  type: "json_schema";
+  json_schema: {
+    name: string;
+    strict: true;
+    schema: Record<string, unknown>;
+  };
+};
+
 export type ModelRequest = {
   config: ModelConfig;
   messages: PromptMessage[];
   signal: AbortSignal;
+  responseFormat?: ModelResponseFormat;
 };
 
 export type ModelResult = {
@@ -249,7 +259,7 @@ async function* rawPrefillStream(
 }
 
 export const generate: Generate = async (
-  { config, messages, signal },
+  { config, messages, signal, responseFormat },
   onToken,
 ) => {
   validateModelEnvironment(config);
@@ -317,6 +327,9 @@ export const generate: Generate = async (
       : await model.stream(prompt, {
           signal: controller.signal,
           callbacks: [],
+          ...(config.provider === "openai" && responseFormat
+            ? { response_format: responseFormat }
+            : {}),
         });
     let text = "";
     let usage: ModelResult["usage"];

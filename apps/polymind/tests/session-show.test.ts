@@ -229,6 +229,41 @@ it("automatically publishes only the show analysis after validation and retains 
   );
 });
 
+it("keeps a relational analysis invalid and stores a safe schema diagnostic", async () => {
+  const { store, session, round } = await setup();
+  const person = store.join(session.id, "Synthetic participant").participant;
+  store.revise(session.id, person.id, revision(round.id));
+  const op = store.analyse(round.id, config);
+  const execute = vi.fn<Executor>().mockResolvedValue({
+    version: "analysis-v2",
+    commonGround: [
+      {
+        id: "f1",
+        title: "A shared workshop",
+        text: "People want a shared workshop.",
+        sourceRefs: [store.current(person.id, round.id)?.id],
+        evidence: [],
+      },
+    ],
+    differences: [],
+    questions: [],
+    otherConcerns: [],
+  });
+  const runner = new JobRunner(store, execute);
+  runner.start(op.id);
+  await runner.idle();
+
+  const failed = store.operation(op.id);
+  expect(failed.state).toBe("failed");
+  expect(failed.published).toBe(false);
+  expect(failed.error).toContain("too_small");
+  expect(failed.error).toContain("commonGround[0].sourceRefs");
+  expect(failed.error).toContain("min 2");
+  expect(failed.error).not.toContain("Synthetic participant");
+  expect(store.snapshot(op.snapshotId).snapshot.contributions).toHaveLength(1);
+  expect(store.show(session.id).analysisState).toBe("failed");
+});
+
 function storeProjection(analysis: AnalysisV2) {
   return {
     kind: "analysis",

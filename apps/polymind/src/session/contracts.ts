@@ -106,18 +106,20 @@ const analysisText = (maximum: number) =>
     .min(1)
     .max(maximum)
     .refine((value) => value.trim().length > 0);
-const analysisFindingSchema = z.strictObject({
-  id: analysisText(80),
-  title: analysisText(60),
-  text: analysisText(180),
-  sourceRefs: z
+const analysisSourceRefs = (minimum: number) =>
+  z
     .array(z.string().min(1))
-    .min(1)
+    .min(minimum)
     .max(180)
     .refine(
       (refs) => new Set(refs).size === refs.length,
       "Duplicate source references.",
-    ),
+    );
+const analysisFindingSchema = z.strictObject({
+  id: analysisText(80),
+  title: analysisText(60),
+  text: analysisText(180),
+  sourceRefs: analysisSourceRefs(1),
   evidence: z
     .array(
       z.strictObject({ sourceRef: z.string().min(1), text: analysisText(160) }),
@@ -125,7 +127,25 @@ const analysisFindingSchema = z.strictObject({
     .max(2)
     .optional(),
 });
+const relationalAnalysisFindingSchema = analysisFindingSchema.extend({
+  sourceRefs: analysisSourceRefs(2),
+});
 export const analysisV2Schema = z.strictObject({
+  version: z.literal("analysis-v2"),
+  commonGround: z.array(relationalAnalysisFindingSchema).max(4),
+  differences: z
+    .array(
+      relationalAnalysisFindingSchema.extend({
+        distinction: z.enum(["emphasis", "tension", "disagreement"]),
+      }),
+    )
+    .max(3),
+  questions: z.array(analysisFindingSchema).max(3),
+  otherConcerns: z.array(analysisFindingSchema).max(2),
+});
+// Personal perspectives retain only the requesting participant's provenance,
+// so relational findings can legitimately have one source in this projection.
+export const personalAnalysisV2Schema = z.strictObject({
   version: z.literal("analysis-v2"),
   commonGround: z.array(analysisFindingSchema).max(4),
   differences: z
@@ -139,6 +159,7 @@ export const analysisV2Schema = z.strictObject({
   otherConcerns: z.array(analysisFindingSchema).max(2),
 });
 export type AnalysisV2 = z.infer<typeof analysisV2Schema>;
+export type PersonalAnalysisV2 = z.infer<typeof personalAnalysisV2Schema>;
 export type AnalysisFinding = AnalysisV2["commonGround"][number];
 export type AnalysisDifference = AnalysisV2["differences"][number];
 export const voiceSchema = z.strictObject({
