@@ -24,7 +24,7 @@ async function ready(base, path = '/healthz') {
 try {
   docker('volume', 'create', volume);
   docker('run', '--detach', '--rm', '--name', name, '--publish', '127.0.0.1::3000',
-    '--mount', `type=volume,source=${volume},target=/data`, '--env', `HUB_OPERATOR_PASSWORD=${password}`, image);
+    '--mount', `type=volume,source=${volume},target=/data`, '--env', `HUB_OPERATOR_PASSWORD=${password}`, '--env', `COOLIFY_URL=https://www.we.supercollective.io,${origin}`, image);
   started = true;
   let base = `http://${docker('port', name, '3000/tcp')}`;
   await ready(base);

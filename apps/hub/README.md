@@ -29,7 +29,7 @@ The default phase is a welcome/waiting invitation. Polymind, Puck and Flight beg
 
 | Variable | Value |
 |---|---|
-| `HUB_PUBLIC_ORIGIN` | `$COOLIFY_URL` in Coolify, resolving to `https://we.supercollective.io` |
+| `HUB_PUBLIC_ORIGIN` | Optional override; the image derives it from `COOLIFY_URL` |
 | `HUB_ALLOWED_ORIGINS` | Comma-separated verified HTTPS participant origins; initially only `https://polymind.supercollective.io` |
 | `HUB_OPERATOR_USER` | Private operator username; default `organiser` |
 | `HUB_OPERATOR_PASSWORD` | Runtime secret, at least 24 characters; no example/default is accepted |
@@ -85,8 +85,10 @@ image before deploying; local container checks do not verify the target host.
 ### Production environment import
 
 Select the root [`.env.dist`](../../.env.dist) in Smart Scan, review and confirm
-Import. Enable Coolify default variables and interpolation so
-`HUB_PUBLIC_ORIGIN=$COOLIFY_URL` resolves to the configured canonical HTTPS domain.
+Import. Enable Coolify default variables.
+The image derives `HUB_PUBLIC_ORIGIN` from `COOLIFY_URL` at startup. A domain plus
+its `www` alias selects the non-`www` origin; unrelated domains require an explicit
+`HUB_PUBLIC_ORIGIN`. Remove old `$COOLIFY_URL` mappings to enable this fallback.
 Mark every entry runtime-only and supply a private operator password of at least
 24 characters. Keep existing credentials on redeployment. Add other verified
 participant origins to `HUB_ALLOWED_ORIGINS` explicitly; this is a security

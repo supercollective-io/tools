@@ -14,6 +14,11 @@ HOST=0.0.0.0 PORT=3000 PUBLIC_ORIGIN=http://192.168.1.20:3000 mise exec -- pnpm 
 
 Replace the example address with the actual host. The same origin is required for socket upgrades and mutations. Use HTTPS when hosting beyond a trusted local network.
 
+With `NODE_ENV=production` (as set by the Docker image), a missing or blank
+`PUBLIC_ORIGIN` stops startup before the database is opened. Set it to the exact
+public HTTP(S) origin, without credentials, a path or a trailing slash. The
+localhost fallback is only available outside production mode.
+
 `.env.example` documents configuration. The application does not silently load `.env`; export variables or configure the process manager.
 
 ## Production
@@ -55,7 +60,7 @@ The load smoke test creates a new room and recording. It produces one recording 
 
 ### Coolify packaging
 
-Use a Git-backed **Application** with the Dockerfile build strategy, Tools monorepo root as Base Directory, `apps/puck/Dockerfile` as Dockerfile Location, and internal port `3000`. Configure the domain as `https://puck.supercollective.io` targeting port 3000. Import the repository-root [`.env.sample`](../../../.env.sample) through Smart Scan, with all entries runtime-only. Enable Coolify default variables and interpolation, and configure one canonical HTTPS domain. Set runtime variables `PUBLIC_ORIGIN=$COOLIFY_URL` (resolving to `https://puck.supercollective.io`), `HOST=0.0.0.0`, `PORT=3000`, `DATABASE_PATH=/data/puck.sqlite`, and `PUCK_ROOM_CAPACITY=140`. Attach durable writable storage at `/data`; retain one application process and one SQLite database. The image health check calls `/healthz`. Verify the Coolify proxy forwards WebSocket upgrades and has an idle timeout longer than the 60-second round. Configure backups for the mounted database and practise restoration before participant use. This repository change prepares the image; it does not configure Coolify, DNS, TLS or a live deployment.
+Use a Git-backed **Application** with the Dockerfile build strategy, Tools monorepo root as Base Directory, `apps/puck/Dockerfile` as Dockerfile Location, and internal port `3000`. Configure the domain as `https://puck.supercollective.io` targeting port 3000. Optionally import the repository-root [`.env.sample`](../../../.env.sample) through Smart Scan, with all entries runtime-only. Enable Coolify default variables. The image derives `PUBLIC_ORIGIN` from `COOLIFY_URL`, preferring the non-`www` domain when both aliases are listed. Unrelated domains require an explicit single-origin override; missing or malformed configuration stops startup. Remove old `PUBLIC_ORIGIN=$COOLIFY_URL` mappings to use automatic selection. The image supplies defaults for `HOST=0.0.0.0`, `PORT=3000`, `DATABASE_PATH=/data/puck.sqlite`, and `PUCK_ROOM_CAPACITY=140`. Attach durable writable storage at `/data`; retain one application process and one SQLite database. The image health check calls `/healthz`. Verify the Coolify proxy forwards WebSocket upgrades and has an idle timeout longer than the 60-second round. Configure backups for the mounted database and practise restoration before participant use. This repository change prepares the image; it does not configure Coolify, DNS, TLS or a live deployment.
 
 The participant room page links back to [Rehearsing We](https://we.supercollective.io). The hub and Puck remain separately deployed.
 
