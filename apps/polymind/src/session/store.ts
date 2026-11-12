@@ -5,6 +5,7 @@ import {
   personalAnalysis,
   publicAnalysis,
 } from "./analysis.ts";
+import { publicAtlas, validateAtlas } from "./atlas.ts";
 import {
   analysisV2Schema,
   digest,
@@ -28,7 +29,16 @@ type Session = {
   open: boolean;
   createdAt: string;
   presentation?:
-    | { kind: "analysis"; operationId: string }
+    | {
+        kind: "analysis";
+        operationId: string;
+        atlasOperationId?: string;
+        atlasView?: {
+          mode: "overview" | "atlas";
+          findingId?: string;
+          page?: number;
+        };
+      }
     | { kind: "voice" }
     | { kind: "writing"; roundId: string };
 };
@@ -414,6 +424,38 @@ export class SessionStore {
         this.snapshot(op.snapshotId).snapshot.sessionId !== sessionId
       )
         throw new SessionError("Choose an analysis from this session.");
+      if (presentation.atlasView?.mode === "atlas") {
+        if (
+          !op.published ||
+          op.state !== "succeeded" ||
+          !presentation.atlasOperationId
+        )
+          throw new SessionError(
+            "Publish the analysis and atlas before projecting sources.",
+            409,
+          );
+        const atlas = this.operation(presentation.atlasOperationId);
+        if (
+          atlas.kind !== "atlas" ||
+          atlas.snapshotId !== op.snapshotId ||
+          atlas.state !== "succeeded" ||
+          !atlas.published
+        )
+          throw new SessionError(
+            "Choose a published atlas from the same frozen writing.",
+            409,
+          );
+        const analysis = analysisV2Schema.parse(op.result);
+        if (
+          presentation.atlasView.findingId &&
+          !Object.values(analysis).some(
+            (values) =>
+              Array.isArray(values) &&
+              values.some((f) => f.id === presentation.atlasView?.findingId),
+          )
+        )
+          throw new SessionError("Unknown analysis finding.");
+      }
     }
     this.db
       .prepare("UPDATE sessions SET body=? WHERE id=?")
@@ -437,8 +479,34 @@ export class SessionStore {
     }
     const op = this.operation(selected.operationId);
     const { snapshot } = this.snapshot(op.snapshotId);
+    let atlas: ReturnType<typeof publicAtlas> | undefined;
+    if (
+      selected.atlasView?.mode === "atlas" &&
+      selected.atlasOperationId &&
+      op.published &&
+      op.state === "succeeded"
+    ) {
+      const atlasOp = this.operation(selected.atlasOperationId);
+      if (
+        atlasOp.kind === "atlas" &&
+        atlasOp.snapshotId === op.snapshotId &&
+        atlasOp.published &&
+        atlasOp.state === "succeeded"
+      )
+        atlas = publicAtlas(
+          validateAtlas(
+            atlasOp.result,
+            snapshot,
+            op.snapshotHash,
+            atlasOp.config.embeddingModel,
+          ),
+          snapshot,
+          analysisV2Schema.parse(op.result),
+        );
+    }
     return {
       kind: "analysis" as const,
+      ...(atlas ? { atlas, atlasView: selected.atlasView } : {}),
       state: op.state,
       count: snapshot.contributions.length,
       result:
@@ -539,6 +607,29 @@ export class SessionStore {
       throw new SessionError(
         "Automatic publication is only available for bounded analysis.",
       );
+    if (kind === "atlas") {
+      if (
+        parsed.model.provider !== "openai" ||
+        !parsed.embeddingModel ||
+        (parsed.maxCalls ?? 0) < 1
+      )
+        throw new SessionError(
+          "Atlas needs an explicit OpenAI embedding model and at least one provider call.",
+        );
+      if (
+        !this.operations(snapshot.sessionId).some(
+          (op) =>
+            op.snapshotId === snapshotId &&
+            op.kind === "analysis" &&
+            op.config.promptVersion === "analysis-v2" &&
+            op.state === "succeeded",
+        )
+      )
+        throw new SessionError(
+          "Complete analysis of this frozen writing before building its atlas.",
+          409,
+        );
+    }
     if (kind === "matching") {
       if (!parsed.mode || !parsed.oddPolicy || parsed.maxCalls === undefined)
         throw new SessionError(
@@ -656,10 +747,29 @@ export class SessionStore {
     this.saveOperation(next);
     return next;
   }
+  publishAtlas(id: string, reviewed: boolean) {
+    const op = this.operation(id);
+    if (op.kind !== "atlas" || op.state !== "succeeded" || !reviewed)
+      throw new SessionError(
+        "Review the original writing before publishing the atlas.",
+        409,
+      );
+    const { snapshot } = this.snapshot(op.snapshotId);
+    validateAtlas(
+      op.result,
+      snapshot,
+      op.snapshotHash,
+      op.config.embeddingModel,
+    );
+    this.saveOperation({ ...op, published: true });
+    return this.operation(id);
+  }
   publish(id: string) {
     const op = this.operation(id);
     if (op.kind === "matching")
       throw new SessionError("Review and release encounters separately.");
+    if (op.kind === "atlas")
+      throw new SessionError("Review and publish atlas sources separately.");
     if (op.state !== "succeeded")
       throw new SessionError("Only successful results can be revealed.", 409);
     this.saveOperation({ ...op, published: true });

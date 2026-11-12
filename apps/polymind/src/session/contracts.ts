@@ -65,7 +65,7 @@ export const operationConfigSchema = z.strictObject({
     .default([]),
 });
 export type OperationConfig = z.input<typeof operationConfigSchema>;
-export type OperationKind = "analysis" | "voice" | "matching";
+export type OperationKind = "analysis" | "voice" | "matching" | "atlas";
 export type Operation = {
   id: string;
   snapshotId: string;

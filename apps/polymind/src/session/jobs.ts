@@ -8,6 +8,7 @@ import {
   resolveAnalysisSources,
   validateAnalysisV2,
 } from "./analysis.ts";
+import { buildAtlas, validateAtlas } from "./atlas.ts";
 import {
   analysisSchema,
   matchingSchema,
@@ -16,6 +17,7 @@ import {
   type Snapshot,
   voiceSchema,
 } from "./contracts.ts";
+import { embedTexts, validateVectors } from "./embeddings.ts";
 import type { SessionStore } from "./store.ts";
 
 export type Executor = (
@@ -29,6 +31,13 @@ export function validateResult(
   snapshot: Snapshot,
   value: unknown,
 ) {
+  if (op.kind === "atlas")
+    return validateAtlas(
+      value,
+      snapshot,
+      op.snapshotHash,
+      op.config.embeddingModel,
+    );
   const refs = new Set(snapshot.contributions.map((c) => c.id));
   const check = (ids: string[]) => {
     if (ids.some((id) => !refs.has(id)))
@@ -111,6 +120,19 @@ export function modelExecutor(
   model: Generate = generate,
 ): Executor {
   return async (op, snapshot, signal, progress) => {
+    if (op.kind === "atlas") {
+      const embeddingModel = op.config.embeddingModel;
+      if (!embeddingModel || (op.config.maxCalls ?? 0) < 1)
+        throw new Error("Choose an embedding model and call budget.");
+      progress("Embedding frozen writing; building the similarity network.");
+      const vectors = await embedTexts(
+        directory,
+        snapshot.contributions.map((c) => c.text),
+        embeddingModel,
+        signal,
+      );
+      return buildAtlas(snapshot, op.snapshotHash, embeddingModel, vectors);
+    }
     if (op.kind === "matching")
       return runMatching(directory, op, snapshot, signal, progress);
     const shape =
@@ -197,32 +219,15 @@ async function runMatching(
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
       progress("Requesting embeddings; local cosine similarity follows.");
-      const response = await fetch("https://api.openai.com/v1/embeddings", {
-        method: "POST",
-        signal,
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: config.embeddingModel,
-          input: roster.map((p) => p.text),
-        }),
-      });
-      if (!response.ok) throw new Error("Embedding provider failed.");
-      const payload = (await response.json()) as {
-        data: { index: number; embedding: number[] }[];
-      };
-      const ordered = payload.data.sort((a, b) => a.index - b.index);
-      if (
-        ordered.length !== roster.length ||
-        ordered.some((v, i) => v.index !== i)
-      )
-        throw new Error("Embedding coverage mismatch.");
       embeddings = {
         snapshotHash: op.snapshotHash,
         model: config.embeddingModel,
-        vectors: ordered.map((v) => v.embedding),
+        vectors: await embedTexts(
+          directory,
+          roster.map((p) => p.text),
+          config.embeddingModel,
+          signal,
+        ),
       };
       await writeFile(cache, JSON.stringify(embeddings), {
         mode: 0o600,
@@ -234,6 +239,7 @@ async function runMatching(
       embeddings.model !== config.embeddingModel
     )
       throw new Error("Embedding provenance mismatch.");
+    validateVectors(embeddings.vectors, roster.length);
     roster.forEach((p, i) => {
       p.embedding = embeddings.vectors[i];
     });
