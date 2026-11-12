@@ -39,6 +39,7 @@ typecheck:
     uv run --directory packages/match --frozen pyright
 
 test:
+    node --test scripts/tests/*.test.mjs
     pnpm test
     uv run --directory packages/match --frozen pytest
 

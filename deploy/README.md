@@ -30,13 +30,22 @@ Select the matching file and confirm Import before Continue. The root
 local data path are unsuitable for deployment. Do not import Polymind's settings
 into Puck. Templates populate values, but do not create domains or storage.
 
-Configure one canonical HTTPS domain per application, enable **Include Coolify
-default variables**, and leave interpolation enabled for `PUBLIC_ORIGIN=$COOLIFY_URL`.
-Coolify supplies the URL from that application's domain configuration. The app
-still receives `PUBLIC_ORIGIN` (the hub uses `HUB_PUBLIC_ORIGIN`); no hosting-specific code or request-header origin
-inference is needed. Do not configure a list of domains as the application expects
-one origin. Set every imported variable to **Not available during build** and
-**Available in the container**; template comments do not set these UI flags.
+Enable **Include Coolify default variables** and configure the public HTTPS domain.
+The three Tools Docker images resolve their origin at startup from `COOLIFY_URL`;
+no manual `PUBLIC_ORIGIN` mapping or template import is needed for domain discovery.
+A single domain is used directly. For a domain plus its `www` alias, the non-`www`
+origin wins regardless of order. Redirect the alias to that canonical domain in
+Coolify. Unrelated domains or different schemes/ports are ambiguous and stop
+startup with an instruction to set an explicit canonical origin.
+
+An explicit `PUBLIC_ORIGIN` (Puck/Polymind) or `HUB_PUBLIC_ORIGIN` (Hub) takes
+precedence. Remove old `$COOLIFY_URL` mappings to use automatic selection: those
+mappings can expand to a comma-separated list, which is not one origin. Blank or
+invalid overrides fail rather than silently falling back. Missing Coolify domains
+also stop the container. Request headers never choose the trusted origin.
+Templates remain optional conveniences for other settings and required secrets;
+they are not automatically loaded on redeployment. Set imported settings to
+**Not available during build** and **Available in the container**.
 
 For an existing application, update individual variables in Normal view rather
 than replacing the whole variable set. Preserve the existing operator token and
@@ -44,6 +53,11 @@ provider settings. Restart after runtime-only changes; deploy for image changes.
 Verify the participant URL and operator sign-in after applying changes.
 
 Dockerfile imports do not generate a token or enforce required fields in Coolify.
+Puck and Polymind refuse startup when `NODE_ENV=production` and `PUBLIC_ORIGIN`
+is missing or blank, before opening their data stores. Both images set production
+mode. Their local development commands retain the loopback default. The container
+entrypoint supplies this setting from the configured Coolify domains when there
+is no explicit override.
 Polymind itself refuses startup without a valid token. Generate one privately with
 `openssl rand -hex 32`, store it in a password manager, and enter it once. Never
 put a real secret in a template. Compose's `SERVICE_PASSWORD_*` generators are
@@ -57,7 +71,7 @@ Puck remains a separate Coolify Application. Use the repository root as build co
 
 Create a `Rehearsing We` project/environment and select the actual destination server. Connect the existing GitHub App, granting only the selected repositories. Repository/branch selection must identify the reviewed commits; local unpushed branches cannot deploy. GitHub permissions and DNS/TLS must be verified in that account, not inferred from these files.
 
-For Polymind, expose port 3000 to Coolify's proxy, set `PUBLIC_ORIGIN=$COOLIFY_URL` (resolving to `https://polymind.supercollective.io`), `HUB_URL=https://we.supercollective.io` and a privately generated `OPERATOR_TOKEN` (at least 32 characters). Keep secrets runtime-only. Set `OPENAI_API_KEY`, `JEV_API_KEY` and `TRANSCRIPTION_MODEL` only for explicitly selected providers. `HOST=0.0.0.0`, `PORT=3000`, `DATA_DIR=/data/polymind` and the packaged Python executable are supplied by the image. Mount one persistent volume at `/data`, writable by UID/GID 10001. The nested data directory keeps its sibling writer lock inside that writable volume.
+For Polymind, expose port 3000 to Coolify's proxy, configure `https://polymind.supercollective.io` as the domain and enable Coolify default variables, set `HUB_URL=https://we.supercollective.io` and a privately generated `OPERATOR_TOKEN` (at least 32 characters). Keep secrets runtime-only. Set `OPENAI_API_KEY`, `JEV_API_KEY` and `TRANSCRIPTION_MODEL` only for explicitly selected providers. `HOST=0.0.0.0`, `PORT=3000`, `DATA_DIR=/data/polymind` and the packaged Python executable are supplied by the image. Mount one persistent volume at `/data`, writable by UID/GID 10001. The nested data directory keeps its sibling writer lock inside that writable volume.
 
 Use one replica and stop the previous writer before its replacement starts. The database-directory lock intentionally rejects overlapping writers. The image provides `/healthz` and its own runtime-native health check. Do not publish host ports, add custom proxy labels or expose the operator token in URLs. Serve public HTTPS; HTTP is accepted only on loopback for development.
 

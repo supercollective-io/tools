@@ -25,7 +25,7 @@ async function ready() {
 let created = false;
 try {
   docker('run', '--detach', '--name', name, '--publish', `127.0.0.1:${port}:3000`,
-    '--env', `PUBLIC_ORIGIN=${origin}`, image);
+    '--env', `COOLIFY_URL=${origin}`, image);
   created = true;
   await ready();
   assert.equal(docker('exec', name, 'id', '-u'), '1000');

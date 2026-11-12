@@ -28,7 +28,10 @@ COPY --from=build /app/apps/polymind/package.json ./apps/polymind/package.json
 COPY scripts/backup.mjs scripts/restore-check.mjs ./scripts/
 RUN groupadd --gid 10001 polymind && useradd --uid 10001 --gid polymind --no-create-home polymind && mkdir /data && chown polymind:polymind /data
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 DATA_DIR=/data/polymind
+COPY scripts/runtime-origin.mjs /app/runtime-origin.mjs
+COPY --chmod=755 scripts/runtime-entrypoint.sh /app/runtime-entrypoint.sh
 USER 10001:10001
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 CMD ["node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+ENTRYPOINT ["/app/runtime-entrypoint.sh", "PUBLIC_ORIGIN"]
 CMD ["node", "apps/polymind/src/session-cli.ts"]

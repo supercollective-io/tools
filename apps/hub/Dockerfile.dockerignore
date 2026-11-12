@@ -7,3 +7,7 @@ apps/hub/*
 !apps/hub/server.mjs
 !apps/hub/public/
 !apps/hub/public/**
+!scripts/
+scripts/*
+!scripts/runtime-origin.mjs
+!scripts/runtime-entrypoint.sh

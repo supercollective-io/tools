@@ -11,7 +11,20 @@ const dev = process.argv.includes('--dev');
 const port = Number(process.env.PORT ?? 3000);
 const host = process.env.HOST ?? (dev ? '0.0.0.0' : '127.0.0.1');
 const networkOrigins = dev && host === '0.0.0.0' ? localNetworkOrigins(port) : [];
+if (process.env.NODE_ENV === 'production' && !process.env.PUBLIC_ORIGIN?.trim())
+  throw new Error('Set PUBLIC_ORIGIN to the public origin before starting Puck in production.');
 const origin = process.env.PUBLIC_ORIGIN ?? `http://localhost:${port}`;
+let validOrigin = false;
+try {
+  const parsed = new URL(origin);
+  validOrigin = ['http:', 'https:'].includes(parsed.protocol) && parsed.origin === origin;
+} catch {
+  // Report configuration errors without echoing the supplied value.
+}
+if (!validOrigin)
+  throw new Error(
+    'PUBLIC_ORIGIN must be an exact HTTP(S) origin without credentials, paths or a trailing slash.',
+  );
 const inviteOrigin = process.env.PUBLIC_ORIGIN ?? networkOrigins[0] ?? origin;
 const allowedOrigins = new Set([origin, ...(dev ? networkOrigins : [])]);
 const store = new Store(process.env.DATABASE_PATH ?? 'data/puck.sqlite');
