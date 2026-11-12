@@ -12,6 +12,7 @@ import {
   type OperationConfig,
   type OperationKind,
   operationConfigSchema,
+  personalAnalysisV2Schema,
   type RevisionInput,
   revisionSchema,
   SessionError,
@@ -473,9 +474,8 @@ export class SessionStore {
     ).snapshot.contributions.find((c) => c.participantId === participantId);
     if (!contribution) return { analysis: null, contribution: null };
     return {
-      analysis: personalAnalysis(
-        analysisV2Schema.parse(op.result),
-        contribution,
+      analysis: personalAnalysisV2Schema.parse(
+        personalAnalysis(analysisV2Schema.parse(op.result), contribution),
       ),
       contribution,
     };

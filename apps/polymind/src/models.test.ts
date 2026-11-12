@@ -55,6 +55,40 @@ afterEach(() => {
 });
 
 describe("model adapter", () => {
+  it("passes structured JSON response formats to OpenAI in the same request", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-secret-key");
+    mocks.stream.mockImplementation(async function* () {
+      yield { content: '{"ok":true}' };
+    });
+    const responseFormat = {
+      type: "json_schema" as const,
+      json_schema: {
+        name: "synthetic_result",
+        strict: true as const,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: { ok: { type: "boolean" } },
+          required: ["ok"],
+        },
+      },
+    };
+    const result = await generate(
+      {
+        config: { ...config, provider: "openai" },
+        messages: [],
+        signal: new AbortController().signal,
+        responseFormat,
+      },
+      vi.fn(),
+    );
+    expect(result.text).toBe('{"ok":true}');
+    expect(mocks.stream).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({ response_format: responseFormat }),
+    );
+  });
+
   it("awaits each saved-token callback before requesting the next streamed chunk", async () => {
     let release: () => void = () => {};
     const saved = new Promise<void>((resolve) => {

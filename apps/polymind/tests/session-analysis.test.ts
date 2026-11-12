@@ -14,12 +14,18 @@ import {
 import {
   type AnalysisFinding,
   type AnalysisV2,
+  analysisV2Schema,
   digest,
   type Operation,
   operationConfigSchema,
+  personalAnalysisV2Schema,
   type Snapshot,
 } from "../src/session/contracts.ts";
-import { modelExecutor, validateResult } from "../src/session/jobs.ts";
+import {
+  modelExecutor,
+  safeAnalysisFailure,
+  validateResult,
+} from "../src/session/jobs.ts";
 import { SessionStore } from "../src/session/store.ts";
 
 function fixture() {
@@ -170,12 +176,12 @@ describe("analysis-v2 provenance and concise contract", () => {
     }
   });
 
-  it("requires two distinct contributors for common ground and differences, but allows isolated concerns", () => {
+  it("requires two source IDs for relational findings, verifies distinct people, and allows isolated concerns", () => {
     const { snapshot } = fixture();
     const one = finding({ sourceRefs: ["source-a"], evidence: [] });
     expect(() =>
       validateAnalysisV2(analysis({ commonGround: [one] }), snapshot),
-    ).toThrow("distinct contributors");
+    ).toThrow("Too small");
     expect(() =>
       validateAnalysisV2(
         analysis({
@@ -184,7 +190,7 @@ describe("analysis-v2 provenance and concise contract", () => {
         }),
         snapshot,
       ),
-    ).toThrow("distinct contributors");
+    ).toThrow("Too small");
     const [first, second] = snapshot.contributions;
     if (!first || !second) throw new Error("Missing synthetic contributors.");
     second.participantId = first.participantId;
@@ -322,6 +328,40 @@ describe("analysis-v2 provenance and concise contract", () => {
 });
 
 describe("analysis-v2 projections and model request", () => {
+  it("reports only bounded schema and provider diagnostics", () => {
+    const invalid = analysisV2Schema.safeParse(
+      analysis({
+        commonGround: [finding({ title: "secret-value".repeat(8) })],
+      }),
+    );
+    expect(invalid.success).toBe(false);
+    if (invalid.success) throw new Error("Expected a schema failure.");
+    const schemaMessage = safeAnalysisFailure(invalid.error);
+    expect(schemaMessage).toContain("too_big");
+    expect(schemaMessage).toContain("commonGround[0].title");
+    expect(schemaMessage).not.toContain("secret-value");
+
+    const providerError = Object.assign(
+      new Error("raw key and response body must never be shown"),
+      { code: "provider", status: 400 },
+    );
+    expect(safeAnalysisFailure(providerError)).toBe(
+      "The provider rejected the analysis request (HTTP 400). Check the selected model and request configuration.",
+    );
+    expect(safeAnalysisFailure(providerError)).not.toContain("raw key");
+    expect(safeAnalysisFailure(new SyntaxError("raw model text"))).toContain(
+      "not valid JSON",
+    );
+    expect(
+      safeAnalysisFailure(new Error("untrusted provider body")),
+    ).not.toContain("untrusted provider body");
+    expect(
+      safeAnalysisFailure(
+        new Error("Relational findings require distinct contributors."),
+      ),
+    ).toContain("two distinct contributors");
+  });
+
   it("resolves compact source and evidence aliases exactly, rejects unknown aliases and preserves prose", () => {
     const { snapshot } = fixture();
     const compact = analysis({
@@ -405,6 +445,7 @@ describe("analysis-v2 projections and model request", () => {
       /sourceRefs|evidence|source-a|source-b|source-c/,
     );
     const personal = personalAnalysis(result, { id: "source-a" });
+    expect(personalAnalysisV2Schema.parse(personal)).toEqual(personal);
     expect(personal.commonGround[0]?.sourceRefs).toEqual(["source-a"]);
     expect(personal.commonGround[0]?.evidence).toEqual([
       result.commonGround[0]?.evidence?.[0],
@@ -440,8 +481,15 @@ describe("analysis-v2 projections and model request", () => {
       .fn<Generate>()
       .mockResolvedValue({ text: JSON.stringify(compact) });
     const execute = modelExecutor("/unused-synthetic-directory", model);
+    const openAiOp: Operation = {
+      ...op,
+      config: {
+        ...op.config,
+        model: { ...op.config.model, provider: "openai" },
+      },
+    };
     expect(
-      await execute(op, snapshot, new AbortController().signal, () => {}),
+      await execute(openAiOp, snapshot, new AbortController().signal, () => {}),
     ).toEqual(analysis());
     expect(model).toHaveBeenCalledTimes(1);
     const request = model.mock.calls[0]?.[0];
@@ -466,6 +514,38 @@ describe("analysis-v2 projections and model request", () => {
     expect(user.content).toContain(snapshot.contributions[0]?.prompt);
     expect(system.content).toContain("Never manufacture conflict");
     expect(system.content).toContain("concrete shared intentions");
+    expect(system.content).toContain(
+      "cite at least two source IDs that belong to two different participant aliases",
+    );
+    expect(system.content).toContain(
+      "If two distinct contributors do not support a relational finding, omit it.",
+    );
+    expect(system.content).toContain(
+      "Each commonGround or differences finding needs 2–180 unique exact supporting source IDs from two distinct participant aliases.",
+    );
+    expect(system.content).toContain(
+      "Evidence must always be an array with up to two excerpts of at most 160 characters each (use [] when no excerpt is included)",
+    );
+    expect(system.content).not.toContain(
+      "Each finding needs 1–180 unique exact supporting source IDs.",
+    );
+    expect(request.responseFormat).toMatchObject({
+      type: "json_schema",
+      json_schema: {
+        name: "polymind_analysis_v2",
+        strict: true,
+        schema: {
+          properties: {
+            commonGround: { type: "array", maxItems: 4 },
+            differences: { type: "array", maxItems: 3 },
+            questions: { type: "array", maxItems: 3 },
+            otherConcerns: { type: "array", maxItems: 2 },
+          },
+        },
+      },
+    });
+    expect(JSON.stringify(request.responseFormat)).toContain('"minItems":2');
+    expect(JSON.stringify(request.responseFormat)).not.toContain("uniqueItems");
     personalAnalysis(analysis(), { id: "source-a" });
     expect(model).toHaveBeenCalledTimes(1);
   });

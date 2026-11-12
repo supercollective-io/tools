@@ -2,9 +2,11 @@ import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ZodError } from "zod";
 import { type Generate, generate } from "../models.ts";
 import {
   analysisV2Messages,
+  analysisV2ResponseFormat,
   resolveAnalysisSources,
   validateAnalysisV2,
 } from "./analysis.ts";
@@ -106,6 +108,177 @@ export function validateResult(
   return result;
 }
 
+const modelFailureCodes = new Set([
+  "timeout",
+  "aborted",
+  "empty",
+  "truncated",
+  "provider",
+]);
+const analysisSections = new Set([
+  "version",
+  "commonGround",
+  "differences",
+  "questions",
+  "otherConcerns",
+]);
+const analysisFields = new Set([
+  "id",
+  "title",
+  "text",
+  "sourceRefs",
+  "evidence",
+  "distinction",
+]);
+const evidenceFields = new Set(["sourceRef", "text"]);
+const analysisValidatorMessages = new Map([
+  [
+    "Unknown source alias.",
+    "The model response cited a source alias that was not in the frozen contributions; the analysis was rejected.",
+  ],
+  [
+    "Public findings must not contain private source identifiers.",
+    "The model response put a private source identifier in a public finding; the analysis was rejected.",
+  ],
+  [
+    "Duplicate finding identifiers.",
+    "The model response reused a finding ID; the analysis was rejected.",
+  ],
+  [
+    "Unknown source reference.",
+    "The model response cited a source that was not in the frozen contributions; the analysis was rejected.",
+  ],
+  [
+    "Relational findings require distinct contributors.",
+    "The model response did not cite two distinct contributors for a shared finding or difference; the analysis was rejected.",
+  ],
+  [
+    "Evidence must belong to the finding's source references.",
+    "The model response included an evidence excerpt from a source not listed by its finding; the analysis was rejected.",
+  ],
+  [
+    "Evidence must be an exact source excerpt.",
+    "The model response included an evidence excerpt that did not exactly match its cited contribution; the analysis was rejected.",
+  ],
+]);
+const zodIssueCodes = new Set([
+  "invalid_type",
+  "invalid_value",
+  "too_small",
+  "too_big",
+  "custom",
+  "unrecognized_keys",
+]);
+
+function safeAnalysisIssuePath(path: PropertyKey[]) {
+  if (!path.length) return "root";
+  const [section, index, field, nestedIndex, nestedField] = path;
+  if (typeof section !== "string" || !analysisSections.has(section))
+    return "other";
+  if (path.length === 1) return section;
+  if (
+    section === "version" ||
+    typeof index !== "number" ||
+    !Number.isInteger(index) ||
+    index < 0 ||
+    index > 32
+  )
+    return "other";
+  if (typeof field !== "string" || !analysisFields.has(field)) return "other";
+  if (path.length === 3) return `${section}[${index}].${field}`;
+  if (
+    field === "sourceRefs" &&
+    path.length === 4 &&
+    typeof nestedIndex === "number" &&
+    Number.isInteger(nestedIndex) &&
+    nestedIndex >= 0 &&
+    nestedIndex < 180
+  )
+    return `${section}[${index}].sourceRefs[${nestedIndex}]`;
+  if (
+    field === "evidence" &&
+    path.length === 5 &&
+    typeof nestedIndex === "number" &&
+    Number.isInteger(nestedIndex) &&
+    nestedIndex >= 0 &&
+    nestedIndex < 2 &&
+    typeof nestedField === "string" &&
+    evidenceFields.has(nestedField)
+  )
+    return `${section}[${index}].evidence[${nestedIndex}].${nestedField}`;
+  return "other";
+}
+
+function safeAnalysisSchemaFailure(error: ZodError) {
+  const issue = error.issues[0];
+  if (!issue) return "Analysis response did not match the required schema.";
+  const code = zodIssueCodes.has(issue.code) ? issue.code : "other";
+  const bounds =
+    issue.code === "too_small" && typeof issue.minimum === "number"
+      ? [
+          Number.isSafeInteger(issue.minimum)
+            ? `min ${issue.minimum}`
+            : undefined,
+        ].filter((value): value is string => value !== undefined)
+      : issue.code === "too_big" && typeof issue.maximum === "number"
+        ? [
+            Number.isSafeInteger(issue.maximum)
+              ? `max ${issue.maximum}`
+              : undefined,
+          ].filter((value): value is string => value !== undefined)
+        : [];
+  const details = [code, safeAnalysisIssuePath(issue.path)];
+  if (bounds.length) details.push(bounds.join(", "));
+  return `Analysis response did not match the required schema (${details.join("; ")}).`;
+}
+
+/** Return bounded, non-sensitive operator diagnostics for failed analysis jobs. */
+export function safeAnalysisFailure(error: unknown): string {
+  if (error instanceof ZodError) return safeAnalysisSchemaFailure(error);
+  if (error instanceof SyntaxError)
+    return "The model response was not valid JSON. Keep the inputs saved and review the model configuration before retrying.";
+  if (error instanceof Error) {
+    const validation = analysisValidatorMessages.get(error.message);
+    if (validation) return validation;
+  }
+  const candidate =
+    typeof error === "object" && error !== null
+      ? (error as { code?: unknown; status?: unknown })
+      : {};
+  const code =
+    typeof candidate.code === "string" && modelFailureCodes.has(candidate.code)
+      ? candidate.code
+      : undefined;
+  const status =
+    typeof candidate.status === "number" &&
+    Number.isInteger(candidate.status) &&
+    candidate.status >= 100 &&
+    candidate.status <= 599
+      ? candidate.status
+      : undefined;
+  if (code === "timeout")
+    return "The model request timed out. Review provider availability and the configured timeout before retrying.";
+  if (code === "truncated")
+    return "The model response reached its output-token limit. Review the output budget before starting a new analysis.";
+  if (code === "empty")
+    return "The model returned an empty response. Review the model and output settings before retrying.";
+  if (code === "aborted")
+    return "The model request was cancelled. Inputs remain saved.";
+  if (code === "provider" && status === 401)
+    return "The provider rejected authentication (HTTP 401). Check the runtime key without sharing its value.";
+  if (code === "provider" && status === 403)
+    return "The provider denied this request (HTTP 403). Check project permissions for the selected model.";
+  if (code === "provider" && status === 429)
+    return "The provider rate-limited this request (HTTP 429). Check account limits before retrying.";
+  if (code === "provider" && status !== undefined && status >= 500)
+    return `The provider returned a server error (HTTP ${status}). Check provider status before retrying.`;
+  if (code === "provider" && status !== undefined)
+    return `The provider rejected the analysis request (HTTP ${status}). Check the selected model and request configuration.`;
+  if (code === "provider")
+    return "The provider failed before returning a usable analysis. Check model configuration and provider availability.";
+  return "Analysis failed validation or provider processing. Inputs remain saved; review the model configuration before retrying.";
+}
+
 export function modelExecutor(
   directory: string,
   model: Generate = generate,
@@ -121,6 +294,11 @@ export function modelExecutor(
       {
         config: op.config.model,
         signal,
+        ...(op.kind === "analysis" &&
+        op.config.promptVersion === "analysis-v2" &&
+        op.config.model.provider === "openai"
+          ? { responseFormat: analysisV2ResponseFormat }
+          : {}),
         messages:
           op.kind === "analysis" && op.config.promptVersion === "analysis-v2"
             ? analysisV2Messages(snapshot)
@@ -364,7 +542,7 @@ export class JobRunner {
         if (controller.signal.aborted) throw new Error("Cancelled.");
         const result = validateResult(op, snapshot, value);
         this.store.completeOperation(id, result);
-      } catch {
+      } catch (error) {
         const current = this.store.operation(id);
         this.store.saveOperation({
           ...current,
@@ -372,7 +550,9 @@ export class JobRunner {
           endedAt: new Date().toISOString(),
           error: controller.signal.aborted
             ? "Operation cancelled or timed out. Inputs remain saved."
-            : "Operation failed validation or provider processing. Inputs remain saved; review configuration before retrying.",
+            : op.kind === "analysis"
+              ? safeAnalysisFailure(error)
+              : "Operation failed validation or provider processing. Inputs remain saved; review configuration before retrying.",
         });
       } finally {
         clearTimeout(timeout);
