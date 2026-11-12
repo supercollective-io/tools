@@ -30,7 +30,7 @@ The default phase is a welcome/waiting invitation. Polymind, Puck and Flight beg
 | Variable | Value |
 |---|---|
 | `HUB_PUBLIC_ORIGIN` | Optional override; the image derives it from `COOLIFY_URL` |
-| `HUB_ALLOWED_ORIGINS` | Comma-separated verified HTTPS participant origins; initially only `https://polymind.supercollective.io` |
+| `HUB_ALLOWED_ORIGINS` | Comma-separated verified HTTPS participant origins; defaults to `https://polymind.supercollective.io`; add `https://fly.supercollective.io` when Flight is used |
 | `HUB_OPERATOR_USER` | Private operator username; default `organiser` |
 | `HUB_OPERATOR_PASSWORD` | Runtime secret, at least 24 characters; no example/default is accepted |
 | `HUB_DATA_DIR` | Durable directory; `/data` in the image |
@@ -38,7 +38,7 @@ The default phase is a welcome/waiting invitation. Polymind, Puck and Flight beg
 
 `/healthz` checks application readiness and writable storage. Public `/api/current` exposes only revision, timestamp and the current invitation. `/api/operator/state` reads/updates the full programme privately. A PUT accepts `{expectedRevision, activeId, activities}`; stale edits return 409. Activity fields are `id`, `label`, `kind`, `status`, `instruction`, and a participant `url` only for a ready digital activity. The allowed kinds are `activity`, `analogue`, `waiting`, `closed`; status is `ready` or `unavailable`.
 
-URLs require HTTPS and an explicitly allowed origin. Credentials, fragments, known control/projection paths and credential-bearing query fields are rejected. This boundary helps prevent accidental publication; operators must still open and check the actual participant page before saving it. Do not add private control URLs to any activity field.
+URLs require HTTPS and an explicitly allowed origin. Credentials, fragments, known control/projection paths and credential-bearing query fields are rejected. Flight's public invitation is accepted only as `https://fly.supercollective.io/?key=...`, with that origin explicitly allowlisted and one URL-safe opaque key of 24–128 characters. This checks the public route and key shape only: the Hub cannot verify that the value is Flight's participant key rather than another Flight secret. Operators must copy Flight's audience invitation; Flight's bridge key belongs in its Bearer header and must never be put in a URL. Operators must still open and check the actual participant page before saving it. Do not add private control URLs to any activity field.
 
 ## Coolify Dockerfile Application
 

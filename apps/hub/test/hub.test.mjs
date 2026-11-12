@@ -109,6 +109,38 @@ test('destination validation rejects operator links and credentials', () => {
     'https://polymind.supercollective.io/join?session=public');
 });
 
+test('Flight audience invitations allow only the public root route and opaque audience key shape', () => {
+  const flightConfig = configuration({
+    HUB_OPERATOR_PASSWORD: password,
+    HUB_DATA_DIR: temporary,
+    HUB_ALLOWED_ORIGINS: 'https://polymind.supercollective.io,https://fly.supercollective.io',
+  });
+  const key = 'A'.repeat(32);
+  const invitation = `https://fly.supercollective.io/?key=${key}`;
+  assert.equal(participantUrl(invitation, flightConfig), invitation);
+
+  const rejected = [
+    `https://fly.supercollective.io/?key=${'A'.repeat(23)}`,
+    `https://fly.supercollective.io/?key=${'A'.repeat(129)}`,
+    `https://fly.supercollective.io/?key=${key}&key=${key}`,
+    `https://fly.supercollective.io/?KEY=${key}`,
+    `https://fly.supercollective.io/?%6Bey=${key}`,
+    `https://fly.supercollective.io/?key=${key}&next=public`,
+    `https://fly.supercollective.io/?key=${key}&bridge_key=private`,
+    `https://fly.supercollective.io/?key=${key}%2Fsecret`,
+    `https://fly.supercollective.io/projection?key=${key}`,
+    `https://fly.supercollective.io/relay.js?key=${key}`,
+    `https://fly.supercollective.io/operator?key=${key}`,
+    `https://other.example/?key=${key}`,
+  ];
+  for (const url of rejected) {
+    assert.throws(() => participantUrl(url, flightConfig), { status: 400 }, url);
+  }
+  assert.throws(() => participantUrl(`https://polymind.supercollective.io/?key=${key}`, flightConfig),
+    { status: 400 }, 'The key parameter is Flight-audience-only');
+  assert.throws(() => participantUrl(invitation, config), { status: 400 }, 'Flight origin is not allowlisted');
+});
+
 test('malformed saved state fails closed rather than replacing programme', async () => {
   const path = join(temporary, 'corrupt');
   const { mkdir } = await import('node:fs/promises');
