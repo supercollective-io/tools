@@ -1,5 +1,9 @@
 # Coolify deployment
 
+For reproducible OpenAI-enabled Polymind installations, the opt-in [Git-backed Compose workflow](polymind-compose.md) declares a named `/data` volume and required credentials in [compose.polymind.yaml](../compose.polymind.yaml). This is a deliberate alternative to the Dockerfile Application below; it does not change an existing application's build strategy, storage or data automatically. Preserve current data and credentials when transitioning.
+
+**Storage is required configuration.** Creating `/data` in a Dockerfile or setting `DATA_DIR` does not persist container data. An existing Dockerfile Application needs a dedicated Coolify Volume Mount at `/data`; the Compose alternative declares that mount in Git. A health response alone does not prove that sessions survive redeployment. Verify a disposable write–redeploy–read cycle before a human rehearsal.
+
 Target instance: `https://deploy.radicaldata.org`. Use independent GitHub App-backed **Applications**, with Dockerfile builds for the Tools apps and Flight; follow Hyperchat’s own deployment guide for its web/API services. This follows [Coolify's Git Dockerfile workflow](https://coolify.io/docs/applications/builds/dockerfile). The hub, Puck, Flight, Hyperchat and Polymind were independently checked over public HTTPS on 12 November 2026. Their interfaces and service health responded successfully; see the [dated review](../docs/verification/public-deployments-2026-11-12.md). Exact running revisions/images, private configuration, phone behaviour and full release gates remain to be verified.
 
 | Application | Repository/context | Dockerfile | Public domain | Container port | Durable path |
