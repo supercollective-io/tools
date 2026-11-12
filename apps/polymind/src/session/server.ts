@@ -544,7 +544,19 @@ export async function startSessionServer(options: {
     await unlock();
     throw error;
   }
+  // Resolve an explicitly requested ephemeral loopback origin only after binding.
+  // Fixed public origins (including reverse proxies) remain authoritative.
+  const address = server.address();
+  if (
+    options.port === 0 &&
+    origin.protocol === "http:" &&
+    origin.port === "0" &&
+    address &&
+    typeof address !== "string"
+  )
+    origin.port = String(address.port);
   return {
+    origin: origin.origin,
     server,
     store,
     runner,

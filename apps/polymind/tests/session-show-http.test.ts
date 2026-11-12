@@ -57,16 +57,15 @@ async function setup(
 ) {
   const directory = await mkdtemp(join(tmpdir(), "polymind-show-http-"));
   directories.push(directory);
-  const port = 34000 + Math.floor(Math.random() * 10000);
-  const origin = `http://127.0.0.1:${port}`;
   const app = await startSessionServer({
     directory,
-    port,
-    origin,
+    port: 0,
+    origin: "http://127.0.0.1:0",
     operatorToken: token,
     executor,
   });
   apps.add(app);
+  const { origin } = app;
   const session = app.store.createSession("Synthetic show", 10);
   const round = app.store.createRound(
     session.id,
