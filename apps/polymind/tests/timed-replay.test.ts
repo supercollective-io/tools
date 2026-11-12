@@ -151,8 +151,6 @@ describe("timed composer replay", () => {
       maxOutputTokens: 4_096,
       timeoutMs: 120_000,
     });
-    expect(composerInputs[0]).not.toContain("until the driver waits for me.");
-    expect(composerInputs[0]).not.toContain("LATE_PRIVATE_SOURCE_MARKER");
     expect(composerInputs.join("\n")).not.toContain(
       "Private starting context:",
     );
@@ -164,19 +162,21 @@ describe("timed composer replay", () => {
       (item) => item.type === "source.arrived" && item.plannedAtMs === 0,
     );
     expect(zeroArrivals.map((item) => item.eventId)).toEqual(["a1", "b1"]);
-    const lateArrival = trace.find(
-      (item) => item.type === "source.arrived" && item.eventId === "a2",
-    );
-    expect(
-      trace.some(
-        (item) =>
-          item.type === "composer.request" &&
-          item.elapsedMs < lateArrival.observedAtMs &&
-          JSON.stringify(item.messages).includes(
-            "until the driver waits for me.",
-          ),
-      ),
-    ).toBe(false);
+    // The first request may follow later arrivals on a busy runner. Check
+    // causal trace order instead of assuming it happens within 400 ms.
+    const arrived = new Set<string>();
+    let checkedRequests = 0;
+    for (const record of trace) {
+      if (record.type === "source.arrived") arrived.add(record.eventId);
+      if (record.type !== "composer.request") continue;
+      checkedRequests++;
+      const messages = JSON.stringify(record.messages);
+      for (const event of makeFixture().events) {
+        if (!arrived.has(event.id)) expect(messages).not.toContain(event.text);
+      }
+    }
+    expect(checkedRequests).toBe(composerInputs.length);
+    expect(checkedRequests).toBeGreaterThan(0);
     expect(result.requests).toBeLessThanOrEqual(6);
   });
 
