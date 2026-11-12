@@ -152,7 +152,7 @@ Navigation is restrained: inherited ink text, medium or semibold weight, and sim
 
 ### State markers
 
-Badges and active selections use a flat colour fill and bold text. Hub and Polymind session use lime. Puck uses lime fill with an olive outline for selected arena targets; olive also marks its arena/magnet graphics. Continuous Polymind uses olive for status/follow text.
+Badges and active selections use a flat colour fill and bold text. Hub and Polymind session use lime. Puck uses open ink-outlined arena targets with bold external labels, switching to outlined numbered targets and a full-text key for long labels. A selected target fills lime with an ink outline; olive marks holding progress, the local magnet and its engaged tether. The puck is solid ink with a paper separation ring. Continuous Polymind uses olive for status/follow text.
 
 ## Do's and Don'ts
 
