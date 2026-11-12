@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { analysisV2Messages } from "../src/session/analysis.ts";
 import {
   digest,
   operationConfigSchema,
@@ -37,7 +38,12 @@ if (
     "Set an explicit provider-call budget that covers this operation.",
   );
 if (
-  snapshot.contributions.reduce((n, c) => n + c.text.length, 0) >
+  (config.promptVersion === "analysis-v2"
+    ? analysisV2Messages(snapshot).reduce(
+        (n, message) => n + message.content.length,
+        0,
+      )
+    : snapshot.contributions.reduce((n, c) => n + c.text.length, 0)) >
   config.maxInputCharacters
 )
   throw new Error("Input exceeds the explicit context budget.");

@@ -2,9 +2,56 @@
 
 Use one server process per data directory. Health is `/healthz`; operator controls are `/operator`. Keep the operator token in server configuration and a private password manager, never in session links. Public HTTPS must terminate at the configured exact `PUBLIC_ORIGIN`. Participant cookies are HttpOnly, SameSite Strict and Secure on HTTPS.
 
-Open one active contribution round per session. Bounded drafts autosave but require confirmation; matching requires a separate opt-in. Closing a round freezes exact confirmed revisions and the eligible roster. Empty, unconfirmed, withdrawn and late material is excluded. Continuous rounds retain autosave and explicit Start/Pause/End controls. The new voice adapter uses complete source presentation to avoid duplicating every text in its prompt. The selected context budget still applies; exhausting it pauses safely rather than truncating inputs silently.
+## Bounded show flow
 
-Completion is private. Review analysis before revealing it; review every pair/trio, actual room marker and seated arrangement before releasing encounters. Trio allocation is a disclosed heuristic. Matching shares a short source excerpt only with that encounter's participants. Use the assistance queue for absent partners, declines and late arrivals; never silently replace a released encounter. A subsequent round can explicitly avoid all previously released partners.
+1. In `/operator`, create or select a session and configure the analysis provider,
+   model, input budget, output limit and timeout. Set the **Round question**, then
+   choose **Open writing**. The question appears on phones and the projection.
+2. Participants write or add a corrected transcript. Non-empty writing autosaves
+   into analysis and matching; there is no separate confirmation or opt-in button.
+   Keep joined and contributing counts distinct. Empty writing withdraws the current
+   contribution before closure.
+3. Choose **Close writing and analyse**. This action authorises publication of the
+   completed collective overview. It freezes exact saved revisions and the round
+   question, then starts one analysis operation. Invalid configuration, empty input
+   or an exceeded input budget leaves writing open. Unsaved local text is excluded
+   and remains on its originating phone.
+4. The complete, validated overview appears automatically on the projection:
+   common ground, differences, core questions and other concerns. Phones say
+   “Analysis complete”. Inspect supporting contributions privately in the operator
+   view. There is no automatic heuristic replacement if the model fails.
+5. Optionally choose **Release personal perspectives**. Each person receives only
+   existing findings linked to their own frozen writing. Missing representation is
+   stated explicitly. This step uses no additional model calls.
+6. Facilitate the room's choice of **Similarity** or **Collaboration**, select that
+   criterion and configure its model and budget. No criterion is preselected.
+   Choose **Start matching**. Matching consumes the original frozen writing, never
+   the generated overview. The projection continues showing the overview.
+7. Review every pair/trio, actual room marker and seated arrangement, then release
+   encounters privately. Trio allocation is a disclosed heuristic. Matching shares
+   a short source excerpt only with that encounter's participants. Use assistance
+   for absent partners, declines and late arrivals; never silently replace a
+   released encounter. A subsequent round can avoid previously released partners.
+
+Failure leaves the frozen writing intact. Retry explicitly, or choose **Continue
+without analysis** after failure, cancellation or interruption to proceed to matching.
+Personal release is optional. Previous results remain stored when a new round starts.
+The new writing question replaces the earlier projection; historical analysis can
+be selected again without making a model call.
+
+## Collective Microphone and historical operations
+
+Open Collective Microphone as a separate continuous round after closing the current
+round. It retains autosave and explicit Start/Pause/End controls. Starting its voice
+explicitly selects the voice presentation; old voice text cannot override bounded
+analysis. Its context budget still applies and pauses safely rather than silently
+truncating inputs. Continuous writing does not enter bounded matching automatically.
+
+Historical `bounded-v1` analysis and bounded voice operations retain manual
+publication. Upgrading does not reveal existing private results. New `analysis-v2`
+operations publish automatically only when the initiating operator action records
+that intent. Personal perspectives and encounters always require their separate
+release actions.
 
 Two bounded operations can run at once. Additional jobs remain queued for an explicit Start. Restart marks queued/running jobs interrupted and never silently makes another provider call. Retrying matching reuses successful saved assessments; a killed billed call can still consume budget without a saved answer. Provider selection, input size, output tokens, timeout and matching call budget are explicit. Model pricing, quota and latency require a real rehearsal, not synthetic tests.
 

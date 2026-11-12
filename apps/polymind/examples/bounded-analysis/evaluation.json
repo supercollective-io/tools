@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "fictional": true,
+  "purpose": "Offline preparation for a human-reviewed comparison of bounded-v1 and analysis-v2. Review notes are never model input.",
+  "rounds": [
+    {
+      "id": "shared-intention",
+      "title": "The same concrete change, different means",
+      "reviewFocus": [
+        "Recognise the shared intention to open the community room on Saturday afternoons.",
+        "Preserve the differences between finding keyholders and paying a caretaker without inventing a disagreement.",
+        "Do not turn willingness to explore an option into an authorised rota or spending decision."
+      ],
+      "snapshot": {
+        "schemaVersion": 1,
+        "id": "44444444-4444-4444-8444-000000000001",
+        "sessionId": "33333333-3333-4333-8333-000000000001",
+        "roundId": "22222222-2222-4222-8222-000000000001",
+        "createdAt": "2026-11-12T12:00:00.000Z",
+        "contributions": [
+          {
+            "id": "11111111-1111-4111-8111-000000000011:22222222-2222-4222-8222-000000000001:1",
+            "participantId": "11111111-1111-4111-8111-000000000011",
+            "roundId": "22222222-2222-4222-8222-000000000001",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "I would like the community room to open on Saturday afternoons. My flat is too small to invite several neighbours round. I could take one keyholding shift a month, but I cannot organise all the shifts myself.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000012:22222222-2222-4222-8222-000000000001:1",
+            "participantId": "11111111-1111-4111-8111-000000000012",
+            "roundId": "22222222-2222-4222-8222-000000000001",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "I want somewhere nearby to meet people on Saturday afternoons, and the locked community room is frustrating. Could the housing association pay a caretaker for those hours? I cannot promise a regular volunteer shift.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000013:22222222-2222-4222-8222-000000000001:1",
+            "participantId": "11111111-1111-4111-8111-000000000013",
+            "roundId": "22222222-2222-4222-8222-000000000001",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "Opening the community room on Saturdays would give our repair group somewhere to work. I could help find keyholders. We have not agreed a budget or asked the housing association yet.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          }
+        ],
+        "eligible": []
+      }
+    },
+    {
+      "id": "emphasis",
+      "title": "Different priorities without expressed opposition",
+      "reviewFocus": [
+        "Keep the shared wish for a safer crossing near the library concrete.",
+        "Distinguish attention to crossing time, bus access and shade from expressed disagreement.",
+        "Avoid claiming that the contributors oppose one another or that one priority has majority support."
+      ],
+      "snapshot": {
+        "schemaVersion": 1,
+        "id": "44444444-4444-4444-8444-000000000002",
+        "sessionId": "33333333-3333-4333-8333-000000000001",
+        "roundId": "22222222-2222-4222-8222-000000000002",
+        "createdAt": "2026-11-12T12:00:00.000Z",
+        "contributions": [
+          {
+            "id": "11111111-1111-4111-8111-000000000021:22222222-2222-4222-8222-000000000002:1",
+            "participantId": "11111111-1111-4111-8111-000000000021",
+            "roundId": "22222222-2222-4222-8222-000000000002",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "I want a safer crossing outside the library. The lights change before my father can get across with his walking frame. Longer crossing time is the first thing I would ask for. I also use the bus there.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000022:22222222-2222-4222-8222-000000000002:1",
+            "participantId": "11111111-1111-4111-8111-000000000022",
+            "roundId": "22222222-2222-4222-8222-000000000002",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "A safer crossing outside the library would help me too. Keeping the bus stop close to the entrance matters most to me because I cannot walk far. I am not against giving people longer to cross.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000023:22222222-2222-4222-8222-000000000002:1",
+            "participantId": "11111111-1111-4111-8111-000000000023",
+            "roundId": "22222222-2222-4222-8222-000000000002",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "I also want that crossing to feel safe. Waiting in the sun with a small child is difficult, so I keep thinking about shade. I have no objection to longer crossing time or keeping the bus stop nearby.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          }
+        ],
+        "eligible": []
+      }
+    },
+    {
+      "id": "contradiction",
+      "title": "Incompatible expressed positions on one proposal",
+      "reviewFocus": [
+        "Recognise the explicit disagreement about replacing the whole courtyard car park with a garden.",
+        "Preserve the access concern and the request for land to grow food.",
+        "Do not invent a compromise, imply a decision or soften the contradiction into different emphasis."
+      ],
+      "snapshot": {
+        "schemaVersion": 1,
+        "id": "44444444-4444-4444-8444-000000000003",
+        "sessionId": "33333333-3333-4333-8333-000000000001",
+        "roundId": "22222222-2222-4222-8222-000000000003",
+        "createdAt": "2026-11-12T12:00:00.000Z",
+        "contributions": [
+          {
+            "id": "11111111-1111-4111-8111-000000000031:22222222-2222-4222-8222-000000000003:1",
+            "participantId": "11111111-1111-4111-8111-000000000031",
+            "roundId": "22222222-2222-4222-8222-000000000003",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "I want the whole courtyard car park replaced with a shared garden. The entire space should be for growing food and sitting together, with no resident parking left there. I cannot get the landlord to agree on my own.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000032:22222222-2222-4222-8222-000000000003:1",
+            "participantId": "11111111-1111-4111-8111-000000000032",
+            "roundId": "22222222-2222-4222-8222-000000000003",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "I oppose replacing the whole courtyard car park with a garden. My adapted vehicle must stay beside the entrance; street parking is too far away. I want the resident parking retained, including my accessible bay.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000033:22222222-2222-4222-8222-000000000003:1",
+            "participantId": "11111111-1111-4111-8111-000000000033",
+            "roundId": "22222222-2222-4222-8222-000000000003",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "Could we find out who actually has authority over the courtyard before anyone announces a plan? I have heard both proposals discussed, but nobody has shown me a decision from the landlord.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          }
+        ],
+        "eligible": []
+      }
+    },
+    {
+      "id": "isolated-concern",
+      "title": "One specific concern alongside a shared intention",
+      "reviewFocus": [
+        "Recognise the connection between the first two accounts without making the third account support that connection.",
+        "Keep the broken water fountain as an isolated practical concern if selected.",
+        "Do not infer a mood, rank personal importance or invent a relationship between unrelated concerns."
+      ],
+      "snapshot": {
+        "schemaVersion": 1,
+        "id": "44444444-4444-4444-8444-000000000004",
+        "sessionId": "33333333-3333-4333-8333-000000000001",
+        "roundId": "22222222-2222-4222-8222-000000000004",
+        "createdAt": "2026-11-12T12:00:00.000Z",
+        "contributions": [
+          {
+            "id": "11111111-1111-4111-8111-000000000041:22222222-2222-4222-8222-000000000004:1",
+            "participantId": "11111111-1111-4111-8111-000000000041",
+            "roundId": "22222222-2222-4222-8222-000000000004",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "I want an evening bus home from the hospital. My shift finishes after the last bus, and taxis use too much of my pay. I would join other staff asking for a later service.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000042:22222222-2222-4222-8222-000000000004:1",
+            "participantId": "11111111-1111-4111-8111-000000000042",
+            "roundId": "22222222-2222-4222-8222-000000000004",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "My partner also works late at the hospital. A bus after the evening shift would mean I did not have to collect them every night. I could help gather the shift times for a request to the operator.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000043:22222222-2222-4222-8222-000000000004:1",
+            "participantId": "11111111-1111-4111-8111-000000000043",
+            "roundId": "22222222-2222-4222-8222-000000000004",
+            "prompt": "What is something you’d like to change, but can’t change on your own?",
+            "revision": 1,
+            "text": "The only change I came to ask about is repairing the drinking fountain in the park. I run there and have reported the broken tap twice. I do not know anything about the hospital bus.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          }
+        ],
+        "eligible": []
+      }
+    },
+    {
+      "id": "unequal-length",
+      "title": "Minimal and long writing under another round question",
+      "reviewFocus": [
+        "Keep the actual question about using the square, including shade, access and room to rest.",
+        "Do not invent a detailed position for the contribution consisting only of Shade.",
+        "Use the long contribution selectively without letting its length establish importance or consensus.",
+        "Preserve the refusal of unpaid maintenance and avoid treating a wish as a promise of labour."
+      ],
+      "snapshot": {
+        "schemaVersion": 1,
+        "id": "44444444-4444-4444-8444-000000000005",
+        "sessionId": "33333333-3333-4333-8333-000000000001",
+        "roundId": "22222222-2222-4222-8222-000000000005",
+        "createdAt": "2026-11-12T12:00:00.000Z",
+        "contributions": [
+          {
+            "id": "11111111-1111-4111-8111-000000000051:22222222-2222-4222-8222-000000000005:1",
+            "participantId": "11111111-1111-4111-8111-000000000051",
+            "roundId": "22222222-2222-4222-8222-000000000005",
+            "prompt": "What would make the small square near your home more usable?",
+            "revision": 1,
+            "text": "Shade.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000052:22222222-2222-4222-8222-000000000005:1",
+            "participantId": "11111111-1111-4111-8111-000000000052",
+            "roundId": "22222222-2222-4222-8222-000000000005",
+            "prompt": "What would make the small square near your home more usable?",
+            "revision": 1,
+            "text": "A bench with a backrest. I need to rest on the way to the shops.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          },
+          {
+            "id": "11111111-1111-4111-8111-000000000053:22222222-2222-4222-8222-000000000005:1",
+            "participantId": "11111111-1111-4111-8111-000000000053",
+            "roundId": "22222222-2222-4222-8222-000000000005",
+            "prompt": "What would make the small square near your home more usable?",
+            "revision": 1,
+            "text": "The square is the only outdoor place between my building and the shops where I can stop without buying something. I use a wheelchair, so the step at the north entrance makes me take a long route round. I would like that entrance levelled. I also want shade near the benches: in summer the metal seats are too hot by lunchtime, and moving a bench under a tree would help more than putting up another sign. I am describing two different obstacles, not saying that everybody has the same experience. My neighbour wants the paved area kept clear for a weekly market. I do not know whether the market needs all of that space, and I am not speaking for the stallholders. Somebody would have to ask them. I have helped water plants in another shared courtyard before. It started as a nice invitation and became a job that the same two people were expected to do every day. I do not want a new planting scheme to assume that I will maintain it for free. I could attend one meeting with the council and explain the entrance problem, but I cannot run a campaign or promise weekly work. The useful question for me is who would take responsibility for the entrance and the shade, and what resources that person would actually have. I have not agreed to a design, a budget or a maintenance rota. I would like the square to be somewhere I can pause, meet somebody and continue to the shops without first having to organise a whole new project.",
+            "confirmed": true,
+            "matching": false,
+            "source": "typed",
+            "savedAt": "2026-11-12T12:00:00.000Z"
+          }
+        ],
+        "eligible": []
+      }
+    }
+  ]
+}
