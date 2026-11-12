@@ -128,6 +128,8 @@ export async function startSessionServer(options: {
     ["/session-projection.js", "session-projection.js"],
     ["/session.css", "session.css"],
     ["/show.css", "show.css"],
+    ["/session-atlas.js", "session-atlas.js"],
+    ["/session-atlas.css", "session-atlas.css"],
   ]);
   const limits = new Map<string, { count: number; expires: number }>();
   let closing = false;
@@ -268,14 +270,17 @@ export async function startSessionServer(options: {
             model: options.transcriptionModel,
             maxSeconds: 60,
             retention:
-              "Audio is deleted after successful transcription; failed audio expires after 24 hours. Text is kept privately for this event until the organiser deletes the session. In continuous rounds, saved text goes to the selected model while the voice is running and may inform the public voice, without confirmation. In bounded rounds, saved non-empty writing is included in analysis and matching. Closing writing freezes saved text; completed collective analysis is then shown publicly. Personal perspectives are released separately by the organiser. Matching shares a short excerpt with your allocated partners.",
+              "Audio is deleted after successful transcription; failed audio expires after 24 hours. Text is kept privately for this event until the organiser deletes the session. In continuous rounds, saved text goes to the selected model while the voice is running and may inform the public voice, without confirmation. In bounded rounds, saved non-empty writing is included in analysis and matching. Closing writing freezes saved text; completed collective analysis is then shown publicly. Personal perspectives are released separately by the organiser. The organiser may separately publish the original writing in an atlas on the public projection after review. Matching shares a short excerpt with your allocated partners.",
           },
         });
       }
       if (url.pathname === "/api/projection" && req.method === "GET") {
         const operations = store
           .operations(sessionId)
-          .filter((op) => op.published && op.kind !== "matching");
+          .filter(
+            (op) =>
+              op.published && op.kind !== "matching" && op.kind !== "atlas",
+          );
         return json(res, {
           title: session.title,
           voice: voice.state(sessionId),
@@ -416,10 +421,26 @@ export async function startSessionServer(options: {
           throw new SessionError("Wrong session.", 403);
         return json(res, store.skipAnalysis(d.roundId));
       }
+      if (url.pathname === "/api/operator/atlas-publish") {
+        const d = z.object({ id, reviewed: z.boolean() }).parse(data);
+        belongs(d.id);
+        return json(res, store.publishAtlas(d.id, d.reviewed));
+      }
       if (url.pathname === "/api/operator/presentation") {
         const d = z
           .discriminatedUnion("kind", [
-            z.object({ kind: z.literal("analysis"), operationId: id }),
+            z.object({
+              kind: z.literal("analysis"),
+              operationId: id,
+              atlasOperationId: id.optional(),
+              atlasView: z
+                .object({
+                  mode: z.enum(["overview", "atlas"]),
+                  findingId: z.string().min(1).max(80).optional(),
+                  page: z.number().int().min(0).max(10000).optional(),
+                })
+                .optional(),
+            }),
             z.object({ kind: z.literal("voice") }),
           ])
           .parse(data);
@@ -447,7 +468,7 @@ export async function startSessionServer(options: {
         const d = z
           .object({
             snapshotId: id,
-            kind: z.enum(["analysis", "voice", "matching"]),
+            kind: z.enum(["analysis", "voice", "matching", "atlas"]),
             config: operationConfigSchema,
           })
           .parse(data);

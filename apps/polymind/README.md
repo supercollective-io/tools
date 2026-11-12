@@ -390,3 +390,12 @@ Run `mise exec -- pnpm participate` for a local typed session. The operator page
 shows a QR join code; phones on the same trusted Wi-Fi continually share typed contributions. The
 collective appears on the separate projection screen. Start/Resume remains explicit. See [typed participation](docs/typed-participation.md)
 for addresses, persistence, recovery and the limits of this rehearsal slice.
+
+### Analysis atlas
+
+After analysis completes, the operator can build an atlas from the same frozen
+writing using an explicitly selected OpenAI embedding model. Review and publish
+the original writing separately, then project the whole network or highlight the
+sources of an existing analysis finding. Similarity is not agreement. Generation
+uses the existing recoverable jobs and private embedding cache; it does not add a
+second analysis call. See the [atlas design and publication boundaries](../../docs/design/analysis-atlas.md).

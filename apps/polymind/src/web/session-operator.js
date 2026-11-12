@@ -247,6 +247,7 @@ function updateControls() {
   $("personal-status").textContent = state.show?.personalReleased
     ? "Personal perspectives released."
     : "Optional: participants receive only findings linked to their own frozen contribution.";
+  atlasPaging();
 }
 for (const b of document.querySelectorAll("[data-job]"))
   b.onclick = () =>
@@ -553,7 +554,7 @@ function renderJobs(operations, target) {
         );
       if (op.kind === "voice") card.append(element("p", op.result.text));
       if (op.kind === "matching") renderMatching(op, card);
-      if (op.kind !== "matching" && !op.published)
+      if (op.kind !== "matching" && op.kind !== "atlas" && !op.published)
         card.append(
           button(
             "Reveal on projection",
@@ -633,6 +634,7 @@ async function refresh() {
     describeSnapshot();
     $("voice-status").textContent = state.voice?.status ?? "No voice running.";
     renderAnalysis();
+    renderAtlas();
     const currentMatches = state.operations.filter(
       (op) =>
         op.kind === "matching" && op.snapshotId === matchingSnapshot()?.id,
@@ -641,7 +643,9 @@ async function refresh() {
     renderJobs(
       state.operations.filter(
         (op) =>
-          op.id !== state.show?.analysisId && !currentMatches.includes(op),
+          op.id !== state.show?.analysisId &&
+          op.kind !== "atlas" &&
+          !currentMatches.includes(op),
       ),
       $("jobs"),
     );
@@ -675,3 +679,148 @@ async function refresh() {
 }
 void sessions().catch(() => status("Sign in to manage sessions."));
 setInterval(refresh, 3000);
+
+let atlasPage = 0,
+  atlasScope = "";
+function currentAtlas() {
+  return state?.operations
+    .filter(
+      (op) =>
+        op.kind === "atlas" && op.snapshotId === currentAnalysis()?.snapshotId,
+    )
+    .at(-1);
+}
+function atlasSourceCount() {
+  const analysis = currentAnalysis(),
+    findingId = $("atlas-finding").value;
+  if (findingId)
+    return (
+      analysisCategories
+        .flatMap(([key]) => analysis?.result?.[key] ?? [])
+        .find((f) => f.id === findingId)?.sourceRefs.length ?? 0
+    );
+  return (
+    state?.snapshots.find((s) => s.id === analysis?.snapshotId)?.contributions
+      .length ?? 0
+  );
+}
+function atlasPaging() {
+  const count = atlasSourceCount();
+  atlasPage = Math.min(atlasPage, Math.max(0, Math.ceil(count / 3) - 1));
+  $("atlas-previous").disabled = atlasPage === 0;
+  $("atlas-next").disabled = (atlasPage + 1) * 3 >= count;
+  $("atlas-page").textContent =
+    `Projection contributions ${Math.min(count, atlasPage * 3 + 1)}–${Math.min(count, (atlasPage + 1) * 3)} of ${count}`;
+}
+async function presentAtlas() {
+  atlasPaging();
+  await api("/api/operator/presentation", {
+    kind: "analysis",
+    operationId: currentAnalysis().id,
+    atlasOperationId: currentAtlas().id,
+    atlasView: {
+      mode: "atlas",
+      ...($("atlas-finding").value
+        ? { findingId: $("atlas-finding").value }
+        : {}),
+      page: atlasPage,
+    },
+  });
+}
+$("build-atlas").onclick = () =>
+  action($("build-atlas"), async () => {
+    const model = $("atlas-model").value.trim();
+    if (!model) throw new Error("Choose an explicit OpenAI embedding model.");
+    await api("/api/operator/jobs", {
+      snapshotId: currentAnalysis().snapshotId,
+      kind: "atlas",
+      config: {
+        model: {
+          provider: "openai",
+          model,
+          maxOutputTokens: 100,
+          timeoutMs: 120000,
+        },
+        promptVersion: "bounded-v1",
+        maxInputCharacters: Number($("input-budget").value),
+        embeddingModel: model,
+        maxCalls: 1,
+      },
+    });
+    status("Building the atlas privately from the frozen writing.");
+  });
+$("show-atlas").onclick = () => action($("show-atlas"), presentAtlas);
+$("atlas-finding").onchange = () => {
+  atlasPage = 0;
+  atlasPaging();
+};
+$("atlas-previous").onclick = () =>
+  action($("atlas-previous"), async () => {
+    atlasPage = Math.max(0, atlasPage - 1);
+    await presentAtlas();
+  });
+$("atlas-next").onclick = () =>
+  action($("atlas-next"), async () => {
+    atlasPage++;
+    await presentAtlas();
+  });
+function renderAtlas() {
+  const analysis = currentAnalysis(),
+    op = currentAtlas();
+  $("build-atlas").disabled =
+    analysis?.state !== "succeeded" ||
+    ["queued", "running"].includes(op?.state);
+  $("atlas-status").textContent = op
+    ? progressText(op)
+    : "Available after analysis completes.";
+  const key = `${session}:${analysis?.id}:${op?.id}:${op?.state}:${op?.published}:${analysis?.published}`;
+  if (key === atlasScope) {
+    atlasPaging();
+    return;
+  }
+  atlasScope = key;
+  atlasPage = 0;
+  $("atlas-actions").replaceChildren();
+  $("atlas-review").replaceChildren();
+  $("atlas-finding").replaceChildren();
+  option($("atlas-finding"), "", "Whole room");
+  for (const [category, label] of analysisCategories)
+    for (const finding of analysis?.result?.[category] ?? [])
+      option($("atlas-finding"), finding.id, `${label}: ${finding.title}`);
+  $("atlas-present").hidden = !(op?.published && analysis?.published);
+  if (!op) return;
+  operationControls(op, $("atlas-actions"));
+  if (op.state === "succeeded" && !op.published) {
+    const snapshot = state.snapshots.find((s) => s.id === op.snapshotId),
+      review = element("details");
+    review.append(
+      element(
+        "summary",
+        `Review all ${snapshot?.contributions.length ?? 0} original contributions before publication`,
+      ),
+    );
+    for (const c of snapshot?.contributions ?? [])
+      review.append(element("blockquote", c.text));
+    const label = element("label"),
+      check = element("input");
+    check.type = "checkbox";
+    check.id = "atlas-reviewed";
+    label.append(
+      check,
+      document.createTextNode(
+        " I have reviewed this writing and approve making every contribution public in the atlas.",
+      ),
+    );
+    $("atlas-review").append(
+      review,
+      label,
+      button("Publish original writing in atlas", async () => {
+        if (!check.checked)
+          throw new Error("Review and approve the original writing first.");
+        await api("/api/operator/atlas-publish", { id: op.id, reviewed: true });
+        status("Atlas sources published. Choose a focus and show the atlas.");
+      }),
+    );
+  }
+  atlasPaging();
+}

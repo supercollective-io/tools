@@ -470,7 +470,7 @@ async function refresh() {
       $("participation-notice").hidden = false;
       $("participation-notice").textContent = continuous
         ? "While the voice runs, saved text goes to the selected model and may inform the public voice. "
-        : "Saved writing is included in collective analysis and matching. Original writing is not published on the projection.";
+        : "Saved writing is included in collective analysis and matching. The organiser may also publish your original words in the room’s atlas after review.";
       $("audio-controls").hidden =
         !next.capture.enabled || !open || !window.MediaRecorder;
       $("retention").textContent =

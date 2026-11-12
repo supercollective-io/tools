@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { chromium, expect } from "@playwright/test";
+import { buildAtlas } from "../dist/session/atlas.js";
 import { startSessionServer } from "../dist/session/server.js";
 
 // This is a software rehearsal: every provider result and every contribution is synthetic.
@@ -33,6 +34,13 @@ const app = await startSessionServer({
   operatorToken: token,
   executor: async (operation, snapshot) => {
     calls.push({ operation, snapshot: structuredClone(snapshot) });
+    if (operation.kind === "atlas")
+      return buildAtlas(
+        snapshot,
+        operation.snapshotHash,
+        operation.config.embeddingModel,
+        snapshot.contributions.map(() => [1, 0]),
+      );
     if (operation.kind === "analysis") {
       const refs = snapshot.contributions.map((item) => item.id);
       let number = 0;
@@ -275,6 +283,75 @@ try {
   assert(!publicResponse.includes(writing[1]));
 
   await operator
+    .getByRole("button", { name: "Build atlas", exact: true })
+    .click();
+  await expect(operator.locator("#atlas-reviewed")).toBeVisible();
+  await operator.locator("#atlas-reviewed").check();
+  await operator
+    .getByRole("button", {
+      name: "Publish original writing in atlas",
+      exact: true,
+    })
+    .click();
+  await operator
+    .locator("#atlas-finding")
+    .selectOption(findings.commonGround[0].id);
+  await operator
+    .getByRole("button", { name: "Show atlas on projection", exact: true })
+    .click();
+  await expect(projection.locator(".analysis-atlas")).toBeVisible();
+  await expect(projection.locator(".atlas-contribution")).toHaveCount(2);
+  await expect(
+    projection.getByText("The room, connected", { exact: true }),
+  ).toHaveCount(0);
+  await expect(projection.locator(".atlas-key")).toHaveCount(0);
+  assert.deepEqual(
+    await projection.locator(".atlas-node text").allTextContents(),
+    ["1", "2"],
+  );
+  assert(
+    (
+      await projection
+        .locator(".atlas-node circle")
+        .first()
+        .getAttribute("fill")
+    ).startsWith("#"),
+  );
+
+  await expect(projection.locator(".atlas-reading")).toContainText(writing[0]);
+  assert.equal(await projection.locator(".analysis-atlas button").count(), 0);
+  const atlasResponse = await (
+    await projection.request.get(`${origin}/api/projection${query}`)
+  ).json();
+  assert.deepEqual(atlasResponse.presentation.atlas.findings[0].sourceRefs, [
+    "c1",
+    "c2",
+  ]);
+  for (const viewport of [
+    { width: 1280, height: 720 },
+    { width: 1920, height: 1080 },
+    { width: 390, height: 844 },
+  ]) {
+    await projection.setViewportSize(viewport);
+    await projection.screenshot({
+      path: resolve(`test-results/show-flow/atlas-${viewport.width}.png`),
+      fullPage: true,
+    });
+    assert(
+      await projection.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+      "Atlas must fit the screen width",
+    );
+  }
+  await operator
+    .getByRole("button", { name: "Show analysis on projection", exact: true })
+    .first()
+    .click();
+  await expect(projection.locator(".analysis-atlas")).toHaveCount(0);
+  await projection.setViewportSize({ width: 1920, height: 1080 });
+
+  await operator
     .getByRole("button", { name: "Release personal perspectives", exact: true })
     .click();
   for (const [index, context] of contexts.entries()) {
@@ -423,7 +500,7 @@ try {
   assert.equal(analysis.snapshotId, frozen.id);
   assert.deepEqual(errors, []);
   console.log(
-    "Synthetic show flow passed: autosave → freeze and analyse → complete overview → personal release → explicit matching → private encounter release. Screenshots in test-results/show-flow/.",
+    "Synthetic show flow passed: autosave → freeze and analyse → complete overview → reviewed atlas publication → personal release → explicit matching → private encounter release. Screenshots in test-results/show-flow/.",
   );
 } finally {
   await browser?.close();

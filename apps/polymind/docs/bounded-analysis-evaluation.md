@@ -104,17 +104,17 @@ anonymous labels for the first comparison, then reveal the variants to inspect
 their different schemas. Preserve examples and disagreements between reviewers
 instead of reducing the comparison to one automatic score.
 
-| Criterion              | Review question                                                                                                                                    |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fidelity               | Does each selected finding preserve the contributing person's intention, refusal and uncertainty?                                                  |
-| Concrete common ground | Does a connection name a shared intention, need or possibility, supported by distinct contributors?                                                |
-| Differences            | Does the output distinguish emphasis, tension and incompatible expressed positions without inventing conflict or smoothing it away?                |
-| Questions              | Does a question arise from the accounts and matter to their inquiry?                                                                               |
-| Isolated concerns      | Does the selection preserve a specific isolated concern without claiming that everyone shares it?                                                  |
-| Concision              | Can a person read the overview quickly and recognise useful content without generic headings or repetitive findings?                               |
-| Unequal lengths        | Does selection use the short and long accounts without treating length or source order as importance?                                              |
-| Provenance and privacy | Do references support the finding, do excerpts match exactly, and do public projections omit private references and evidence?                      |
-| Personal perspective   | Does the released view select only existing findings linked to that person's frozen contribution, with only that person's references and excerpts? |
+| Criterion              | Review question                                                                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fidelity               | Does each selected finding preserve the contributing person's intention, refusal and uncertainty?                                                                                     |
+| Concrete common ground | Does a connection name a shared intention, need or possibility, supported by distinct contributors?                                                                                   |
+| Differences            | Does the output distinguish emphasis, tension and incompatible expressed positions without inventing conflict or smoothing it away?                                                   |
+| Questions              | Does a question arise from the accounts and matter to their inquiry?                                                                                                                  |
+| Isolated concerns      | Does the selection preserve a specific isolated concern without claiming that everyone shares it?                                                                                     |
+| Concision              | Can a person read the overview quickly and recognise useful content without generic headings or repetitive findings?                                                                  |
+| Unequal lengths        | Does selection use the short and long accounts without treating length or source order as importance?                                                                                 |
+| Provenance and privacy | Do references support the finding, do excerpts match exactly, and does the standard overview omit private references and evidence, with atlas source publication separately reviewed? |
+| Personal perspective   | Does the released view select only existing findings linked to that person's frozen contribution, with only that person's references and excerpts?                                    |
 
 For each round, record the source reference, the relevant output passage, the
 reviewer's judgement and a reason. Record beneficial omissions as well as harmful
