@@ -21,17 +21,18 @@ const app = await startSessionServer({
       };
     if (op.kind === "analysis")
       return {
-        themes: [
+        version: "analysis-v2",
+        commonGround: [],
+        differences: [],
+        questions: [
           {
+            id: "synthetic-question",
+            title: "A shared place",
             text: "A place we can reach and shape together.",
             sourceRefs: snapshot.contributions.map((c) => c.id),
           },
         ],
-        similarities: [],
-        tensions: [],
-        conflicts: [],
-        outlyingConcerns: [],
-        questions: [],
+        otherConcerns: [],
       };
     return {
       schemaVersion: 1,
@@ -90,14 +91,17 @@ try {
   await captureReview(operator, "operator-sign-in");
   await operator.getByLabel("Operator access token").fill(token);
   await operator.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(
+    operator.getByRole("button", { name: "Create session", exact: true }),
+  ).toBeVisible();
   await operator
     .getByRole("button", { name: "Create session", exact: true })
     .click();
   await expect(operator.locator("#counts")).toContainText("0 / 140");
   await operator
-    .getByRole("button", { name: "Open round", exact: true })
+    .getByRole("button", { name: "Open writing", exact: true })
     .click();
-  await expect(operator.locator("#round-status")).toContainText("collecting");
+  await expect(operator.locator("#round-status")).toContainText("Writing open");
   const destination = await operator.locator("#join-link").getAttribute("href");
   await participant.goto(`${origin}${destination}`);
   await captureReview(participant, "participant-join");
@@ -126,43 +130,36 @@ try {
   ).toHaveValue(
     "We need an accessible place to gather and make things together.",
   );
-  await operator
-    .getByRole("button", {
-      name: "Close round and freeze contributions",
-    })
-    .click();
-  await expect(operator.locator("#snapshot-info")).toContainText(
-    "1 contributions",
-  );
+  if (!(await operator.locator("#model").isVisible()))
+    await operator.locator("#setup > summary").click();
   await operator
     .getByLabel("Text model", { exact: true })
     .fill("synthetic-fake-provider");
   await operator
-    .getByRole("button", { name: "Analyse frozen contributions" })
+    .getByRole("button", { name: "Close writing and analyse", exact: true })
     .click();
-  await expect(operator.locator("#jobs")).toContainText("succeeded");
+  await expect(operator.locator("#snapshot-info")).toContainText(
+    "1 contributions",
+  );
+  await expect(operator.locator("#analysis-status")).toContainText("complete");
   const projection = await browser.newPage({
     viewport: { width: 1920, height: 1080 },
   });
   await projection.goto(
     `${origin}/projection${new URL(`${origin}${destination}`).search}`,
   );
-  await expect(projection.locator("#idea")).not.toContainText(
-    "A place we can reach",
-  );
-  await expect(projection.locator("#idea")).toHaveText("");
-  await expect(projection.locator("header, h1, nav, button")).toHaveCount(0);
-  await captureReview(projection, "projection-empty");
-  await operator.getByRole("button", { name: "Reveal on projection" }).click();
-  await expect(projection.locator("#idea")).toContainText(
-    "A place we can reach",
-  );
+  await expect(
+    projection.getByText("A place we can reach and shape together.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(projection.locator("nav, button")).toHaveCount(0);
   await expect(operator.locator("#status")).toHaveText("");
   await captureReview(projection, "projection-published");
   await captureReview(operator, "operator-review");
   // Identity changes in the same browser must never inherit another person's draft.
   await operator
-    .getByRole("button", { name: "Open round", exact: true })
+    .getByRole("button", { name: "Open writing", exact: true })
     .click();
   await expect(participant.locator("#text")).toBeEnabled();
   await expect(participant.locator("#text")).toHaveValue("");
@@ -232,7 +229,7 @@ try {
     await route.fulfill({ json: activeVoice });
   });
   await operator
-    .getByText("Continuous Collective Microphone", { exact: true })
+    .getByText("Collective Microphone — separate activity", { exact: true })
     .click();
   await expect(operator.locator("#voice-status")).toHaveText("running", {
     timeout: 10000,
@@ -241,12 +238,15 @@ try {
     .getByRole("button", { name: "Pause voice", exact: true })
     .click();
   await expect(operator.locator("#voice-status")).toHaveText("paused");
-  await operator.locator("#freeze").click();
-  await operator.locator("#round-mode").selectOption("continuous");
+  await operator.locator("#diagnostics > summary").click();
+  await operator.locator("#legacy-freeze").click();
   await operator
-    .getByRole("button", { name: "Open round", exact: true })
+    .locator("#microphone-prompt")
+    .fill("Synthetic continuous invitation");
+  await operator
+    .getByRole("button", { name: "Open microphone round", exact: true })
     .click();
-  await expect(operator.locator("#round-status")).toContainText("continuous");
+  await expect(operator.locator("#round-status")).toContainText("Microphone");
   await operator
     .getByRole("button", { name: "End voice", exact: true })
     .click();
@@ -282,7 +282,7 @@ try {
   }
   if (errors.length) throw new Error(errors.join("\n"));
   console.log(
-    "Browser flow passed: operator sign-in → join → autosave/include → return → freeze → review/reveal → identity isolation → voice controls across rounds. Screenshots in test-results/.",
+    "Browser flow passed: operator sign-in → join → autosave/include → return → analyse/autoproject → identity isolation → voice controls across rounds. Screenshots in test-results/.",
   );
 } finally {
   await browser?.close();
