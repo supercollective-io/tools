@@ -1,4 +1,7 @@
 const session = new URL(location.href).searchParams.get("session");
+
+import { renderAtlas } from "./session-atlas.js";
+
 const idea = document.getElementById("idea");
 const categories = [
   ["commonGround", "Common ground", 4],
@@ -43,6 +46,20 @@ function overview(result, count) {
 }
 function render(state) {
   const presentation = state.presentation;
+  const key = JSON.stringify(
+    presentation ?? { results: state.results, voice: state.voice?.text },
+  );
+  if (signature === key) return;
+  const isAtlas =
+    presentation?.kind === "analysis" &&
+    presentation.atlas &&
+    presentation.atlasView?.mode === "atlas";
+  document.documentElement.classList.toggle(
+    "projection-atlas",
+    Boolean(isAtlas),
+  );
+  const theme = document.querySelector('meta[name="theme-color"]');
+  if (theme) theme.content = isAtlas ? "#f3f3ef" : "#161616";
   let content;
   if (presentation?.kind === "writing") {
     content = element(
@@ -53,7 +70,9 @@ function render(state) {
     content.append(element("h1", presentation.question));
     content.append(element("p", `${presentation.count} saved contributions`));
   } else if (presentation?.kind === "analysis") {
-    if (presentation.result)
+    if (presentation.atlas && presentation.atlasView?.mode === "atlas")
+      content = renderAtlas(presentation.atlas, presentation.atlasView);
+    else if (presentation.result)
       content = overview(presentation.result, presentation.count);
     else {
       content = element("div", undefined, "projection-waiting");
@@ -102,11 +121,8 @@ function render(state) {
       content.append(element("h1", "Waiting for the round"));
     }
   }
-  const key = JSON.stringify(
-    presentation ?? { results: state.results, voice: state.voice?.text },
-  );
-  if (signature === key) return;
   signature = key;
+  idea.firstElementChild?.dispose?.();
   idea.replaceChildren(content);
   idea.classList.toggle("overview-reveal", Boolean(presentation?.result));
 }
