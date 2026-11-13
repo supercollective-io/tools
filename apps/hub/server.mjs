@@ -4,6 +4,8 @@ import { access, mkdir, open, readFile, rename, rm } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { isPolymindInvitation } from './invitations.mjs';
+import { openRuns, profiles, programme } from './run-profiles.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const kinds = new Set(['activity', 'analogue', 'waiting', 'closed']);
@@ -76,6 +78,9 @@ export function participantUrl(value, config) {
   // invitation supplied by Flight.
   const flightAudienceInvite = url.origin === flightAudienceOrigin && path === '/' &&
     flightAudienceSearch.test(url.search);
+  if (url.origin === config.appOrigins.polymind && !isPolymindInvitation(value, config.appOrigins.polymind)) {
+    throw new HttpError(400, 'Use the complete Participant entrance from Polymind session controls, or reconnect the session in Preparation.');
+  }
   if (url.protocol !== 'https:' || url.username || url.password || url.hash ||
       !config.allowedOrigins.has(url.origin) || path.includes('%') || privateSegments.test(path) ||
       [...url.searchParams].some(([key, value]) =>
@@ -117,20 +122,17 @@ export function validateSelection(value, config) {
 }
 
 function seed() {
-  return { activeId: 'arrival', activities: [
-    { id: 'arrival', label: 'Waiting to begin', kind: 'waiting', status: 'ready',
-      instruction: '' },
-    { id: 'polymind', label: 'Polymind', kind: 'activity', status: 'unavailable',
-      instruction: 'Not available yet.' },
-    { id: 'analogue', label: 'In-person activity', kind: 'analogue', status: 'ready',
-      instruction: 'Put your phone away. Leave this page open — we’ll return to it.' },
-    { id: 'puck', label: 'Puck', kind: 'activity', status: 'unavailable',
-      instruction: 'Not available yet.' },
-    { id: 'flight', label: 'Flight', kind: 'activity', status: 'unavailable',
-      instruction: 'Not available yet.' },
-    { id: 'closing', label: 'Closing conversation', kind: 'closed', status: 'ready',
-      instruction: 'Put your phone away.' },
-  ] };
+  // A named show profile is installed explicitly. Keep the independent Hub's
+  // initial programme stable when a particular show's recipe changes.
+  return { activeId: 'arrival', activities: programme({ activities: [
+    { id: 'arrival', label: 'Waiting to begin', kind: 'waiting', instruction: '' },
+    { id: 'polymind', label: 'Polymind', kind: 'activity', instruction: 'Not available yet.' },
+    { id: 'analogue', label: 'In-person activity', kind: 'analogue', instruction: 'Put your phone away. Leave this page open — we’ll return to it.' },
+    { id: 'collective-voice', label: 'Collective Voice', kind: 'activity', instruction: 'Not available yet.' },
+    { id: 'puck', label: 'Puck', kind: 'activity', instruction: 'Not available yet.' },
+    { id: 'flight', label: 'Flight', kind: 'activity', instruction: 'Not available yet.' },
+    { id: 'closing', label: 'Closing conversation', kind: 'closed', instruction: 'Put your phone away.' },
+  ] }) };
 }
 
 async function atomicSave(path, state) {
@@ -163,24 +165,25 @@ async function readJson(req) {
 }
 
 // Only configured origins and fixed resource paths may receive app credentials.
-export async function appRequest(config, app, id, data, key) {
+export async function appRequest(config, app, id, data, key, preparation = false) {
   if (!['polymind', 'puck'].includes(app)) throw new HttpError(404, 'Unknown app');
   const token = config.appTokens?.[app];
   if (!token) throw new HttpError(503, 'App connection is not configured. Ask the installation operator to enable it.');
   if (!config.allowedOrigins.has(config.appOrigins[app])) throw new HttpError(503, 'This app’s participant website is not enabled in Hub. Ask the installation operator to enable it.');
   if (id && !/^[a-zA-Z0-9_-]{1,100}$/.test(id)) throw new HttpError(400, 'Invalid session or room identifier');
-  if (data && (typeof key !== 'string' || !/^[a-zA-Z0-9_-]{16,100}$/.test(key))) throw new HttpError(400, 'Provide a creation request key');
+  if (preparation && (app !== 'polymind' || !id || !data)) throw new HttpError(400, 'Invalid preparation target');
+  if (data && !preparation && (typeof key !== 'string' || !/^[a-zA-Z0-9_-]{16,100}$/.test(key))) throw new HttpError(400, 'Provide a creation request key');
   const path = app === 'polymind' ? '/api/operator/sessions' : '/api/rooms';
   let response;
   try {
-    response = await (config.fetch ?? fetch)(`${config.appOrigins[app]}${path}${id ? `/${id}` : ''}`, {
-      method: data ? 'POST' : 'GET', redirect: 'error', signal: AbortSignal.timeout(8000),
+    response = await (config.fetch ?? fetch)(`${config.appOrigins[app]}${path}${id ? `/${id}` : ''}${preparation ? '/preparation' : ''}`, {
+      method: preparation ? 'PUT' : data ? 'POST' : 'GET', redirect: 'error', signal: AbortSignal.timeout(8000),
       headers: { authorization: `Bearer ${token}`, origin: config.appOrigins[app],
-        ...(data ? { 'content-type': 'application/json', 'idempotency-key': key } : {}) },
+        ...(data ? { 'content-type': 'application/json', ...(!preparation ? { 'idempotency-key': key } : {}) } : {}) },
       ...(data ? { body: JSON.stringify(data) } : {}),
     });
     if (!response.ok) {
-      if (response.status === 409) throw new HttpError(409, 'These creation settings changed after a request was sent. Retry the original settings or start a new creation request.');
+      if (response.status === 409) throw new HttpError(409, preparation ? 'This session has already been used with different preparation. Resume it through its controls.' : 'These creation settings changed after a request was sent. Retry the original settings or start a new creation request.');
       if (response.status === 400) throw new HttpError(400, 'Check the activity name, capacity, question and distinct answer options.');
       if (response.status === 404) throw new HttpError(404, 'This session or room no longer exists. Choose another.');
       throw new HttpError(502, 'Could not access this app. Check its connection and operator credentials.');
@@ -202,7 +205,10 @@ function appSummary(config, app, value) {
     throw new HttpError(502, 'The app returned an invalid session or room');
   const title = value.title ?? value.question;
   if (typeof title !== 'string' || !title.trim() || title.length > 240) throw new HttpError(502, 'The app returned an invalid activity name');
-  const url = app === 'polymind' ? `${config.appOrigins[app]}/?session=${encodeURIComponent(value.id)}`
+  if (app === 'polymind' && !isPolymindInvitation(value.participantUrl, config.appOrigins.polymind, value.id)) {
+    throw new HttpError(502, 'Polymind returned an incomplete participant invitation. Check that Hub and Polymind use compatible versions.');
+  }
+  const url = app === 'polymind' ? value.participantUrl
     : `${config.appOrigins[app]}/room/${encodeURIComponent(value.id)}`;
   const rawStatus = value.status ?? value.round?.state?.phase ?? 'waiting';
   const statuses = new Set(['writing-open', 'writing-closed', 'microphone-open', 'closed', 'waiting', 'countdown', 'active', 'selected', 'timed-out', 'cancelled', 'interrupted']);
@@ -216,16 +222,36 @@ export async function createHub(config) {
   let state;
   try {
     state = JSON.parse(await readFile(statePath, 'utf8'));
-    exactKeys(state, ['schemaVersion', 'revision', 'updatedAt', 'activeId', 'activities'], 'saved state');
+    exactKeys(state, ['schemaVersion', 'revision', 'updatedAt', 'activeId', 'activities', 'runId'], 'saved state');
     if (state.schemaVersion !== 1 || !Number.isSafeInteger(state.revision) || state.revision < 1 ||
         !Number.isFinite(Date.parse(state.updatedAt))) throw new Error('Invalid saved state version');
+    // Old manual invitations may be incomplete. Preserve the programme and
+    // fail closed for those invitations instead of stopping the whole Hub.
+    let repaired = false;
+    for (const activity of state.activities ?? []) {
+      if (activity.kind === 'activity' && activity.status === 'ready' && typeof activity.url === 'string') {
+        const url = new URL(activity.url);
+        if (url.origin === config.appOrigins.polymind && !isPolymindInvitation(activity.url, config.appOrigins.polymind)) {
+          delete activity.url; activity.status = 'unavailable';
+          activity.instruction = 'Invitation needs preparation. Please wait for the organiser.'; repaired = true;
+        }
+      }
+    }
     validateSelection({ activeId: state.activeId, activities: state.activities }, config);
+    if (state.runId !== undefined && (typeof state.runId !== 'string' || !/^[a-zA-Z0-9_-]{16,100}$/.test(state.runId))) throw new Error('Invalid saved run ID');
+    if (repaired) {
+      state.revision += 1; state.updatedAt = new Date().toISOString(); await atomicSave(statePath, state);
+    }
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
     state = { schemaVersion: 1, revision: 1, updatedAt: new Date().toISOString(), ...seed() };
     await atomicSave(statePath, state);
   }
   let writes = Promise.resolve();
+  const runs = await openRuns(config, { atomicSave, HttpError, appRequest, appSummary, participantUrl, validateSelection,
+    configurePolymind: (id, draft) => appRequest(config, 'polymind', id, draft, undefined, true) });
+  if (state.runId) runs.get(state.runId);
+  const operatorState = value => ({ ...value, ...(value.runId ? { operatorNotes: runs.get(value.runId).operatorNotes ?? {} } : {}) });
   const credentialHash = createHash('sha256').update(`${config.username}:${config.password}`).digest();
   function authenticated(req) {
     const header = req.headers.authorization ?? '';
@@ -240,6 +266,7 @@ export async function createHub(config) {
     ['/', ['index.html', 'text/html; charset=utf-8']], ['/hub.js', ['hub.js', 'text/javascript; charset=utf-8']],
     ['/style.css', ['style.css', 'text/css; charset=utf-8']], ['/operator', ['operator.html', 'text/html; charset=utf-8']],
     ['/operator.js', ['operator.js', 'text/javascript; charset=utf-8']],
+    ['/run-preparation.js', ['run-preparation.js', 'text/javascript; charset=utf-8']],
     ['/print', ['print.html', 'text/html; charset=utf-8']], ['/qr.svg', ['qr.svg', 'image/svg+xml']],
   ]);
   const server = createServer(async (req, res) => {
@@ -253,7 +280,7 @@ export async function createHub(config) {
         throw new HttpError(403, 'Unrecognised host');
       }
       const path = new URL(req.url, config.publicOrigin).pathname;
-      if (path.startsWith('/operator') || path.startsWith('/api/operator/')) {
+      if (path.startsWith('/operator') || path === '/run-preparation.js' || path.startsWith('/api/operator/')) {
         if (!authenticated(req)) {
           reply(401, { error: 'Operator authentication required' }, { 'www-authenticate': 'Basic realm="Rehearsing We operator", charset="UTF-8"' });
           return;
@@ -267,7 +294,55 @@ export async function createHub(config) {
         reply(200, { schemaVersion: 1, revision: state.revision, updatedAt: state.updatedAt,
           current: state.activities.find(activity => activity.id === state.activeId) }); return;
       }
-      if (path === '/api/operator/state' && req.method === 'GET') { reply(200, state); return; }
+      if (path === '/api/operator/state' && req.method === 'GET') { reply(200, operatorState(state)); return; }
+      if (path === '/api/operator/profiles' && req.method === 'GET') { reply(200, profiles); return; }
+      const runRoute = /^\/api\/operator\/runs(?:\/([a-zA-Z0-9_-]+)(?:\/(prepare|use|puck-options|settings))?)?$/.exec(path);
+      if (runRoute && ['GET', 'POST'].includes(req.method)) {
+        const [, id, action] = runRoute;
+        if (req.method === 'GET' && !action) { reply(200, id ? runs.get(id) : runs.list()); return; }
+        if (req.method !== 'POST') throw new HttpError(405, 'Use POST for run actions');
+        if (req.headers.origin !== config.publicOrigin) throw new HttpError(403, 'Same-origin update required');
+        const body = await readJson(req);
+        if (!id) { reply(201, await runs.create(body)); return; }
+        if (action === 'puck-options') { reply(200, await runs.setPuckOptions(id, body)); return; }
+        if (action === 'settings') { reply(200, await runs.updateSettings(id, body)); return; }
+        if (action === 'prepare') {
+          exactKeys(body, ['activityId'], 'run preparation');
+          reply(200, await runs.prepare(id, body.activityId)); return;
+        }
+        if (action === 'use') {
+          exactKeys(body, ['expectedRevision'], 'programme installation');
+          if (!Number.isSafeInteger(body.expectedRevision)) throw new HttpError(400, 'Provide expectedRevision');
+          const run = runs.get(id);
+          const write = writes.then(async () => {
+            if (body.expectedRevision !== state.revision) throw new HttpError(409, 'The programme changed. Refresh saved state before loading a run.');
+            if (state.runId === id) {
+              // Connect newly prepared resources (notably the room's Puck
+              // answers) without replacing live or manually edited invitations.
+              const activities = state.activities.map(item => {
+                const prepared = run.activities.find(candidate => candidate.id === item.id);
+                return item.id !== state.activeId && item.status === 'unavailable' && prepared?.status === 'ready' ? prepared : item;
+              });
+              if (JSON.stringify(activities) === JSON.stringify(state.activities)) return state;
+              validateSelection({ activeId: state.activeId, activities }, config);
+              const next = { ...state, revision: state.revision + 1, updatedAt: new Date().toISOString(), activities };
+              await atomicSave(statePath, next); state = next; return next;
+            }
+            const current = state.activities.find(item => item.id === state.activeId);
+            if (current.kind !== 'waiting') throw new HttpError(409, 'Return to waiting before using another programme.');
+            // Retain the exact current invitation: installing a programme is
+            // preparation, not a cue, even when its waiting copy differs.
+            const activities = run.activities.filter(item => item.kind !== 'waiting' && item.id !== current.id);
+            activities.unshift(current);
+            const selection = validateSelection({ activeId: current.id, activities }, config);
+            const next = { schemaVersion: 1, revision: state.revision + 1, updatedAt: new Date().toISOString(), ...selection, runId: id };
+            await atomicSave(statePath, next); state = next; return next;
+          });
+          writes = write.catch(() => {});
+          reply(200, operatorState(await write)); return;
+        }
+        throw new HttpError(405, 'Choose a run preparation action');
+      }
       if (path === '/api/operator/config' && req.method === 'GET') {
         reply(200, { allowedOrigins: [...config.allowedOrigins], appOrigins: config.appOrigins, integrations: Object.fromEntries(['polymind', 'puck'].map(app => [app, Boolean(config.appTokens?.[app]) && config.allowedOrigins.has(config.appOrigins[app])])) }); return;
       }
@@ -312,13 +387,13 @@ export async function createHub(config) {
         const write = writes.then(async () => {
           if (body.expectedRevision !== state.revision) throw new HttpError(409, 'The manifest changed. Reload before saving.');
           const next = { schemaVersion: 1, revision: state.revision + 1,
-            updatedAt: new Date().toISOString(), ...selection };
+            updatedAt: new Date().toISOString(), ...selection, ...(state.runId ? { runId: state.runId } : {}) };
           await atomicSave(statePath, next);
           state = next;
           return next;
         });
         writes = write.catch(() => {});
-        reply(200, await write); return;
+        reply(200, operatorState(await write)); return;
       }
       if (assets.has(path) && ['GET', 'HEAD'].includes(req.method)) {
         const [file, type] = assets.get(path);

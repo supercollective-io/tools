@@ -14,6 +14,7 @@ import {
   analysisV2Schema,
   id,
   operationConfigSchema,
+  preparationSchema,
   revisionSchema,
   SessionError,
 } from "./contracts.ts";
@@ -159,6 +160,8 @@ export async function startSessionServer(options: {
     const handle = async () => {
       if (closing) throw new SessionError("Server is stopping.", 503);
       const url = new URL(req.url ?? "/", origin);
+      const preparationPath =
+        /^\/api\/operator\/sessions\/[^/]+\/preparation$/.test(url.pathname);
       if (url.pathname === "/healthz" && req.method === "GET") {
         store.db.prepare("SELECT 1").get();
         return json(res, { status: "ok" });
@@ -167,7 +170,8 @@ export async function startSessionServer(options: {
         throw new SessionError("Wrong host.", 403);
       if (req.headers.origin && req.headers.origin !== origin.origin)
         throw new SessionError("Wrong origin.", 403);
-      const mutating = req.method === "POST";
+      const mutating =
+        req.method === "POST" || (req.method === "PUT" && preparationPath);
       if (req.method !== "GET" && !mutating)
         throw new SessionError("Method not allowed.", 405);
       if (mutating && req.headers.origin !== origin.origin)
@@ -251,6 +255,19 @@ export async function startSessionServer(options: {
           );
         }
         return json(res, store.sessions().map(sessionSummary));
+      }
+      const selectedPreparation =
+        /^\/api\/operator\/sessions\/([^/]+)\/preparation$/.exec(url.pathname);
+      if (selectedPreparation) {
+        const sessionId = id.parse(selectedPreparation[1]);
+        if (req.method === "GET")
+          return json(res, store.preparation(sessionId));
+        if (req.method === "PUT")
+          return json(
+            res,
+            store.setPreparation(sessionId, preparationSchema.parse(data)),
+          );
+        throw new SessionError("Method not allowed.", 405);
       }
       const selectedSession = /^\/api\/operator\/sessions\/([^/]+)$/.exec(
         url.pathname,

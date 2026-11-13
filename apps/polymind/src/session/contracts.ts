@@ -49,6 +49,18 @@ export const modelSchema = z.strictObject({
   maxOutputTokens: z.number().int().min(100).max(16000),
   timeoutMs: z.number().int().min(1000).max(360000),
 });
+export const preparationSchema = z.strictObject({
+  mode: z.enum(["bounded", "continuous"]),
+  prompt: z.string().trim().min(1).max(2000),
+  model: z.strictObject({
+    provider: z.enum(["openai", "ollama"]),
+    model: z.string().trim().min(1).max(150),
+    maxInputCharacters: z.number().int().min(1).max(1_000_000),
+    maxOutputTokens: z.number().int().min(100).max(16_000),
+    timeoutMs: z.number().int().min(1_000).max(360_000),
+  }),
+});
+export type Preparation = z.infer<typeof preparationSchema>;
 export const operationConfigSchema = z.strictObject({
   model: modelSchema,
   promptVersion: z.enum(["bounded-v1", "analysis-v2"]),

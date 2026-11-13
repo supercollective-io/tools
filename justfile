@@ -108,6 +108,7 @@ smoke-staging origin="https://polymind.supercollective.io":
 # Reuse installed browser test tooling; the hub has no dependencies.
 test-browser-hub:
     node apps/hub/scripts/browser-smoke.mjs apps/polymind/node_modules/@playwright/test/index.mjs
+    node apps/hub/scripts/profile-browser-smoke.mjs apps/polymind/node_modules/@playwright/test/index.mjs
 
 build-hub-container:
     docker build --file apps/hub/Dockerfile --tag hub:local-candidate .

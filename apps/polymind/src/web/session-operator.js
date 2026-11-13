@@ -1,11 +1,27 @@
 const $ = (id) => document.getElementById(id);
 let requestedSession = new URL(location.href).searchParams.get("session");
 let session,
+  preparationSession,
   state,
   loading = false,
+  sessionTransitions = 0,
   statusScope,
   matchingScope;
 const locationDrafts = new Map();
+function lockSessionFields() {
+  sessionTransitions += 1;
+  const fields = [
+    ...document.querySelectorAll(
+      "#workspace input, #workspace textarea, #workspace select, #workspace button",
+    ),
+  ].map((field) => [field, field.disabled]);
+  for (const [field] of fields) field.disabled = true;
+  return () => {
+    sessionTransitions -= 1;
+    for (const [field, disabled] of fields) field.disabled = disabled;
+    updateControls();
+  };
+}
 const analysisCategories = [
   ["commonGround", "Common ground"],
   ["differences", "Differences"],
@@ -126,9 +142,124 @@ async function sessions() {
   $("login").hidden = true;
   $("setup").open = !session;
   rememberSession();
-  if (session) await refresh();
+  if (session) {
+    if (preparationSession !== session) await loadPreparation(session);
+    await refresh();
+  }
   return true;
 }
+function resetPreparationForm() {
+  $("preparation-mode").value = "bounded";
+  $("prompt").value =
+    "What is something you’d like to change, but can’t change on your own?";
+  $("microphone-prompt").value = "";
+  $("provider").value = "openai";
+  $("model").value = "";
+  $("input-budget").value = "500000";
+  $("output-budget").value = "4096";
+  $("timeout").value = "360";
+}
+function updatePreparationModeView(selectMode = false) {
+  const rounds = state?.session?.id === session ? (state.rounds ?? []) : [];
+  const hasBoundedRound = rounds.some((round) => round.mode === "bounded");
+  const continuous = $("preparation-mode").value === "continuous";
+  $("writing-controls").hidden = continuous && !hasBoundedRound;
+  const microphone = $("microphone-controls");
+  // Keep the existing separate-activity route available to standalone users.
+  // The saved mode focuses the intended controls without removing that route.
+  microphone.hidden = false;
+  if (selectMode) microphone.open = continuous;
+}
+async function loadPreparation(sessionId, explicitReload = false) {
+  const unlock = lockSessionFields();
+  if (!explicitReload) resetPreparationForm();
+  $("preparation-status").textContent = "Loading saved preparation…";
+  try {
+    const response = await fetch(
+      `/api/operator/sessions/${encodeURIComponent(sessionId)}/preparation`,
+      { cache: "no-store", signal: AbortSignal.timeout(8000) },
+    );
+    const value = await response.json();
+    if (!response.ok)
+      throw new Error(value.error ?? "Could not load preparation.");
+    if (session !== sessionId) return;
+    preparationSession = sessionId;
+    if (value) {
+      $("preparation-mode").value = value.mode;
+      $(value.mode === "bounded" ? "prompt" : "microphone-prompt").value =
+        value.prompt;
+      $("provider").value = value.model.provider;
+      $("model").value = value.model.model;
+      $("input-budget").value = String(value.model.maxInputCharacters);
+      $("output-budget").value = String(value.model.maxOutputTokens);
+      $("timeout").value = String(value.model.timeoutMs / 1000);
+      $("preparation-status").textContent = "Saved preparation loaded.";
+    } else {
+      $("preparation-status").textContent =
+        "No saved preparation for this session.";
+    }
+    updatePreparationModeView(true);
+  } catch (error) {
+    if (session === sessionId)
+      $("preparation-status").textContent = error.message;
+  } finally {
+    unlock();
+  }
+}
+$("reload-preparation").onclick = async () => {
+  if (!session) return;
+  const button = $("reload-preparation");
+  button.disabled = true;
+  try {
+    await loadPreparation(session, true);
+  } finally {
+    button.disabled = false;
+  }
+};
+$("preparation-mode").onchange = () => updatePreparationModeView(true);
+$("save-preparation").onclick = async () => {
+  if (!session) return;
+  const mode = $("preparation-mode").value;
+  const model = $("model").value.trim();
+  if (!model) {
+    $("setup").open = true;
+    $("model").focus();
+    $("preparation-status").textContent = "Enter an explicit text model first.";
+    return;
+  }
+  const preparation = {
+    mode,
+    prompt: $(mode === "bounded" ? "prompt" : "microphone-prompt").value.trim(),
+    model: {
+      provider: $("provider").value,
+      model,
+      maxInputCharacters: Number($("input-budget").value),
+      maxOutputTokens: Number($("output-budget").value),
+      timeoutMs: Number($("timeout").value) * 1000,
+    },
+  };
+  const button = $("save-preparation");
+  button.disabled = true;
+  $("preparation-status").textContent = "Saving draft preparation…";
+  try {
+    const response = await fetch(
+      `/api/operator/sessions/${encodeURIComponent(session)}/preparation`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(preparation),
+      },
+    );
+    const result = await response.json();
+    if (!response.ok)
+      throw new Error(result.error ?? "Could not save preparation.");
+    $("preparation-status").textContent = "Draft preparation saved.";
+  } catch (error) {
+    $("preparation-status").textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+};
 function rememberSession() {
   const url = new URL(location.href);
   if (session) url.searchParams.set("session", session);
@@ -151,6 +282,7 @@ $("logout").onclick = async () => {
 };
 $("create-session").onsubmit = async (event) => {
   event.preventDefault();
+  const unlock = lockSessionFields();
   try {
     const settings = {
       title: $("title").value,
@@ -188,12 +320,17 @@ $("create-session").onsubmit = async (event) => {
     status("Session created.");
   } catch (e) {
     status(e.message, true);
+  } finally {
+    unlock();
   }
 };
 $("sessions").onchange = () => {
   session = $("sessions").value;
   rememberSession();
-  void refresh();
+  void (async () => {
+    await loadPreparation(session);
+    await refresh();
+  })();
 };
 $("round").onsubmit = async (event) => {
   event.preventDefault();
@@ -216,11 +353,12 @@ $("freeze").onclick = () =>
       "Writing closed. Analysing the frozen contributions; the overview will appear on the projection when complete.",
     );
   });
-$("legacy-freeze").onclick = () =>
-  action($("legacy-freeze"), async () => {
-    await api("/api/operator/freeze", { roundId: state.rounds.at(-1).id });
-    status("Contributions frozen. Later edits cannot change this snapshot.");
-  });
+for (const id of ["legacy-freeze", "close-writing"])
+  $(id).onclick = () =>
+    action($(id), async () => {
+      await api("/api/operator/freeze", { roundId: state.rounds.at(-1).id });
+      status("Contributions frozen. Later edits cannot change this snapshot.");
+    });
 $("close-session").onclick = async () => {
   if (
     !confirm(
@@ -277,6 +415,7 @@ function updateControls() {
       ? "Analyse frozen writing"
       : "Close writing and analyse";
   $("legacy-freeze").disabled = !round?.open;
+  $("close-writing").disabled = round?.mode !== "bounded" || !round?.open;
   $("open-round").disabled = Boolean(round?.open) || !state.session.open;
   $("open-microphone").disabled = Boolean(round?.open) || !state.session.open;
   const canMatch =
@@ -300,6 +439,12 @@ function updateControls() {
     ? "Personal perspectives released."
     : "Optional: participants receive only findings linked to their own frozen contribution.";
   atlasPaging();
+  if (sessionTransitions) {
+    for (const field of document.querySelectorAll(
+      "#workspace input, #workspace textarea, #workspace select, #workspace button",
+    ))
+      field.disabled = true;
+  }
 }
 for (const b of document.querySelectorAll("[data-job]"))
   b.onclick = () =>
@@ -646,6 +791,7 @@ async function refresh() {
   loading = true;
   try {
     state = await api("/api/operator/state");
+    updatePreparationModeView();
     const round = state.rounds.at(-1);
     $("prompt").readOnly = Boolean(round?.open);
     if (round?.open && round.mode === "bounded")

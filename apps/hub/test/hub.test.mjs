@@ -50,7 +50,7 @@ test('operator transitions survive restart and public output contains only the c
     assert.match(await privateResponse.text(), /id="programme"/);
     const state = await (await fetch(`${app.base}/api/operator/state`, { headers: authenticated })).json();
     const digital = state.activities.find(activity => activity.id === 'polymind');
-    digital.status = 'ready'; digital.url = 'https://polymind.supercollective.io/join?session=synthetic';
+    digital.status = 'ready'; digital.url = 'https://polymind.supercollective.io/?session=synthetic';
     state.activeId = digital.id;
     assert.equal((await put(app.base, state, { ...mutation, origin: 'https://untrusted.example' })).status, 403);
     assert.equal((await put(app.base, state, { authorization, 'content-type': 'application/json' })).status, 403);
@@ -105,8 +105,32 @@ test('destination validation rejects operator links and credentials', () => {
     'https://polymind.supercollective.io/join#private',
   ];
   for (const url of bad) assert.throws(() => participantUrl(url, config), { status: 400 }, url);
-  assert.equal(participantUrl('https://polymind.supercollective.io/join?session=public', config),
-    'https://polymind.supercollective.io/join?session=public');
+  assert.throws(() => participantUrl('https://polymind.supercollective.io/join?session=public', config), { status: 400 });
+  assert.equal(participantUrl('https://polymind.supercollective.io/?session=public', config),
+    'https://polymind.supercollective.io/?session=public');
+});
+
+test('upgrade keeps the programme but makes incomplete saved Polymind invitations unavailable', async () => {
+  const directory = await mkdtemp(join(temporary, 'old-invitation-'));
+  const original = await serve(directory);
+  const saved = await (await fetch(`${original.base}/api/operator/state`, { headers: authenticated })).json();
+  await original.close();
+  saved.activeId = 'polymind';
+  Object.assign(saved.activities.find(item => item.id === 'polymind'), {
+    status: 'ready', url: 'https://polymind.supercollective.io/',
+  });
+  await writeFile(join(directory, 'state.json'), JSON.stringify(saved));
+  const restarted = await serve(directory);
+  try {
+    const state = await (await fetch(`${restarted.base}/api/operator/state`, { headers: authenticated })).json();
+    const current = await (await fetch(`${restarted.base}/api/current`)).json();
+    assert.equal(state.revision, saved.revision + 1);
+    assert.equal(state.activities.length, saved.activities.length);
+    assert.equal(current.current.id, 'polymind');
+    assert.equal(current.current.status, 'unavailable');
+    assert.equal(current.current.url, undefined);
+    assert.match(current.current.instruction, /preparation/);
+  } finally { await restarted.close(); }
 });
 
 test('Flight audience invitations allow only the public root route and opaque audience key shape', () => {
@@ -202,7 +226,8 @@ test('app preparation uses fixed shared APIs, redacts responses and never change
     fetch: async (url, options) => {
       calls.push({ url, options });
       if (options.method === 'POST') return new Response(JSON.stringify({ id: 'synthetic-session' }));
-      const session = { id: 'synthetic-session', title: 'Synthetic session', status: 'writing-open', privateExtra: 'must-not-leave-adapter' };
+      const session = { id: 'synthetic-session', title: 'Synthetic session', status: 'writing-open',
+        participantUrl: 'https://polymind.supercollective.io/?session=synthetic-session', privateExtra: 'must-not-leave-adapter' };
       return new Response(JSON.stringify(url.endsWith('/synthetic-session') ? session : [session]));
     } };
   const server = await createHub(apiConfig);

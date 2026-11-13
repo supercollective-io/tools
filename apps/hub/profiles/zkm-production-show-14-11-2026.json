@@ -1,0 +1,31 @@
+{
+  "id": "zkm-production-show-14-11-2026",
+  "label": "ZKM · 14 November 2026",
+  "capacity": 140,
+  "writingQuestion": "What is something you’d like to change, but can’t change on your own?",
+  "voiceQuestion": "What would you like us to become capable of together that feels impossible alone?",
+  "puckQuestion": "What shall we do with this plane?",
+  "puckOptions": [],
+  "flightScenario": "karlsruhe-747-landing",
+  "activityBindings": { "polymind": ["polymind", "polymind-all"] },
+  "operatorNotes": {
+    "arrival": "Keep the waiting entrance visible while people arrive.",
+    "polymind": "Open writing in the Polymind session controls. Each participant records on their phone. You decide when to give the stop cue. Participants choose Stop recording, transcribe, review and correct the text, choose Replace my contribution with this transcript, then wait for Saved. Once everyone has saved, choose Close collection without analysis. Closing stops active recordings on the next refresh and excludes unsaved transcripts. Keep this round for All; do not start analysis yet.",
+    "analogue": "Work in pairs with the analogue objects. Keep the frozen Polymind round from 1 intact.",
+    "four": "Work in groups of four. Keep the frozen Polymind round from 1 intact.",
+    "polymind-all": "Open the same Polymind session controls and projection used in 1. Choose Analyse frozen writing (or Close writing and analyse if collection is still open). This uses the reviewed, saved transcripts from 1 and publishes the completed overview. Do not open a new round.",
+    "collective-voice": "Open the separate Collective Voice session. Open microphone round, then Start / resume voice. End voice before moving on.",
+    "puck": "Collect the room’s answer options, prepare the Puck room, then show its invitation. Start the round separately in Puck room controls.",
+    "flight": "Load karlsruhe-747-landing and connect the bridge before the show; leave FlightGear paused. Recheck readiness before this cue. Participants join; release phone controls before unpausing locally. Connection loss does not pause FlightGear."
+  },
+  "activities": [
+    { "id": "arrival", "label": "Arrivals room", "kind": "waiting", "instruction": "" },
+    { "id": "polymind", "label": "1 · Record individually", "kind": "activity", "instruction": "Not available yet." },
+    { "id": "analogue", "label": "2 · Analogue objects", "kind": "analogue", "instruction": "Put your phone away and work in pairs with the analogue objects." },
+    { "id": "four", "label": "4 · Groups of four", "kind": "analogue", "instruction": "Work in groups of four. Keep your phone away." },
+    { "id": "polymind-all", "label": "All · Polymind analysis", "kind": "activity", "instruction": "Not available yet." },
+    { "id": "collective-voice", "label": "Collective Voice", "kind": "activity", "instruction": "Not available yet." },
+    { "id": "puck", "label": "Puck", "kind": "activity", "instruction": "Not available yet." },
+    { "id": "flight", "label": "Flight", "kind": "activity", "instruction": "Not available yet." }
+  ]
+}

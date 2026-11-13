@@ -31,7 +31,7 @@ try {
   assert.equal(docker('exec', name, 'id', '-u'), '1000');
   const state = await (await fetch(`${base}/api/operator/state`, { headers: { authorization } })).json();
   const digital = state.activities.find(activity => activity.id === 'polymind');
-  digital.status = 'ready'; digital.url = 'https://polymind.supercollective.io/join?session=synthetic';
+  digital.status = 'ready'; digital.url = 'https://polymind.supercollective.io/?session=synthetic';
   const saved = await fetch(`${base}/api/operator/state`, { method: 'PUT',
     headers: { authorization, origin, 'content-type': 'application/json' },
     body: JSON.stringify({ expectedRevision: state.revision, activeId: 'polymind', activities: state.activities }) });

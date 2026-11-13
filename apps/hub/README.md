@@ -23,19 +23,99 @@ Use `PORT=3002` and the matching `HUB_PUBLIC_ORIGIN` when running alongside othe
 
 `node --env-file=.env server.mjs`, run from `apps/hub`, is the direct development command. Production reads runtime environment variables. Bind localhost for local use; the Docker image binds `0.0.0.0:3000`.
 
-The default phase is a welcome/waiting invitation. Polymind, Puck and Flight begin unavailable: save checked participant links in Prepare activities before showing them. `/operator` uses HTTP Basic authentication; the browser supplies credentials to its same-origin API. The password is never stored in the manifest or public JavaScript. Updates require both operator authentication and the exact configured public Origin. HTTP is accepted for an explicitly configured localhost/127.0.0.1 hub origin during development; participant destinations always require HTTPS.
+The default entrance is **Waiting to begin**. The ZKM profile names its waiting cue **Arrivals room**. `/operator` is the private **Show controls** page, with **Preparation** and **Live cues** tabs. It uses HTTP Basic authentication; the browser supplies credentials to its same-origin API. The password is never stored in the manifest or public JavaScript. Updates require both operator authentication and the exact configured public Origin. HTTP is accepted for an explicitly configured localhost/127.0.0.1 Hub origin during development; participant destinations always require HTTPS.
 
-Hub can prepare Polymind sessions and Puck rooms directly through their ordinary APIs.
-Configure the optional app tokens once at installation, then choose an existing
-activity or create one in **Prepare activities**. See [API setup and recovery](API.md).
-No app UI contains Hub-specific integration controls.
+Hub can prepare Polymind sessions and Puck rooms through their ordinary APIs.
+Configure the optional app tokens once at installation, then use **Preparation**
+to select an existing activity or create one. For Polymind, save the canonical
+participant invitation returned by a compatible Polymind version; do not build a
+URL from a session ID. See [operator API setup and show profiles](API.md).
 
-**App controls** stays available in both operator views. Polymind opens its operator page,
-scoped to the saved session when present. Puck opens its operator page scoped to the saved room, or its room list before a room is prepared. Each saved activity also offers its own controls link
-when its website matches a configured app. Links open a new tab and carry no credentials;
-Each app retains its own sign-in; Puck instance operators can explicitly acquire host controls without joining the activity. These links
-do not grant a role or start an operation. Flight and custom sites have no assumed
-operator route. See the [operator workflow review](../../docs/design/hub-operator.md).
+**App controls** stays available in both views. Polymind and Collective Voice links
+open their own session-scoped operator pages; Puck links open the saved room's
+controls or its operator page before a room is prepared. Each activity also has a
+separate app-controls link when its destination matches a configured app. These
+links open a new tab, carry no credentials, and do not start an operation or grant
+a role. Each app keeps its own sign-in; Puck instance operators can explicitly
+acquire host controls without joining the activity. Hub has no assumed Flight
+operator route. See the [operator workflow review](../../docs/design/hub-operator.md)
+and [show profile operation brief](../../docs/design/show-profile-operation.md).
+
+## Prepare a named show
+
+The shipped profile is **ZKM · 14 November 2026** (`zkm-production-show-14-11-2026`).
+Its revised sequence is: **Arrivals room** (waiting) → **1 · Record individually**
+(on a phone) → **2 · Analogue objects** (in pairs) → **4 · Groups of four** →
+**All · Polymind analysis** (of the original 1 contributions) → Collective Voice
+→ Puck → Flight. The closing invitation is removed. Installing a new run preserves the current waiting invitation exactly. Its writing question is “What is something
+you’d like to change, but can’t change on your own?” Its Collective Voice question
+is “What would you like us to become capable of together that feels impossible
+alone?” Its Puck question is “What shall we do with this plane?”
+
+In **Preparation**, create a production run or a fresh rehearsal, then prepare or
+check its activities. Hub creates separate Polymind and Collective Voice sessions
+for the same run and saves their preparation as drafts. The **1** and **All**
+invitations share one bounded Polymind session and round. Give the room a clear
+stop-recording cue at the end of **1**. Each participant chooses **Stop recording**,
+then transcribes, reviews and corrects the transcript, applies it, and waits for
+**Saved**. Only after every participant shows **Saved**, use Polymind's
+**Close collection without analysis** control. This freezes saved contributions
+without a provider call. Closing collection stops an active phone recording at
+its next state refresh and excludes any unsaved transcript; it does not leave time
+to review or save after closure. The round stays frozen through **2** and **4**.
+Late transcripts cannot be added after collection closes. At **All**, use
+**Analyse frozen writing** in the same Polymind session (or **Close writing and
+analyse** if collection is still open). Polymind analyses the original 1
+contributions and publishes the completed overview automatically. Hub cue changes
+do not start analysis or generate model output. A production run is limited to one per
+profile; a new rehearsal gets new run and app-resource IDs. Resume a saved run to
+reuse its IDs. If creation loses its response, retry the same request with the same
+settings to recover the existing run or resource.
+
+For phone recording, Polymind needs `TRANSCRIPTION_MODEL` and its provider
+credentials (`OPENAI_API_KEY`) configured. Participants need a secure HTTPS page
+and must grant microphone permission. The operator decides when to cue **Stop
+recording**; there is no fixed duration timer. Participants then transcribe,
+review and correct the transcript, apply it to their contribution, and wait for
+**Saved** before collection closes. After successful transcription, Polymind
+removes the raw audio; analysis uses the reviewed saved text, not an audio
+archive. Uploads are bounded to 8 MiB as a technical safeguard; this is not a
+duration limit, and the server does not validate decoded media duration. See [Polymind's bounded show flow](../../docs/operations.md#bounded-show-flow)
+and [recording operations](../../docs/operations.md#collective-microphone-and-historical-operations).
+
+Private operator notes are stored per run and shown only in the operator view for
+the current cue; they are not part of participant invitations or public state.
+Editing a named profile does not rewrite runs already
+saved in `runs.json`; create a new rehearsal to use the revised sequence.
+
+Edit a saved run's questions, model settings, Puck question/options or Flight
+invitation before app preparation starts. Hub uses the run revision to reject a
+stale edit. It checks the required app token and allowed participant website
+before the first preparation request; after a request may have reached an app,
+settings stay frozen so a retry uses the original values. Resume the run to retry,
+or create a fresh rehearsal to change settings.
+
+The room proposes Puck's answer options. It is valid to create the run before the
+options exist. When the room has proposed two to six distinct answers, enter them
+and select **Prepare Puck with these options**. That action creates or recovers the
+room and connects its invitation. It does not start the Puck round.
+
+Before Flight, load the configured `karlsruhe-747-landing` approach, connect the
+bridge and leave FlightGear paused. Recheck readiness locally before the cue.
+Participants join through the invitation; release phone controls before unpausing
+FlightGear locally. Hub does not launch Flight or check simulator readiness. Keep
+the bridge credential in Flight's private configuration, not in the participant
+invitation.
+
+Select **Use prepared programme** only when the current Hub invitation is waiting.
+Hub keeps that exact waiting invitation active. If this same run is already
+installed, the action can connect newly prepared, non-current invitations that
+are still unavailable; it preserves the current cue and existing edits. Then use
+**Live cues** and **Show invitation: …** to change what participants see. Cues do
+not start, stop or remotely navigate an app. A saved participant link is not proof
+that the destination is reachable or ready; check it separately before a cue.
+Preparation changes are saved run data, not a deployment or a change to the
+profile source.
 
 ## Runtime configuration
 
@@ -70,14 +150,16 @@ Public HTTPS, the waiting entrance, readiness endpoint, printable entrance card 
 
 ## Operate, back up and restore
 
-1. Open `/operator` privately. Use **Prepare activities** to select an app, then create or connect an existing activity. The participant destination is saved automatically through the normal revision check. Open its controls for detailed configuration and check the saved participant entrance. **Advanced: participant link** remains available for other apps or installations without API credentials. A blank destination keeps a digital activity unavailable.
-2. Use **Run the show** to see the current entrance and choose **Show** beside a prepared invitation. This changes the entrance immediately; saving preparation alone does not select it. Give the room its spoken cue. Returning phones see the latest revision; phones inside other apps must use their return link or manually return to the short address. Start rounds, analyse and release results in the destination app itself.
-3. If a tool fails, choose **Return to waiting** or another in-person invitation. Closing cues and edits to the current invitation require confirmation. If connection or concurrent edits make the state uncertain, **Refresh saved state** before another change; unsaved preparation fields are retained for review. Unavailable digital activities have no public link.
-4. Print `/print` before the show. Its QR encodes exactly `https://we.supercollective.io`; the printed address works without a camera. Regenerate the QR if the permanent domain changes.
-5. State is `/data/state.json`, written through a synced temporary file and atomic rename. To back up, copy the current complete file and record the running image/revision. No participant writing or credentials are in this file. Keep the original state if restoring an older programme.
-6. Restore to an isolated writable directory and start a separate instance with private test credentials. Verify the selected phase and revision before using it in production. Invalid stored state stops startup rather than silently replacing the programme. Rolling back code does not automatically roll back this file.
+1. Open `/operator` privately. Use **Preparation** to create or resume a run from the named profile, then prepare or check its activities. Hub saves the canonical Polymind participant invitation returned by a compatible Polymind version. **Advanced: participant link** remains available for other apps or installations without API credentials; use the actual participant invitation, never an operator or projection link.
+2. If Puck's answers were not entered when the run was created, collect two to six distinct options from the room. Enter them and choose **Prepare Puck with these options** to create or recover the room. This does not start the round. Check Flight locally and leave it paused before its cue.
+3. Choose **Use prepared programme** only when the current invitation is waiting. Hub keeps that exact waiting invitation active; this does not publish a cue. If the same run is already loaded, the action can add newly prepared, non-current invitations without replacing the current invitation or existing edits.
+4. Use **Live cues** to see the current entrance and select **Show invitation: …** for a saved invitation. This changes the entrance immediately; saving preparation alone does not select it. Give the room its spoken cue. Returning phones see the latest revision; phones inside other apps must use their return link or manually return to the short address. Start rounds, analyse and release results in the destination app itself.
+5. If a tool fails, choose **Return to waiting** or another in-person invitation. Closing cues and edits to the current invitation require confirmation. If connection or concurrent edits make the state uncertain, **Refresh saved state** before another change; unsaved preparation fields are retained for review. Unavailable digital activities have no public link.
+6. Print `/print` before the show. Its QR encodes exactly `https://we.supercollective.io`; the printed address works without a camera. Regenerate the QR if the permanent domain changes.
+7. The live programme is `/data/state.json`; prepared runs are `/data/runs.json`. Back up and restore both files together. The private run file contains resource IDs, app bindings and the optional Flight participant invitation. Keep it private. Invalid stored state stops startup rather than silently replacing it. Rolling back code does not automatically roll back these files.
+8. Restore both files to an isolated writable directory and start a separate instance with private test credentials. Verify the selected invitation and run ID before using it in production. Invalid stored state stops startup rather than silently replacing it.
 
-Tests cover operator access, origin and Host rejection, URL boundaries, single current invitation, concurrent edits, analogue/closed transitions, late arrivals, corrupted state and restoration across a restart. The headless-browser smoke checks narrow mobile viewports, separate preparation and live cue changes, retained drafts and failed-save recovery, full-page navigation, same-origin storage continuity in a synthetic destination, returning to the room and the printable QR. It uses explicitly supplied test tooling without adding a runtime dependency. Tests do not establish venue-network conditions, QR-camera behaviour, participant comprehension or real destination-app identity restoration.
+Tests cover operator access, origin and Host rejection, URL boundaries, single current invitation, concurrent edits, analogue/closed transitions, late arrivals, corrupted state and restoration across a restart. The headless-browser smoke checks narrow mobile viewports, separate preparation and live cue changes, retained drafts and failed-save recovery, full-page navigation, same-origin storage continuity in a synthetic destination, returning to the room and the printable QR. It uses explicitly supplied test tooling without adding a runtime dependency. Tests do not establish venue-network conditions, QR-camera behaviour, participant comprehension or real destination-app identity restoration. The named profile has not been tested on actual phones or with live Polymind, Puck or FlightGear.
 
 Source was imported from the standalone hub at revision `8588c59ab3bcdc43fa737f949a0e62bafb166ce8`. The original checkout and history are retained. Maintain hub software here; performance scores and artistic material remain in `rehearsing-we`. Moving source does not migrate runtime state or change the live deployment.
 

@@ -13,7 +13,9 @@ import {
   type OperationConfig,
   type OperationKind,
   operationConfigSchema,
+  type Preparation,
   personalAnalysisV2Schema,
+  preparationSchema,
   type RevisionInput,
   revisionSchema,
   SessionError,
@@ -70,6 +72,7 @@ export class SessionStore {
     }
     this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;
       CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, body TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS session_preparations (session TEXT PRIMARY KEY REFERENCES sessions(id), body TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS session_creation_requests (request TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, session TEXT NOT NULL REFERENCES sessions(id));
       CREATE TABLE IF NOT EXISTS participants (id TEXT PRIMARY KEY, session TEXT NOT NULL REFERENCES sessions(id), credential TEXT UNIQUE NOT NULL, recovery TEXT UNIQUE NOT NULL, body TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS rounds (id TEXT PRIMARY KEY, session TEXT NOT NULL REFERENCES sessions(id), body TEXT NOT NULL);
@@ -115,6 +118,41 @@ export class SessionStore {
       .prepare("SELECT body FROM sessions ORDER BY rowid DESC")
       .all()
       .map((r) => decode<Session>(r) as Session);
+  }
+  preparation(session: string): Preparation | null {
+    this.session(session);
+    const row = this.db
+      .prepare("SELECT body FROM session_preparations WHERE session=?")
+      .get(session);
+    return row ? preparationSchema.parse(decode<Preparation>(row)) : null;
+  }
+  setPreparation(session: string, value: Preparation): Preparation {
+    this.session(session);
+    const preparation = preparationSchema.parse(value);
+    return this.transaction(() => {
+      const previous = this.db
+        .prepare("SELECT body FROM session_preparations WHERE session=?")
+        .get(session);
+      if (previous) {
+        const saved = preparationSchema.parse(decode<Preparation>(previous));
+        if (JSON.stringify(saved) === JSON.stringify(preparation)) return saved;
+      }
+      if (
+        this.db
+          .prepare("SELECT 1 FROM rounds WHERE session=? LIMIT 1")
+          .get(session)
+      )
+        throw new SessionError(
+          "Preparation cannot change after a round has been opened.",
+          409,
+        );
+      this.db
+        .prepare(
+          "INSERT INTO session_preparations (session, body) VALUES (?, ?) ON CONFLICT(session) DO UPDATE SET body=excluded.body",
+        )
+        .run(session, JSON.stringify(preparation));
+      return preparation;
+    });
   }
   createSession(title: string, capacity: number, request?: string): Session {
     if (request !== undefined) {
