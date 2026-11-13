@@ -72,6 +72,8 @@ async function browser(
   fetch: Fetch,
   savedDraft?: unknown,
   sharedStorage = new Map<string, string>(),
+  href = "https://polymind.test/?session=session-1",
+  waitForReady = true,
 ) {
   const elements = new Map<string, Element>();
   const makeElement = (): Element => ({
@@ -134,7 +136,7 @@ async function browser(
       getElementById: get,
       createElement: makeElement,
     },
-    location: { href: "https://polymind.test/?session=session-1" },
+    location: { href },
     localStorage: {
       getItem: (key: string) => local.get(key) ?? null,
       setItem: (key: string, value: string) => local.set(key, value),
@@ -168,8 +170,10 @@ async function browser(
   const source = await readFile("src/web/session.js", "utf8");
   runInNewContext(`(() => {${source}\n})()`, context);
   await vi.waitFor(() => {
-    expect(get("capture").hidden).toBe(false);
-    expect(get("prompt").textContent).toBe("What matters?");
+    if (waitForReady) {
+      expect(get("capture").hidden).toBe(false);
+      expect(get("prompt").textContent).toBe("What matters?");
+    } else expect(get("status").textContent).not.toBe("");
   });
   return {
     get,
@@ -195,8 +199,101 @@ async function browser(
     async refresh() {
       await intervals[0]?.();
     },
+    tickRecording() {
+      intervals.at(-1)?.();
+    },
   };
 }
+
+it("records beyond one minute until the participant stops", async () => {
+  const page = await browser(async () => response(initialState()));
+  const clock = vi.spyOn(Date, "now").mockReturnValue(0);
+  try {
+    await page.get("record").onclick?.();
+    clock.mockReturnValue(180_000);
+    page.tickRecording();
+    expect(page.get("record-status").textContent).toBe(
+      "Recording · 180 seconds",
+    );
+    expect(page.get("stop").hidden).toBe(false);
+    expect(page.get("transcribe").hidden).toBe(true);
+    await page.get("stop").onclick?.();
+    expect(page.get("stop").hidden).toBe(true);
+    expect(page.get("transcribe").hidden).toBe(false);
+    expect(page.get("playback").hidden).toBe(false);
+  } finally {
+    clock.mockRestore();
+  }
+});
+
+it.each(["round", "session"] as const)(
+  "stops active recording when the operator closes the %s",
+  async (boundary) => {
+    const state = initialState();
+    const page = await browser(async () => response(state));
+    await page.get("record").onclick?.();
+    expect(page.get("stop").hidden).toBe(false);
+    state[boundary].open = false;
+    await page.refresh();
+    expect(page.get("stop").hidden).toBe(true);
+    expect(page.get("audio-controls").hidden).toBe(true);
+  },
+);
+
+it("explains when the participant link has no session invitation", async () => {
+  let requests = 0;
+  const page = await browser(
+    async () => {
+      requests++;
+      throw new Error("A missing invitation must not make a request.");
+    },
+    undefined,
+    new Map(),
+    "https://polymind.test/",
+    false,
+  );
+
+  expect(page.get("prompt").textContent).toBe("Invitation needed");
+  expect(page.get("status").textContent).toContain(
+    "full participant link supplied by the organiser",
+  );
+  expect(requests).toBe(0);
+});
+
+it("explains when the participant link names an unknown session", async () => {
+  const page = await browser(
+    async () => response({ error: "Not found." }, 404),
+    undefined,
+    new Map(),
+    "https://polymind.test/?session=unknown",
+    false,
+  );
+
+  expect(page.get("prompt").textContent).toBe("Invitation unavailable");
+  expect(page.get("status").textContent).toContain(
+    "Ask the organiser for the current session link",
+  );
+  expect(page.get("status").textContent).not.toContain("Reconnecting");
+});
+
+it("joins without asking participants to direct their match to their seat", async () => {
+  let joinPayload: unknown;
+  const page = await browser(async (url, options) => {
+    if (url.startsWith("/api/state")) return response(initialState());
+    if (url.startsWith("/api/join")) {
+      joinPayload = JSON.parse(String(options?.body));
+      return response({ participant: initialState().participant });
+    }
+    throw new Error(`Unexpected request ${url}`);
+  });
+
+  page.get("name").value = "Jo";
+  await page.get("join").onsubmit?.({ preventDefault() {} });
+
+  expect(joinPayload).toEqual({ name: "Jo" });
+  const html = await readFile("src/web/session.html", "utf8");
+  expect(html).not.toContain('id="seated"');
+});
 
 it("autosaves bounded contributions into matching and preserves the latest edit", async () => {
   const first = deferred<ReturnType<typeof response>>();

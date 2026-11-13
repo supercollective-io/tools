@@ -1,3 +1,4 @@
+import { runPreparation } from './run-preparation.js';
 const $ = selector => document.querySelector(selector);
 const form = $('#programme');
 const feedback = $('#feedback');
@@ -13,8 +14,9 @@ let editingId;
 let dirty = false;
 let busy = false;
 let uncertain = false;
-let mode = 'run';
+let mode = new URL(location.href).searchParams.get('view') === 'preparation' ? 'prepare' : 'run';
 let polling = false;
+let runTools;
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
@@ -39,6 +41,7 @@ function say(message, error = false) {
 function lock() {
   $('#current-heading').textContent = uncertain ? 'Last known entrance' : 'On the entrance now';
   for (const control of document.querySelectorAll('button, #programme input, #programme select, #programme textarea')) {
+    if (control.closest('#run-preparation')) continue;
     control.disabled = busy || appBusy || (!state && control.id !== 'reload');
   }
   for (const control of document.querySelectorAll('[data-cue]')) {
@@ -49,48 +52,62 @@ function lock() {
   $('#create-session').disabled ||= !integrations[form.elements.app.value] || uncertain;
   $('#add').disabled ||= (state?.activities.length ?? 0) >= 20;
   form.elements.origin.disabled ||= Boolean(form.elements.destination.value.trim()) && !/^[/?]/.test(form.elements.destination.value.trim());
+  runTools?.update();
 }
 function showMode(next) {
   mode = next;
+  const address = new URL(location.href);
+  address.searchParams.set('view', next === 'prepare' ? 'preparation' : 'live');
+  history.replaceState(null, '', address);
   $('#run').hidden = next !== 'run' || !state;
   $('#prepare').hidden = next !== 'prepare' || !state;
-  $('#run-view').setAttribute('aria-pressed', String(next === 'run'));
-  $('#prepare-view').setAttribute('aria-pressed', String(next === 'prepare'));
+  for (const [id, selected] of [['run-view', next === 'run'], ['prepare-view', next === 'prepare']]) {
+    const tab = $(`#${id}`);
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+  }
 }
 function ready(activity) { return activity.status === 'ready'; }
 function description(activity) {
   if (!ready(activity)) return 'Needs preparation';
-  return { activity: 'Participant link saved', analogue: 'In person', waiting: 'Waiting', closed: 'Closing' }[activity.kind];
+  return { activity: 'Link saved · check before showing', analogue: 'In person', waiting: 'Waiting', closed: 'Closing' }[activity.kind];
 }
-function cueButton(activity, label = `Show ${activity.label}`) {
+function cueButton(activity, label = `Show invitation: ${activity.label}`) {
   const node = button(label, () => cue(activity));
   node.dataset.cue = activity.id;
   return node;
 }
 function appFor(activity) {
-  if (activity.url) return Object.keys(appOrigins).find(id => new URL(activity.url).origin === appOrigins[id]);
-  return Object.hasOwn(appOrigins, activity.id) ? activity.id : undefined;
+  if (activity.url) {
+    const url = new URL(activity.url);
+    if (appOrigins.polymind && url.origin === appOrigins.polymind &&
+      activity.id === 'collective-voice') return 'collective-voice';
+    return Object.keys(appOrigins).find(id => url.origin === appOrigins[id]);
+  }
+  return activity.id === 'collective-voice' ? 'collective-voice' : Object.hasOwn(appOrigins, activity.id) ? activity.id : undefined;
 }
 function connectionFor(activity) {
   if (!activity.url) return null;
   const app = appFor(activity);
   if (!app) return null;
   const url = new URL(activity.url);
-  const id = app === 'polymind' ? url.searchParams.get('session') : /^\/room\/([a-zA-Z0-9_-]+)\/?$/.exec(url.pathname)?.[1];
-  return id && /^[a-zA-Z0-9_-]{1,100}$/.test(id) ? { app, id } : null;
+  const apiApp = app === 'collective-voice' ? 'polymind' : app;
+  const id = apiApp === 'polymind' ? url.searchParams.get('session') : /^\/room\/([a-zA-Z0-9_-]+)\/?$/.exec(url.pathname)?.[1];
+  return id && /^[a-zA-Z0-9_-]{1,100}$/.test(id) ? { app: apiApp, id, view: app } : null;
 }
 const statusLabels = { 'writing-open': 'Writing open', 'writing-closed': 'Writing not open', 'microphone-open': 'Microphone open',
   closed: 'Session closed', waiting: 'Waiting for a round', countdown: 'Countdown', active: 'Round running', selected: 'Round finished',
   'timed-out': 'Round finished', cancelled: 'Round cancelled', interrupted: 'Round interrupted', unknown: 'Status unknown' };
 function statusText(activity) {
+  if (activity.url && new URL(activity.url).origin === 'https://fly.supercollective.io') return 'Simulator readiness not checked here';
   const connection = connectionFor(activity);
   if (!connection) return '';
-  if (!integrations[connection.app]) return 'App status connection not configured';
+  if (!integrations[connection.app]) return 'App status: connection not configured';
   const report = reportedStatus.get(`${connection.app}:${connection.id}`);
-  if (!report) return 'App status not checked';
+  if (!report) return 'App status: not checked';
   const time = new Date(report.checkedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  return report.error ? `App status unavailable${report.previous ? ` · Last checked ${time}: ${statusLabels[report.previous] ?? 'Unknown'}` : ''}`
-    : `${statusLabels[report.status] ?? 'Status unknown'} · Checked ${time}`;
+  return report.error ? `App status: unavailable${report.previous ? ` · Last checked ${time}: ${statusLabels[report.previous] ?? 'Unknown'}` : ''}`
+    : `App status: ${statusLabels[report.status] ?? 'Status unknown'} · Checked ${time}`;
 }
 async function appApi(app, id, body) {
   const response = await fetch(`/api/operator/apps/${app}/sessions${id ? `/${encodeURIComponent(id)}` : ''}`, {
@@ -101,8 +118,9 @@ async function appApi(app, id, body) {
   if (!response.ok) throw new Error(result.error ?? 'Could not access the app. Try again.');
   return result;
 }
-async function checkActivities() {
+async function checkActivities(manual = false) {
   if (!state || busy || appBusy || document.hidden) return;
+  if (manual) say('Checking app status…');
   const connections = new Map(state.activities.map(activity => connectionFor(activity)).filter(Boolean).map(item => [`${item.app}:${item.id}`, item]));
   await Promise.all([...connections].map(async ([key, item]) => {
     if (!integrations[item.app]) return;
@@ -114,6 +132,7 @@ async function checkActivities() {
     const activity = state.activities.find(item => item.id === node.dataset.appStatus);
     if (activity) node.textContent = statusText(activity);
   }
+  if (manual) say('App checks updated. Saved invitations are unchanged.');
 }
 async function loadSessions() {
   const version = ++preparationVersion;
@@ -175,11 +194,12 @@ async function createSession() {
   } finally { appBusy = false; lock(); }
 }
 function controlsLink(app, activity) {
-  if (app === 'polymind') {
+  if (app === 'polymind' || app === 'collective-voice') {
     const url = new URL('/operator', appOrigins.polymind);
     const session = activity?.url ? new URL(activity.url).searchParams.get('session') : null;
     if (session) url.searchParams.set('session', session);
-    return link(session ? 'Polymind session controls ↗' : 'Polymind controls ↗', url.href);
+    const label = app === 'collective-voice' ? 'Collective Voice' : 'Polymind';
+    return link(session ? `${label} session controls ↗` : `${label} controls ↗`, url.href);
   }
   const connection = activity && connectionFor(activity);
   return link(connection ? 'Puck room controls ↗' : 'Puck controls ↗', connection
@@ -188,18 +208,22 @@ function controlsLink(app, activity) {
 function renderAppControls() {
   $('#app-controls').hidden = false;
   $('#app-links').replaceChildren();
-  for (const app of ['polymind', 'puck']) {
+  for (const app of ['polymind', 'collective-voice', 'puck']) {
     const matches = state.activities.filter(activity => appFor(activity) === app && activity.url);
     const activity = matches.find(item => item.id === state.activeId) ?? matches[0];
     const item = element('div');
     item.append(controlsLink(app, activity));
     item.append(element('p', activity ? `Saved invitation: ${activity.label}`
-      : app === 'polymind' ? 'Create or select a writing session' : 'Set up the question and options', 'aside'));
+      : app === 'polymind' ? 'Create or select a writing session' : app === 'collective-voice' ? 'Prepare a separate voice session' : 'Set up the question and options', 'aside'));
     $('#app-links').append(item);
   }
 }
 function render() {
   const current = state.activities.find(activity => activity.id === state.activeId);
+  const upcoming = state.activities[state.activities.findIndex(item => item.id === state.activeId) + 1];
+  $('#current-operator-note').textContent = state.operatorNotes?.[current.id] ?? '';
+  $('#current-operator-note').hidden = !state.operatorNotes?.[current.id];
+  $('#cues-heading').textContent = upcoming ? `Next: ${upcoming.label}` : 'No next activity';
   const preview = $('#current'); preview.replaceChildren();
   preview.append(element('h3', current.label, 'current-title'));
   if (current.kind === 'activity' && ready(current)) {
@@ -219,11 +243,22 @@ function render() {
     const row = element('div', '', 'cue-row');
     row.classList.toggle('is-current', active);
     const copy = element('div');
-    copy.append(element('h3', activity.label), element('p', active ? 'On the entrance now' : description(activity), 'aside'));
+    const next = upcoming?.id === activity.id;
+    copy.append(element('h3', activity.label), element('p', active ? 'Current invitation · On the Hub entrance' : next ? `Next activity · ${description(activity)}` : description(activity), 'aside'));
     if (dirty && activity.id === editingId) copy.append(element('p', 'Unsaved changes · Show uses the saved version', 'aside'));
-    row.append(copy, active ? element('span', 'Current', 'current-marker') : ready(activity)
-      ? cueButton(activity) : button(`Prepare ${activity.label}`, () => { if (edit(activity)) showMode('prepare'); }));
+    if (next) copy.append(element('span', 'Next activity', 'next-marker'));
+    row.append(copy, active ? element('span', 'Current invitation', 'current-marker') : ready(activity)
+      ? cueButton(activity) : button(`Prepare ${activity.label}`, () => {
+        if (state.runId && ['polymind', 'collective-voice', 'puck'].includes(activity.id)) {
+          showMode('prepare'); void runTools.openRun(state.runId, activity.id);
+        } else if (edit(activity)) showMode('prepare');
+      }));
     const report = element('p', statusText(activity), 'aside'); report.dataset.appStatus = activity.id; copy.append(report);
+    if (state.operatorNotes?.[activity.id]) {
+      const guide = element('details');
+      guide.append(element('summary', 'Operator cue'), element('p', state.operatorNotes[activity.id], 'aside'));
+      copy.append(guide);
+    }
     const app = appFor(activity);
     if (app && activity.url) copy.append(controlsLink(app, activity));
     cues.append(row);
@@ -258,13 +293,14 @@ function edit(activity) {
     const option = element('option', new URL(value).host); option.value = value; return option;
   }));
   const app = appFor(activity);
-  form.elements.app.value = app ?? 'manual';
+  const apiApp = app === 'collective-voice' ? 'polymind' : app;
+  form.elements.app.value = apiApp ?? 'manual';
   $('#manual-destination').open = !app;
   $('#create-activity').open = false;
   form.elements.sessionTitle.value = activity.label;
   form.elements.question.value = ''; form.elements.options.value = '';
-  restoreCreation(app);
-  form.elements.origin.value = app && origins.includes(appOrigins[app]) ? appOrigins[app] : '';
+  restoreCreation(apiApp);
+  form.elements.origin.value = apiApp && origins.includes(appOrigins[apiApp]) ? appOrigins[apiApp] : '';
   $('#editor-controls').replaceChildren();
   if (app) $('#editor-controls').append(controlsLink(app, activity));
   form.elements.destination.value = '';
@@ -394,14 +430,25 @@ form.addEventListener('submit', async event => {
     dirty = false; edit(state.activities.find(item => item.id === activity.id));
   }
 });
-$('#run-view').addEventListener('click', () => { mode = 'run'; render(); });
-$('#prepare-view').addEventListener('click', () => showMode('prepare'));
+for (const tab of document.querySelectorAll('[role=tab]')) {
+  tab.addEventListener('click', () => { showMode(tab.id === 'run-view' ? 'run' : 'prepare'); });
+  tab.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const tabs = [...document.querySelectorAll('[role=tab]')];
+    const index = tabs.indexOf(tab);
+    const target = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs.at(-1)
+      : tabs[(index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    target.focus(); target.click();
+  });
+}
 $('#reload').addEventListener('click', () => void load());
+$('#refresh-checks').addEventListener('click', () => void checkActivities(true));
 $('#cancel').addEventListener('click', () => { if (discard()) { closeEditor(); render(); $('#add').focus(); } });
 $('#add').addEventListener('click', () => {
   if (edit({ id: `invitation-${crypto.randomUUID()}`, label: 'New invitation', kind: 'analogue', status: 'ready', instruction: '' })) dirty = true;
 });
-window.addEventListener('beforeunload', event => { if (dirty || busy || appBusy) { event.preventDefault(); event.returnValue = ''; } });
+window.addEventListener('beforeunload', event => { if (dirty || busy || appBusy || runTools?.isBusy() || runTools?.hasUnsavedChanges()) { event.preventDefault(); event.returnValue = ''; } });
 // Observe changes without replacing an operator's in-progress form or keyboard focus.
 setInterval(async () => {
   if (!state || busy || polling || document.hidden) return;
@@ -436,4 +483,11 @@ $('#new-request').addEventListener('click', () => {
   catch { $('#app-feedback').textContent = 'Could not reset the creation request.'; }
 });
 setInterval(() => void checkActivities(), 15000);
+runTools = runPreparation({ getState: () => state, blocked: () => busy || appBusy || uncertain,
+  beforeInstall: discard,
+  installed: next => {
+    if (state?.runId !== next.runId) closeEditor();
+    state = next; render(); say('Prepared programme saved. The current invitation has not changed.');
+    void checkActivities();
+  } });
 void load();

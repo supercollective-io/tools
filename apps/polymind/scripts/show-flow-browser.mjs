@@ -167,13 +167,27 @@ try {
     assert.equal(saved.contribution.matching, true);
   }
   await projection.goto(`${origin}/projection${query}`);
+  await operator
+    .getByRole("button", {
+      name: "Close collection without analysis",
+      exact: true,
+    })
+    .click();
+  await expect(operator.locator("#close-writing")).toBeDisabled();
+  await expect(operator.locator("#freeze")).toHaveText(
+    "Analyse frozen writing",
+  );
+  assert.equal(
+    calls.some((call) => call.operation.kind === "analysis"),
+    false,
+  );
   if (!(await operator.locator("#model").isVisible()))
     await operator.locator("#setup > summary").click();
   await operator
     .getByLabel("Text model", { exact: true })
     .fill("synthetic-provider-never-called");
   await operator
-    .getByRole("button", { name: "Close writing and analyse", exact: true })
+    .getByRole("button", { name: "Analyse frozen writing", exact: true })
     .click();
   await expect
     .poll(async () => calls.some((call) => call.operation.kind === "analysis"))

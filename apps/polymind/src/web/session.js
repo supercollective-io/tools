@@ -239,7 +239,6 @@ $("join").onsubmit = async (event) => {
   try {
     const result = await api("/api/join", {
       name: $("name").value,
-      seated: $("seated").checked,
     });
     if (result.recovery) {
       $("recovery").hidden = false;
@@ -406,11 +405,8 @@ function resetEditor() {
 }
 async function refresh() {
   if (!session) {
-    status(
-      "Open the session link from Rehearsing We to join.",
-      false,
-      "routine",
-    );
+    $("prompt").textContent = "Invitation needed";
+    status("Open the full participant link supplied by the organiser.", true);
     return;
   }
   const generation = editorGeneration;
@@ -463,6 +459,7 @@ async function refresh() {
           debounce = setTimeout(() => void save(), 20);
       }
       const open = next.session.open && next.round?.open;
+      if (!open && recorder?.state === "recording") recorder.stop();
       $("text").disabled = !open;
       if (conflict)
         $("rebase").disabled = !next.round?.open || !next.session.open;
@@ -525,8 +522,17 @@ async function refresh() {
       Boolean(next.show?.presentation && next.show.presentation !== "voice");
     $("voice").textContent = next.voice?.text ?? "";
   } catch (e) {
-    reconnecting = true;
-    status(`${e.message} Reconnecting…`, true, "transient");
+    if (e.status === 400 || e.status === 404) {
+      reconnecting = false;
+      $("prompt").textContent = "Invitation unavailable";
+      status(
+        "This participant link is incomplete or no longer valid. Ask the organiser for the current session link.",
+        true,
+      );
+    } else {
+      reconnecting = true;
+      status(`${e.message} Reconnecting…`, true, "transient");
+    }
   }
 }
 function isCurrentRecording(job) {
@@ -557,7 +563,11 @@ $("record").onclick = async () => {
     const activeStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
     });
-    if (!isCurrentRecording(job)) {
+    if (
+      !isCurrentRecording(job) ||
+      !state?.session.open ||
+      !state?.round?.open
+    ) {
       activeStream.getTracks().forEach((track) => {
         track.stop();
       });
@@ -584,9 +594,7 @@ $("record").onclick = async () => {
         return;
       }
       $("record-status").textContent =
-        `Recording · ${Math.floor((Date.now() - start) / 1000)} / 60 seconds`;
-      if (Date.now() - start >= 60000 && activeRecorder.state === "recording")
-        activeRecorder.stop();
+        `Recording · ${Math.floor((Date.now() - start) / 1000)} seconds`;
     }, 250);
     activeRecorder.onstop = () => {
       clearInterval(timer);

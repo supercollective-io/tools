@@ -4,10 +4,16 @@ import { expect, it, vi } from "vitest";
 
 // Execute the shipped browser script: scope must survive sign-in, and a stale
 // link must never fall back to a different session's controls.
-async function operator(search: string, signedIn = true) {
+async function operator(
+  search: string,
+  signedIn = true,
+  preparation: unknown = null,
+) {
   type Control = {
     value: string;
     hidden: boolean;
+    open: boolean;
+    disabled: boolean;
     textContent: string;
     dataset: Record<string, string>;
     children: unknown[];
@@ -19,6 +25,8 @@ async function operator(search: string, signedIn = true) {
   const make = (): Control => ({
     value: "",
     hidden: false,
+    open: false,
+    disabled: false,
     textContent: "",
     dataset: {},
     children: [],
@@ -47,9 +55,14 @@ async function operator(search: string, signedIn = true) {
             { id: "first", title: "First", open: true },
             { id: "second", title: "Second", open: true },
           ]
-        : { error: "Synthetic state unavailable" };
+        : path.endsWith("/preparation")
+          ? preparation
+          : { error: "Synthetic state unavailable" };
     return {
-      ok: signedIn && !path.startsWith("/api/operator/state"),
+      ok:
+        signedIn &&
+        (path.endsWith("/preparation") ||
+          !path.startsWith("/api/operator/state")),
       json: async () => value,
     };
   });
@@ -67,6 +80,7 @@ async function operator(search: string, signedIn = true) {
       querySelectorAll: () => [],
     },
     fetch,
+    AbortSignal: { timeout: () => "synthetic-timeout" },
     setInterval: () => 0,
   });
   await vi.waitFor(() => expect(fetch).toHaveBeenCalled());
@@ -133,4 +147,36 @@ it("keeps the ordinary first-session choice for an unscoped operator link", asyn
       {},
     ),
   );
+});
+
+it("loads continuous preparation into its controls and switches views only on selection", async () => {
+  const page = await operator("?session=second", true, {
+    mode: "continuous",
+    prompt: "What should we keep exploring?",
+    model: {
+      provider: "ollama",
+      model: "synthetic-model",
+      maxInputCharacters: 12000,
+      maxOutputTokens: 1000,
+      timeoutMs: 30000,
+    },
+  });
+  await vi.waitFor(() => {
+    expect(page.get("preparation-mode").value).toBe("continuous");
+    expect(page.get("microphone-prompt").value).toBe(
+      "What should we keep exploring?",
+    );
+    expect(page.get("writing-controls").hidden).toBe(true);
+    expect(page.get("microphone-controls").hidden).toBe(false);
+    expect(page.get("microphone-controls").open).toBe(true);
+  });
+
+  page.get("preparation-mode").value = "bounded";
+  page.get("preparation-mode").onchange?.();
+  expect(page.get("writing-controls").hidden).toBe(false);
+  expect(page.get("microphone-controls").hidden).toBe(false);
+  expect(page.get("microphone-controls").open).toBe(false);
+  expect(
+    page.fetch.mock.calls.filter(([path]) => path.endsWith("/preparation")),
+  ).toHaveLength(1);
 });

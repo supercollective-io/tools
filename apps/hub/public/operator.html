@@ -3,49 +3,57 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run the show · Rehearsing We</title>
+  <meta name="theme-color" content="#f3f3ef">
+  <title>Show controls · Rehearsing We</title>
   <link rel="stylesheet" href="/style.css">
   <script type="module" src="/operator.js"></script>
 </head>
 <body>
-<main class="operator-shell">
+<a class="skip-link" href="#operator-main">Skip to show controls</a>
+<main class="operator-shell" id="operator-main" tabindex="-1">
   <header class="operator-header">
-    <div><h1 class="operator-title">Run the show</h1><p class="context">Rehearsing We · Private operator controls</p></div>
+    <div><h1 class="operator-title">Show controls</h1><p class="context">Rehearsing We · Private operator controls</p></div>
     <nav aria-label="Useful pages"><a href="/" target="_blank" rel="noopener">Public entrance ↗</a><a href="/print" target="_blank" rel="noopener">Print entrance card ↗</a></nav>
   </header>
   <p id="feedback" role="status" aria-live="polite">Loading the saved programme…</p>
-  <div class="mode-switch" aria-label="Operator views">
-    <button id="run-view" type="button" aria-pressed="true">Run the show</button>
-    <button id="prepare-view" type="button" aria-pressed="false">Prepare activities</button>
+  <div class="mode-switch">
+    <div id="mode-tabs" role="tablist" aria-label="Show controls views" aria-orientation="horizontal">
+      <button id="run-view" type="button" role="tab" aria-selected="true" aria-controls="run" tabindex="0">Live cues</button>
+      <button id="prepare-view" type="button" role="tab" aria-selected="false" aria-controls="prepare" tabindex="-1">Preparation</button>
+    </div>
     <button id="reload" type="button">Refresh saved state</button>
+    <button id="refresh-checks" type="button">Refresh app checks</button>
   </div>
-  <nav id="app-controls" class="app-controls" aria-label="App controls" hidden>
-    <h2>App controls</h2><div id="app-links"></div>
-    <p class="aside">Opens in a new tab. Each app keeps its own sign-in. Puck operators can open host controls after signing in.</p>
-  </nav>
-  <section id="run" aria-label="Run the show" hidden>
+  <section id="run" role="tabpanel" aria-labelledby="run-view" tabindex="0" hidden>
     <div class="show-layout">
       <section class="audience-view" aria-labelledby="current-heading">
-        <h2 id="current-heading" tabindex="-1">On the entrance now</h2>
+        <h2 id="current-heading" tabindex="-1">Current invitation</h2>
         <div id="current"></div>
-        <p class="aside">This is what people see when they open or return to the Hub. People inside an activity stay there until they return.</p>
+        <p id="current-operator-note" class="operator-note" hidden></p>
+        <p class="aside">This is what people see when they open or return to the Hub. People inside an activity stay there until they return. Hub cues never start or stop an app activity.</p>
         <div id="pause"></div>
       </section>
       <section aria-labelledby="cues-heading">
-        <h2 id="cues-heading">Choose the room’s invitation</h2>
-        <p class="aside">“Show” changes the entrance immediately. Give the room a spoken cue to return to the Hub.</p>
+        <h2 id="cues-heading">Next activity and other invitations</h2>
+        <p class="aside">“Show invitation” changes the entrance immediately. Give the room a spoken cue to return to the Hub.</p>
         <div id="cues"></div>
       </section>
     </div>
     <details class="operation-help"><summary>What do I run from here?</summary>
       <p>The Hub changes the invitation. It does not start or stop activities.</p>
-      <dl><dt>Polymind</dt><dd>In its operator page: open writing, close and analyse, then review and release matching. Keep its projection open separately.</dd>
+      <dl><dt>Polymind and Collective Voice</dt><dd>In the relevant session’s operator page, start or resume the activity, then end it there. For Polymind, close writing, analyse, review and release matching there. Keep any projection open separately.</dd>
       <dt>Puck</dt><dd>In the browser that created the room: set the question and options, then start or cancel the round.</dd>
+      <dt>Flight simulator</dt><dd>Before the show, load the approach, connect the bridge and leave FlightGear paused. Recheck readiness before giving the cue. Participants join through the invitation; release phone controls before unpausing FlightGear locally. Connection loss does not pause the flight. Simulator readiness is not checked here.</dd>
       <dt>In-person activity or a pause</dt><dd>Show the room’s instruction here. Participants already inside another app need to return to the Hub.</dd></dl>
     </details>
   </section>
-  <section id="prepare" aria-labelledby="prepare-heading" hidden>
-    <h2 id="prepare-heading">Prepare activities</h2>
+  <nav id="app-controls" class="app-controls" aria-label="App controls" hidden>
+    <h2>App controls</h2><div id="app-links"></div>
+    <p class="aside">Opens in a new tab. Each app keeps its own sign-in. Puck operators can open host controls after signing in.</p>
+  </nav>
+  <section id="prepare" role="tabpanel" aria-labelledby="prepare-view" tabindex="0" hidden>
+    <h2 id="prepare-heading">Preparation</h2>
+    <section id="run-preparation" aria-label="Show profiles"></section>
     <p class="aside">Choose an app, then create an activity or connect an existing one. App controls remain available for detailed settings and running the activity.</p>
     <div class="preparation-layout">
       <div><div id="activities"></div><button id="add" type="button">Add an invitation</button></div>
