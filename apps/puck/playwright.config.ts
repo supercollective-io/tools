@@ -17,6 +17,11 @@ export default defineConfig({
     url: `${baseURL}/healthz`,
     reuseExistingServer: false,
     timeout: 120000,
-    env: { PORT: port, HOST: '127.0.0.1', PUBLIC_ORIGIN: baseURL },
+    env: {
+      PORT: port,
+      HOST: '127.0.0.1',
+      PUBLIC_ORIGIN: baseURL,
+      PUCK_OPERATOR_TOKEN: 'synthetic-e2e-operator-token-32-characters',
+    },
   },
 });

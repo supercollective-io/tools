@@ -32,6 +32,12 @@ The root `mise.toml` pins Node 26 and pnpm. `package.json` enforces the supporte
 
 The live arena shows only your own magnet. Replay reveals all participants' applied inputs. Participants see this disclosure before joining. The room question and options are visible to anyone with its invitation link.
 
+## Operator access and API clients
+
+Optional instance operators can create/list rooms and acquire host controls through
+`/operator`. Its interface and API clients use the ordinary room API; standalone
+room creation and guest hosts are unchanged. See [operator API and authentication](docs/operator-api.md).
+
 ## Commands
 
 Run the commands below from `apps/puck` through `mise exec --`. From the monorepo root, use `mise exec -- just puck <command>`. Root `just verify` checks Puck, Polymind and Match; `just test-browser` checks both applications. Use `just test-browser-puck` for Puck alone.

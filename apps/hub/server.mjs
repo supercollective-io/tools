@@ -48,9 +48,18 @@ export function configuration(env = process.env) {
   const publicOrigin = origin(env.HUB_PUBLIC_ORIGIN ?? 'https://we.supercollective.io', true);
   const allowedOrigins = new Set((env.HUB_ALLOWED_ORIGINS ?? 'https://polymind.supercollective.io')
     .split(',').map(value => origin(value.trim())));
+  const appOrigins = {
+    polymind: origin(env.HUB_POLYMIND_ORIGIN ?? 'https://polymind.supercollective.io'),
+    puck: origin(env.HUB_PUCK_ORIGIN ?? 'https://puck.supercollective.io'),
+  };
+  const appTokens = { polymind: env.HUB_POLYMIND_TOKEN, puck: env.HUB_PUCK_TOKEN };
+  for (const token of Object.values(appTokens)) {
+    if (token !== undefined && (token.length < 32 || token.startsWith('replace-')))
+      throw new Error('App access tokens must contain at least 32 characters.');
+  }
   const port = Number(env.PORT ?? 3000);
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('Invalid PORT');
-  return { publicOrigin, allowedOrigins, password, username: env.HUB_OPERATOR_USER ?? 'organiser',
+  return { publicOrigin, allowedOrigins, appOrigins, appTokens, password, username: env.HUB_OPERATOR_USER ?? 'organiser',
     dataDir: resolve(env.HUB_DATA_DIR ?? join(root, 'data')), host: env.HOST ?? '0.0.0.0', port };
 }
 
@@ -141,6 +150,65 @@ async function atomicSave(path, state) {
   }
 }
 
+async function readJson(req) {
+  if (req.headers['content-type']?.split(';')[0] !== 'application/json') throw new HttpError(415, 'Use application/json');
+  const chunks = []; let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > 65536) throw new HttpError(413, 'Request too large');
+    chunks.push(chunk);
+  }
+  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+  catch { throw new HttpError(400, 'Invalid JSON'); }
+}
+
+// Only configured origins and fixed resource paths may receive app credentials.
+export async function appRequest(config, app, id, data, key) {
+  if (!['polymind', 'puck'].includes(app)) throw new HttpError(404, 'Unknown app');
+  const token = config.appTokens?.[app];
+  if (!token) throw new HttpError(503, 'App connection is not configured. Ask the installation operator to enable it.');
+  if (!config.allowedOrigins.has(config.appOrigins[app])) throw new HttpError(503, 'This app’s participant website is not enabled in Hub. Ask the installation operator to enable it.');
+  if (id && !/^[a-zA-Z0-9_-]{1,100}$/.test(id)) throw new HttpError(400, 'Invalid session or room identifier');
+  if (data && (typeof key !== 'string' || !/^[a-zA-Z0-9_-]{16,100}$/.test(key))) throw new HttpError(400, 'Provide a creation request key');
+  const path = app === 'polymind' ? '/api/operator/sessions' : '/api/rooms';
+  let response;
+  try {
+    response = await (config.fetch ?? fetch)(`${config.appOrigins[app]}${path}${id ? `/${id}` : ''}`, {
+      method: data ? 'POST' : 'GET', redirect: 'error', signal: AbortSignal.timeout(8000),
+      headers: { authorization: `Bearer ${token}`, origin: config.appOrigins[app],
+        ...(data ? { 'content-type': 'application/json', 'idempotency-key': key } : {}) },
+      ...(data ? { body: JSON.stringify(data) } : {}),
+    });
+    if (!response.ok) {
+      if (response.status === 409) throw new HttpError(409, 'These creation settings changed after a request was sent. Retry the original settings or start a new creation request.');
+      if (response.status === 400) throw new HttpError(400, 'Check the activity name, capacity, question and distinct answer options.');
+      if (response.status === 404) throw new HttpError(404, 'This session or room no longer exists. Choose another.');
+      throw new HttpError(502, 'Could not access this app. Check its connection and operator credentials.');
+    }
+    const chunks = []; let size = 0;
+    for await (const chunk of response.body) {
+      size += chunk.length;
+      if (size > 2097152) throw new Error('Response too large');
+      chunks.push(chunk);
+    }
+    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  } catch (error) {
+    if (error instanceof HttpError) throw error;
+    throw new HttpError(502, 'Could not confirm the app response. Retry with the same settings, or choose the session from the list.');
+  }
+}
+function appSummary(config, app, value) {
+  if (!value || typeof value.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(value.id))
+    throw new HttpError(502, 'The app returned an invalid session or room');
+  const title = value.title ?? value.question;
+  if (typeof title !== 'string' || !title.trim() || title.length > 240) throw new HttpError(502, 'The app returned an invalid activity name');
+  const url = app === 'polymind' ? `${config.appOrigins[app]}/?session=${encodeURIComponent(value.id)}`
+    : `${config.appOrigins[app]}/room/${encodeURIComponent(value.id)}`;
+  const rawStatus = value.status ?? value.round?.state?.phase ?? 'waiting';
+  const statuses = new Set(['writing-open', 'writing-closed', 'microphone-open', 'closed', 'waiting', 'countdown', 'active', 'selected', 'timed-out', 'cancelled', 'interrupted']);
+  return { id: value.id, title, url: participantUrl(url, config), status: statuses.has(rawStatus) ? rawStatus : 'unknown', checkedAt: new Date().toISOString() };
+}
+
 export async function createHub(config) {
   await mkdir(config.dataDir, { recursive: true, mode: 0o700 });
   await access(config.dataDir, constants.W_OK);
@@ -200,6 +268,32 @@ export async function createHub(config) {
           current: state.activities.find(activity => activity.id === state.activeId) }); return;
       }
       if (path === '/api/operator/state' && req.method === 'GET') { reply(200, state); return; }
+      if (path === '/api/operator/config' && req.method === 'GET') {
+        reply(200, { allowedOrigins: [...config.allowedOrigins], appOrigins: config.appOrigins, integrations: Object.fromEntries(['polymind', 'puck'].map(app => [app, Boolean(config.appTokens?.[app]) && config.allowedOrigins.has(config.appOrigins[app])])) }); return;
+      }
+      const appRoute = /^\/api\/operator\/apps\/(polymind|puck)\/sessions(?:\/([a-zA-Z0-9_-]+))?$/.exec(path);
+      if (appRoute && ['GET', 'POST'].includes(req.method)) {
+        const [, app, id] = appRoute;
+        if (req.method === 'POST') {
+          if (req.headers.origin !== config.publicOrigin) throw new HttpError(403, 'Same-origin update required');
+          if (id) throw new HttpError(405, 'Create through the session collection');
+          const body = await readJson(req);
+          exactKeys(body, ['requestId', 'settings'], 'creation');
+          exactKeys(body.settings, app === 'polymind' ? ['title', 'capacity'] : ['question', 'options', 'mode'], 'settings');
+          const created = await appRequest(config, app, undefined, body.settings, body.requestId);
+          if (!created || typeof created.id !== 'string') throw new HttpError(502, 'The app did not return a session identifier. Retry the same request.');
+          // Read back using the same resource API used by the tool itself.
+          const result = await appRequest(config, app, created.id);
+          reply(201, appSummary(config, app, result)); return;
+        }
+        const result = await appRequest(config, app, id);
+        if (id) reply(200, appSummary(config, app, result));
+        else {
+          if (!Array.isArray(result)) throw new HttpError(502, 'The app returned an invalid session list');
+          reply(200, result.slice(0, 200).map(value => appSummary(config, app, value)));
+        }
+        return;
+      }
       if (path === '/api/operator/state' && req.method === 'PUT') {
         if (req.headers.origin !== config.publicOrigin) throw new HttpError(403, 'Same-origin update required');
         if (req.headers['content-type']?.split(';')[0] !== 'application/json') throw new HttpError(415, 'Use application/json');

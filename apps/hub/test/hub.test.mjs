@@ -158,3 +158,87 @@ test('operator fields cannot be hidden in a public manifest', async () => {
   assert.throws(() => validateSelection({ activeId: 'missing', activities: [activity] }, config), { status: 400 });
   assert.throws(() => configuration({ HUB_OPERATOR_PASSWORD: 'weak' }));
 });
+
+// Exercise private configuration through the request handler without binding a port.
+test('website choices require authentication and never enter the public invitation', async () => {
+  const directory = join(temporary, 'website-choices');
+  const server = await createHub({ ...config, dataDir: directory });
+  function get(url, headers = {}) {
+    return new Promise(resolve => {
+      let status;
+      server.emit('request', { method: 'GET', url, headers: { host: 'we.supercollective.io', ...headers } }, {
+        writeHead(code) { status = code; },
+        end(body) { resolve({ status, body: JSON.parse(body) }); },
+      });
+    });
+  }
+  assert.equal((await get('/api/operator/config')).status, 401);
+  const choices = await get('/api/operator/config', authenticated);
+  assert.equal(choices.status, 200);
+  assert.deepEqual(choices.body, { allowedOrigins: ['https://polymind.supercollective.io'],
+    appOrigins: { polymind: 'https://polymind.supercollective.io', puck: 'https://puck.supercollective.io' }, integrations: { polymind: false, puck: false } });
+  const current = await get('/api/current');
+  assert.equal(current.status, 200);
+  assert.equal(current.body.allowedOrigins, undefined);
+  assert.equal(current.body.activities, undefined);
+  assert.equal(current.body.appOrigins, undefined);
+});
+
+test('app-control origins are configurable without widening participant permissions', () => {
+  const custom = configuration({ HUB_OPERATOR_PASSWORD: password,
+    HUB_POLYMIND_ORIGIN: 'https://writing.example', HUB_PUCK_ORIGIN: 'https://decision.example' });
+  assert.deepEqual(custom.appOrigins, { polymind: 'https://writing.example', puck: 'https://decision.example' });
+  assert.equal(custom.allowedOrigins.has('https://decision.example'), false);
+  for (const value of ['http://writing.example', 'https://writing.example/operator', 'https://user:secret@writing.example']) {
+    assert.throws(() => configuration({ HUB_OPERATOR_PASSWORD: password, HUB_POLYMIND_ORIGIN: value }));
+  }
+});
+
+test('app preparation uses fixed shared APIs, redacts responses and never changes the live invitation', async () => {
+  const { Readable } = await import('node:stream');
+  const secret = 'synthetic-app-operator-secret-32-characters';
+  const calls = [];
+  const apiConfig = { ...config, dataDir: join(temporary, 'api-preparation'), appTokens: { polymind: secret },
+    fetch: async (url, options) => {
+      calls.push({ url, options });
+      if (options.method === 'POST') return new Response(JSON.stringify({ id: 'synthetic-session' }));
+      const session = { id: 'synthetic-session', title: 'Synthetic session', status: 'writing-open', privateExtra: 'must-not-leave-adapter' };
+      return new Response(JSON.stringify(url.endsWith('/synthetic-session') ? session : [session]));
+    } };
+  const server = await createHub(apiConfig);
+  const invoke = (url, method = 'GET', data, headers = authenticated) => new Promise(resolve => {
+    const request = Readable.from(data ? [Buffer.from(JSON.stringify(data))] : []);
+    Object.assign(request, { url, method, headers: { host: 'we.supercollective.io', ...headers } });
+    let status;
+    server.emit('request', request, {
+      writeHead(code) { status = code; }, end(body) { resolve({ status, body: JSON.parse(body) }); },
+    });
+  });
+  assert.equal((await invoke('/api/operator/apps/polymind/sessions', 'GET', undefined, {})).status, 401);
+  assert.equal((await invoke('/api/operator/apps/polymind/sessions', 'POST', { requestId: 'synthetic-request-001', settings: { title: 'Synthetic session', capacity: 140 } })).status, 403);
+  const created = await invoke('/api/operator/apps/polymind/sessions', 'POST', { requestId: 'synthetic-request-001', settings: { title: 'Synthetic session', capacity: 140 } }, mutation);
+  assert.equal(created.status, 201);
+  assert.equal(created.body.url, 'https://polymind.supercollective.io/?session=synthetic-session');
+  assert.equal(created.body.privateExtra, undefined);
+  assert.equal(JSON.stringify(created).includes(secret), false);
+  assert.equal(calls[0].url, 'https://polymind.supercollective.io/api/operator/sessions');
+  assert.equal(calls[0].options.headers.authorization, `Bearer ${secret}`);
+  assert.equal(calls[0].options.headers['idempotency-key'], 'synthetic-request-001');
+  assert.equal(calls[0].options.redirect, 'error');
+  const current = await invoke('/api/current');
+  assert.equal(current.body.current.id, 'arrival');
+  assert.equal(current.body.revision, 1);
+  const configuration = await invoke('/api/operator/config');
+  assert.equal(configuration.body.integrations.polymind, true);
+  assert.equal(JSON.stringify(configuration).includes(secret), false);
+});
+
+test('app adapter rejects unconfigured targets and hides upstream failures', async () => {
+  const { appRequest } = await import('../server.mjs');
+  await assert.rejects(appRequest(config, 'puck'), { status: 503 });
+  const withToken = { ...config, appTokens: { polymind: 'synthetic-operator-token-32-characters' },
+    fetch: async () => new Response('raw upstream content must remain private', { status: 500 }) };
+  await assert.rejects(appRequest(withToken, 'polymind'), error => error.status === 502 && !error.message.includes('raw upstream'));
+  await assert.rejects(appRequest(withToken, 'polymind', '../operator'), { status: 400 });
+  await assert.rejects(appRequest(withToken, 'unknown'), { status: 404 });
+});

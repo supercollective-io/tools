@@ -2,6 +2,12 @@
 
 Use one server process per data directory. Health is `/healthz`; operator controls are `/operator`. Keep the operator token in server configuration and a private password manager, never in session links. Public HTTPS must terminate at the configured exact `PUBLIC_ORIGIN`. Participant cookies are HttpOnly, SameSite Strict and Secure on HTTPS.
 
+Hub’s **App controls** opens Polymind in another tab, selecting the session from the
+saved participant invitation. Operator links accept `?session=<id>` and preserve
+that choice through sign-in. An unknown session stops with a session-chooser link;
+it never silently opens another session. Changing the session updates the browser
+address so reloading retains the selection. Hub and Polymind keep separate sign-ins.
+
 ## Bounded show flow
 
 1. In `/operator`, create or select a session and configure the analysis provider,

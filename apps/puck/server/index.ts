@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { WebSocketServer } from 'ws';
 import { createRequest, joinRequest } from '../src/lib/core/protocol.ts';
 import { localNetworkOrigins } from './network.ts';
+import { OperatorAccess } from './operator.ts';
 import { ClientError, configuredRoomCapacity, SessionService } from './service.ts';
 import { Store } from './store.ts';
 
@@ -29,6 +30,7 @@ const inviteOrigin = process.env.PUBLIC_ORIGIN ?? networkOrigins[0] ?? origin;
 const allowedOrigins = new Set([origin, ...(dev ? networkOrigins : [])]);
 const store = new Store(process.env.DATABASE_PATH ?? 'data/puck.sqlite');
 const service = new SessionService(store, configuredRoomCapacity());
+const operatorAccess = new OperatorAccess(process.env.PUCK_OPERATOR_TOKEN);
 const sockets = new WebSocketServer({ noServer: true, maxPayload: 2048, perMessageDeflate: false });
 let stopping = false;
 let webHandler: (req: IncomingMessage, res: ServerResponse) => void;
@@ -93,22 +95,79 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
       throw new ClientError('Unrecognised request origin.', 403);
     rateLimit(req);
   }
+  if (url.pathname.startsWith('/api/operator/')) {
+    if (url.pathname === '/api/operator/login' && req.method === 'POST') {
+      const data = await body(req);
+      const credential = operatorAccess.login(data?.token);
+      res.setHeader(
+        'Set-Cookie',
+        `puck_operator=${credential}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${origin.startsWith('https:') ? '; Secure' : ''}`,
+      );
+      json(res, { ok: true });
+      return;
+    }
+    operatorAccess.require(req);
+    if (url.pathname === '/api/operator/logout' && req.method === 'POST') {
+      for (const cookie of (req.headers.cookie ?? '').split(';')) {
+        const match = /^puck_([\w-]+)=([\w-]+)$/.exec(cookie.trim());
+        if (match && match[1] !== 'operator') service.revokeOperatorHost(match[1], match[2]);
+      }
+      res.setHeader(
+        'Set-Cookie',
+        `puck_operator=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${origin.startsWith('https:') ? '; Secure' : ''}`,
+      );
+      json(res, { ok: true });
+      return;
+    }
+    throw new ClientError('Not found.', 404);
+  }
+  if (url.pathname === '/api/rooms' && req.method === 'GET') {
+    operatorAccess.require(req);
+    json(
+      res,
+      store.roomIds().map((id) => service.operatorStatus(id)),
+    );
+    return;
+  }
   if (url.pathname === '/api/rooms' && req.method === 'POST') {
     const parsed = createRequest.safeParse(await body(req));
     if (!parsed.success)
       throw new ClientError(parsed.error.issues[0]?.message ?? 'Check the question and options.');
+    const key = req.headers['idempotency-key'];
+    if (key !== undefined) {
+      operatorAccess.require(req);
+      if (typeof key !== 'string') throw new ClientError('Provide one Idempotency-Key header.');
+      const id = service.createManaged(
+        parsed.data.question,
+        parsed.data.options,
+        parsed.data.mode,
+        key,
+      );
+      // Operators can explicitly grant their browser host access through the same room API.
+      json(res, { id }, 201);
+      return;
+    }
     const created = service.create(parsed.data.question, parsed.data.options, parsed.data.mode);
     setCookie(res, created.roomId, created.token);
     json(res, { id: created.roomId }, 201);
     return;
   }
-  const roomMatch = /^\/api\/rooms\/([\w-]+)(?:\/(join|start|cancel))?$/.exec(url.pathname);
+  const roomMatch = /^\/api\/rooms\/([\w-]+)(?:\/(join|start|cancel|host))?$/.exec(url.pathname);
   if (roomMatch) {
     const [, roomId, action] = roomMatch;
     const credential = token(req, roomId);
+    if (req.method === 'POST' && action === 'host') {
+      operatorAccess.require(req);
+      setCookie(res, roomId, service.grantHost(roomId, credential));
+      json(res, { ok: true });
+      return;
+    }
     const participant = service.authenticate(roomId, credential);
     if (req.method === 'GET' && !action) {
-      json(res, service.view(roomId, participant));
+      json(res, {
+        ...service.view(roomId, participant),
+        participantUrl: `${inviteOrigin}/room/${roomId}`,
+      });
       return;
     }
     if (req.method === 'POST' && action === 'join') {
@@ -152,7 +211,7 @@ const server = createServer((req, res) => {
   }
   if (url.pathname.startsWith('/api/')) {
     void api(req, res, url).catch((error: unknown) => {
-      if (!(error instanceof ClientError)) console.error(error);
+      if (!(error instanceof ClientError)) console.error('Puck could not complete an API request.');
       json(
         res,
         {

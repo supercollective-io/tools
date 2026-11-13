@@ -435,3 +435,51 @@ it("passes released encounters through to Match as forbidden pairs", async () =>
     ),
   ).toBe(true);
 }, 15000);
+
+it("uses the same session resources for bearer and browser operators with idempotent creation", async () => {
+  const { origin } = await setup();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Origin: origin,
+    "Content-Type": "application/json",
+    "Idempotency-Key": "synthetic-http-session-request-001",
+  };
+  const settings = JSON.stringify({ title: "API preparation", capacity: 140 });
+  const first = await fetch(`${origin}/api/operator/sessions`, {
+    method: "POST",
+    headers,
+    body: settings,
+  });
+  expect(first.status).toBe(201);
+  const created = await first.json();
+  expect(
+    await (
+      await fetch(`${origin}/api/operator/sessions`, {
+        method: "POST",
+        headers,
+        body: settings,
+      })
+    ).json(),
+  ).toEqual(created);
+  expect(
+    (await fetch(`${origin}/api/operator/sessions/${created.id}`)).status,
+  ).toBe(401);
+  const login = await fetch(`${origin}/api/login`, {
+    method: "POST",
+    headers: { Origin: origin, "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+  const browserHeaders = {
+    Cookie: login.headers.get("set-cookie")?.split(";")[0] ?? "",
+  };
+  const detail = await (
+    await fetch(`${origin}/api/operator/sessions/${created.id}`, {
+      headers: browserHeaders,
+    })
+  ).json();
+  expect(detail).toEqual(created);
+  expect(detail.status).toBe("writing-closed");
+  expect(detail.participantUrl).toBe(`${origin}/?session=${created.id}`);
+  expect(detail).not.toHaveProperty("participants");
+  expect(detail).not.toHaveProperty("operations");
+});

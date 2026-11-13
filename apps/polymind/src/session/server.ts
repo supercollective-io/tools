@@ -119,6 +119,21 @@ export async function startSessionServer(options: {
     });
     res.end(JSON.stringify(value));
   };
+  const sessionSummary = (session: ReturnType<SessionStore["session"]>) => {
+    const round = store.rounds(session.id).at(-1);
+    return {
+      ...session,
+      status: !session.open
+        ? "closed"
+        : round?.open
+          ? round.mode === "bounded"
+            ? "writing-open"
+            : "microphone-open"
+          : "writing-closed",
+      participantUrl: `${origin.origin}/?session=${encodeURIComponent(session.id)}`,
+      operatorUrl: `${origin.origin}/operator?session=${encodeURIComponent(session.id)}`,
+    };
+  };
   const assets = new Map([
     ["/", "session.html"],
     ["/operator", "session-operator.html"],
@@ -223,10 +238,28 @@ export async function startSessionServer(options: {
               capacity: z.number().int().default(140),
             })
             .parse(data);
-          return json(res, store.createSession(d.title, d.capacity), 201);
+          return json(
+            res,
+            sessionSummary(
+              store.createSession(
+                d.title,
+                d.capacity,
+                z.string().optional().parse(req.headers["idempotency-key"]),
+              ),
+            ),
+            201,
+          );
         }
-        return json(res, store.sessions());
+        return json(res, store.sessions().map(sessionSummary));
       }
+      const selectedSession = /^\/api\/operator\/sessions\/([^/]+)$/.exec(
+        url.pathname,
+      );
+      if (selectedSession && req.method === "GET")
+        return json(
+          res,
+          sessionSummary(store.session(id.parse(selectedSession[1]))),
+        );
       const sessionId = id.parse(url.searchParams.get("session"));
       const session = store.session(sessionId);
       const participant = store.identify(
@@ -371,7 +404,7 @@ export async function startSessionServer(options: {
         const currentRound = rounds.at(-1);
         const participants = store.participants(sessionId);
         return json(res, {
-          session,
+          session: sessionSummary(session),
           show: store.show(sessionId),
           contributionCount: currentRound
             ? participants.filter((p) =>

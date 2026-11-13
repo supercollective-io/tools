@@ -113,6 +113,94 @@ export class SessionService {
     this.get(room.id);
     return { roomId: room.id, token };
   }
+  createManaged(question: string, labels: string[], mode: Mode, request: string) {
+    if (!/^[a-zA-Z0-9_-]{16,100}$/.test(request))
+      throw new ClientError(
+        'Provide an idempotency key of 16–100 letters, digits, underscores or hyphens.',
+      );
+    const fingerprint = JSON.stringify([question, labels, mode]);
+    return this.store.db.transaction(() => {
+      const previous = this.store.db
+        .prepare('SELECT fingerprint, room_id FROM room_creation_requests WHERE request = ?')
+        .get(request) as { fingerprint: string; room_id: string } | undefined;
+      if (previous) {
+        if (previous.fingerprint !== fingerprint)
+          throw new ClientError(
+            'This creation request was already used with different settings.',
+            409,
+          );
+        return previous.room_id;
+      }
+      const created = this.create(question, labels, mode);
+      this.store.db
+        .prepare('INSERT INTO room_creation_requests VALUES (?, ?, ?)')
+        .run(request, fingerprint, created.roomId);
+      return created.roomId;
+    })();
+  }
+  operatorStatus(roomId: string) {
+    const data = this.store.room(roomId);
+    if (!data) throw new ClientError('This room does not exist.', 404);
+    const live = this.rooms.get(roomId);
+    const phase = live?.state?.phase ?? this.store.history(roomId)[0]?.status ?? 'waiting';
+    return { id: data.id, title: data.question, status: phase };
+  }
+  grantHost(roomId: string, credential?: string) {
+    const existing = this.authenticate(roomId, credential);
+    if (existing?.host && credential) return credential;
+    if (existing && credential) {
+      this.store.db.transaction(() => {
+        this.store.db.prepare('UPDATE participants SET host = 1 WHERE id = ?').run(existing.id);
+        this.store.db
+          .prepare('INSERT OR IGNORE INTO operator_host_grants VALUES (?)')
+          .run(existing.id);
+      })();
+      existing.host = true;
+      this.broadcast(this.get(roomId));
+      return credential;
+    }
+    const room = this.get(roomId);
+    // Operator access does not join the active round or change its frozen roster.
+    if (room.participants.filter((p) => p.host && !p.participating).length >= 20)
+      throw new ClientError(
+        'This room already has 20 control identities. Use an existing operator browser.',
+        409,
+      );
+    const token = randomBytes(32).toString('base64url');
+    const host: Participant = {
+      id: id(),
+      roomId,
+      name: '',
+      participating: false,
+      tokenHash: hash(token),
+      host: true,
+    };
+    this.store.db.transaction(() => {
+      this.store.addParticipant(host);
+      this.store.db.prepare('INSERT INTO operator_host_grants VALUES (?)').run(host.id);
+    })();
+    room.participants.push(host);
+    return token;
+  }
+  revokeOperatorHost(roomId: string, credential: string) {
+    if (!this.store.room(roomId)) return;
+    const participant = this.authenticate(roomId, credential);
+    if (
+      !participant ||
+      !this.store.db
+        .prepare('SELECT 1 FROM operator_host_grants WHERE participant_id = ?')
+        .get(participant.id)
+    )
+      return;
+    this.store.db.transaction(() => {
+      this.store.db.prepare('UPDATE participants SET host = 0 WHERE id = ?').run(participant.id);
+      this.store.db
+        .prepare('DELETE FROM operator_host_grants WHERE participant_id = ?')
+        .run(participant.id);
+    })();
+    participant.host = false;
+    this.broadcast(this.get(roomId));
+  }
   authenticate(roomId: string, token?: string) {
     const room = this.get(roomId);
     return token ? room.participants.find((p) => p.tokenHash === hash(token)) : undefined;
@@ -150,6 +238,7 @@ export class SessionService {
     const room = this.get(roomId);
     return {
       id: roomId,
+      status: room.state?.phase ?? room.history[0]?.status ?? 'waiting',
       question: room.data.question,
       options: room.data.options,
       mode: room.data.mode ?? 'baseline',

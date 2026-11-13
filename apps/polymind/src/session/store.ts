@@ -70,6 +70,7 @@ export class SessionStore {
     }
     this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;
       CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, body TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS session_creation_requests (request TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, session TEXT NOT NULL REFERENCES sessions(id));
       CREATE TABLE IF NOT EXISTS participants (id TEXT PRIMARY KEY, session TEXT NOT NULL REFERENCES sessions(id), credential TEXT UNIQUE NOT NULL, recovery TEXT UNIQUE NOT NULL, body TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS rounds (id TEXT PRIMARY KEY, session TEXT NOT NULL REFERENCES sessions(id), body TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS revisions (participant TEXT NOT NULL REFERENCES participants(id), round TEXT NOT NULL REFERENCES rounds(id), revision INTEGER NOT NULL, request TEXT NOT NULL, fingerprint TEXT NOT NULL, body TEXT NOT NULL, PRIMARY KEY(participant,round,revision), UNIQUE(participant,request));
@@ -115,7 +116,34 @@ export class SessionStore {
       .all()
       .map((r) => decode<Session>(r) as Session);
   }
-  createSession(title: string, capacity: number) {
+  createSession(title: string, capacity: number, request?: string): Session {
+    if (request !== undefined) {
+      if (!/^[a-zA-Z0-9_-]{16,100}$/.test(request))
+        throw new SessionError(
+          "Use an idempotency key of 16–100 letters, digits, underscores or hyphens.",
+        );
+      const fingerprint = JSON.stringify([title.trim(), capacity]);
+      return this.transaction(() => {
+        const previous = this.db
+          .prepare(
+            "SELECT fingerprint, session FROM session_creation_requests WHERE request=?",
+          )
+          .get(request);
+        if (previous) {
+          if (previous.fingerprint !== fingerprint)
+            throw new SessionError(
+              "This creation request was already used with different settings.",
+              409,
+            );
+          return this.session(String(previous.session));
+        }
+        const session = this.createSession(title, capacity);
+        this.db
+          .prepare("INSERT INTO session_creation_requests VALUES (?,?,?)")
+          .run(request, fingerprint, session.id);
+        return session;
+      });
+    }
     if (
       !title.trim() ||
       title.length > 200 ||

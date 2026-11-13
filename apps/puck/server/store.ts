@@ -36,6 +36,12 @@ export class Store {
     const roomColumns = this.db.prepare('PRAGMA table_info(rooms)').all() as { name: string }[];
     if (!roomColumns.some((column) => column.name === 'mode'))
       this.db.exec("ALTER TABLE rooms ADD COLUMN mode TEXT NOT NULL DEFAULT 'baseline'");
+    this.db.exec(
+      'CREATE TABLE IF NOT EXISTS room_creation_requests (request TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, room_id TEXT NOT NULL REFERENCES rooms(id))',
+    );
+    this.db.exec(
+      'CREATE TABLE IF NOT EXISTS operator_host_grants (participant_id TEXT PRIMARY KEY REFERENCES participants(id))',
+    );
     this.db.pragma('user_version = 3');
     this.db.prepare("UPDATE rounds SET status = 'interrupted' WHERE status = 'active'").run();
   }
@@ -54,6 +60,13 @@ export class Store {
         );
       this.addParticipant(participant);
     })();
+  }
+  roomIds() {
+    return (
+      this.db.prepare('SELECT id FROM rooms ORDER BY created_at DESC LIMIT 200').all() as {
+        id: string;
+      }[]
+    ).map((row) => row.id);
   }
   room(id: string): StoredRoom | undefined {
     const row = this.db.prepare('SELECT * FROM rooms WHERE id = ?').get(id) as

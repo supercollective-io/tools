@@ -26,6 +26,8 @@ export const createRequest = z
   });
 export const joinRequest = z.object({ name: z.string().trim().min(1).max(32) });
 export type RoomView = {
+  participantUrl?: string;
+  status?: string;
   id: string;
   question: string;
   options: Option[];

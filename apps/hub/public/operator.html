@@ -1,1 +1,98 @@
-<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rehearsing We · operator</title><link rel="stylesheet" href="/style.css"><script type="module" src="/operator.js"></script></head><body><main class="operator-shell"><header><h1 class="operator-title">Activity programme</h1><p class="context">Operator</p></header><p id="feedback" role="status">Loading the saved programme…</p><form id="programme"><div id="activities"></div><div class="toolbar"><button type="button" id="add">Add an activity</button><button class="button" type="submit">Save programme</button><button type="button" id="reload">Reload saved programme</button></div></form><p class="aside">Use participant links only; operator and projection links must stay private.</p><p><a href="/">Open the public entrance</a> · <a href="/print">Print the entrance card</a></p></main></body></html>
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Run the show · Rehearsing We</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/operator.js"></script>
+</head>
+<body>
+<main class="operator-shell">
+  <header class="operator-header">
+    <div><h1 class="operator-title">Run the show</h1><p class="context">Rehearsing We · Private operator controls</p></div>
+    <nav aria-label="Useful pages"><a href="/" target="_blank" rel="noopener">Public entrance ↗</a><a href="/print" target="_blank" rel="noopener">Print entrance card ↗</a></nav>
+  </header>
+  <p id="feedback" role="status" aria-live="polite">Loading the saved programme…</p>
+  <div class="mode-switch" aria-label="Operator views">
+    <button id="run-view" type="button" aria-pressed="true">Run the show</button>
+    <button id="prepare-view" type="button" aria-pressed="false">Prepare activities</button>
+    <button id="reload" type="button">Refresh saved state</button>
+  </div>
+  <nav id="app-controls" class="app-controls" aria-label="App controls" hidden>
+    <h2>App controls</h2><div id="app-links"></div>
+    <p class="aside">Opens in a new tab. Each app keeps its own sign-in. Puck operators can open host controls after signing in.</p>
+  </nav>
+  <section id="run" aria-label="Run the show" hidden>
+    <div class="show-layout">
+      <section class="audience-view" aria-labelledby="current-heading">
+        <h2 id="current-heading" tabindex="-1">On the entrance now</h2>
+        <div id="current"></div>
+        <p class="aside">This is what people see when they open or return to the Hub. People inside an activity stay there until they return.</p>
+        <div id="pause"></div>
+      </section>
+      <section aria-labelledby="cues-heading">
+        <h2 id="cues-heading">Choose the room’s invitation</h2>
+        <p class="aside">“Show” changes the entrance immediately. Give the room a spoken cue to return to the Hub.</p>
+        <div id="cues"></div>
+      </section>
+    </div>
+    <details class="operation-help"><summary>What do I run from here?</summary>
+      <p>The Hub changes the invitation. It does not start or stop activities.</p>
+      <dl><dt>Polymind</dt><dd>In its operator page: open writing, close and analyse, then review and release matching. Keep its projection open separately.</dd>
+      <dt>Puck</dt><dd>In the browser that created the room: set the question and options, then start or cancel the round.</dd>
+      <dt>In-person activity or a pause</dt><dd>Show the room’s instruction here. Participants already inside another app need to return to the Hub.</dd></dl>
+    </details>
+  </section>
+  <section id="prepare" aria-labelledby="prepare-heading" hidden>
+    <h2 id="prepare-heading">Prepare activities</h2>
+    <p class="aside">Choose an app, then create an activity or connect an existing one. App controls remain available for detailed settings and running the activity.</p>
+    <div class="preparation-layout">
+      <div><div id="activities"></div><button id="add" type="button">Add an invitation</button></div>
+      <form id="programme" hidden>
+        <h3 id="editor-heading">Edit invitation</h3>
+        <div id="editor-controls"></div>
+        <p id="edit-impact" class="aside"></p>
+        <label class="field">Invitation name<input name="label" maxlength="100" required autocomplete="off"></label>
+        <label class="field">What should people do?<select name="kind"><option value="activity">Open a digital activity</option><option value="analogue">Take part in person</option><option value="waiting">Wait for the next cue</option><option value="closed">Finish / closing conversation</option></select></label>
+        <div id="digital-fields">
+          <label class="field">App<select name="app"><option value="polymind">Polymind</option><option value="puck">Puck</option><option value="manual">Another app / participant link</option></select></label>
+          <section id="app-preparation" aria-label="Connect an activity">
+            <p id="app-feedback" role="status"></p>
+            <button type="button" id="load-sessions">Refresh available activities</button>
+            <label class="field">Existing session or room<select name="existing"></select></label>
+            <button type="button" id="connect-session">Connect selected activity</button>
+            <details id="create-activity"><summary>Create a new activity</summary>
+              <div id="polymind-settings">
+                <label class="field">Session name<input name="sessionTitle" maxlength="200" autocomplete="off"></label>
+                <label class="field">Participant capacity<input name="capacity" type="text" inputmode="numeric" value="140"></label>
+              </div>
+              <div id="puck-settings">
+                <label class="field">Question<input name="question" maxlength="240" autocomplete="off"></label>
+                <label class="field">Answer options — one per line<textarea name="options" rows="4" placeholder="First option…"></textarea></label>
+                <p class="aside">Use two to six distinct options, up to 48 characters each. New rooms use Puck’s baseline mode.</p>
+              </div>
+              <button type="button" id="create-session">Create and connect</button>
+              <button type="button" id="new-request">Start a different creation request</button>
+              <p class="aside">If a request is interrupted, retry with the same settings. It will recover the same activity.</p>
+            </details>
+          </section>
+          <details id="manual-destination"><summary>Advanced: participant link</summary>
+          <label class="field">Website<select name="origin"></select></label>
+          <label class="field">Participant link or path<input name="destination" type="text" inputmode="url" autocomplete="off" spellcheck="false" aria-describedby="link-help"></label>
+          <p id="link-help" class="aside">Paste the participant link, or just its path (for example /?session=…). A full link chooses its own website. You don’t need to type https://. Never use an operator or projection link.</p>
+          <p class="aside">Website missing? Ask the person managing deployment to add its verified address to the Hub’s allowed websites.</p>
+          <p class="aside">Save the link, then open the saved participant page below to check it before showing it to the room. Leave the link empty to keep this activity unavailable.</p>
+          </details>
+        </div>
+        <label class="field" id="instruction-field">Instruction for the room<textarea name="instruction" maxlength="1000"></textarea></label>
+        <p id="editor-error" role="alert" tabindex="-1" hidden></p>
+        <div class="editor-actions"><button type="submit" class="button">Save invitation</button><button id="cancel" type="button">Cancel editing</button></div>
+        <div id="saved-link"></div>
+      </form>
+      <p id="editor-empty" class="aside">Choose an invitation to prepare it.</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>
