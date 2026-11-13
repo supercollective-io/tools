@@ -252,6 +252,28 @@ writing-quality limitations. Eight participants require nine inference slots;
 using the three-slot setup queues requests.
 Stop the isolated service with Ctrl+C in its own terminal when finished.
 
+## Collective Microphone in an event session
+
+In the event operator interface, open **Collective Microphone — separate activity**.
+Set the microphone question and choose **Open contributions**. Participants can
+write before the model starts. **Start voice** begins a new continuous voice and
+selects it for projection; the operator status identifies the projected activity.
+The text model and budget come from session setup.
+
+**Pause voice** stops generation and retains the same saved voice and participant
+writing. Contributions remain open. **Resume voice** continues that run, including
+after a server restart. **End round** closes contributions and ends generation.
+It also closes a round whose voice never started or already ended. Retrying the
+end request is safe; restart recovery completes an interrupted end.
+
+After ending, **Start a new microphone round** opens fresh contributions with the
+same question, which the operator can edit first. Participant identities remain.
+Saved earlier writing remains available privately under **Your earlier contributions**;
+it is read-only and does not populate the new editor or enter the new voice's
+model context. Earlier journals and frozen revisions remain intact. See the
+[session API](session-api.md#microphone-rounds-and-private-history) for retry and
+history contracts.
+
 ## Feedback and controls
 
 `live.feedbackIntervalMs` controls publication of the latest saved collective

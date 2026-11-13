@@ -1,5 +1,32 @@
 const $ = (id) => document.getElementById(id);
 const session = new URL(location.href).searchParams.get("session");
+const nameKey = "rw-display-name-v1";
+function validName(value) {
+  return typeof value === "string" && value.trim().length <= 80
+    ? value.trim()
+    : "";
+}
+function suggestedName() {
+  const url = new URL(location.href);
+  let supplied = "";
+  if (url.hash.startsWith("#rw-name-v1=")) {
+    const encoded = url.hash.slice("#rw-name-v1=".length);
+    url.hash = "";
+    history.replaceState(history.state, "", url.href);
+    try {
+      supplied = validName(decodeURIComponent(encoded));
+    } catch {
+      // A malformed invitation must not prevent joining locally.
+    }
+  }
+  if (supplied) return supplied;
+  try {
+    return validName(localStorage.getItem(nameKey));
+  } catch {
+    return "";
+  }
+}
+$("name").value = suggestedName();
 let state,
   pending,
   saving = false,
@@ -20,6 +47,7 @@ let state,
   roundId,
   participantId,
   editorGeneration = 0,
+  earlierSignature = "",
   personalSignature = "";
 const draftKey = (round) => `polymind:${session}:${participantId}:${round}`;
 function status(message, error = false, kind = "action") {
@@ -240,6 +268,11 @@ $("join").onsubmit = async (event) => {
     const result = await api("/api/join", {
       name: $("name").value,
     });
+    try {
+      localStorage.setItem(nameKey, validName($("name").value));
+    } catch {
+      // Joining still works when the browser cannot remember a name.
+    }
     if (result.recovery) {
       $("recovery").hidden = false;
       $("recovery").textContent =
@@ -434,6 +467,24 @@ async function refresh() {
       !next.round ||
       (next.round.mode === "bounded" && !next.round.open);
     $("encounters").hidden = !next.participant;
+    const earlier = next.participant ? (next.earlierContributions ?? []) : [];
+    $("earlier-writing").hidden = earlier.length === 0;
+    const signature = JSON.stringify([participantId, earlier]);
+    if (signature !== earlierSignature) {
+      earlierSignature = signature;
+      const historyContent = $("earlier-contributions");
+      historyContent.replaceChildren();
+      for (const contribution of earlier) {
+        const entry = document.createElement("section");
+        const question = document.createElement("h2");
+        question.textContent = contribution.prompt;
+        const writing = document.createElement("p");
+        writing.className = "preserve-lines";
+        writing.textContent = contribution.text;
+        entry.append(question, writing);
+        historyContent.append(entry);
+      }
+    }
     if (next.participant) {
       $("identity").textContent = next.participant.name;
       $("badge").textContent = next.participant.badge;
@@ -466,8 +517,8 @@ async function refresh() {
       const continuous = next.round?.mode === "continuous";
       $("participation-notice").hidden = false;
       $("participation-notice").textContent = continuous
-        ? "While the voice runs, saved text goes to the selected model and may inform the public voice. "
-        : "Saved writing is included in collective analysis and matching. The organiser may also publish your original words in the room’s atlas after review.";
+        ? "Your saved text goes to the selected model and may inform the public voice."
+        : "Saved writing is included in analysis and matching, and may be published in the room.";
       $("audio-controls").hidden =
         !next.capture.enabled || !open || !window.MediaRecorder;
       $("retention").textContent =

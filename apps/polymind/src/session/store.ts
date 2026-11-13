@@ -76,6 +76,7 @@ export class SessionStore {
       CREATE TABLE IF NOT EXISTS session_creation_requests (request TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, session TEXT NOT NULL REFERENCES sessions(id));
       CREATE TABLE IF NOT EXISTS participants (id TEXT PRIMARY KEY, session TEXT NOT NULL REFERENCES sessions(id), credential TEXT UNIQUE NOT NULL, recovery TEXT UNIQUE NOT NULL, body TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS rounds (id TEXT PRIMARY KEY, session TEXT NOT NULL REFERENCES sessions(id), body TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS microphone_round_requests (session TEXT NOT NULL REFERENCES sessions(id), request TEXT NOT NULL, fingerprint TEXT NOT NULL, round TEXT NOT NULL REFERENCES rounds(id), PRIMARY KEY(session,request));
       CREATE TABLE IF NOT EXISTS revisions (participant TEXT NOT NULL REFERENCES participants(id), round TEXT NOT NULL REFERENCES rounds(id), revision INTEGER NOT NULL, request TEXT NOT NULL, fingerprint TEXT NOT NULL, body TEXT NOT NULL, PRIMARY KEY(participant,round,revision), UNIQUE(participant,request));
       CREATE TABLE IF NOT EXISTS snapshots (id TEXT PRIMARY KEY, round TEXT UNIQUE NOT NULL REFERENCES rounds(id), hash TEXT NOT NULL, body TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS operations (id TEXT PRIMARY KEY, snapshot TEXT NOT NULL REFERENCES snapshots(id), dedupe TEXT UNIQUE NOT NULL, body TEXT NOT NULL);
@@ -286,32 +287,87 @@ export class SessionStore {
       .all(session)
       .map((r) => decode<Round>(r) as Round);
   }
-  createRound(session: string, prompt: string, mode: Round["mode"]) {
-    if (!this.session(session).open)
-      throw new SessionError("Session closed.", 409);
-    if (!prompt.trim() || prompt.length > 2000)
-      throw new SessionError("Use a prompt of 1–2000 characters.");
-    if (this.rounds(session).some((r) => r.open))
-      throw new SessionError(
-        "Close the current round before opening another.",
-        409,
+  createRound(
+    session: string,
+    prompt: string,
+    mode: Round["mode"],
+    request?: { requestId: string; previousRoundId?: string },
+  ) {
+    return this.transaction(() => {
+      const fingerprint = digest(
+        JSON.stringify({
+          prompt,
+          mode,
+          previousRoundId: request?.previousRoundId,
+        }),
       );
-    const r: Round = {
-      id: randomUUID(),
-      sessionId: session,
-      prompt,
-      mode,
-      open: true,
-      createdAt: now(),
-    };
-    this.transaction(() => {
+      if (request) {
+        const prior = this.db
+          .prepare(
+            "SELECT fingerprint,round FROM microphone_round_requests WHERE session=? AND request=?",
+          )
+          .get(session, request.requestId);
+        if (prior) {
+          if (prior.fingerprint !== fingerprint)
+            throw new SessionError(
+              "Round request changed. Refresh and try again.",
+              409,
+            );
+          return this.round(prior.round as string);
+        }
+        if (this.rounds(session).at(-1)?.id !== request.previousRoundId)
+          throw new SessionError(
+            "The current round changed. Refresh before opening another.",
+            409,
+          );
+      }
+      if (!this.session(session).open)
+        throw new SessionError("Session closed.", 409);
+      if (!prompt.trim() || prompt.length > 2000)
+        throw new SessionError("Use a prompt of 1–2000 characters.");
+      if (this.rounds(session).some((r) => r.open))
+        throw new SessionError(
+          "Close the current round before opening another.",
+          409,
+        );
+      const r: Round = {
+        id: randomUUID(),
+        sessionId: session,
+        prompt,
+        mode,
+        open: true,
+        createdAt: now(),
+      };
       this.db
         .prepare("INSERT INTO rounds VALUES (?,?,?)")
         .run(r.id, session, JSON.stringify(r));
+      if (request)
+        this.db
+          .prepare("INSERT INTO microphone_round_requests VALUES (?,?,?,?)")
+          .run(session, request.requestId, fingerprint, r.id);
       if (mode === "bounded")
         this.selectPresentation(session, { kind: "writing", roundId: r.id });
+      return r;
     });
-    return r;
+  }
+  earlierContributions(session: string, participant: string) {
+    if (!this.participants(session).some((p) => p.id === participant))
+      throw new SessionError("Participant not found.", 404);
+    return this.rounds(session)
+      .filter((round) => !round.open)
+      .flatMap((round) => {
+        const contribution = this.current(participant, round.id);
+        return contribution?.text.trim()
+          ? [
+              {
+                roundId: round.id,
+                prompt: round.prompt,
+                text: contribution.text,
+                createdAt: contribution.savedAt,
+              },
+            ]
+          : [];
+      });
   }
   current(participant: string, round: string) {
     return decode<Snapshot["contributions"][number]>(

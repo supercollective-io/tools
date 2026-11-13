@@ -378,3 +378,42 @@ table {
   border-top: 2px solid var(--ink);
   margin-top: 1.5rem;
 }
+
+.participant #capture {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.participant #capture > label {
+  margin-top: 0;
+  font-size: 1rem;
+}
+.participant #prompt {
+  overflow-wrap: anywhere;
+}
+.participant #participation-notice {
+  padding: 0;
+  margin-block: 0.5rem;
+}
+.participant #earlier-contributions h2 {
+  font-size: 1rem;
+  margin-top: 0;
+}
+@media (max-width: 550px) {
+  .participant main {
+    padding-top: 1rem;
+  }
+  .participant header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+  .participant #prompt {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  .participant #capture textarea {
+    min-height: 10rem;
+  }
+}
