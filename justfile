@@ -78,6 +78,10 @@ test-browser-built:
     pnpm --dir apps/polymind exec node scripts/show-flow-browser.mjs
     pnpm --dir apps/puck exec playwright test
     just test-browser-hub
+    just test-browser-name-handoff
+
+test-browser-name-handoff:
+    node scripts/name-handoff-browser.mjs
 
 test-browser-puck:
     pnpm --dir apps/puck test:e2e
