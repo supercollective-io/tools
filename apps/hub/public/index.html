@@ -2,5 +2,18 @@
 <html lang="en-GB">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f3f3ef"><title>Rehearsing We</title><link rel="stylesheet" href="/style.css"><script type="module" src="/hub.js"></script></head>
 <body><main class="shell"><header><h1>Rehearsing<br><span>We</span></h1></header>
-<section class="current" aria-labelledby="activity-title" aria-live="polite" aria-atomic="true"><p id="phase" class="phase">Connecting…</p><h2 id="activity-title">Loading current activity…</h2><p id="instruction" hidden></p><div id="name-area" hidden><p id="saved-name" hidden>Your name: <strong id="name-value"></strong> <button id="change-name" type="button">Change name</button></p><div id="name-editor"><label class="field" for="display-name">Your name<input id="display-name" autocomplete="name" maxlength="80"></label><p id="name-error" class="error" role="alert" hidden>Enter a name of 1 to 80 characters.</p></div></div><a id="activity-link" class="button" aria-describedby="activity-title" hidden>Join activity</a></section>
+<section class="current" aria-labelledby="activity-title" aria-live="polite" aria-atomic="true"><p id="phase" class="phase">Connecting…</p><h2 id="activity-title">Loading current activity…</h2><p id="instruction" hidden></p><div id="name-area" hidden><p id="saved-name" hidden>Your name: <strong id="name-value"></strong> <button id="change-name" type="button">Change name</button></p><div id="name-editor"><label class="field" for="display-name">Your name<input id="display-name" autocomplete="name" maxlength="80"></label><p id="name-error" class="error" role="alert" hidden>Enter a name of 1 to 80 characters.</p></div></div><a id="activity-link" class="button" aria-describedby="activity-title" hidden>Join activity</a>
+<div id="pairing" hidden>
+  <p id="pair-message" role="status"></p>
+  <div id="pair-marker" hidden>
+    <div id="pair-shape" aria-hidden="true"></div>
+    <p class="pair-identity"><span class="pair-label">Pair</span> <strong id="pair-number"></strong></p>
+    <p id="pair-description"></p>
+    <p class="aside">Match the number as well as the shape.</p>
+    <details><summary>Can’t find your partner?</summary><p>Show your number to the facilitator. They can help you find each other or join another pair.</p></details>
+  </div>
+  <button id="pair-join" class="button" type="button">Find me a partner</button>
+  <button id="pair-leave" type="button" hidden>Leave the waiting list</button>
+  <p id="pair-error" class="error" role="alert" hidden></p>
+</div></section>
 <footer hidden><p id="connection" class="connection" role="status"></p></footer></main></body></html>

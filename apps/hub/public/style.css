@@ -145,3 +145,32 @@ dd { margin: 4px 0 20px; }
 #saved-name { overflow-wrap: anywhere; }
 #change-name { margin-left: 8px; }
 #name-error { margin: 8px 0 0; }
+
+/* Large redundant identifiers: colour locates, shape helps, number confirms. */
+.pairing-active .shell { max-width: 760px; display: block; padding-top: 24px; }
+.pairing-active .shell header { border-top-width: 3px; padding-top: 12px; margin-bottom: 24px; }
+.pairing-active h1 { font-size: 1rem; line-height: 1.2; letter-spacing: 0; margin: 0; }
+.pairing-active h1 br { display: none; }
+.pairing-active h1 span::before { content: ' '; }
+.pairing-active .current { border: 0; padding: 0; }
+.pairing-active h2 { margin-bottom: 12px; }
+#pair-message { margin: 12px 0 20px; }
+#pair-marker { text-align: center; }
+.pair-shape { width: min(56vw, 220px); height: min(40vw, 160px); margin: auto; }
+.pair-shape.blue { background: #0072b2; }
+.pair-shape.gold { background: #997500; }
+.pair-shape.pink { background: #b43e82; }
+.pair-shape.orange { background: #b55300; }
+.pair-shape.green { background: #287f46; }
+.pair-shape.circle { width: min(40vw, 160px); border-radius: 50%; }
+.pair-shape.square { width: min(40vw, 160px); }
+.pair-shape.triangle { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.pair-shape.diamond { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.pair-shape.cross { clip-path: polygon(32% 0, 68% 0, 68% 30%, 100% 30%, 100% 70%, 68% 70%, 68% 100%, 32% 100%, 32% 70%, 0 70%, 0 30%, 32% 30%); }
+.pair-identity { margin: 8px 0 0; line-height: 1; }
+.pair-label { display: block; font-size: 1rem; font-weight: 600; }
+#pair-number { display: block; font-size: clamp(5rem, 30vw, 8rem); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+#pair-description { margin: 8px 0; font-weight: 600; }
+#pair-marker details { text-align: left; }
+#pair-join { width: 100%; }
+@media (forced-colors: active) { .pair-shape { background: CanvasText !important; forced-color-adjust: none; } }

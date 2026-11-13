@@ -38,7 +38,7 @@ API](../puck/docs/operator-api.md).
 
 The Show profiles controls use the named profile
 `zkm-production-show-14-11-2026`. Its revised sequence is Arrivals room (waiting),
-1 · Record individually, 2 · Analogue objects, 4 · Groups of four, All · Polymind
+1 · Record individually, 2 · Pairs, 4 · Groups of four, All · Polymind
 analysis, Collective Voice, Puck, and Flight. The closing invitation is removed.
 The profile's `activityBindings` maps one bounded Polymind session to both the 1
 and All invitations; those cues share the same session and round. Collective Voice
@@ -192,3 +192,20 @@ is not sent in HTTP requests. A destination consumes and removes it immediately,
 then prefills its own join form; joining uses its existing API and identity rules.
 The name is not authentication, and no cross-origin credentials are transferred.
 If storage is unavailable, the name remains usable for the current page visit.
+
+## Participant pairing
+
+A ready `pairs` activity exposes `pairingRound` in `GET /api/current`. It does not
+expose membership. `POST /api/pairing` requires same-origin JSON with
+`{roundId, token, action}`. The browser generates a random UUID token and saves it
+locally before joining; actions are `join` and `leave`. Never put the token in a URL.
+`join` is idempotent and doubles as a poll while waiting. It returns
+`{roundId, status: "waiting"}` or `{roundId, status: "paired", number}` for that token.
+`leave` removes only waiting membership, never changes a completed pair, and returns
+`{status: "left"}` (or the existing pair if assignment won the race). Requests for an inactive or superseded round return 409.
+
+Mutations use the same serial queue and atomic file save as programme changes.
+Participant updates do not advance the operator programme revision. The private
+operator state reports only `pairingSummary: {pairs, waiting}`, not tokens or hashes.
+Saved state gains an optional `pairing` record; old states without it remain valid.
+Back up the complete state file, and do not expose it publicly.

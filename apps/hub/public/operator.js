@@ -70,7 +70,7 @@ function showMode(next) {
 function ready(activity) { return activity.status === 'ready'; }
 function description(activity) {
   if (!ready(activity)) return 'Needs preparation';
-  return { activity: 'Link saved · check before showing', analogue: 'In person', waiting: 'Waiting', closed: 'Closing' }[activity.kind];
+  return { activity: 'Link saved · check before showing', analogue: 'In person', pairs: 'Random pairs', waiting: 'Waiting', closed: 'Closing' }[activity.kind];
 }
 function cueButton(activity, label = `Show invitation: ${activity.label}`) {
   const node = button(label, () => cue(activity));

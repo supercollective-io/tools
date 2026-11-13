@@ -282,3 +282,53 @@ test('name hand-off recognises only supported configured participant destination
   assert.equal(supportsNameHandoff(current, custom), false);
   assert.equal(supportsNameHandoff({ ...current, url: 'https://writing.example/?session=one' }, custom), true);
 });
+
+test('pairing admission is serialised, scoped to the cue and durable without exposing identities', async () => {
+  const directory = await mkdtemp(join(temporary, 'pairing-'));
+  let app = await serve(directory);
+  const tokens = ['11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222'];
+  let roundId;
+  const pair = (token, action = 'join', headers = { origin: config.publicOrigin }) => fetch(`${app.base}/api/pairing`, {
+    method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify({ token, roundId, action }),
+  });
+  try {
+    let state = await (await fetch(`${app.base}/api/operator/state`, { headers: authenticated })).json();
+    state.activities.push({ id: 'pairs', label: 'Pairs', kind: 'pairs', status: 'ready', instruction: 'Find a partner.' });
+    state.activeId = 'pairs';
+    assert.equal((await put(app.base, state)).status, 200);
+    const current = await (await fetch(`${app.base}/api/current`)).json();
+    roundId = current.pairingRound;
+    assert.ok(roundId);
+    assert.equal((await pair(tokens[0], 'join', {})).status, 403);
+    assert.equal((await pair('invalid')).status, 400);
+    const responses = await Promise.all(tokens.flatMap(token => [pair(token), pair(token)]));
+    assert.ok(responses.every(response => response.status === 200));
+    const saved = JSON.parse(await readFile(join(directory, 'state.json'), 'utf8'));
+    assert.equal(saved.pairing.waiting.length, 2);
+    assert.equal(JSON.stringify(saved).includes(tokens[0]), false);
+    assert.equal((await pair(tokens[1], 'leave')).status, 200);
+    assert.equal((await pair(tokens[1])).status, 200);
+    await app.close();
+    // Advance only this disposable persisted batch deadline; avoid sleeping in the test.
+    const expired = JSON.parse(await readFile(join(directory, 'state.json'), 'utf8'));
+    expired.pairing.nextBatchAt = 0;
+    expired.pairing.waiting.forEach(entry => { entry.seenAt = Date.now(); });
+    await writeFile(join(directory, 'state.json'), JSON.stringify(expired));
+    app = await serve(directory);
+    const first = await (await pair(tokens[0])).json();
+    const second = await (await pair(tokens[1])).json();
+    assert.equal(first.status, 'paired'); assert.deepEqual(first, second);
+    await app.close(); app = await serve(directory);
+    assert.deepEqual(await (await pair(tokens[0])).json(), first);
+    state = await (await fetch(`${app.base}/api/operator/state`, { headers: authenticated })).json();
+    assert.equal(state.pairing, undefined);
+    assert.deepEqual(state.pairingSummary, { pairs: 1, waiting: 0 });
+    state.activeId = 'arrival';
+    assert.equal((await put(app.base, state)).status, 200);
+    assert.equal((await pair(tokens[0])).status, 409);
+    assert.equal((await (await fetch(`${app.base}/api/current`)).json()).pairingRound, undefined);
+    state.revision += 1; state.activeId = 'pairs';
+    assert.equal((await put(app.base, state)).status, 200);
+    assert.deepEqual(await (await pair(tokens[0])).json(), first);
+  } finally { await app.close(); }
+});

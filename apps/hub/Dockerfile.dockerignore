@@ -5,6 +5,7 @@ apps/*
 apps/hub/*
 !apps/hub/package.json
 !apps/hub/server.mjs
+!apps/hub/pairing.mjs
 !apps/hub/invitations.mjs
 !apps/hub/run-profiles.mjs
 !apps/hub/profiles/
