@@ -199,8 +199,7 @@ async function browser(
     if (options.waitForReady ?? true) {
       expect(get("capture").hidden).toBe(false);
       expect(get("prompt").textContent).toBe("What matters?");
-    } else expect(get("status").textContent).not.toBe("");
-
+    } else expect(get("prompt").textContent).not.toBe("");
   });
   return {
     get,

@@ -23,7 +23,7 @@ to full options below the arena. Recorded labels and mechanics are unchanged.
 
 ## Evidence and reproduction
 
-Use synthetic data and the current working-tree patch against `55ae579`.
+Use synthetic data and the current working-tree patch against `a18dcf6`.
 Run from the repository root:
 
 - `mise exec -- just verify` for lint, types, unit tests and builds.
@@ -54,11 +54,11 @@ preferences. No design-tooling repairs are included.
 ## Verification result
 
 On 13 November 2026, `mise exec -- just verify` passed: lint, types,
-608 Polymind tests, 35 Puck tests, 10 Hub tests, 8 root script tests,
+618 Polymind tests, 35 Puck tests, 30 Hub tests, 8 root script tests,
 84 Python tests and application/package builds. Then
 `mise exec -- just test-browser-built` passed against that build, including both
-Polymind flows, all 8 Puck browser tests, Hub smoke and the real cross-origin name
-hand-off. The microphone flow includes pause/resume, end, fresh-round creation,
+Polymind flows, all 8 Puck browser tests, Hub invitation/profile smoke and the
+real cross-origin name hand-off. The microphone flow includes pause/resume, end, fresh-round creation,
 private read-only history, heading-free projection and enlarged-text reflow.
 
 The detector reported typography/palette advisories for the incumbent design.

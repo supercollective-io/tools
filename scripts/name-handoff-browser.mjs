@@ -95,12 +95,12 @@ try {
   await page.getByRole('link', { name: 'Join activity' }).click();
   await expect(page.getByLabel('Your name')).toHaveValue('Ada & Bea');
   assert.equal(new URL(page.url()).hash, '');
-  await page.getByLabel('If matched, I need my partner to come to my seat').check();
+  await expect(page.getByLabel('If matched, I need my partner to come to my seat')).toHaveCount(0);
   await page.getByRole('button', { name: 'Join session' }).click();
   await expect(page.locator('#badge')).toHaveText('001');
   const polyState = await page.evaluate(async () => (await fetch(`/api/state${location.search}`)).json());
   assert.equal(polyState.participant.name, 'Ada & Bea');
-  assert.equal(polyState.participant.seated, true);
+  assert.equal(polyState.participant.seated, false);
   const polyCookies = await context.cookies(polyOrigin);
   assert.ok(polyCookies.some(cookie => cookie.name.startsWith('pm_')));
   await page.goto(hubBase);
@@ -136,7 +136,7 @@ try {
   await expect(page.locator('#badge')).toHaveText('001');
   const revisited = await page.evaluate(async () => (await fetch(`/api/state${location.search}`)).json());
   assert.equal(revisited.participant.name, 'Ada & Bea');
-  assert.equal(revisited.participant.seated, true);
+  assert.equal(revisited.participant.seated, false);
   assert.equal(new URL(page.url()).hash, '');
   const publicState = await (await fetch(`${hubBase}/api/current`)).text();
   assert.ok(!publicState.includes('Ada & Bea') && !publicState.includes('Changed name'));
