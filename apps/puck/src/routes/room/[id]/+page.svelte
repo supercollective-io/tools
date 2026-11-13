@@ -8,6 +8,7 @@ import ModeNotice from '../../../lib/components/ModeNotice.svelte';
 import { type Point, terminal } from '../../../lib/core/engine.ts';
 import { optionMixture, personalised, projectState } from '../../../lib/core/experiments.ts';
 import type { RoomView, ServerMessage } from '../../../lib/core/protocol.ts';
+import { consumeDisplayName, saveDisplayName } from '../../../lib/display-name.ts';
 
 let inviteUrl = $state('');
 let room = $state<RoomView | null>(null),
@@ -81,13 +82,16 @@ function connect() {
     if (!disposed) reconnect = setTimeout(connect, 1500);
   };
 }
-async function load() {
+async function load(prefill = '') {
   try {
     room = await request<RoomView>(`/api/rooms/${roomId}`);
     inviteUrl = room.participantUrl ?? new URL(`/room/${roomId}`, location.origin).href;
     if (room.me) {
       if (!socket) connect();
-    } else connection = 'Not joined';
+    } else {
+      connection = 'Not joined';
+      if (prefill) name = prefill;
+    }
   } catch (e) {
     error = (e as Error).message;
   }
@@ -97,7 +101,13 @@ function input(point: Point, pulling: boolean) {
   engaged = pulling;
 }
 onMount(() => {
-  void load();
+  const prefill = consumeDisplayName();
+  void load(prefill);
+  const handoff = () => {
+    const next = consumeDisplayName();
+    if (!room?.me && next) name = next;
+  };
+  window.addEventListener('hashchange', handoff);
   const interval = setInterval(() => {
     if (room?.me?.participating && socket?.readyState === WebSocket.OPEN)
       socket.send(
@@ -119,6 +129,7 @@ onMount(() => {
     clearTimeout(reconnect);
     clearInterval(interval);
     socket?.close();
+    window.removeEventListener('hashchange', handoff);
     window.removeEventListener('blur', release);
     document.removeEventListener('visibilitychange', release);
   };
@@ -129,6 +140,7 @@ async function join(event: SubmitEvent) {
   error = '';
   try {
     await request(`/api/rooms/${roomId}/join`, { name });
+    saveDisplayName(name);
     await load();
   } catch (e) {
     error = (e as Error).message;
@@ -166,7 +178,7 @@ async function copy() {
     <ModeNotice mode={room.mode} />
     <form onsubmit={join}>
       <label
-        >Your name<input bind:value={name} required maxlength="32" autocomplete="given-name"></label
+        >Your name<input bind:value={name} required maxlength="80" autocomplete="given-name"></label
       >
       {#if error}
         <p role="alert" class="error">{error}</p>
@@ -181,9 +193,9 @@ async function copy() {
     <h1>{room.question}</h1>
     <ModeNotice mode={room.mode} />
     <div class="toolbar">
-      <button type="button" onclick={copy}>{copied ? 'Link copied' : 'Copy invite link'}</button>
-      <InviteQr url={inviteUrl} />
       {#if room.me.host}
+        <button type="button" onclick={copy}>{copied ? 'Link copied' : 'Copy invite link'}</button>
+        <InviteQr url={inviteUrl} />
         {#if active}
           <button type="button" disabled={busy} onclick={() => action('cancel')}>
             Cancel round
@@ -240,7 +252,7 @@ async function copy() {
             >Your name<input
               bind:value={name}
               required
-              maxlength="32"
+              maxlength="80"
               autocomplete="given-name"
             ></label
           >
@@ -267,15 +279,11 @@ async function copy() {
       </p>
     {/if}
     <div class="support">
-      <p class="muted"><a href="https://we.supercollective.io">Return to Rehearsing We</a></p>
       <details>
-        <summary>
-          <span>{connected} online</span>
-          · {room.membership.registered}/{room.membership.capacity}
-          joined
-        </summary>
+        <summary>{room.membership.registered} joined</summary>
         <p class="muted">
-          {room.membership.active}
+          {connected}
+          online · {room.membership.active}
           active now{room.membership.frozenRoster !== null
             ? ` · ${room.membership.frozenRoster} in this round’s starting roster`
             : ''}.

@@ -44,7 +44,7 @@ test('personalised correction mode records proportions, layouts and replay persp
     ).toBeVisible();
     await guest.getByLabel('Your name', { exact: true }).fill('Guest');
     await guest.getByRole('button', { name: 'Join the room' }).click();
-    await expect(page.getByText('2 online', { exact: true })).toBeVisible();
+    await expect(page.getByText('2 joined', { exact: true })).toBeVisible();
     await page.bringToFront();
     await page.getByRole('button', { name: 'Start round', exact: true }).click();
     const arena = page.getByRole('application');

@@ -10,6 +10,7 @@ import {
   TARGET_RADIUS,
 } from '../core/engine.ts';
 import type { Contribution } from '../core/replay.ts';
+import { abbreviateLabel } from '../rendering/labels.ts';
 import { approachPoint } from '../rendering/motion.ts';
 
 let {
@@ -42,7 +43,7 @@ let frame: number | undefined;
 let lastTick = -1;
 let target: Point = { x: 500, y: 500 };
 let lastTime = 0;
-const indexed = $derived(options.some((option) => option.label.length > 28));
+const indexed = $derived(options.some((option) => abbreviateLabel(option.label) !== option.label));
 const selectedLabel = $derived(
   options.find((option) => option.id === puckState?.selectedId)?.label,
 );
@@ -252,18 +253,17 @@ function key(event: KeyboardEvent) {
         <circle cx={magnet.x} cy={magnet.y} r="4" class="magnet-centre" />
       {/if}
     </svg>
-    {#if !indexed}
-      {#each options as option}
-        <div
-          class="target-label"
-          class:chosen={puckState?.selectedId === option.id}
-          style:left={`${Math.max(16, Math.min(84, option.x / 10))}%`}
-          style:top={`${option.y / 10 + (option.y > 700 ? -14 : 10)}%`}
-        >
-          <span>{option.label}</span>
-        </div>
-      {/each}
-    {/if}
+    {#each options as option}
+      <div
+        class="target-label"
+        class:chosen={puckState?.selectedId === option.id}
+        class:above={option.y > 700}
+        style:left={`${Math.max(16, Math.min(84, option.x / 10))}%`}
+        style:top={`${option.y / 10 + (option.y > 700 ? -10 : 10)}%`}
+      >
+        <span>{abbreviateLabel(option.label)}</span>
+      </div>
+    {/each}
     {#if puckState?.phase === 'countdown'}
       <div class="countdown-overlay">
         <strong>{Math.ceil(puckState.countdownMs / 1000)}</strong>

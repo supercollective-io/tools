@@ -27,7 +27,7 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   await capture(guest, testInfo, 'participant-join');
   await guest.getByLabel('Your name', { exact: true }).fill('Alex');
   await guest.getByRole('button', { name: 'Join the room' }).click();
-  await expect(page.getByText('2 online')).toBeVisible();
+  await expect(page.getByText('2 joined')).toBeVisible();
   await capture(page, testInfo, 'desktop-room-ready');
   await page.getByRole('button', { name: 'Start round', exact: true }).click();
   await expect(guest.getByText('Round in progress')).toBeVisible();
@@ -51,12 +51,12 @@ test('two participants share a round, reconnect, cancel and replay privately', a
   await page.mouse.up();
   await guest.reload();
   await expect(guest.getByText('Connected', { exact: true })).toBeVisible();
-  await expect(page.getByText('2 online')).toBeVisible();
+  await expect(page.getByText('2 joined')).toBeVisible();
   const duplicate = await guestContext.newPage();
   await duplicate.goto(roomUrl);
   await expect(duplicate.getByText('Connected', { exact: true })).toBeVisible();
   await expect(guest.getByText('Another tab now controls your magnet.')).toBeVisible();
-  await expect(page.getByText('2 online')).toBeVisible();
+  await expect(page.getByText('2 joined')).toBeVisible();
   await duplicate.close();
   await guest.reload();
   await expect(guest.getByText('Connected', { exact: true })).toBeVisible();
@@ -149,7 +149,7 @@ test('creator hosts two participants without contributing to the round', async (
   await page.goto('/');
   await expect(page.getByLabel('Your name', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Create room' }).click();
-  await expect(page.getByText('0 online', { exact: true })).toBeVisible();
+  await expect(page.getByText('0 joined', { exact: true })).toBeVisible();
   await expect(page.locator('.magnet')).toHaveCount(0);
   const contexts = await Promise.all([browser.newContext(), browser.newContext()]);
   try {
@@ -158,12 +158,14 @@ test('creator hosts two participants without contributing to the round', async (
       await guest.goto(page.url());
       await guest.getByLabel('Your name', { exact: true }).fill(`Guest ${i}`);
       await guest.getByRole('button', { name: 'Join the room' }).click();
-      await expect(page.getByText(`${i + 1} online`, { exact: true })).toBeVisible();
+      await expect(page.getByText(`${i + 1} joined`, { exact: true })).toBeVisible();
+      await expect(guest.getByRole('button', { name: 'Copy invite link' })).toHaveCount(0);
+      await expect(guest.getByRole('button', { name: 'Show QR code' })).toHaveCount(0);
       if (i === 0)
         await expect(page.getByRole('button', { name: 'Start round', exact: true })).toBeDisabled();
     }
     await page.reload();
-    await expect(page.getByText('2 online', { exact: true })).toBeVisible();
+    await expect(page.getByText('2 joined', { exact: true })).toBeVisible();
     await expect(page.locator('.magnet')).toHaveCount(0);
     await page.getByRole('button', { name: 'Start round', exact: true }).click();
     await page.getByRole('button', { name: 'Cancel round' }).click();
@@ -178,5 +180,30 @@ test('creator hosts two participants without contributing to the round', async (
     ]);
   } finally {
     await Promise.all(contexts.map((context) => context.close()));
+  }
+});
+
+test('name handoff is consumed, saved on join and does not replace an identity', async ({
+  page,
+  browser,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Create room' }).click();
+  await expect(page.getByText('Connected', { exact: true })).toBeVisible();
+  const url = page.url();
+  const context = await browser.newContext();
+  try {
+    const guest = await context.newPage();
+    await guest.goto(`${url}#rw-name-v1=${encodeURIComponent('  Ada 👩‍🔬  ')}`);
+    await expect(guest.getByLabel('Your name')).toHaveValue('Ada 👩‍🔬');
+    expect(new URL(guest.url()).hash).toBe('');
+    await guest.getByRole('button', { name: 'Join the room' }).click();
+    await expect(guest.getByText('1 joined', { exact: true })).toBeVisible();
+    await guest.goto(`${url}#rw-name-v1=Someone%20else`);
+    await expect(guest.getByLabel('Your name')).toHaveCount(0);
+    await expect.poll(() => new URL(guest.url()).hash).toBe('');
+    expect(await guest.evaluate(() => localStorage.getItem('rw-display-name-v1'))).toBe('Ada 👩‍🔬');
+  } finally {
+    await context.close();
   }
 });
