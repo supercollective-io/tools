@@ -48,7 +48,10 @@ bindings and private per-run operator notes. The operator API can return notes;
 the public invitation API does not. Create a new rehearsal to use a revised
 sequence.
 
-The operator supplies the model choice and budgets, the Flight audience invitation
+The profile supplies separate analysis (`model`) and Collective Voice (`voiceModel`)
+choices and budgets. Launch show orchestrates create/resume, prepare and use through
+the routes below; it keeps the existing waiting invitation and reuses resources on
+retry. Operators can override the settings before preparation, supply the Flight audience invitation
 if available, and Puck answers proposed by the room. An empty Puck answer list is
 valid until the room proposes two to six distinct options.
 
@@ -91,9 +94,10 @@ bounded show flow](../../docs/operations.md#bounded-show-flow) and [recording
 operations](../../docs/operations.md#collective-microphone-and-historical-operations).
 
 For `POST /api/operator/runs`, `settings` contains `writingQuestion` and
-`voiceQuestion` (up to 2,000 characters each), `model`, `puckQuestion` (up to 240
+`voiceQuestion` (up to 2,000 characters each), `model`, optional `voiceModel`, `puckQuestion` (up to 240
 characters), `puckOptions`, and optional `flightUrl`. `model` contains `provider`
-(`openai` or `ollama`), the exact `model` ID, `maxInputCharacters` (1–1,000,000),
+(`openai` or `ollama`), the exact `model` ID, optional OpenAI `reasoningEffort`
+(`none`, `low`, `medium` or `high`), `maxInputCharacters` (1–1,000,000),
 `maxOutputTokens` (100–16,000), and `timeoutMs` (1,000–360,000). `puckOptions`
 is either empty or two to six distinct options of at most 48 characters each.
 `flightUrl` must be the allowed Flight participant invitation. Copy it from
@@ -142,3 +146,8 @@ does not establish that its destination is reachable or ready. Hub cannot check
 Flight simulator readiness; operators must check the simulator locally before
 each cue. Status checks do not prevent a return to a waiting or in-person
 invitation.
+
+`voiceModel` has the same fields as `model`; older runs without it use `model` for
+both activities. Polymind must support reasoning effort in its preparation API
+before launching these profiles. The operator page retains that effort when
+saving preparation, starting voice or requesting analysis.

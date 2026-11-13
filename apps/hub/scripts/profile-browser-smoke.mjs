@@ -32,6 +32,7 @@ const config = configuration({
 });
 
 const upstream = [];
+let failVoiceOnce = false;
 const polymindSessions = new Map();
 const puckRooms = new Map();
 const polymindRequests = new Map();
@@ -56,6 +57,10 @@ config.fetch = async (value, options) => {
           participantUrl: `https://polymind.supercollective.io/?session=${id}` };
         polymindRequests.set(key, session);
         polymindSessions.set(id, { ...session });
+      }
+      if (failVoiceOnce && body.title.endsWith('Collective Voice')) {
+        failVoiceOnce = false;
+        return json({ error: 'Synthetic interrupted creation' }, 503);
       }
       return json(session, 201);
     }
@@ -125,13 +130,10 @@ try {
   await expect(operator.locator('#feedback')).toContainText('Saved programme loaded');
   await operator.getByRole('tab', { name: 'Preparation' }).click();
   await expect(operator.locator('#prepare')).toBeVisible();
-  await operator.locator('#new-run > summary').click();
   await expect(operator.locator('#run-form select[name="profile"]')).toHaveValue(profileId);
   await expect(operator.getByLabel('Collective Voice question')).toHaveValue(voiceQuestion);
   await expect(operator.getByLabel('Puck question')).toHaveValue(puckQuestion);
   await expect(operator.getByLabel('Puck answers — one per line')).toHaveValue('');
-  await operator.getByLabel('Text provider').selectOption('ollama');
-  await operator.getByLabel('Exact text model ID').fill('synthetic-wrong');
 
   await operator.screenshot({ path: join(output, 'profile-preparation-desktop.png'), fullPage: true });
   await operator.setViewportSize({ width: 390, height: 844 });
@@ -140,26 +142,11 @@ try {
   await operator.screenshot({ path: join(output, 'profile-preparation-mobile.png'), fullPage: true });
   await operator.setViewportSize({ width: 1440, height: 1000 });
 
-  await operator.getByRole('button', { name: 'Create production run', exact: true }).click();
-  await expect(operator.locator('#run-feedback')).toContainText('Run saved. Prepare its activities next');
-  assert.deepEqual(upstream, [], 'Saving a run recipe must not contact Polymind or Puck');
-  assert.equal(hubWrites.some(write => write.path === '/api/operator/state'), false,
-    'Saving a run recipe must not change the live programme');
+  await operator.getByRole('button', { name: 'Launch show', exact: true }).click();
+  await expect(operator.locator('#run')).toBeVisible();
   await expect(participant.getByRole('heading', { name: 'Waiting to begin' })).toBeVisible();
-
-  await operator.getByRole('button', { name: 'Edit unprepared run' }).click();
-  await expect(operator.getByLabel('Exact text model ID')).toHaveValue('synthetic-wrong');
-  await operator.getByLabel('Exact text model ID').fill('synthetic-model');
-  await operator.getByRole('button', { name: 'Save run settings', exact: true }).click();
-  await expect(operator.locator('#run-feedback')).toContainText('Run settings saved. No app has been prepared');
-  assert.deepEqual(upstream, [], 'Editing an unprepared run must not contact Polymind or Puck');
-  assert.equal(hubWrites.some(write => write.path === '/api/operator/state'), false,
-    'Editing a run recipe must not change the live programme');
-  await expect(participant.getByRole('heading', { name: 'Waiting to begin' })).toBeVisible();
-
-  await operator.getByRole('button', { name: 'Prepare / check activities' }).click();
-  await expect(operator.locator('#run-feedback')).toContainText('Puck is waiting for the room’s options');
-  assert.deepEqual(upstream.map(item => [item.app, item.method, item.path]), [
+  assert.equal((await (await operator.request.get(`${base}/api/operator/runs`)).json()).length, 1);
+  assert.deepEqual(upstream.slice(0, 6).map(item => [item.app, item.method, item.path]), [
     ['polymind.supercollective.io', 'POST', '/api/operator/sessions'],
     ['polymind.supercollective.io', 'GET', '/api/operator/sessions/profile-session-1'],
     ['polymind.supercollective.io', 'PUT', '/api/operator/sessions/profile-session-1/preparation'],
@@ -176,8 +163,9 @@ try {
     { mode: 'bounded', prompt: writingQuestion, model: preparations[0].body.model },
     { mode: 'continuous', prompt: voiceQuestion, model: preparations[1].body.model },
   ]);
-  assert.deepEqual(preparations.map(item => item.body.model.model), ['synthetic-model', 'synthetic-model'],
-    'Prepared Polymind sessions must use the edited model ID');
+  const profile = (await (await operator.request.get(`${base}/api/operator/profiles`)).json())[0];
+  assert.deepEqual(preparations.map(item => item.body.model), [profile.model, profile.voiceModel ?? profile.model],
+    'One-click launch must use the complete profile model configuration');
   const ids = [...polymindSessions.keys()];
   assert.deepEqual(ids, ['profile-session-1', 'profile-session-2']);
   await expect(operator.locator('#run-sequence')).toContainText(sequence);
@@ -188,12 +176,18 @@ try {
     'The individual and All cues share one session; Collective Voice has its own session');
   await expect(participant.getByRole('heading', { name: 'Waiting to begin' })).toBeVisible();
 
-  await operator.getByRole('button', { name: 'Use prepared programme' }).click();
   await expect(operator.locator('#run-feedback')).toContainText('Programme loaded into Live cues');
   await expect(participant.getByRole('heading', { name: 'Waiting to begin' })).toBeVisible();
   const installed = await (await operator.request.get(`${base}/api/operator/state`)).json();
   assert.deepEqual(installed.activities.map(item => item.id), ['arrival', 'polymind', 'analogue', 'four', 'polymind-all', 'collective-voice', 'puck', 'flight']);
   assert.equal(installed.activeId, 'arrival');
+  await operator.getByRole('tab', { name: 'Preparation' }).click();
+  const creations = upstream.filter(item => item.method === 'POST').length;
+  await operator.getByRole('button', { name: 'Launch show', exact: true }).click();
+  await expect(operator.locator('#run')).toBeVisible();
+  assert.equal(upstream.filter(item => item.method === 'POST').length, creations);
+  assert.equal((await (await operator.request.get(`${base}/api/operator/runs`)).json()).length, 1);
+  assert.equal((await (await operator.request.get(`${base}/api/operator/state`)).json()).activeId, 'arrival');
   const writeCountAfterInstall = hubWrites.length;
   const upstreamCountAfterInstall = upstream.length;
   await operator.getByRole('tab', { name: 'Live cues' }).click();
@@ -286,10 +280,11 @@ try {
   await expect(operator.getByLabel('Collective Voice question')).toHaveValue(voiceQuestion);
   await expect(operator.getByLabel('Puck question')).toHaveValue(puckQuestion);
   await expect(operator.getByLabel('Puck answers — one per line')).toHaveValue('');
+  await operator.locator('#saved-runs > summary').click();
   await operator.getByRole('button', { name: 'Resume preparation' }).click();
   await expect(operator.locator('#run-feedback')).toContainText('Run resumed. Existing sessions and rooms are retained');
   await expect(operator.locator('#run-sequence')).toContainText(sequence);
-  await operator.getByRole('button', { name: 'Prepare / check activities' }).click();
+  await operator.getByRole('button', { name: 'Launch saved show' }).click();
   await expect(operator.locator('#run-feedback')).toContainText('Puck is prepared.');
   assert.equal(upstream.filter(item => item.method === 'POST').length, postedResourceCount,
     'Resuming and checking a saved run must not create new app resources');
@@ -298,7 +293,30 @@ try {
   await expect(participant.getByRole('heading', { name: '2 · Analogue objects' })).toBeVisible();
   await expect(participant.locator('#instruction')).toHaveText(analogueInstruction);
 
+  await operator.getByRole('tab', { name: 'Preparation' }).click();
   await operator.screenshot({ path: join(output, 'profile-prepared-puck-desktop.png'), fullPage: true });
+  // An uncertain resource creation during launch must survive browser reload.
+  await operator.getByRole('tab', { name: 'Live cues' }).click();
+  await operator.getByRole('button', { name: 'Return to waiting' }).click();
+  await expect(participant.getByRole('heading', { name: 'Waiting to begin' })).toBeVisible();
+  await operator.getByRole('tab', { name: 'Preparation' }).click();
+  await operator.locator('#run-overrides > summary').click();
+  failVoiceOnce = true;
+  await operator.getByRole('button', { name: 'Launch fresh rehearsal' }).click();
+  await expect(operator.locator('#run-feedback')).toHaveClass(/error/);
+  assert.equal(polymindSessions.size, 4, 'Both resources committed before the interrupted reply');
+  assert.equal((await (await operator.request.get(`${base}/api/operator/state`)).json()).runId, installed.runId,
+    'A partial launch must leave the original programme installed');
+  await operator.reload();
+  await expect(operator.locator('#run-feedback')).toContainText('interrupted rehearsal');
+  await operator.locator('#run-overrides > summary').click();
+  await operator.getByRole('button', { name: 'Launch fresh rehearsal' }).click();
+  await expect(operator.locator('#run')).toBeVisible();
+  assert.equal(polymindSessions.size, 4, 'Retry must recover the committed sessions');
+  assert.equal((await (await operator.request.get(`${base}/api/operator/runs`)).json()).length, 2,
+    'Retry must recover the same rehearsal run');
+  assert.equal((await (await operator.request.get(`${base}/api/operator/state`)).json()).activeId, 'arrival');
+  assert.equal(await operator.evaluate(() => sessionStorage.getItem('hub-run-creation')), null);
   console.log(`Profile browser smoke passed; synthetic upstream calls: ${upstream.length}; screenshots: ${output}`);
 } finally {
   await browser?.close();

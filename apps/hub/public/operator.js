@@ -282,6 +282,7 @@ function restoreCreation(app) {
   } catch { /* A corrupt or unavailable draft must not prevent loading saved invitations. */ }
 }
 function edit(activity) {
+  $('#manual-programme').open = true;
   if (!discard()) return false;
   editingId = activity.id; dirty = false;
   form.hidden = false; $('#editor-empty').hidden = true;
@@ -356,7 +357,9 @@ async function load() {
     if (!response.ok) throw new Error('Could not load the allowed websites. Check your sign-in and refresh saved state.');
     const config = await response.json();
     origins = config.allowedOrigins; appOrigins = config.appOrigins; integrations = config.integrations ?? {};
+    const firstLoad = !state;
     state = await fetchState(); uncertain = false;
+    if (firstLoad && !state.runId && !new URL(location.href).searchParams.has('view')) mode = 'prepare';
     if (!dirty) closeEditor();
     else {
       $('#saved-link').replaceChildren();
@@ -365,7 +368,7 @@ async function load() {
     }
     render();
     say(dirty ? 'Saved state refreshed. Your unsaved edits are kept. Review them against the current programme before saving.'
-      : 'Saved programme loaded. Choose an invitation to show to the room.');
+      : state.runId ? 'Saved programme loaded. Choose an invitation to show to the room.' : 'Saved programme loaded. Select a profile and launch the show.');
   } catch (error) { uncertain = true; say(error.message, true); }
   finally { busy = false; lock(); if (!uncertain) void checkActivities(); }
 }
@@ -485,6 +488,7 @@ $('#new-request').addEventListener('click', () => {
 setInterval(() => void checkActivities(), 15000);
 runTools = runPreparation({ getState: () => state, blocked: () => busy || appBusy || uncertain,
   beforeInstall: discard,
+  launched: () => { showMode('run'); $('#current-heading').focus(); },
   installed: next => {
     if (state?.runId !== next.runId) closeEditor();
     state = next; render(); say('Prepared programme saved. The current invitation has not changed.');

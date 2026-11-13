@@ -21,14 +21,19 @@ export async function openRuns(config, { atomicSave, HttpError, appRequest, appS
     if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !allowed.includes(key))) fail('Invalid run preparation fields.');
   };
   function settings(value) {
-    keys(value, ['writingQuestion', 'voiceQuestion', 'model', 'puckQuestion', 'puckOptions', 'flightUrl']);
-    keys(value.model, ['provider', 'model', 'maxInputCharacters', 'maxOutputTokens', 'timeoutMs']);
-    const model = value.model;
-    if (!['openai', 'ollama'].includes(model.provider)) fail('Choose a text provider.');
-    const modelId = string(model.model, 'the exact text model ID', 150);
-    for (const [key, minimum, maximum] of [['maxInputCharacters', 1, 1000000], ['maxOutputTokens', 100, 16000], ['timeoutMs', 1000, 360000]]) {
-      if (!Number.isInteger(model[key]) || model[key] < minimum || model[key] > maximum) fail(`Invalid ${key}.`);
-    }
+    keys(value, ['writingQuestion', 'voiceQuestion', 'model', 'voiceModel', 'puckQuestion', 'puckOptions', 'flightUrl']);
+    const parseModel = model => {
+      keys(model, ['provider', 'model', 'reasoningEffort', 'maxInputCharacters', 'maxOutputTokens', 'timeoutMs']);
+      if (!['openai', 'ollama'].includes(model.provider)) fail('Choose a text provider.');
+      if (model.reasoningEffort !== undefined && (model.provider !== 'openai' || !['none', 'low', 'medium', 'high'].includes(model.reasoningEffort))) fail('Choose a supported OpenAI reasoning effort.');
+      const modelId = string(model.model, 'the exact text model ID', 150);
+      for (const [key, minimum, maximum] of [['maxInputCharacters', 1, 1000000], ['maxOutputTokens', 100, 16000], ['timeoutMs', 1000, 360000]]) {
+        if (!Number.isInteger(model[key]) || model[key] < minimum || model[key] > maximum) fail(`Invalid ${key}.`);
+      }
+      return { ...(model.reasoningEffort !== undefined ? { reasoningEffort: model.reasoningEffort } : {}), provider: model.provider, model: modelId, maxInputCharacters: model.maxInputCharacters, maxOutputTokens: model.maxOutputTokens, timeoutMs: model.timeoutMs };
+    };
+    const model = parseModel(value.model);
+    const voiceModel = value.voiceModel === undefined ? undefined : parseModel(value.voiceModel);
     if (!Array.isArray(value.puckOptions) || value.puckOptions.length === 1 || value.puckOptions.length > 6) fail('Enter two to six Puck answer options, or leave them empty until the room proposes them.');
     const puckOptions = value.puckOptions.map(option => string(option, 'a Puck answer option', 48));
     if (new Set(puckOptions.map(option => option.toLowerCase())).size !== puckOptions.length) fail('Puck answer options must be distinct.');
@@ -40,7 +45,7 @@ export async function openRuns(config, { atomicSave, HttpError, appRequest, appS
     return {
       writingQuestion: string(value.writingQuestion, 'the writing question', 2000),
       voiceQuestion: string(value.voiceQuestion, 'the Collective Voice question', 2000),
-      model: { provider: model.provider, model: modelId, maxInputCharacters: model.maxInputCharacters, maxOutputTokens: model.maxOutputTokens, timeoutMs: model.timeoutMs },
+      model, ...(voiceModel ? { voiceModel } : {}),
       puckQuestion: string(value.puckQuestion, 'the Puck question', 240), puckOptions, flightUrl,
     };
   }
@@ -173,7 +178,7 @@ export async function openRuns(config, { atomicSave, HttpError, appRequest, appS
       if (app === 'polymind') await configurePolymind(binding.id, {
         mode: activityId === 'polymind' ? 'bounded' : 'continuous',
         prompt: activityId === 'polymind' ? run.settings.writingQuestion : run.settings.voiceQuestion,
-        model: run.settings.model,
+        model: activityId === 'collective-voice' ? run.settings.voiceModel ?? run.settings.model : run.settings.model,
       });
       run.bindings[activityId] = { id: binding.id };
       for (const target of run.activityBindings?.[activityId] ?? [activityId]) {

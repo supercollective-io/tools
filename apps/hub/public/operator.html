@@ -47,13 +47,10 @@
       <dt>In-person activity or a pause</dt><dd>Show the room’s instruction here. Participants already inside another app need to return to the Hub.</dd></dl>
     </details>
   </section>
-  <nav id="app-controls" class="app-controls" aria-label="App controls" hidden>
-    <h2>App controls</h2><div id="app-links"></div>
-    <p class="aside">Opens in a new tab. Each app keeps its own sign-in. Puck operators can open host controls after signing in.</p>
-  </nav>
   <section id="prepare" role="tabpanel" aria-labelledby="prepare-view" tabindex="0" hidden>
     <h2 id="prepare-heading">Preparation</h2>
     <section id="run-preparation" aria-label="Show profiles"></section>
+    <details id="manual-programme"><summary>Advanced: edit individual invitations</summary>
     <p class="aside">Choose an app, then create an activity or connect an existing one. App controls remain available for detailed settings and running the activity.</p>
     <div class="preparation-layout">
       <div><div id="activities"></div><button id="add" type="button">Add an invitation</button></div>
@@ -100,7 +97,12 @@
       </form>
       <p id="editor-empty" class="aside">Choose an invitation to prepare it.</p>
     </div>
+    </details>
   </section>
+  <nav id="app-controls" class="app-controls" aria-label="App controls" hidden>
+    <h2>App controls</h2><div id="app-links"></div>
+    <p class="aside">Opens in a new tab. Each app keeps its own sign-in. Puck operators can open host controls after signing in.</p>
+  </nav>
 </main>
 </body>
 </html>

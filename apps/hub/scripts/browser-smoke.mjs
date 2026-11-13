@@ -54,7 +54,7 @@ try {
   const operator = await context.newPage();
   await operator.setViewportSize({ width: 1100, height: 900 });
   operator.on('pageerror', error => console.error(`Operator page error: ${error.message}`));
-  await operator.goto(`${base}/operator`);
+  await operator.goto(`${base}/operator?view=live`);
   console.log(`Operator load: ${await operator.locator('#feedback').textContent()}`);
   await expect(operator.locator('#feedback')).toContainText('Saved programme loaded');
   await operator.screenshot({ path: join(output, 'operator.png'), fullPage: true });
