@@ -200,7 +200,7 @@ test('website choices require authentication and never enter the public invitati
   const choices = await get('/api/operator/config', authenticated);
   assert.equal(choices.status, 200);
   assert.deepEqual(choices.body, { allowedOrigins: ['https://polymind.supercollective.io'],
-    appOrigins: { polymind: 'https://polymind.supercollective.io', puck: 'https://puck.supercollective.io' }, integrations: { polymind: false, puck: false } });
+    appOrigins: { polymind: 'https://polymind.supercollective.io', puck: 'https://puck.supercollective.io', flight: 'https://fly.supercollective.io' }, integrations: { polymind: false, puck: false, flight: false } });
   const current = await get('/api/current');
   assert.equal(current.status, 200);
   assert.equal(current.body.allowedOrigins, undefined);
@@ -211,7 +211,7 @@ test('website choices require authentication and never enter the public invitati
 test('app-control origins are configurable without widening participant permissions', () => {
   const custom = configuration({ HUB_OPERATOR_PASSWORD: password,
     HUB_POLYMIND_ORIGIN: 'https://writing.example', HUB_PUCK_ORIGIN: 'https://decision.example' });
-  assert.deepEqual(custom.appOrigins, { polymind: 'https://writing.example', puck: 'https://decision.example' });
+  assert.deepEqual(custom.appOrigins, { polymind: 'https://writing.example', puck: 'https://decision.example', flight: 'https://fly.supercollective.io' });
   assert.equal(custom.allowedOrigins.has('https://decision.example'), false);
   for (const value of ['http://writing.example', 'https://writing.example/operator', 'https://user:secret@writing.example']) {
     assert.throws(() => configuration({ HUB_OPERATOR_PASSWORD: password, HUB_POLYMIND_ORIGIN: value }));

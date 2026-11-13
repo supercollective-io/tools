@@ -43,7 +43,7 @@
       <p>The Hub changes the invitation. It does not start or stop activities.</p>
       <dl><dt>Polymind and Collective Voice</dt><dd>In the relevant session’s operator page, start or resume the activity, then end it there. For Polymind, close writing, analyse, review and release matching there. Keep any projection open separately.</dd>
       <dt>Puck</dt><dd>In the browser that created the room: set the question and options, then start or cancel the round.</dd>
-      <dt>Flight simulator</dt><dd>Before the show, load the approach, connect the bridge and leave FlightGear paused. Recheck readiness before giving the cue. Participants join through the invitation; release phone controls before unpausing FlightGear locally. Connection loss does not pause the flight. Simulator readiness is not checked here.</dd>
+      <dt>Flight simulator</dt><dd>Before the show, load the approach, connect the bridge and leave FlightGear paused. Recheck readiness before giving the cue. Participants join through the invitation; release phone controls before unpausing FlightGear locally. Connection loss does not pause the flight. Refresh app status to check the bridge; confirm the actual aircraft locally.</dd>
       <dt>In-person activity or a pause</dt><dd>Show the room’s instruction here. Participants already inside another app need to return to the Hub.</dd></dl>
     </details>
   </section>
@@ -61,7 +61,7 @@
         <label class="field">Invitation name<input name="label" maxlength="100" required autocomplete="off"></label>
         <label class="field">What should people do?<select name="kind"><option value="activity">Open a digital activity</option><option value="analogue">Take part in person</option><option value="waiting">Wait for the next cue</option><option value="closed">Finish / closing conversation</option></select></label>
         <div id="digital-fields">
-          <label class="field">App<select name="app"><option value="polymind">Polymind</option><option value="puck">Puck</option><option value="manual">Another app / participant link</option></select></label>
+          <label class="field">App<select name="app"><option value="polymind">Polymind</option><option value="puck">Puck</option><option value="flight">Flight</option><option value="manual">Another app / participant link</option></select></label>
           <section id="app-preparation" aria-label="Connect an activity">
             <p id="app-feedback" role="status"></p>
             <button type="button" id="load-sessions">Refresh available activities</button>

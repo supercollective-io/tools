@@ -26,8 +26,9 @@ const config = configuration({
   HUB_OPERATOR_PASSWORD: password,
   HUB_DATA_DIR: temporary,
   HUB_PUBLIC_ORIGIN: 'http://127.0.0.1:3000',
-  HUB_ALLOWED_ORIGINS: 'https://polymind.supercollective.io,https://puck.supercollective.io',
+  HUB_ALLOWED_ORIGINS: 'https://polymind.supercollective.io,https://puck.supercollective.io,https://fly.supercollective.io',
   HUB_POLYMIND_TOKEN: 'synthetic-polymind-operator-token-with-more-than-32-characters',
+  HUB_FLIGHT_TOKEN: 'synthetic-flight-operator-token-with-more-than-32-characters',
   HUB_PUCK_TOKEN: 'synthetic-puck-operator-token-with-more-than-32-characters',
 });
 
@@ -47,6 +48,7 @@ config.fetch = async (value, options) => {
   const body = options.body ? JSON.parse(options.body) : undefined;
   upstream.push({ app: url.hostname, path: url.pathname, method, body, headers: options.headers });
 
+  if (url.hostname === 'fly.supercollective.io') return json({ id: 'current', title: 'Flight', status: 'simulator-disconnected', participantUrl: `https://fly.supercollective.io/?key=${'f'.repeat(32)}` });
   if (url.hostname === 'polymind.supercollective.io') {
     if (method === 'POST' && url.pathname === '/api/operator/sessions') {
       const key = options.headers['idempotency-key'];
@@ -179,6 +181,7 @@ try {
   await expect(operator.locator('#run-feedback')).toContainText('Programme loaded into Live cues');
   await expect(participant.getByRole('heading', { name: 'Waiting to begin' })).toBeVisible();
   const installed = await (await operator.request.get(`${base}/api/operator/state`)).json();
+  assert.equal(installed.activities.find(item => item.id === 'flight').url, `https://fly.supercollective.io/?key=${'f'.repeat(32)}`);
   assert.deepEqual(installed.activities.map(item => item.id), ['arrival', 'polymind', 'analogue', 'four', 'polymind-all', 'collective-voice', 'puck', 'flight']);
   assert.equal(installed.activeId, 'arrival');
   await operator.getByRole('tab', { name: 'Preparation' }).click();

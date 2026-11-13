@@ -40,7 +40,8 @@ export async function openRuns(config, { atomicSave, HttpError, appRequest, appS
     let flightUrl = '';
     if (value.flightUrl) {
       flightUrl = participantUrl(value.flightUrl, config);
-      if (!/^https:\/\/fly\.supercollective\.io\/\?key=[A-Za-z0-9_-]{24,128}$/.test(flightUrl)) fail('Use Flight’s public participant invitation.');
+      const invitation = new URL(flightUrl);
+      if (invitation.origin !== config.appOrigins.flight || invitation.pathname !== '/' || !/^\?key=[A-Za-z0-9_-]{24,128}$/.test(invitation.search)) fail('Use Flight’s public participant invitation.');
     }
     return {
       writingQuestion: string(value.writingQuestion, 'the writing question', 2000),
@@ -60,7 +61,7 @@ export async function openRuns(config, { atomicSave, HttpError, appRequest, appS
         !Number.isSafeInteger(run.revision) || run.revision < 1 || !/^[a-f0-9]{64}$/.test(run.creationFingerprint) ||
         !Number.isFinite(Date.parse(run.createdAt)) || typeof run.label !== 'string' || !run.label.trim() || run.label.length > 150 ||
         (run.puckPreparationStarted !== undefined && typeof run.puckPreparationStarted !== 'boolean')) throw new Error('Invalid saved run');
-      keys(run.bindings, ['polymind', 'collective-voice', 'puck']);
+      keys(run.bindings, ['polymind', 'collective-voice', 'puck', 'flight']);
       for (const binding of Object.values(run.bindings)) {
         keys(binding, ['id']);
         if (!/^[a-zA-Z0-9_-]{1,100}$/.test(binding.id ?? '')) throw new Error('Invalid saved app binding');
@@ -71,7 +72,7 @@ export async function openRuns(config, { atomicSave, HttpError, appRequest, appS
         for (const note of Object.values(run.operatorNotes)) string(note, 'an operator cue', 2000);
       }
       if (run.activityBindings !== undefined) {
-        keys(run.activityBindings, ['polymind', 'collective-voice', 'puck']);
+        keys(run.activityBindings, ['polymind', 'collective-voice', 'puck', 'flight']);
         for (const targets of Object.values(run.activityBindings)) {
           if (!Array.isArray(targets) || !targets.length || new Set(targets).size !== targets.length ||
             targets.some(target => !run.activities.some(item => item.id === target && item.kind === 'activity'))) throw new Error('Invalid saved activity bindings');
@@ -151,8 +152,24 @@ export async function openRuns(config, { atomicSave, HttpError, appRequest, appS
         mode: body.mode, createdAt: new Date().toISOString(), settings: prepared, activities, bindings: {} });
     }),
     prepare: (id, activityId) => serial(async () => {
-      if (!['polymind', 'collective-voice', 'puck'].includes(activityId)) fail('Choose a preparable activity.');
+      if (!['polymind', 'collective-voice', 'puck', 'flight'].includes(activityId)) fail('Choose a preparable activity.');
       const run = get(id), profile = profiles.find(item => item.id === run.profileId);
+      if (activityId === 'flight') {
+        // Resolve the profile's shared Flight resource through its ordinary API.
+        // Refresh on resume so a rotated audience invitation is not reused.
+        if (run.settings.flightUrl) {
+          const activity = { id: 'current', title: 'Flight', url: run.settings.flightUrl };
+          Object.assign(run.activities.find(item => item.id === 'flight'), { status: 'ready', url: activity.url });
+          return { run: await persist(run), activity, resumed: false };
+        }
+        const connection = profile.connections?.flight;
+        if (!connection || connection.app !== 'flight' || connection.resourceId !== 'current') fail('The profile has no Flight connection.');
+        const activity = appSummary(config, 'flight', await appRequest(config, 'flight', connection.resourceId));
+        const resumed = Boolean(run.bindings.flight);
+        run.bindings.flight = { id: activity.id };
+        Object.assign(run.activities.find(item => item.id === 'flight'), { status: 'ready', url: activity.url });
+        return { run: await persist(run), activity, resumed };
+      }
       const app = activityId === 'puck' ? 'puck' : 'polymind';
       let binding = run.bindings[activityId];
       if (binding) {

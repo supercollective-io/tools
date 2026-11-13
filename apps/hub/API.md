@@ -151,3 +151,25 @@ invitation.
 both activities. Polymind must support reasoning effort in its preparation API
 before launching these profiles. The operator page retains that effort when
 saving preparation, starting voice or requesting analysis.
+
+
+## Flight
+
+`HUB_FLIGHT_TOKEN` authenticates to the Flight service as `FLIGHT_OPERATOR_TOKEN`.
+Use a distinct URL-safe token of 32–128 characters, separate from its participant
+and simulator bridge keys. `HUB_FLIGHT_ORIGIN` defaults to the public Flight origin;
+the origin must also be explicitly allowed in `HUB_ALLOWED_ORIGINS`.
+
+Flight’s own operator page and Hub share `GET /api/operator/sessions` and
+`GET /api/operator/sessions/current`, with Bearer authentication. The resource has
+`id`, `title`, `participantUrl` and `status`. Hub validates the exact configured
+origin and audience query shape before saving the invitation. Status is one of
+`simulator-disconnected`, `simulator-loading`, `aircraft-ready`. This is an observed
+connection state, not proof of handling, projection or venue readiness.
+
+The profile’s `connections.flight` selects `{ "app": "flight", "resourceId": "current" }`.
+Run preparation fetches this existing resource and persists only its binding and
+audience invitation. It does not send a creation request: a Flight relay owns one
+current session. Missing credentials, rejected credentials or malformed responses
+leave the invitation unprepared and can be retried. The operator token is never
+returned in configuration, run records, public state or participant URLs.

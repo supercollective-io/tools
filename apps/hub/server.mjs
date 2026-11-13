@@ -53,8 +53,9 @@ export function configuration(env = process.env) {
   const appOrigins = {
     polymind: origin(env.HUB_POLYMIND_ORIGIN ?? 'https://polymind.supercollective.io'),
     puck: origin(env.HUB_PUCK_ORIGIN ?? 'https://puck.supercollective.io'),
+    flight: origin(env.HUB_FLIGHT_ORIGIN ?? 'https://fly.supercollective.io'),
   };
-  const appTokens = { polymind: env.HUB_POLYMIND_TOKEN, puck: env.HUB_PUCK_TOKEN };
+  const appTokens = { polymind: env.HUB_POLYMIND_TOKEN, puck: env.HUB_PUCK_TOKEN, flight: env.HUB_FLIGHT_TOKEN };
   for (const token of Object.values(appTokens)) {
     if (token !== undefined && (token.length < 32 || token.startsWith('replace-')))
       throw new Error('App access tokens must contain at least 32 characters.');
@@ -74,9 +75,9 @@ export function participantUrl(value, config) {
   catch { throw new HttpError(400, 'Invalid participant URL path'); }
   // Flight uses this exact public audience URL shape. The Hub validates its
   // destination and opaque-key format, not whether the key is the participant
-  // key rather than another Flight secret; operators must paste the audience
-  // invitation supplied by Flight.
-  const flightAudienceInvite = url.origin === flightAudienceOrigin && path === '/' &&
+  // key rather than another Flight secret. Automatic preparation retrieves
+  // the invitation from Flight; manual overrides must use its audience link.
+  const flightAudienceInvite = url.origin === (config.appOrigins?.flight ?? flightAudienceOrigin) && path === '/' &&
     flightAudienceSearch.test(url.search);
   if (url.origin === config.appOrigins.polymind && !isPolymindInvitation(value, config.appOrigins.polymind)) {
     throw new HttpError(400, 'Use the complete Participant entrance from Polymind session controls, or reconnect the session in Preparation.');
@@ -166,14 +167,15 @@ async function readJson(req) {
 
 // Only configured origins and fixed resource paths may receive app credentials.
 export async function appRequest(config, app, id, data, key, preparation = false) {
-  if (!['polymind', 'puck'].includes(app)) throw new HttpError(404, 'Unknown app');
+  if (!['polymind', 'puck', 'flight'].includes(app)) throw new HttpError(404, 'Unknown app');
   const token = config.appTokens?.[app];
   if (!token) throw new HttpError(503, 'App connection is not configured. Ask the installation operator to enable it.');
   if (!config.allowedOrigins.has(config.appOrigins[app])) throw new HttpError(503, 'This app’s participant website is not enabled in Hub. Ask the installation operator to enable it.');
   if (id && !/^[a-zA-Z0-9_-]{1,100}$/.test(id)) throw new HttpError(400, 'Invalid session or room identifier');
   if (preparation && (app !== 'polymind' || !id || !data)) throw new HttpError(400, 'Invalid preparation target');
   if (data && !preparation && (typeof key !== 'string' || !/^[a-zA-Z0-9_-]{16,100}$/.test(key))) throw new HttpError(400, 'Provide a creation request key');
-  const path = app === 'polymind' ? '/api/operator/sessions' : '/api/rooms';
+  if (app === 'flight' && (data || (id && id !== 'current'))) throw new HttpError(400, 'Connect the current flight; start the simulator locally.');
+  const path = app === 'puck' ? '/api/rooms' : '/api/operator/sessions';
   let response;
   try {
     response = await (config.fetch ?? fetch)(`${config.appOrigins[app]}${path}${id ? `/${id}` : ''}${preparation ? '/preparation' : ''}`, {
@@ -208,10 +210,16 @@ function appSummary(config, app, value) {
   if (app === 'polymind' && !isPolymindInvitation(value.participantUrl, config.appOrigins.polymind, value.id)) {
     throw new HttpError(502, 'Polymind returned an incomplete participant invitation. Check that Hub and Polymind use compatible versions.');
   }
-  const url = app === 'polymind' ? value.participantUrl
+  if (app === 'flight') {
+    let destination;
+    try { destination = new URL(value.participantUrl); } catch { throw new HttpError(502, 'Flight returned an invalid invitation.'); }
+    if (value.id !== 'current' || destination.origin !== config.appOrigins.flight || destination.pathname !== '/' || !flightAudienceSearch.test(destination.search) || destination.hash || destination.username || destination.password)
+      throw new HttpError(502, 'Flight returned an invalid invitation.');
+  }
+  const url = app === 'polymind' || app === 'flight' ? value.participantUrl
     : `${config.appOrigins[app]}/room/${encodeURIComponent(value.id)}`;
   const rawStatus = value.status ?? value.round?.state?.phase ?? 'waiting';
-  const statuses = new Set(['writing-open', 'writing-closed', 'microphone-open', 'closed', 'waiting', 'countdown', 'active', 'selected', 'timed-out', 'cancelled', 'interrupted']);
+  const statuses = new Set(['writing-open', 'writing-closed', 'microphone-open', 'closed', 'waiting', 'countdown', 'active', 'selected', 'timed-out', 'cancelled', 'interrupted', 'aircraft-ready', 'simulator-loading', 'simulator-disconnected']);
   return { id: value.id, title, url: participantUrl(url, config), status: statuses.has(rawStatus) ? rawStatus : 'unknown', checkedAt: new Date().toISOString() };
 }
 
@@ -344,9 +352,9 @@ export async function createHub(config) {
         throw new HttpError(405, 'Choose a run preparation action');
       }
       if (path === '/api/operator/config' && req.method === 'GET') {
-        reply(200, { allowedOrigins: [...config.allowedOrigins], appOrigins: config.appOrigins, integrations: Object.fromEntries(['polymind', 'puck'].map(app => [app, Boolean(config.appTokens?.[app]) && config.allowedOrigins.has(config.appOrigins[app])])) }); return;
+        reply(200, { allowedOrigins: [...config.allowedOrigins], appOrigins: config.appOrigins, integrations: Object.fromEntries(['polymind', 'puck', 'flight'].map(app => [app, Boolean(config.appTokens?.[app]) && config.allowedOrigins.has(config.appOrigins[app])])) }); return;
       }
-      const appRoute = /^\/api\/operator\/apps\/(polymind|puck)\/sessions(?:\/([a-zA-Z0-9_-]+))?$/.exec(path);
+      const appRoute = /^\/api\/operator\/apps\/(polymind|puck|flight)\/sessions(?:\/([a-zA-Z0-9_-]+))?$/.exec(path);
       if (appRoute && ['GET', 'POST'].includes(req.method)) {
         const [, app, id] = appRoute;
         if (req.method === 'POST') {
