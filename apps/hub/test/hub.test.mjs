@@ -5,7 +5,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, test } from 'node:test';
-import { configuration, createHub, participantUrl } from '../server.mjs';
+import { configuration, createHub, participantUrl, supportsNameHandoff } from '../server.mjs';
 
 let temporary;
 let config;
@@ -266,4 +266,19 @@ test('app adapter rejects unconfigured targets and hides upstream failures', asy
   await assert.rejects(appRequest(withToken, 'polymind'), error => error.status === 502 && !error.message.includes('raw upstream'));
   await assert.rejects(appRequest(withToken, 'polymind', '../operator'), { status: 400 });
   await assert.rejects(appRequest(withToken, 'unknown'), { status: 404 });
+});
+
+test('name hand-off recognises only supported configured participant destinations', () => {
+  const current = { kind: 'activity', status: 'ready', url: 'https://polymind.supercollective.io/?session=one' };
+  assert.equal(supportsNameHandoff(current, config), true);
+  assert.equal(supportsNameHandoff({ ...current, url: 'https://puck.supercollective.io/room/one' }, config), true);
+  for (const url of ['https://polymind.supercollective.io/join', 'https://puck.supercollective.io/',
+    'https://other.example/room/one', 'https://puck.supercollective.io/room/one/other']) {
+    assert.equal(supportsNameHandoff({ ...current, url }, config), false);
+  }
+  assert.equal(supportsNameHandoff({ ...current, status: 'unavailable' }, config), false);
+  assert.equal(supportsNameHandoff({ ...current, kind: 'analogue' }, config), false);
+  const custom = { ...config, appOrigins: { ...config.appOrigins, polymind: 'https://writing.example' } };
+  assert.equal(supportsNameHandoff(current, custom), false);
+  assert.equal(supportsNameHandoff({ ...current, url: 'https://writing.example/?session=one' }, custom), true);
 });

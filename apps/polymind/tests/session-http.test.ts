@@ -483,3 +483,111 @@ it("uses the same session resources for bearer and browser operators with idempo
   expect(detail).not.toHaveProperty("participants");
   expect(detail).not.toHaveProperty("operations");
 });
+
+it("returns only the authenticated participant's closed-round writing and opens microphone rounds idempotently", async () => {
+  const { request, app, session, round } = await setup();
+  const a = await request("/api/join", { name: "A" });
+  const b = await request("/api/join", { name: "B" });
+  const save = (roundId: string, text: string, cookie: string) =>
+    request(
+      "/api/contribution",
+      {
+        roundId,
+        requestId: randomUUID(),
+        expectedRevision: 0,
+        text,
+        confirmed: false,
+        matching: false,
+        source: "typed",
+      },
+      cookie,
+    );
+  await save(round.id, "A earlier private text", a.cookie);
+  await save(round.id, "B earlier private text", b.cookie);
+  app.store.freeze(round.id);
+  const opening = {
+    prompt: round.prompt,
+    previousRoundId: round.id,
+    requestId: randomUUID(),
+  };
+  const opened = await request(
+    "/api/operator/microphone-round",
+    opening,
+    "",
+    true,
+  );
+  expect(opened.response.status).toBe(201);
+  const repeated = await request(
+    "/api/operator/microphone-round",
+    opening,
+    "",
+    true,
+  );
+  expect(repeated.body.id).toBe(opened.body.id);
+  expect(app.store.rounds(session.id)).toHaveLength(2);
+  await save(opened.body.id, "A current private text", a.cookie);
+  const firstHistory = (await request("/api/state", undefined, a.cookie)).body;
+  expect(firstHistory.earlierContributions).toEqual([
+    {
+      roundId: round.id,
+      prompt: round.prompt,
+      text: "A earlier private text",
+      createdAt: app.store.current(a.body.participant.id, round.id)?.savedAt,
+    },
+  ]);
+  expect(firstHistory.contribution.text).toBe("A current private text");
+  expect(JSON.stringify(firstHistory)).not.toContain("B earlier private text");
+  expect(
+    (
+      await request(
+        "/api/operator/voice",
+        {
+          action: "end",
+          roundId: opened.body.id,
+        },
+        "",
+        true,
+      )
+    ).response.status,
+  ).toBe(200);
+  const secondHistory = (await request("/api/state", undefined, a.cookie)).body;
+  expect(
+    secondHistory.earlierContributions.map(
+      (entry: { text: string }) => entry.text,
+    ),
+  ).toEqual(["A earlier private text", "A current private text"]);
+  const publicState = (await request("/api/state")).body;
+  expect(publicState.earlierContributions).toEqual([]);
+  expect(publicState.contribution).toBeUndefined();
+  expect(JSON.stringify(publicState)).not.toContain("private text");
+  expect(JSON.stringify((await request("/api/projection")).body)).not.toContain(
+    "private text",
+  );
+  const stale = await request(
+    "/api/operator/microphone-round",
+    {
+      ...opening,
+      requestId: randomUUID(),
+    },
+    "",
+    true,
+  );
+  expect(stale.response.status).toBe(409);
+  const next = await request(
+    "/api/operator/microphone-round",
+    {
+      prompt: "An edited question?",
+      previousRoundId: opened.body.id,
+      requestId: randomUUID(),
+    },
+    "",
+    true,
+  );
+  expect(next.response.status).toBe(201);
+  const fresh = (await request("/api/state", undefined, a.cookie)).body;
+  expect(fresh.contribution).toBeUndefined();
+  expect(fresh.participant.id).toBe(a.body.participant.id);
+  expect(fresh.earlierContributions).toEqual(
+    secondHistory.earlierContributions,
+  );
+});

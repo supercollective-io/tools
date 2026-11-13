@@ -134,11 +134,17 @@ try {
     "href",
     destination,
   );
-  await participant.goto(`${origin}${destination}`);
+  await participant.goto(`${origin}${destination}#rw-name-v1=Robin`);
+  await expect(participant.getByLabel("Your name")).toHaveValue("Robin");
+  await expect(participant).toHaveURL(`${origin}${destination}`);
   await captureReview(participant, "participant-join");
-  await participant.getByLabel("Your name").fill("Robin");
   await participant.getByRole("button", { name: "Join session" }).click();
   await expect(participant.locator("#badge")).toHaveText("001");
+  const questionBox = await participant.locator("#prompt").boundingBox();
+  const writingBox = await participant.locator("#text").boundingBox();
+  expect(questionBox.y).toBeGreaterThanOrEqual(0);
+  expect(writingBox.y + writingBox.height).toBeLessThanOrEqual(844);
+  expect(writingBox.height).toBeGreaterThanOrEqual(180);
   await captureReview(participant, "participant-write");
   await participant
     .getByLabel("Your contribution", { exact: true })
@@ -241,8 +247,10 @@ try {
   );
   await participant.unroute("**/api/contribution?*");
 
-  // Exercise the actual operator handlers with a synthetic voice, without a provider.
-  let activeVoice = { roundId: "earlier-continuous-round", status: "running" };
+  // Exercise operator controls with a synthetic voice; no provider is called.
+  await operator.locator("#diagnostics > summary").click();
+  await operator.locator("#legacy-freeze").click();
+  let activeVoice;
   await operator.route("**/api/operator/state?*", async (route) => {
     const response = await route.fetch();
     await route.fulfill({
@@ -251,38 +259,111 @@ try {
   });
   await operator.route("**/api/operator/voice?*", async (route) => {
     const command = route.request().postDataJSON();
-    if (command.roundId !== activeVoice.roundId)
-      throw new Error("Voice control targeted the collection round");
+    const round = app.store.round(command.roundId);
+    if (round.mode !== "continuous")
+      throw new Error("Voice control targeted a bounded round");
+    if (command.action !== "start" && command.roundId !== activeVoice?.roundId)
+      throw new Error("Voice control changed the active round");
+    if (command.action === "end") {
+      const response = await route.fetch();
+      if (!response.ok())
+        throw new Error("End round did not close contributions");
+    }
+    if (command.action === "start")
+      app.store.selectPresentation(round.sessionId, { kind: "voice" });
     activeVoice = {
-      ...activeVoice,
-      status: command.action === "pause" ? "paused" : "ended",
+      id: "synthetic-voice",
+      roundId: round.id,
+      status:
+        command.action === "pause"
+          ? "paused"
+          : command.action === "end"
+            ? "ended"
+            : "running",
+      text: "We can change how the room is used.",
     };
     await route.fulfill({ json: activeVoice });
+  });
+  await projection.route("**/api/projection?*", async (route) => {
+    const response = await route.fetch();
+    const body = await response.json();
+    if (body.presentation?.kind === "voice")
+      body.presentation.text = activeVoice?.text ?? "";
+    await route.fulfill({ json: body });
   });
   await operator
     .getByText("Collective Microphone — separate activity", { exact: true })
     .click();
-  await expect(operator.locator("#voice-status")).toHaveText("running", {
-    timeout: 10000,
-  });
-  await operator
-    .getByRole("button", { name: "Pause voice", exact: true })
-    .click();
-  await expect(operator.locator("#voice-status")).toHaveText("paused");
-  await operator.locator("#diagnostics > summary").click();
-  await operator.locator("#legacy-freeze").click();
   await operator
     .locator("#microphone-prompt")
     .fill("Synthetic continuous invitation");
   await operator
-    .getByRole("button", { name: "Open microphone round", exact: true })
+    .getByRole("button", { name: "Open contributions", exact: true })
     .click();
-  await expect(operator.locator("#round-status")).toContainText("Microphone");
+  await expect(operator.locator("#voice-status")).toHaveText(
+    "Contributions open. Voice has not started.",
+  );
+  await expect(participant.locator("#text")).toHaveValue("");
+  await participant
+    .locator("#text")
+    .fill("Synthetic microphone writing for Casey");
+  await expect(participant.locator("#saved")).toHaveText("Saved");
   await operator
-    .getByRole("button", { name: "End voice", exact: true })
+    .getByRole("button", { name: "Start voice", exact: true })
     .click();
-  await expect(operator.locator("#voice-status")).toHaveText("ended");
-  await expect(participant.locator("#bounded")).toBeHidden();
+  await expect(operator.locator("#voice-status")).toHaveText(
+    "Voice running. Contributions open.",
+  );
+  await expect(operator.locator("#voice-projection-status")).toContainText(
+    "showing the collective voice",
+  );
+  await expect(projection.locator("#idea")).toHaveText(activeVoice.text);
+  await expect(projection.locator("h1, h2, header, nav")).toHaveCount(0);
+  const firstVoiceRound = activeVoice.roundId;
+  await operator
+    .getByRole("button", { name: "Pause voice", exact: true })
+    .click();
+  await expect(operator.locator("#voice-status")).toHaveText(
+    "Voice paused. Contributions remain open.",
+  );
+  await expect(participant.locator("#text")).toBeEnabled();
+  await operator
+    .getByRole("button", { name: "Resume voice", exact: true })
+    .click();
+  await expect(operator.locator("#voice-status")).toHaveText(
+    "Voice running. Contributions open.",
+  );
+  if (activeVoice.roundId !== firstVoiceRound)
+    throw new Error("Resume created another round");
+  await operator
+    .getByRole("button", { name: "End round", exact: true })
+    .click();
+  await expect(operator.locator("#voice-status")).toHaveText(
+    "Round ended. Contributions are closed.",
+  );
+  await expect(participant.locator("#text")).toBeDisabled();
+  await expect(participant.locator("#earlier-writing")).toBeVisible();
+  await operator
+    .locator("#microphone-prompt")
+    .fill("An edited continuous invitation");
+  await operator
+    .getByRole("button", { name: "Start a new microphone round", exact: true })
+    .click();
+  await expect(participant.locator("#prompt")).toHaveText(
+    "An edited continuous invitation",
+  );
+  await expect(participant.locator("#text")).toHaveValue("");
+  await expect(participant.locator("#badge")).toHaveText("002");
+  await expect(participant.locator("#bounded")).toHaveCount(0);
+  await participant.locator("#earlier-writing > summary").click();
+  await expect(participant.locator("#earlier-contributions")).toContainText(
+    "Synthetic microphone writing for Casey",
+  );
+  await expect(
+    participant.locator(
+      "#earlier-contributions textarea, #earlier-contributions input, #earlier-contributions [contenteditable]",
+    ),
+  ).toHaveCount(0);
   await captureReview(participant, "participant-live");
   await expect(operator.locator("#status")).toHaveText("");
   await captureReview(operator, "operator-live");
@@ -311,6 +392,19 @@ try {
       });
     }
   }
+  await participant.setViewportSize({ width: 390, height: 844 });
+  await participant.evaluate(() => {
+    document.documentElement.style.fontSize = "36px";
+  });
+  expect(
+    await participant.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await captureReview(participant, "participant-enlarged-text");
+  await participant.evaluate(() => {
+    document.documentElement.style.fontSize = "";
+  });
   if (errors.length) throw new Error(errors.join("\n"));
   console.log(
     "Browser flow passed: operator sign-in → join → autosave/include → return → analyse/autoproject → identity isolation → voice controls across rounds. Screenshots in test-results/.",

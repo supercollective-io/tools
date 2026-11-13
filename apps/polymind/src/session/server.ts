@@ -310,6 +310,9 @@ export async function startSessionServer(options: {
             participant && current
               ? store.current(participant.id, current.id)
               : undefined,
+          earlierContributions: participant
+            ? store.earlierContributions(sessionId, participant.id)
+            : [],
           encounters: participant
             ? store.encounters(sessionId, participant.id)
             : [],
@@ -498,7 +501,21 @@ export async function startSessionServer(options: {
         return json(res, store.show(sessionId));
       }
       if (url.pathname === "/api/operator/close")
-        return json(res, store.closeSession(sessionId));
+        return json(res, await voice.endSession(sessionId));
+      if (url.pathname === "/api/operator/microphone-round") {
+        const d = z
+          .object({
+            prompt: z.string(),
+            requestId: id,
+            previousRoundId: id.optional(),
+          })
+          .parse(data);
+        return json(
+          res,
+          store.createRound(sessionId, d.prompt, "continuous", d),
+          201,
+        );
+      }
       if (url.pathname === "/api/operator/rounds") {
         const d = z
           .object({

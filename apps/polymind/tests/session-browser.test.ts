@@ -10,6 +10,7 @@ type Element = {
   checked: boolean;
   src: string;
   dataset: Record<string, string>;
+  children: Element[];
   onclick?: (...args: never[]) => unknown;
   onchange?: (...args: never[]) => unknown;
   onsubmit?: (event: { preventDefault(): void }) => unknown;
@@ -72,8 +73,12 @@ async function browser(
   fetch: Fetch,
   savedDraft?: unknown,
   sharedStorage = new Map<string, string>(),
-  href = "https://polymind.test/?session=session-1",
-  waitForReady = true,
+  options: {
+    href?: string;
+    waitForReady?: boolean;
+    hash?: string;
+    storageUnavailable?: boolean;
+  } = {},
 ) {
   const elements = new Map<string, Element>();
   const makeElement = (): Element => ({
@@ -84,12 +89,17 @@ async function browser(
     checked: false,
     src: "",
     dataset: {},
+    children: [],
     listeners: new Map(),
     addEventListener(name, callback) {
       this.listeners.set(name, callback);
     },
-    append() {},
-    replaceChildren() {},
+    append(...children) {
+      this.children.push(...children);
+    },
+    replaceChildren() {
+      this.children = [];
+    },
   });
   const get = (id: string) => {
     let element = elements.get(id);
@@ -131,15 +141,31 @@ async function browser(
     revokeObjectURL: () => undefined,
   });
   const stream = { getTracks: () => [{ stop: () => undefined }] };
+  const location = {
+    href: `${options.href ?? "https://polymind.test/?session=session-1"}${options.hash ?? ""}`,
+  };
   const context = {
     document: {
       getElementById: get,
       createElement: makeElement,
     },
-    location: { href },
+    location,
+    history: {
+      state: null,
+      replaceState: (_state: unknown, _title: string, url: string) => {
+        location.href = url;
+      },
+    },
+
     localStorage: {
-      getItem: (key: string) => local.get(key) ?? null,
-      setItem: (key: string, value: string) => local.set(key, value),
+      getItem: (key: string) => {
+        if (options.storageUnavailable) throw new Error("Storage unavailable");
+        return local.get(key) ?? null;
+      },
+      setItem: (key: string, value: string) => {
+        if (options.storageUnavailable) throw new Error("Storage unavailable");
+        return local.set(key, value);
+      },
       removeItem: (key: string) => local.delete(key),
     },
     navigator: {
@@ -170,14 +196,15 @@ async function browser(
   const source = await readFile("src/web/session.js", "utf8");
   runInNewContext(`(() => {${source}\n})()`, context);
   await vi.waitFor(() => {
-    if (waitForReady) {
+    if (options.waitForReady ?? true) {
       expect(get("capture").hidden).toBe(false);
       expect(get("prompt").textContent).toBe("What matters?");
-    } else expect(get("status").textContent).not.toBe("");
+    } else expect(get("prompt").textContent).not.toBe("");
   });
   return {
     get,
     local,
+    location,
     scheduledDelays: () => [...timers.values()].map((timer) => timer.delay),
     async runTimer(delay: number) {
       let found:
@@ -249,8 +276,7 @@ it("explains when the participant link has no session invitation", async () => {
     },
     undefined,
     new Map(),
-    "https://polymind.test/",
-    false,
+    { href: "https://polymind.test/", waitForReady: false },
   );
 
   expect(page.get("prompt").textContent).toBe("Invitation needed");
@@ -265,8 +291,7 @@ it("explains when the participant link names an unknown session", async () => {
     async () => response({ error: "Not found." }, 404),
     undefined,
     new Map(),
-    "https://polymind.test/?session=unknown",
-    false,
+    { href: "https://polymind.test/?session=unknown", waitForReady: false },
   );
 
   expect(page.get("prompt").textContent).toBe("Invitation unavailable");
@@ -656,4 +681,76 @@ it("retains and labels unsaved text excluded when the operator closes writing", 
   expect(page.local.get("polymind:session-1:participant-1:round-1")).toContain(
     "New local version",
   );
+});
+
+it("consumes a Hub name without joining and uses the ordinary join API", async () => {
+  let joined = false;
+  const requests: unknown[] = [];
+  const state = initialState();
+  const page = await browser(
+    async (url, options) => {
+      if (url.startsWith("/api/state"))
+        return response({
+          ...state,
+          participant: joined ? state.participant : null,
+        });
+      expect(url).toBe("/api/join?session=session-1");
+      requests.push(JSON.parse(String(options?.body)));
+      joined = true;
+      return response({ participant: state.participant });
+    },
+    undefined,
+    new Map([["rw-display-name-v1", "Previous name"]]),
+    {
+      hash: "#rw-name-v1=Mar%C3%ADa%20Jos%C3%A9",
+      waitForReady: false,
+    },
+  );
+  expect(page.location.href).toBe("https://polymind.test/?session=session-1");
+  expect(page.get("name").value).toBe("María José");
+  expect(requests).toEqual([]);
+  await page.get("join").onsubmit?.({ preventDefault() {} });
+  expect(requests).toEqual([{ name: "María José" }]);
+  expect(page.local.get("rw-display-name-v1")).toBe("María José");
+});
+
+it("ignores malformed hand-offs and works without browser name storage", async () => {
+  for (const hash of ["#rw-name-v1=%ZZ", `#rw-name-v1=${"x".repeat(81)}`]) {
+    const page = await browser(
+      async () => response(initialState()),
+      undefined,
+      new Map(),
+      {
+        hash,
+        storageUnavailable: true,
+      },
+    );
+    expect(page.get("name").value).toBe("");
+    expect(new URL(page.location.href).hash).toBe("");
+    expect(page.get("identity").textContent).toBe("Jo");
+  }
+});
+
+it("renders earlier writing read-only without seeding the new contribution", async () => {
+  const page = await browser(async () =>
+    response({
+      ...initialState(),
+      earlierContributions: [
+        {
+          roundId: "old",
+          prompt: "Earlier question",
+          text: "Earlier words",
+          createdAt: "2026-11-13T10:00:00Z",
+        },
+      ],
+    }),
+  );
+  expect(page.get("earlier-writing").hidden).toBe(false);
+  const entry = page.get("earlier-contributions").children[0];
+  if (!entry) throw new Error("Earlier contribution was not rendered");
+  expect(entry.children.map((child) => child.textContent)).toEqual([
+    "Earlier question",
+    "Earlier words",
+  ]);
+  expect(page.get("text").value).toBe("");
 });

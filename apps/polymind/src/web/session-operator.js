@@ -6,7 +6,9 @@ let session,
   loading = false,
   sessionTransitions = 0,
   statusScope,
-  matchingScope;
+  matchingScope,
+  microphoneScope,
+  microphoneRequest;
 const locationDrafts = new Map();
 function lockSessionFields() {
   sessionTransitions += 1;
@@ -425,7 +427,63 @@ function updateControls() {
   $("legacy-freeze").disabled = !round?.open;
   $("close-writing").disabled = round?.mode !== "bounded" || !round?.open;
   $("open-round").disabled = Boolean(round?.open) || !state.session.open;
+  const microphone = round?.mode === "continuous";
+  const voice =
+    microphone && state.voice?.roundId === round.id ? state.voice : undefined;
+  const microphoneOpen = microphone && round.open && state.session.open;
+  $("open-microphone").hidden = microphoneOpen;
   $("open-microphone").disabled = Boolean(round?.open) || !state.session.open;
+  $("open-microphone").textContent =
+    microphone && !round.open
+      ? "Start a new microphone round"
+      : "Open contributions";
+  $("microphone-prompt").readOnly = microphoneOpen;
+  for (const b of document.querySelectorAll("[data-voice]")) {
+    const command = b.dataset.voice;
+    b.hidden =
+      !microphoneOpen ||
+      (command === "resume"
+        ? voice?.status !== "paused"
+        : command === "start"
+          ? Boolean(voice)
+          : command === "pause"
+            ? voice?.status !== "running"
+            : false);
+    b.disabled =
+      !microphoneOpen ||
+      (command === "pause"
+        ? voice?.status !== "running"
+        : command === "resume"
+          ? voice?.status !== "paused"
+          : command === "start"
+            ? Boolean(voice)
+            : false);
+  }
+  $("voice-status").textContent = !microphone
+    ? "Contributions have not opened."
+    : !round.open
+      ? "Round ended. Contributions are closed."
+      : !voice
+        ? "Contributions open. Voice has not started."
+        : voice.status === "running"
+          ? "Voice running. Contributions open."
+          : voice.status === "paused"
+            ? "Voice paused. Contributions remain open."
+            : "Voice ended. End the round to close contributions.";
+  const presentation = state.session.presentation;
+  const voicePresented = presentation?.kind === "voice";
+  $("present-voice").disabled = !state.voice || voicePresented;
+  const projectedActivity = voicePresented
+    ? "the collective voice"
+    : presentation?.kind === "analysis"
+      ? presentation.atlasView?.mode === "atlas"
+        ? "the atlas"
+        : "collective analysis"
+      : presentation?.kind === "writing"
+        ? "the writing question"
+        : "the waiting screen";
+  $("voice-projection-status").textContent =
+    `The projection is showing ${projectedActivity}.`;
   const canMatch =
     analysis?.state === "succeeded" || Boolean(state.show?.analysisSkipped);
   const pending = state.operations.some(
@@ -506,7 +564,15 @@ $("open-microphone").onclick = () =>
   action($("open-microphone"), async () => {
     const prompt = $("microphone-prompt").value.trim();
     if (!prompt) throw new Error("Enter a question for the microphone round.");
-    await api("/api/operator/rounds", { prompt, mode: "continuous" });
+    const previousRoundId = state.rounds.at(-1)?.id;
+    const scope = JSON.stringify([session, previousRoundId, prompt]);
+    if (microphoneRequest?.scope !== scope)
+      microphoneRequest = { scope, requestId: crypto.randomUUID() };
+    await api("/api/operator/microphone-round", {
+      prompt,
+      previousRoundId,
+      requestId: microphoneRequest.requestId,
+    });
   });
 $("present-voice").onclick = () =>
   action($("present-voice"), () =>
@@ -515,8 +581,8 @@ $("present-voice").onclick = () =>
 for (const b of document.querySelectorAll("[data-voice]"))
   b.onclick = () =>
     action(b, async () => {
-      const action = b.dataset.voice,
-        model = action === "start" ? modelConfig() : undefined;
+      const action = b.dataset.voice === "resume" ? "start" : b.dataset.voice,
+        model = b.dataset.voice === "start" ? modelConfig() : undefined;
       const config = model
         ? {
             schemaVersion: 2,
@@ -538,8 +604,7 @@ for (const b of document.querySelectorAll("[data-voice]"))
         : undefined;
       await api("/api/operator/voice", {
         action,
-        roundId:
-          action === "start" ? state.rounds.at(-1)?.id : state.voice?.roundId,
+        roundId: state.rounds.at(-1)?.id,
         config,
       });
     });
@@ -839,7 +904,11 @@ async function refresh() {
       ? selected
       : (state.snapshots.at(-1)?.id ?? "");
     describeSnapshot();
-    $("voice-status").textContent = state.voice?.status ?? "No voice running.";
+    const nextMicrophoneScope = `${session}:${round?.mode === "continuous" ? round.id : ""}`;
+    if (microphoneScope !== nextMicrophoneScope) {
+      $("microphone-prompt").value = round?.prompt ?? $("prompt").value;
+      microphoneScope = nextMicrophoneScope;
+    }
     renderAnalysis();
     renderAtlas();
     const currentMatches = state.operations.filter(

@@ -3,7 +3,49 @@ const instruction = document.querySelector('#instruction');
 const phase = document.querySelector('#phase');
 const link = document.querySelector('#activity-link');
 const connection = document.querySelector('#connection');
+const nameArea = document.querySelector('#name-area');
+const savedName = document.querySelector('#saved-name');
+const nameValue = document.querySelector('#name-value');
+const nameEditor = document.querySelector('#name-editor');
+const nameInput = document.querySelector('#display-name');
+const nameError = document.querySelector('#name-error');
+const storageKey = 'rw-display-name-v1';
+let rememberedName = '';
+try { rememberedName = localStorage.getItem(storageKey)?.trim() ?? ''; } catch { /* Storage is optional. */ }
+if (rememberedName.length > 80) rememberedName = '';
+let handoff = false;
 let revision;
+
+function showName() {
+  nameValue.textContent = rememberedName;
+  savedName.hidden = !rememberedName;
+  nameEditor.hidden = Boolean(rememberedName);
+  nameInput.value = rememberedName;
+  nameError.hidden = true;
+}
+showName();
+nameInput.addEventListener('input', () => { nameError.hidden = true; });
+document.querySelector('#change-name').addEventListener('click', () => {
+  savedName.hidden = true;
+  nameEditor.hidden = false;
+  nameInput.focus();
+});
+link.addEventListener('click', event => {
+  if (!handoff) return;
+  const name = nameEditor.hidden ? rememberedName : nameInput.value.trim();
+  if (!name || name.length > 80) {
+    event.preventDefault();
+    nameError.hidden = false;
+    nameInput.focus();
+    return;
+  }
+  rememberedName = name;
+  try { localStorage.setItem(storageKey, name); } catch { /* Keep the name for this page. */ }
+  const destination = new URL(link.href);
+  destination.hash = `rw-name-v1=${encodeURIComponent(name)}`;
+  link.href = destination.href;
+  showName();
+});
 
 async function refresh() {
   if (document.hidden) return;
@@ -19,6 +61,8 @@ async function refresh() {
       phase.textContent = { activity: 'Current activity', analogue: 'In-person activity',
         waiting: 'Waiting', closed: 'Finished' }[current.kind];
       const canOpen = current.kind === 'activity' && current.status === 'ready' && current.url;
+      handoff = Boolean(canOpen && state.nameHandoff);
+      nameArea.hidden = !handoff;
       link.hidden = !canOpen;
       instruction.hidden = Boolean(canOpen) || !current.instruction;
       if (canOpen) { link.href = current.url; link.textContent = 'Join activity'; }

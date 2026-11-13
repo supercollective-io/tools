@@ -24,7 +24,7 @@ export const createRequest = z
   .refine((v) => new Set(v.options.map((s) => s.toLowerCase())).size === v.options.length, {
     message: 'Use distinct answer options.',
   });
-export const joinRequest = z.object({ name: z.string().trim().min(1).max(32) });
+export const joinRequest = z.object({ name: z.string().trim().min(1).max(80) });
 export type RoomView = {
   participantUrl?: string;
   status?: string;

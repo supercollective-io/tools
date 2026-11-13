@@ -172,7 +172,7 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
     }
     if (req.method === 'POST' && action === 'join') {
       const parsed = joinRequest.safeParse(await body(req));
-      if (!parsed.success) throw new ClientError('Enter a name of 1–32 characters.');
+      if (!parsed.success) throw new ClientError('Enter a name of 1–80 characters.');
       const joined = service.join(roomId, parsed.data.name, credential);
       setCookie(res, roomId, joined.token);
       json(res, { ok: true });

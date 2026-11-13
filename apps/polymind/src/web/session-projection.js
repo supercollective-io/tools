@@ -90,7 +90,6 @@ function render(state) {
     }
   } else if (presentation?.kind === "voice") {
     content = element("div", undefined, "projection-voice");
-    content.append(element("h1", "Collective Microphone"));
     content.append(
       element("p", presentation.text?.slice(-500) || "Waiting for the voice."),
     );
@@ -101,7 +100,6 @@ function render(state) {
       content = overview(latest.result);
     else if (state.voice?.text || latest?.kind === "voice") {
       content = element("div", undefined, "projection-voice");
-      content.append(element("h1", "Collective Microphone"));
       content.append(
         element("p", state.voice?.text?.slice(-500) || latest.result.text),
       );

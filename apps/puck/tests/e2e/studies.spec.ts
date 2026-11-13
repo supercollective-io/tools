@@ -53,7 +53,28 @@ test('Outline preview supports interaction and responsive states', async ({ page
   await page.screenshot({ path: testInfo.outputPath('mobile.png'), fullPage: true });
   await page.getByLabel('Six longer options').check();
   await expect(page.locator('.arena-option-key li')).toHaveCount(6);
-  await page.screenshot({ path: testInfo.outputPath('mobile-long.png'), fullPage: true });
+  for (const width of [375, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    const targets = page.locator('.arena .target');
+    const labels = page.locator('.arena .target-label');
+    await expect(targets).toHaveCount(6);
+    await expect(labels).toHaveCount(6);
+    for (let i = 0; i < 6; i++) {
+      const target = await targets.nth(i).boundingBox();
+      const label = await labels.nth(i).boundingBox();
+      if (!target || !label) throw new Error('Missing target or label bounds');
+      const overlaps =
+        label.x < target.x + target.width &&
+        label.x + label.width > target.x &&
+        label.y < target.y + target.height &&
+        label.y + label.height > target.y;
+      expect(overlaps, `Option ${i + 1} overlaps its target at ${width}px`).toBe(false);
+    }
+    await page.screenshot({
+      path: testInfo.outputPath(`mobile-long-${width}.png`),
+      fullPage: true,
+    });
+  }
   await page.setViewportSize({ width: 320, height: 720 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   await page.emulateMedia({ reducedMotion: 'reduce' });

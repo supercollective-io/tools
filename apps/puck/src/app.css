@@ -17,6 +17,9 @@ main {
   margin-inline: auto;
 }
 nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
   padding-block: 16px;
 }
 main {
@@ -220,6 +223,9 @@ legend {
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
+.target-label.above {
+  transform: translate(-50%, -100%);
+}
 .target-label.chosen span {
   background: #e3fa49;
 }
@@ -390,7 +396,8 @@ nav {
   padding-block: 24px 16px;
 }
 nav a {
-  font-size: 1.75rem;
+  font-size: clamp(1.25rem, 7vw, 1.75rem);
+  white-space: nowrap;
   font-weight: 800;
   letter-spacing: -0.035em;
 }

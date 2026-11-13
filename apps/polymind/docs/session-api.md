@@ -42,3 +42,32 @@ Storage adds `session_creation_requests` alongside the existing schema. Resource
 creation and its request record commit in one immediate transaction. Back up before
 release; do not remove these records while clients may still retry. No historical
 contributions or publication state are rewritten.
+
+
+## Microphone rounds and private history
+
+`POST /api/operator/microphone-round?session={id}` opens contributions with
+`{prompt, requestId, previousRoundId?}`. `requestId` is a UUID. Supply the current
+round's ID as `previousRoundId`, including a closed bounded round; omit it only
+when no round exists. The current round must be closed. The request and new round
+commit together. Retrying the same payload returns the same round after restart;
+changing the payload under that request ID or using a stale predecessor returns
+409. The additional `microphone_round_requests` table preserves these retries.
+A new round retains participant identities and starts with no contribution revisions.
+
+`POST /api/operator/voice?session={id}` accepts `{roundId, action, config?}`.
+`start` requires explicit configuration for the first start and also resumes a
+paused voice with its frozen configuration. `pause` retains that run and keeps
+contributions open. `end` closes contributions and ends the voice, including when
+it never started or already ended. Repeated end requests are safe. The server
+closes the round durably before stopping the journal; startup completes an
+interrupted end without requesting model output. Starting the voice selects it
+for projection; projection selection remains a separate operator control.
+
+`GET /api/state?session={id}` includes `earlierContributions`, ordered by round
+creation from oldest to newest. Each entry is `{roundId, prompt, text, createdAt}`
+for the authenticated participant's latest non-empty saved writing in a closed
+round. `createdAt` is the contribution's save timestamp. The current closed round
+is included. Open-round text remains in `contribution`. Unauthenticated requests
+receive an empty history; other participants' writing is never included. This
+history does not publish writing or send it to the next round's model context.

@@ -98,6 +98,10 @@ try {
   await expect(page.getByRole('link', { name: 'Join activity' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Polymind', exact: true })).toBeVisible();
   await expect(page.locator('#instruction')).toBeHidden();
+  await page.getByRole('link', { name: 'Join activity' }).click();
+  await expect(page.getByRole('alert')).toContainText('Enter a name');
+  await page.getByLabel('Your name').fill('  Alex & Bea  ');
+  await expect(page.getByRole('alert')).toBeHidden();
   await page.screenshot({ path: join(output, 'mobile-activity.png'), fullPage: true });
   const flightUrl = `https://fly.supercollective.io/?key=${'S'.repeat(32)}`;
   await operator.getByRole('button', { name: 'Prepare Flight', exact: true }).click();
@@ -112,16 +116,34 @@ try {
   await expect(operator.locator('#feedback')).toContainText('Saved invitations are unchanged');
   await expect(page.getByRole('heading', { name: 'Flight', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Join activity' })).toHaveAttribute('href', flightUrl);
+  await expect(page.getByLabel('Your name')).toBeHidden();
   await operator.getByRole('button', { name: 'Show invitation: Polymind', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Polymind', exact: true })).toBeVisible();
   await context.route('https://polymind.supercollective.io/**', route => route.fulfill({ contentType: 'text/html',
     body: `<html><head><title>Synthetic destination</title></head><body><h1>Synthetic destination</h1><script>localStorage.setItem('syntheticVisits',Number(localStorage.getItem('syntheticVisits')||0)+1)</script><a href="${base}">Return to the room</a></body></html>` }));
+  const noStorage = await browser.newContext();
+  await noStorage.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', { get() { throw new Error('Storage disabled'); } });
+  });
+  await noStorage.route('https://polymind.supercollective.io/**', route => route.fulfill({ contentType: 'text/html', body: '<h1>Destination</h1>' }));
+  const privatePage = await noStorage.newPage();
+  await privatePage.goto(base);
+  await privatePage.getByLabel('Your name').fill('Storage unavailable');
+  await privatePage.getByRole('link', { name: 'Join activity' }).click();
+  await expect(privatePage.getByRole('heading', { name: 'Destination' })).toBeVisible();
+  assert.equal(new URL(privatePage.url()).hash, '#rw-name-v1=Storage%20unavailable');
+  await noStorage.close();
   await page.getByRole('link', { name: 'Join activity' }).click();
   await expect(page.getByRole('heading', { name: 'Synthetic destination' })).toBeVisible();
+  assert.equal(new URL(page.url()).hash, '#rw-name-v1=Alex%20%26%20Bea');
   assert.equal(context.pages().length, 2, 'Digital activity opens in the existing participant tab');
   assert.equal(await page.evaluate(() => localStorage.getItem('syntheticVisits')), '1');
   await page.getByRole('link', { name: 'Return to the room' }).click();
+  await expect(page.getByText('Alex & Bea', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Change name' }).click();
+  await page.getByLabel('Your name').fill('New name');
   await page.getByRole('link', { name: 'Join activity' }).click();
+  assert.equal(new URL(page.url()).hash, '#rw-name-v1=New%20name');
   await expect(page.getByRole('heading', { name: 'Synthetic destination' })).toBeVisible();
   assert.equal(await page.evaluate(() => localStorage.getItem('syntheticVisits')), '2');
   await page.getByRole('link', { name: 'Return to the room' }).click();
