@@ -70,6 +70,10 @@ load-polymind participants="140": build
     pnpm --dir apps/polymind exec node scripts/session-load.mjs "$1"
 
 test-browser: build
+    just test-browser-built
+
+# Use only after building the current source (CI runs verify first).
+test-browser-built:
     pnpm --dir apps/polymind exec node scripts/session-browser.mjs
     pnpm --dir apps/polymind exec node scripts/show-flow-browser.mjs
     pnpm --dir apps/puck exec playwright test
