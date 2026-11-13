@@ -92,14 +92,13 @@ function connectionFor(activity) {
   if (!app) return null;
   const url = new URL(activity.url);
   const apiApp = app === 'collective-voice' ? 'polymind' : app;
-  const id = apiApp === 'polymind' ? url.searchParams.get('session') : /^\/room\/([a-zA-Z0-9_-]+)\/?$/.exec(url.pathname)?.[1];
+  const id = apiApp === 'flight' ? 'current' : apiApp === 'polymind' ? url.searchParams.get('session') : /^\/room\/([a-zA-Z0-9_-]+)\/?$/.exec(url.pathname)?.[1];
   return id && /^[a-zA-Z0-9_-]{1,100}$/.test(id) ? { app: apiApp, id, view: app } : null;
 }
-const statusLabels = { 'writing-open': 'Writing open', 'writing-closed': 'Writing not open', 'microphone-open': 'Microphone open',
+const statusLabels = { 'aircraft-ready': 'Aircraft ready', 'simulator-loading': 'Simulator loading', 'simulator-disconnected': 'Simulator disconnected', 'writing-open': 'Writing open', 'writing-closed': 'Writing not open', 'microphone-open': 'Microphone open',
   closed: 'Session closed', waiting: 'Waiting for a round', countdown: 'Countdown', active: 'Round running', selected: 'Round finished',
   'timed-out': 'Round finished', cancelled: 'Round cancelled', interrupted: 'Round interrupted', unknown: 'Status unknown' };
 function statusText(activity) {
-  if (activity.url && new URL(activity.url).origin === 'https://fly.supercollective.io') return 'Simulator readiness not checked here';
   const connection = connectionFor(activity);
   if (!connection) return '';
   if (!integrations[connection.app]) return 'App status: connection not configured';
@@ -152,7 +151,7 @@ async function loadSessions() {
       const option = element('option', `${item.title} · ${statusLabels[item.status] ?? 'Status unknown'}`);
       option.value = item.id; form.elements.existing.append(option);
     }
-    $('#app-feedback').textContent = result.length ? 'Choose an existing activity, or create a new one below.' : 'No activities yet. Create one below.';
+    $('#app-feedback').textContent = app === 'flight' ? 'Connect the current flight. Start FlightGear and its bridge on the simulator computer.' : result.length ? 'Choose an existing activity, or create a new one below.' : 'No activities yet. Create one below.';
   } catch (error) { if (version === preparationVersion) $('#app-feedback').textContent = error.message; }
   finally { lock(); }
 }
@@ -194,6 +193,7 @@ async function createSession() {
   } finally { appBusy = false; lock(); }
 }
 function controlsLink(app, activity) {
+  if (app === 'flight') return link('Flight controls ↗', `${appOrigins.flight}/operator`);
   if (app === 'polymind' || app === 'collective-voice') {
     const url = new URL('/operator', appOrigins.polymind);
     const session = activity?.url ? new URL(activity.url).searchParams.get('session') : null;
@@ -208,13 +208,13 @@ function controlsLink(app, activity) {
 function renderAppControls() {
   $('#app-controls').hidden = false;
   $('#app-links').replaceChildren();
-  for (const app of ['polymind', 'collective-voice', 'puck']) {
+  for (const app of ['polymind', 'collective-voice', 'puck', 'flight']) {
     const matches = state.activities.filter(activity => appFor(activity) === app && activity.url);
     const activity = matches.find(item => item.id === state.activeId) ?? matches[0];
     const item = element('div');
     item.append(controlsLink(app, activity));
     item.append(element('p', activity ? `Saved invitation: ${activity.label}`
-      : app === 'polymind' ? 'Create or select a writing session' : app === 'collective-voice' ? 'Prepare a separate voice session' : 'Set up the question and options', 'aside'));
+      : app === 'flight' ? 'Connect the simulator and check its invitation' : app === 'polymind' ? 'Create or select a writing session' : app === 'collective-voice' ? 'Prepare a separate voice session' : 'Set up the question and options', 'aside'));
     $('#app-links').append(item);
   }
 }
@@ -249,7 +249,7 @@ function render() {
     if (next) copy.append(element('span', 'Next activity', 'next-marker'));
     row.append(copy, active ? element('span', 'Current invitation', 'current-marker') : ready(activity)
       ? cueButton(activity) : button(`Prepare ${activity.label}`, () => {
-        if (state.runId && ['polymind', 'collective-voice', 'puck'].includes(activity.id)) {
+        if (state.runId && ['polymind', 'collective-voice', 'puck', 'flight'].includes(activity.id)) {
           showMode('prepare'); void runTools.openRun(state.runId, activity.id);
         } else if (edit(activity)) showMode('prepare');
       }));
@@ -330,6 +330,7 @@ function updateFields() {
   $('#digital-fields').hidden = !digital;
   const app = form.elements.app.value;
   $('#app-preparation').hidden = app === 'manual';
+  $('#create-activity').hidden = app === 'flight';
   $('#polymind-settings').hidden = app !== 'polymind';
   $('#puck-settings').hidden = app !== 'puck';
   $('#instruction-field').hidden = digital && Boolean(form.elements.destination.value.trim());

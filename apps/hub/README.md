@@ -140,7 +140,7 @@ profile source.
 | `HUB_PUBLIC_ORIGIN` | Optional override; the image derives it from `COOLIFY_URL` |
 | `HUB_ALLOWED_ORIGINS` | Comma-separated verified HTTPS participant origins; defaults to `https://polymind.supercollective.io`; add `https://fly.supercollective.io` when Flight is used |
 | `HUB_POLYMIND_ORIGIN`, `HUB_PUCK_ORIGIN` | Optional HTTPS app-control destinations; default to the documented `polymind.supercollective.io` and `puck.supercollective.io` sites. These do not extend the participant allowlist. |
-| `HUB_POLYMIND_TOKEN`, `HUB_PUCK_TOKEN` | Optional server-side app operator tokens for preparation and status; see [API setup](API.md) |
+| `HUB_POLYMIND_TOKEN`, `HUB_PUCK_TOKEN`, `HUB_FLIGHT_TOKEN` | Optional server-side app operator tokens for preparation and status; see [API setup](API.md) |
 | `HUB_OPERATOR_USER` | Private operator username; default `organiser` |
 | `HUB_OPERATOR_PASSWORD` | Runtime secret, at least 24 characters; no example/default is accepted |
 | `HUB_DATA_DIR` | Durable directory; `/data` in the image |
@@ -206,3 +206,27 @@ Mark every entry runtime-only and supply a private operator password of at least
 participant origins to `HUB_ALLOWED_ORIGINS` explicitly; this is a security
 allowlist, not a value inferred from the hub domain. The local `.env.example`
 uses development storage and binding settings and must not be imported into production.
+
+
+### Flight preparation
+
+Set `HUB_FLIGHT_TOKEN` to Flight’s independent `FLIGHT_OPERATOR_TOKEN` once at
+installation. Both are runtime secrets. Add `https://fly.supercollective.io` to
+`HUB_ALLOWED_ORIGINS`; `HUB_FLIGHT_ORIGIN` can select another verified installation.
+The show profile declares `connections.flight` with app `flight` and resource ID
+`current`. Launching the show retrieves the participant invitation through Flight’s
+ordinary operator API, also used by Flight’s own `/operator` page. No operator
+copies a key or constructs an invitation. An advanced manual override remains.
+
+Flight has one shared current session, not a new simulator per rehearsal. Hub
+preparation never starts, pauses or resets it. Live cues can check whether the
+simulator is disconnected, loading or ready; confirm the actual aircraft locally.
+A failed fetch leaves the existing run intact. Resuming preparation retrieves the
+current audience invitation again, including after key rotation. Installing a
+prepared run retains the normal revision and live-cue protections; an already
+installed ready invitation is not silently replaced after rotation. Update that
+invitation explicitly while waiting, or launch a fresh rehearsal.
+
+Deploy the compatible Flight API before enabling its token in Hub. Existing manual
+invitations continue working without the API. Source changes alone do not configure
+or deploy either service.

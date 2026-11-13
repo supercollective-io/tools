@@ -40,7 +40,7 @@ export function runPreparation({ getState, installed, blocked = () => false, bef
         <label class="field">Puck question<input name="puckQuestion" maxlength="240" required autocomplete="off"></label>
         <label class="field">Puck answers — one per line<textarea name="puckOptions"></textarea></label>
         <p class="aside">Leave answers empty to collect them from the room during the show. The question is prepared now; the room is created once its answers are known.</p>
-        <label class="field">Flight participant invitation<input name="flightUrl" type="url" autocomplete="off" spellcheck="false"></label>
+        <p class="aside">Flight’s invitation is retrieved automatically from the profile’s connected Flight service.</p><details><summary>Override Flight participant invitation</summary><label class="field">Participant invitation<input name="flightUrl" type="url" autocomplete="off" spellcheck="false"></label></details>
         <p class="aside">Copy Flight’s audience invitation. Leave blank to keep Flight unavailable until you connect it in the invitation editor. Keep the bridge credential in the simulator’s private configuration.</p>
         <button type="submit" id="create-rehearsal" value="rehearsal">Launch fresh rehearsal</button>
         </details>
@@ -259,7 +259,7 @@ export function runPreparation({ getState, installed, blocked = () => false, bef
     // Keep the revision from before remote preparation: a concurrent cue must
     // reject installation instead of silently replacing another operator's work.
     const expectedRevision = getState().revision;
-    for (const activityId of ['polymind', 'collective-voice', 'puck']) {
+    for (const activityId of ['polymind', 'collective-voice', 'puck', 'flight']) {
       if (activityId === 'puck' && !selected.settings.puckOptions.length) continue;
       say(`Launching show: preparing ${selected.activities.find(item => item.id === activityId).label}…`);
       const result = await api(`runs/${selected.id}/prepare`, { activityId });

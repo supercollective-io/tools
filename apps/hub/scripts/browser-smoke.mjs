@@ -101,12 +101,13 @@ try {
   await page.screenshot({ path: join(output, 'mobile-activity.png'), fullPage: true });
   const flightUrl = `https://fly.supercollective.io/?key=${'S'.repeat(32)}`;
   await operator.getByRole('button', { name: 'Prepare Flight', exact: true }).click();
+  await operator.getByText('Advanced: participant link', { exact: true }).click();
   await operator.getByLabel('Participant link or path').fill(flightUrl);
   await operator.getByRole('button', { name: 'Save invitation', exact: true }).click();
   await expect(operator.locator('#feedback')).toContainText('Saved Flight');
   await operator.getByRole('tab', { name: 'Live cues' }).click();
   await operator.getByRole('button', { name: 'Show invitation: Flight', exact: true }).click();
-  await expect(operator.locator('[data-app-status="flight"]')).toHaveText('Simulator readiness not checked here');
+  await expect(operator.locator('[data-app-status="flight"]')).toHaveText('App status: connection not configured');
   await operator.getByRole('button', { name: 'Refresh app checks' }).click();
   await expect(operator.locator('#feedback')).toContainText('Saved invitations are unchanged');
   await expect(page.getByRole('heading', { name: 'Flight', exact: true })).toBeVisible();

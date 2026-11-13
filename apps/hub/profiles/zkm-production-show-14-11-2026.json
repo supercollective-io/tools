@@ -8,6 +8,7 @@
   "voiceQuestion": "What would you like us to become capable of together that feels impossible alone?",
   "puckQuestion": "What shall we do with this plane?",
   "puckOptions": [],
+  "connections": { "flight": { "app": "flight", "resourceId": "current" } },
   "flightScenario": "karlsruhe-747-landing",
   "activityBindings": { "polymind": ["polymind", "polymind-all"] },
   "operatorNotes": {

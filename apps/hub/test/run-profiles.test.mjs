@@ -107,11 +107,11 @@ async function start({ dataDir, upstream = fakeUpstream(), configured = true } =
   const env = {
     HUB_OPERATOR_PASSWORD: password,
     HUB_DATA_DIR: dataDir,
-    HUB_ALLOWED_ORIGINS: 'https://polymind.supercollective.io,https://puck.supercollective.io',
+    HUB_ALLOWED_ORIGINS: 'https://polymind.supercollective.io,https://puck.supercollective.io,https://fly.supercollective.io',
   };
   const config = configuration(env);
   const server = await createHub({ ...config,
-    appTokens: configured ? { polymind: token, puck: token } : {}, fetch: upstream.fetch });
+    appTokens: configured ? { polymind: token, puck: token, flight: token } : {}, fetch: upstream.fetch });
   return { server, dataDir, upstream, close: async () => {} };
 }
 
@@ -558,4 +558,50 @@ test('separate analysis and voice models retain reasoning and budgets across pre
   assert.deepEqual((await call(restarted, `/api/operator/runs/${created.body.id}`)).body.settings, runSettings);
   const invalid = await createRun(app, { runSettings: settings({ voiceModel: { ...voiceModel, reasoningEffort: 'invalid' } }) });
   assert.equal(invalid.status, 400);
+});
+
+
+test('Flight profile preparation uses the shared read-only API, refreshes invitations and keeps credentials private', async () => {
+  let audience = 'a'.repeat(32);
+  let bad = false;
+  const requests = [];
+  const app = await start({ upstream: { fetch: async (url, options) => {
+    requests.push({ url, ...options });
+    return json({ id: 'current', title: 'Flight', status: 'simulator-disconnected', participantUrl:
+      bad ? `https://evil.example/?key=${audience}` : `https://fly.supercollective.io/?key=${audience}` });
+  } } });
+  const run = (await createRun(app)).body;
+  const prepare = () => call(app, `/api/operator/runs/${run.id}/prepare`, { method: 'POST', body: { activityId: 'flight' } });
+  const first = await prepare();
+  assert.equal(first.status, 200);
+  assert.equal(first.body.activity.status, 'simulator-disconnected');
+  assert.equal(first.body.run.activities.find(item => item.id === 'flight').url, `https://fly.supercollective.io/?key=${audience}`);
+  assert.equal((await call(app, '/api/current')).body.current.id, 'arrival');
+  assert.equal(JSON.stringify(first.body).includes(token), false);
+  audience = 'z'.repeat(32);
+  const resumed = await prepare();
+  assert.equal(resumed.body.resumed, true);
+  assert.equal(resumed.body.activity.url, `https://fly.supercollective.io/?key=${audience}`);
+  for (const request of requests) {
+    assert.equal(request.url, 'https://fly.supercollective.io/api/operator/sessions/current');
+    assert.equal(request.method, 'GET');
+    assert.equal(request.headers.authorization, `Bearer ${token}`);
+    assert.equal(request.redirect, 'error');
+  }
+  bad = true;
+  assert.equal((await prepare()).status, 502);
+  const saved = (await call(app, `/api/operator/runs/${run.id}`)).body;
+  assert.equal(saved.activities.find(item => item.id === 'flight').url, `https://fly.supercollective.io/?key=${audience}`);
+  const restarted = await start({ dataDir: app.dataDir });
+  assert.deepEqual((await call(restarted, `/api/operator/runs/${run.id}`)).body.bindings.flight, { id: 'current' });
+});
+
+test('missing Flight configuration leaves the invitation unprepared and manual override remains usable', async () => {
+  const app = await start({ configured: false });
+  const run = (await createRun(app)).body;
+  assert.equal((await call(app, `/api/operator/runs/${run.id}/prepare`, { method: 'POST', body: { activityId: 'flight' } })).status, 503);
+  const saved = (await call(app, `/api/operator/runs/${run.id}`)).body;
+  assert.equal(saved.activities.find(item => item.id === 'flight').status, 'unavailable');
+  const manual = (await createRun(app, { runSettings: settings({ flightUrl: `https://fly.supercollective.io/?key=${'m'.repeat(32)}` }) })).body;
+  assert.equal((await call(app, `/api/operator/runs/${manual.id}/prepare`, { method: 'POST', body: { activityId: 'flight' } })).status, 200);
 });
