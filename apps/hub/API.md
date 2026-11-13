@@ -173,3 +173,22 @@ audience invitation. It does not send a creation request: a Flight relay owns on
 current session. Missing credentials, rejected credentials or malformed responses
 leave the invitation unprepared and can be retried. The operator token is never
 returned in configuration, run records, public state or participant URLs.
+No shared runtime code or sibling checkout is required. Installing the updated apps
+and configuring credentials is a deployment task; changing this source does not
+configure or deploy a live installation.
+
+## Participant name hand-off
+
+Deploy the destination versions that consume this contract before deploying Hub.
+`GET /api/current` includes `nameHandoff`, true only for ready participant URLs
+at the configured Polymind origin and `/` path, or the configured Puck origin and
+`/room/{id}` path. It contains no participant name or credentials. Other invitations
+continue to open normally.
+
+Hub remembers a trimmed 1–80 character name in browser local storage under
+`rw-display-name-v1`, when storage is available. On navigation to a supported
+participant URL, Hub adds `#rw-name-v1=<encodeURIComponent(name)>`. The fragment
+is not sent in HTTP requests. A destination consumes and removes it immediately,
+then prefills its own join form; joining uses its existing API and identity rules.
+The name is not authentication, and no cross-origin credentials are transferred.
+If storage is unavailable, the name remains usable for the current page visit.

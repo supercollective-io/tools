@@ -92,6 +92,13 @@ export function participantUrl(value, config) {
   return url.href;
 }
 
+export function supportsNameHandoff(current, config) {
+  if (current.kind !== 'activity' || current.status !== 'ready' || !current.url) return false;
+  const destination = new URL(current.url);
+  return (destination.origin === config.appOrigins.polymind && destination.pathname === '/') ||
+    (destination.origin === config.appOrigins.puck && /^\/room\/[a-zA-Z0-9_-]+$/.test(destination.pathname));
+}
+
 export function validateSelection(value, config) {
   exactKeys(value, ['activeId', 'activities'], 'selection');
   const activeId = text(value.activeId, 'active activity', 80);
@@ -299,8 +306,9 @@ export async function createHub(config) {
         reply(200, { ok: true, revision: state.revision }); return;
       }
       if (path === '/api/current' && req.method === 'GET') {
+        const current = state.activities.find(activity => activity.id === state.activeId);
         reply(200, { schemaVersion: 1, revision: state.revision, updatedAt: state.updatedAt,
-          current: state.activities.find(activity => activity.id === state.activeId) }); return;
+          current, nameHandoff: supportsNameHandoff(current, config) }); return;
       }
       if (path === '/api/operator/state' && req.method === 'GET') { reply(200, operatorState(state)); return; }
       if (path === '/api/operator/profiles' && req.method === 'GET') { reply(200, profiles); return; }

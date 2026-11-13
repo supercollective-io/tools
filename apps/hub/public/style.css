@@ -142,3 +142,6 @@ dd { margin: 4px 0 20px; }
 .skip-link:focus { top: 12px; }
 #run { margin-bottom: 32px; }
 .operator-note { max-width: 65ch; font-weight: 600; }
+#saved-name { overflow-wrap: anywhere; }
+#change-name { margin-left: 8px; }
+#name-error { margin: 8px 0 0; }
