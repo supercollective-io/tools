@@ -52,8 +52,24 @@ you’d like to change, but can’t change on your own?” Its Collective Voice 
 is “What would you like us to become capable of together that feels impossible
 alone?” Its Puck question is “What shall we do with this plane?”
 
-In **Preparation**, create a production run or a fresh rehearsal, then prepare or
-check its activities. Hub creates separate Polymind and Collective Voice sessions
+In **Preparation**, select a profile and click **Launch show**. Hub creates or resumes
+its production run, prepares its configured activities and loads the programme into
+**Live cues**. The exact current waiting invitation remains active until you choose
+the first cue. Return to waiting before launching another show.
+
+**Profile settings and overrides** contains optional changes and **Launch fresh
+rehearsal**. **Saved runs and recovery** lets you resume a particular run and
+**Launch saved show**; retrying preserves its sessions and current cue. Interrupted
+launches retain their request so a retry does not create another run.
+
+The ZKM profile uses OpenAI `gpt-6.1-sol` with medium reasoning for analysis
+(16,000 output tokens, 360 seconds) and `gpt-6.1-terra` without reasoning for
+Collective Voice (4,096 output tokens, 120 seconds). Both allow 500,000 input
+characters. Voice follows the [composer comparison](../polymind/docs/composer-comparison-2026-11-04.md);
+the analysis setting is an operator choice, not a measured quality result. Older
+runs without a separate voice model retain their shared model.
+
+Launching does not start rounds or make model calls. Hub creates separate Polymind and Collective Voice sessions
 for the same run and saves their preparation as drafts. The **1** and **All**
 invitations share one bounded Polymind session and round. Give the room a clear
 stop-recording cue at the end of **1**. Each participant chooses **Stop recording**,
@@ -107,14 +123,14 @@ FlightGear locally. Hub does not launch Flight or check simulator readiness. Kee
 the bridge credential in Flight's private configuration, not in the participant
 invitation.
 
-Select **Use prepared programme** only when the current Hub invitation is waiting.
+Select **Launch show** when the current Hub invitation is waiting.
 Hub keeps that exact waiting invitation active. If this same run is already
 installed, the action can connect newly prepared, non-current invitations that
 are still unavailable; it preserves the current cue and existing edits. Then use
 **Live cues** and **Show invitation: …** to change what participants see. Cues do
 not start, stop or remotely navigate an app. A saved participant link is not proof
 that the destination is reachable or ready; check it separately before a cue.
-Preparation changes are saved run data, not a deployment or a change to the
+Launch and preparation changes are saved run data, not a deployment or a change to the
 profile source.
 
 ## Runtime configuration
@@ -150,9 +166,9 @@ Public HTTPS, the waiting entrance, readiness endpoint, printable entrance card 
 
 ## Operate, back up and restore
 
-1. Open `/operator` privately. Use **Preparation** to create or resume a run from the named profile, then prepare or check its activities. Hub saves the canonical Polymind participant invitation returned by a compatible Polymind version. **Advanced: participant link** remains available for other apps or installations without API credentials; use the actual participant invitation, never an operator or projection link.
+1. Open `/operator` privately. Use **Preparation** to select a profile and **Launch show**. This prepares its sessions and loads its programme while retaining the waiting invitation. Hub saves the canonical Polymind participant invitation returned by a compatible Polymind version. **Advanced: participant link** remains available for other apps or installations without API credentials; use the actual participant invitation, never an operator or projection link.
 2. If Puck's answers were not entered when the run was created, collect two to six distinct options from the room. Enter them and choose **Prepare Puck with these options** to create or recover the room. This does not start the round. Check Flight locally and leave it paused before its cue.
-3. Choose **Use prepared programme** only when the current invitation is waiting. Hub keeps that exact waiting invitation active; this does not publish a cue. If the same run is already loaded, the action can add newly prepared, non-current invitations without replacing the current invitation or existing edits.
+3. After launch, use **Live cues** when you are ready to show the first invitation. Adding Puck answers connects its invitation automatically. To recover an interrupted launch, launch the same profile or saved run again; existing sessions and the current cue are preserved.
 4. Use **Live cues** to see the current entrance and select **Show invitation: …** for a saved invitation. This changes the entrance immediately; saving preparation alone does not select it. Give the room its spoken cue. Returning phones see the latest revision; phones inside other apps must use their return link or manually return to the short address. Start rounds, analyse and release results in the destination app itself.
 5. If a tool fails, choose **Return to waiting** or another in-person invitation. Closing cues and edits to the current invitation require confirmation. If connection or concurrent edits make the state uncertain, **Refresh saved state** before another change; unsaved preparation fields are retained for review. Unavailable digital activities have no public link.
 6. Print `/print` before the show. Its QR encodes exactly `https://we.supercollective.io`; the printed address works without a camera. Regenerate the QR if the permanent domain changes.

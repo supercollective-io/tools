@@ -540,3 +540,22 @@ test('1–2–4–All keeps one Polymind session, private cues and the programme
     assert.equal(upstream.calls.length, upstreamCallsBeforeCues);
   } finally { await restarted.close(); }
 });
+
+
+test('separate analysis and voice models retain reasoning and budgets across preparation and restart', async () => {
+  const upstream = fakeUpstream();
+  const app = await start({ upstream });
+  const model = { ...settings().model, provider: 'openai', model: 'synthetic-analysis', reasoningEffort: 'medium', maxOutputTokens: 16000 };
+  const voiceModel = { ...model, model: 'synthetic-voice', reasoningEffort: 'none', maxOutputTokens: 4096 };
+  const runSettings = settings({ model, voiceModel });
+  const created = await createRun(app, { runSettings });
+  assert.equal(created.status, 201);
+  for (const activityId of ['polymind', 'collective-voice']) {
+    assert.equal((await call(app, `/api/operator/runs/${created.body.id}/prepare`, { method: 'POST', body: { activityId } })).status, 200);
+  }
+  assert.deepEqual(upstream.calls.filter(item => item.method === 'PUT').map(item => item.body.model), [model, voiceModel]);
+  const restarted = await start({ dataDir: app.dataDir, upstream });
+  assert.deepEqual((await call(restarted, `/api/operator/runs/${created.body.id}`)).body.settings, runSettings);
+  const invalid = await createRun(app, { runSettings: settings({ voiceModel: { ...voiceModel, reasoningEffort: 'invalid' } }) });
+  assert.equal(invalid.status, 400);
+});

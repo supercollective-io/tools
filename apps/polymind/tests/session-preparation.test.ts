@@ -11,7 +11,8 @@ const draft = {
   mode: "bounded",
   prompt: "What should change?",
   model: {
-    provider: "ollama",
+    provider: "openai",
+    reasoningEffort: "low",
     model: "synthetic-model",
     maxInputCharacters: 500_000,
     maxOutputTokens: 4096,

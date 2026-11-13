@@ -2,6 +2,8 @@
   "id": "zkm-production-show-14-11-2026",
   "label": "ZKM · 14 November 2026",
   "capacity": 140,
+  "model": { "provider": "openai", "model": "gpt-6.1-sol", "reasoningEffort": "medium", "maxInputCharacters": 500000, "maxOutputTokens": 16000, "timeoutMs": 360000 },
+  "voiceModel": { "provider": "openai", "model": "gpt-6.1-terra", "reasoningEffort": "none", "maxInputCharacters": 500000, "maxOutputTokens": 4096, "timeoutMs": 120000 },
   "writingQuestion": "What is something you’d like to change, but can’t change on your own?",
   "voiceQuestion": "What would you like us to become capable of together that feels impossible alone?",
   "puckQuestion": "What shall we do with this plane?",

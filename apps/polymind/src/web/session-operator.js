@@ -99,6 +99,9 @@ function modelConfig() {
     );
   }
   return {
+    ...($("provider").value === "openai" && $("reasoning-effort").value
+      ? { reasoningEffort: $("reasoning-effort").value }
+      : {}),
     provider: $("provider").value,
     model,
     maxOutputTokens: Number($("output-budget").value),
@@ -158,6 +161,7 @@ function resetPreparationForm() {
   $("input-budget").value = "500000";
   $("output-budget").value = "4096";
   $("timeout").value = "360";
+  $("reasoning-effort").value = "";
 }
 function updatePreparationModeView(selectMode = false) {
   const rounds = state?.session?.id === session ? (state.rounds ?? []) : [];
@@ -190,6 +194,7 @@ async function loadPreparation(sessionId, explicitReload = false) {
         value.prompt;
       $("provider").value = value.model.provider;
       $("model").value = value.model.model;
+      $("reasoning-effort").value = value.model.reasoningEffort ?? "";
       $("input-budget").value = String(value.model.maxInputCharacters);
       $("output-budget").value = String(value.model.maxOutputTokens);
       $("timeout").value = String(value.model.timeoutMs / 1000);
@@ -231,6 +236,9 @@ $("save-preparation").onclick = async () => {
     mode,
     prompt: $(mode === "bounded" ? "prompt" : "microphone-prompt").value.trim(),
     model: {
+      ...($("provider").value === "openai" && $("reasoning-effort").value
+        ? { reasoningEffort: $("reasoning-effort").value }
+        : {}),
       provider: $("provider").value,
       model,
       maxInputCharacters: Number($("input-budget").value),

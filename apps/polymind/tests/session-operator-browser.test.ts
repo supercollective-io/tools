@@ -154,7 +154,8 @@ it("loads continuous preparation into its controls and switches views only on se
     mode: "continuous",
     prompt: "What should we keep exploring?",
     model: {
-      provider: "ollama",
+      provider: "openai",
+      reasoningEffort: "low",
       model: "synthetic-model",
       maxInputCharacters: 12000,
       maxOutputTokens: 1000,
@@ -162,6 +163,7 @@ it("loads continuous preparation into its controls and switches views only on se
     },
   });
   await vi.waitFor(() => {
+    expect(page.get("reasoning-effort").value).toBe("low");
     expect(page.get("preparation-mode").value).toBe("continuous");
     expect(page.get("microphone-prompt").value).toBe(
       "What should we keep exploring?",

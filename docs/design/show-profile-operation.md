@@ -69,7 +69,7 @@ one bounded Polymind session and round. Collective Voice has its own session.
   phone controls before unpausing locally, and keeps the bridge credential in
   Flight's private configuration. Hub neither launches Flight nor checks its
   simulator readiness.
-- **Use prepared programme** requires the current invitation to be waiting when
+- **Launch show** requires the current invitation to be waiting when
   installing a different run. It retains that exact waiting invitation. For the
   already-installed run, it can connect newly prepared, non-current invitations
   that remain unavailable while preserving the live cue and existing edits.
@@ -150,3 +150,41 @@ Polymind tests) and the complete `just test-browser` suite. Focused browser-scri
 tests advance recording past one minute, stop it explicitly, and verify that
 closing either the round or session stops active capture. The fixed cutoff and
 its participant label are removed; elapsed time remains visible.
+
+## One-action launch refinement — 13 November 2026
+
+Operate mode: the primary task is selecting a profile and launching its programme.
+Keep the established typography, controls and colours. Show the profile selector
+and **Launch show** first; disclose overrides, fresh rehearsals, saved-run recovery
+and manual invitation editing only when needed. Launch combines create/resume,
+app preparation and revision-checked programme installation. It keeps the waiting
+invitation; returning to Live cues does not select the first activity.
+
+Retain creation request identity until the whole launch succeeds. Retry partially
+prepared runs without duplicating resources. A concurrent cue must reject programme
+installation. Puck without audience answers and Flight without an invitation remain
+explicitly unavailable; neither can be invented from a profile. Analysis and voice
+have separate model settings and preserve their reasoning effort through Polymind.
+
+Verification for this refinement: root `just verify`, focused Hub verification
+(27 tests) and full `just test-browser` passed. The profile browser check exercises
+one-click defaults, repeat production launch, later Puck answers, and an upstream
+creation that commits but loses its response, followed by browser reload and retry.
+All providers were fake; no paid model trial or deployment was run.
+
+Rendered launch views at 1440 × 1000 and 390 × 844 were inspected and retained in
+`test-results/design/show-profile-launch/`. The independent critique identified
+app links above the primary task; moving them below preparation resolved it.
+Existing keyboard tab navigation and visible focus remain covered by browser tests.
+The changed controls use labels, native buttons/selects and live status messages.
+
+The Vercel guideline source review used `command.md` with SHA-256
+`d246b026f4f29b5823a9cc857f9edf3d2507002e055e32040cadeaf3b38e0234`.
+No blocking issue was found in the changed controls. Impeccable's detector flagged
+the unchanged Helvetica Neue stack as undeclared, despite its explicit declaration
+in DESIGN.md; this was treated as a font-name parsing false positive.
+
+The analysis budget is a 16,000-token ceiling including reasoning, not a validated
+140-person allowance. The 500,000-character input limit averages about 3,570
+characters per person at profile capacity. Model quality, actual usage and latency
+at that scale still require a representative, separately authorised trial.
