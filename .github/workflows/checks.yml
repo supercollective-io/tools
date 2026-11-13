@@ -5,19 +5,93 @@ on:
   pull_request:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
-  verify:
+  quality-and-browser:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: jdx/mise-action@v5
+      - name: Locate dependency caches
+        id: caches
+        run: |
+          echo "pnpm=$(mise exec -- pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+          echo "uv=$(mise exec -- uv cache dir)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.caches.outputs.pnpm }}
+          key: ${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('mise.toml', 'pnpm-workspace.yaml') }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('mise.toml', 'pnpm-workspace.yaml') }}-
+      - name: Cache uv packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.caches.outputs.uv }}
+          key: ${{ runner.os }}-${{ runner.arch }}-uv-${{ hashFiles('mise.toml') }}-${{ hashFiles('packages/match/uv.lock', 'packages/match/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-uv-${{ hashFiles('mise.toml') }}-
       - run: mise exec -- just setup
       - run: mise exec -- just verify
-      - run: mise exec -- just build-container
-      - run: mise exec -- just test-matching-container
-      - run: mise exec -- just build-puck-container
-      - run: mise exec -- just test-puck-container
-      - run: mise exec -- just build-hub-container
-      - run: mise exec -- just test-hub-container
       - run: mise exec -- pnpm --dir apps/polymind exec playwright install --with-deps chromium
-      - run: mise exec -- just test-browser
+      - run: mise exec -- just test-browser-built
+      - name: Prune uv cache for CI
+        run: mise exec -- uv cache prune --ci
+
+  containers:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: polymind
+            test: test-matching-container
+          - app: puck
+            test: test-puck-container
+          - app: hub
+            test: test-hub-container
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v5
+      # Only Puck's host-side WebSocket smoke needs workspace packages.
+      - name: Locate pnpm cache
+        if: matrix.app == 'puck'
+        id: caches
+        run: echo "pnpm=$(mise exec -- pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm packages
+        if: matrix.app == 'puck'
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.caches.outputs.pnpm }}
+          key: ${{ runner.os }}-${{ runner.arch }}-pnpm-puck-${{ hashFiles('mise.toml', 'pnpm-workspace.yaml') }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-pnpm-puck-${{ hashFiles('mise.toml', 'pnpm-workspace.yaml') }}-
+      - name: Install Puck smoke dependencies
+        if: matrix.app == 'puck'
+        run: mise exec -- pnpm install --frozen-lockfile --filter puck
+      - uses: docker/setup-buildx-action@v4
+      - name: Build and load test image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          load: true
+          push: false
+          tags: ${{ matrix.app }}:local-candidate
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+      - name: Test container
+        run: mise exec -- just "${{ matrix.test }}"
+
+  # Preserve the existing required check; skipped or failed jobs must not pass it.
+  verify:
+    if: always()
+    needs: [quality-and-browser, containers]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every check to pass
+        env:
+          QUALITY_RESULT: ${{ needs.quality-and-browser.result }}
+          CONTAINERS_RESULT: ${{ needs.containers.result }}
+        run: |
+          test "$QUALITY_RESULT" = success
+          test "$CONTAINERS_RESULT" = success
