@@ -261,4 +261,44 @@ Pairing data lives in the private `state.json`, covered by its existing backup.
 Returning to the same pairs cue retains assignments. Installing a different run
 clears them; activating a different pairs activity starts a new round. There is no
 automatic reshuffle or reassignment of absent people. The round is bounded to 1000
-participants. Prompts are a separate implementation step and are not included here.
+participants. Shared suggestions are configured separately for each pairs invitation.
+
+### Shared discussion suggestions
+
+The performance profile loads its prompt pool automatically when a new run is
+created. No manual paste is needed. Prompt definitions live in
+[`profiles/prompt-pools.json`](profiles/prompt-pools.json); the pairs activity in
+[`profiles/zkm-production-show-14-11-2026.json`](profiles/zkm-production-show-14-11-2026.json)
+selects it with `"promptPool": "pairs"`. This currently loads all 28 pair prompts.
+Optionally add `"promptIds": ["whisper", "balance-bottle"]` to select an ordered
+subset; an empty list disables suggestions. Unknown pools/IDs and duplicate IDs
+fail rather than silently dropping prompts. Inline `prompts` and a pool selector
+cannot be combined. Fours are catalogued separately for future use; the existing
+fours cue does not draw prompts.
+
+The resolved text is saved in each run. Catalogue or profile edits affect new runs
+only: resuming a saved run retains its exact prompt list, including an empty legacy
+list. The bundled catalogue ships with the Hub image and needs no sibling checkout.
+Performance notes remain in the performance repository.
+
+For a per-performance override, edit the pairs invitation in Preparation and use
+**Pair suggestions**, one per line (up to 64, each up to 300 characters). Save the
+invitation before showing it.
+Include only props available for that performance. A blank list leaves conversation
+available without a suggestion button. Editing the list does not rematch participants.
+
+After meeting, each participant chooses **We’ve found each other**. Either partner
+can choose **Try something together**, **Try another**, or **Continue without a
+suggestion**. The pair shares one current suggestion or skipped state; both phones
+refresh it about every two seconds. Suggestions do not repeat until the list is
+exhausted, and the next cycle avoids repeating the last suggestion immediately.
+With only one suggestion, there is no **Try another** button while it is shown.
+Participants can adapt the activity verbally and use **Show pair …** to return to
+the identifying screen without losing their suggestion.
+
+A refresh or server restart preserves the pair’s suggestion. The browser also
+remembers whether it has entered conversation view. Simultaneous taps and retries
+against the same suggestion revision produce one shared update. If a request fails,
+Hub keeps the last displayed suggestion and reads the saved result on the next poll;
+it does not automatically draw another. Editing the catalogue changes subsequent
+draws; the currently displayed suggestion remains until replaced or skipped.

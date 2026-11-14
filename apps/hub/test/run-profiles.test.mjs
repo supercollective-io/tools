@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { Readable } from 'node:stream';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
+import { programme, profiles } from '../run-profiles.mjs';
 import { configuration, createHub } from '../server.mjs';
 
 const password = 'synthetic-private-password-for-run-tests';
@@ -604,4 +605,46 @@ test('missing Flight configuration leaves the invitation unprepared and manual o
   assert.equal(saved.activities.find(item => item.id === 'flight').status, 'unavailable');
   const manual = (await createRun(app, { runSettings: settings({ flightUrl: `https://fly.supercollective.io/?key=${'m'.repeat(32)}` }) })).body;
   assert.equal((await call(app, `/api/operator/runs/${manual.id}/prepare`, { method: 'POST', body: { activityId: 'flight' } })).status, 200);
+});
+
+
+test('profile pools expand to saved text and explicit IDs select an ordered subset', () => {
+  const full = programme().find(item => item.id === 'analogue');
+  assert.equal(full.prompts.length, 28);
+  assert.equal(full.promptPool, undefined);
+  assert.equal(new Set(full.prompts).size, 28);
+  const activity = { id: 'pairs', label: 'Pairs', kind: 'pairs', instruction: '', promptPool: 'pairs' };
+  const subset = programme({ activities: [{ ...activity, promptIds: ['balance-bottle', 'whisper'] }] })[0];
+  assert.equal(subset.prompts.length, 2);
+  assert.match(subset.prompts[0], /bottle/);
+  assert.match(subset.prompts[1], /whispers/);
+  assert.deepEqual(programme({ activities: [{ ...activity, promptIds: [] }] })[0].prompts, []);
+  for (const patch of [{ promptPool: 'missing' }, { promptPool: 'fours' }, { promptIds: ['missing'] },
+    { promptIds: ['whisper', 'whisper'] }, { promptPool: undefined, promptIds: ['whisper'] }, { prompts: ['ambiguous'] }]) {
+    assert.throws(() => programme({ activities: [{ ...activity, ...patch }] }));
+  }
+  full.prompts[0] = 'Changed local copy';
+  assert.notEqual(programme().find(item => item.id === 'analogue').prompts[0], full.prompts[0]);
+  assert.equal(profiles[0].activities.find(item => item.id === 'analogue').prompts, undefined);
+});
+
+test('restart retains saved prompt snapshots and does not backfill legacy runs', async () => {
+  const app = await start();
+  const created = await createRun(app);
+  const legacy = await createRun(app);
+  const path = join(app.dataDir, 'runs.json');
+  const saved = JSON.parse(await readFile(path, 'utf8'));
+  saved.runs.find(run => run.id === created.body.id).activities.find(item => item.id === 'analogue').prompts = ['Previously saved invitation.'];
+  delete saved.runs.find(run => run.id === legacy.body.id).activities.find(item => item.id === 'analogue').prompts;
+  await writeFile(path, JSON.stringify(saved));
+  await app.close();
+  const restarted = await start({ dataDir: app.dataDir });
+  try {
+    const recovered = await call(restarted, `/api/operator/runs/${created.body.id}`);
+    assert.deepEqual(recovered.body.activities.find(item => item.id === 'analogue').prompts, ['Previously saved invitation.']);
+    const old = await call(restarted, `/api/operator/runs/${legacy.body.id}`);
+    assert.equal(old.body.activities.find(item => item.id === 'analogue').prompts, undefined);
+    const fresh = await createRun(restarted);
+    assert.equal(fresh.body.activities.find(item => item.id === 'analogue').prompts.length, 28);
+  } finally { await restarted.close(); }
 });

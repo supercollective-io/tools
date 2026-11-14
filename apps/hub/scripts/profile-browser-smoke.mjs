@@ -211,6 +211,8 @@ try {
   let liveState = await (await operator.request.get(`${base}/api/operator/state`)).json();
   assert.equal(liveState.activities.find(item => item.id === 'polymind').url, writingUrl);
 
+  const profilePrompts = liveState.activities.find(item => item.id === 'analogue').prompts;
+  assert.equal(profilePrompts.length, 28, 'The profile loads its pool without manual preparation');
   await operator.getByRole('button', { name: 'Show invitation: 2 · Pairs', exact: true }).click();
   await expect(participant.getByRole('heading', { name: '2 · Pairs' })).toBeVisible();
   await expect(participant.locator('#pairing')).toBeVisible();
@@ -232,6 +234,31 @@ try {
     await participant.screenshot({ path: join(output, `pairing-${width}.png`), fullPage: true });
   }
   await participant.setViewportSize({ width: 390, height: 844 });
+  await participant.getByRole('button', { name: 'We’ve found each other', exact: true }).click();
+  await partner.getByRole('button', { name: 'We’ve found each other', exact: true }).click();
+  await participant.getByRole('button', { name: 'Try something together', exact: true }).click();
+  await expect(participant.getByRole('button', { name: 'Try another', exact: true })).toBeVisible();
+  const firstPrompt = await participant.locator('#pair-prompt-text').textContent();
+  assert.ok(profilePrompts.includes(firstPrompt));
+  await expect(partner.locator('#pair-prompt-text')).toHaveText(firstPrompt);
+  await partner.getByRole('button', { name: 'Try another', exact: true }).click();
+  await expect(partner.locator('#pair-prompt-text')).not.toHaveText(firstPrompt);
+  const secondPrompt = await partner.locator('#pair-prompt-text').textContent();
+  await expect(participant.locator('#pair-prompt-text')).toHaveText(secondPrompt);
+  await participant.reload();
+  await expect(participant.locator('#pair-conversation')).toBeVisible();
+  await expect(participant.locator('#pair-prompt-text')).toHaveText(secondPrompt);
+  for (const width of [320, 390, 1100]) {
+    await participant.setViewportSize({ width, height: 844 });
+    assert.equal(await participant.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await participant.screenshot({ path: join(output, `pair-prompt-${width}.png`), fullPage: true });
+  }
+  await participant.setViewportSize({ width: 390, height: 844 });
+  await partner.getByRole('button', { name: 'Continue without a suggestion', exact: true }).click();
+  await expect(participant.locator('#pair-prompt-text')).toHaveText('Continue your conversation.');
+  await participant.getByRole('button', { name: `Show pair ${pairNumber}`, exact: true }).click();
+  await expect(participant.locator('#pair-marker')).toBeVisible();
+  await expect(participant.locator('#pair-number')).toHaveText(pairNumber);
   await partnerContext.close();
   await operator.screenshot({ path: join(output, 'profile-live-cue-desktop.png'), fullPage: true });
   await operator.setViewportSize({ width: 390, height: 844 });

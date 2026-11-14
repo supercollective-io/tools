@@ -94,7 +94,7 @@ bounded show flow](../../docs/operations.md#bounded-show-flow) and [recording
 operations](../../docs/operations.md#collective-microphone-and-historical-operations).
 
 For `POST /api/operator/runs`, `settings` contains `writingQuestion` and
-`voiceQuestion` (up to 2,000 characters each), `model`, optional `voiceModel`, `puckQuestion` (up to 240
+`voiceQuestion` (up to 2,000 characters each), `model`, optional `voiceModel`, `puckQuestion` (up to 640
 characters), `puckOptions`, and optional `flightUrl`. `model` contains `provider`
 (`openai` or `ollama`), the exact `model` ID, optional OpenAI `reasoningEffort`
 (`none`, `low`, `medium` or `high`), `maxInputCharacters` (1–1,000,000),
@@ -209,3 +209,39 @@ Participant updates do not advance the operator programme revision. The private
 operator state reports only `pairingSummary: {pairs, waiting}`, not tokens or hashes.
 Saved state gains an optional `pairing` record; old states without it remain valid.
 Back up the complete state file, and do not expose it publicly.
+
+### Shared pair suggestions
+
+Pair activities accept optional `prompts: string[]`: at most 64 nonblank strings,
+each at most 300 characters. Validation trims and deduplicates them. Other activity
+kinds reject this field. The catalogue is available in the private programme editor
+but is omitted from `GET /api/current`.
+
+A paired `/api/pairing` response now includes `promptCount` and
+`prompt: {revision, status, text?}`. Status is `none`, `shown` or `skipped`; only a
+shown prompt includes text. Poll with `action: "join"` to receive the pair’s latest
+state. No other pair’s state or draw history is exposed.
+
+`next-prompt` and `skip-prompt` actions additionally require
+`expectedPromptRevision`, a nonnegative safe integer below `Number.MAX_SAFE_INTEGER`.
+Only an already paired token can change a suggestion. If the expected revision is
+stale, the route returns the current result without another mutation. This makes
+lost-response retries safe and coalesces simultaneous partner taps. Draws and skips
+share the programme’s serial write queue and atomic save. No model is called.
+
+The optional `pairing.prompts` map in private saved state stores each pair’s current
+suggestion, revision and bounded draw history. Older saved rounds without this map
+start with prompt revision zero. Catalogue changes affect future draws; existing
+shown text remains stable until the pair changes or skips it.
+
+
+### Profile prompt selection
+
+Source profile activities may specify `promptPool` and optional `promptIds`.
+`programme()` resolves them using `profiles/prompt-pools.json` at run creation,
+strips these source-only fields, and saves ordinary `prompts` text in the run.
+Omitting `promptIds` selects the whole pool; `[]` selects none. Selected IDs must
+be unique and belong to the pool. Currently only the `pairs` pool can be bound to
+a `pairs` activity; the fours catalogue is reserved for a later group flow.
+Unknown or incompatible selections fail preparation. Existing saved runs are
+never re-resolved or backfilled, including when resumed after a deployment.

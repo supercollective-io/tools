@@ -5,7 +5,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, test } from 'node:test';
-import { configuration, createHub, participantUrl, supportsNameHandoff } from '../server.mjs';
+import { configuration, createHub, participantUrl, supportsNameHandoff, validateSelection } from '../server.mjs';
 
 let temporary;
 let config;
@@ -288,12 +288,12 @@ test('pairing admission is serialised, scoped to the cue and durable without exp
   let app = await serve(directory);
   const tokens = ['11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222'];
   let roundId;
-  const pair = (token, action = 'join', headers = { origin: config.publicOrigin }) => fetch(`${app.base}/api/pairing`, {
-    method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify({ token, roundId, action }),
+  const pair = (token, action = 'join', headers = { origin: config.publicOrigin }, expectedPromptRevision) => fetch(`${app.base}/api/pairing`, {
+    method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify({ token, roundId, action, expectedPromptRevision }),
   });
   try {
     let state = await (await fetch(`${app.base}/api/operator/state`, { headers: authenticated })).json();
-    state.activities.push({ id: 'pairs', label: 'Pairs', kind: 'pairs', status: 'ready', instruction: 'Find a partner.' });
+    state.activities.push({ id: 'pairs', label: 'Pairs', kind: 'pairs', status: 'ready', instruction: 'Find a partner.', prompts: ['Synthetic invitation A.', 'Synthetic invitation B.'] });
     state.activeId = 'pairs';
     assert.equal((await put(app.base, state)).status, 200);
     const current = await (await fetch(`${app.base}/api/current`)).json();
@@ -315,9 +315,19 @@ test('pairing admission is serialised, scoped to the cue and durable without exp
     expired.pairing.waiting.forEach(entry => { entry.seenAt = Date.now(); });
     await writeFile(join(directory, 'state.json'), JSON.stringify(expired));
     app = await serve(directory);
-    const first = await (await pair(tokens[0])).json();
+    let first = await (await pair(tokens[0])).json();
     const second = await (await pair(tokens[1])).json();
     assert.equal(first.status, 'paired'); assert.deepEqual(first, second);
+    assert.equal(current.current.prompts, undefined, 'the public invitation does not publish the catalogue');
+    assert.equal((await pair(tokens[0], 'next-prompt')).status, 400);
+    assert.equal((await pair('33333333-3333-4333-8333-333333333333', 'next-prompt', undefined, 0)).status, 409);
+    const concurrent = await Promise.all(tokens.map(token => pair(token, 'next-prompt', undefined, 0).then(response => response.json())));
+    assert.equal(concurrent[0].prompt.revision, 1);
+    assert.deepEqual(concurrent[0], concurrent[1]);
+    assert.deepEqual(await (await pair(tokens[0], 'next-prompt', undefined, 0)).json(), concurrent[0]);
+    first = await (await pair(tokens[1], 'skip-prompt', undefined, 1)).json();
+    assert.equal(first.prompt.status, 'skipped');
+
     await app.close(); app = await serve(directory);
     assert.deepEqual(await (await pair(tokens[0])).json(), first);
     state = await (await fetch(`${app.base}/api/operator/state`, { headers: authenticated })).json();
@@ -331,4 +341,15 @@ test('pairing admission is serialised, scoped to the cue and durable without exp
     assert.equal((await put(app.base, state)).status, 200);
     assert.deepEqual(await (await pair(tokens[0])).json(), first);
   } finally { await app.close(); }
+});
+
+
+test('suggestion catalogues are bounded, deduplicated and limited to pairs invitations', () => {
+  const activity = { id: 'pairs', label: 'Pairs', kind: 'pairs', status: 'ready', instruction: '', prompts: [' Synthetic A. ', 'Synthetic A.'] };
+  const validate = prompts => validateSelection({ activeId: 'pairs', activities: [{ ...activity, prompts }] }, config);
+  assert.deepEqual(validate(activity.prompts).activities[0].prompts, ['Synthetic A.']);
+  for (const prompts of ['invalid', [''], ['x'.repeat(301)], Array(65).fill('A')]) {
+    assert.throws(() => validate(prompts), { status: 400 });
+  }
+  assert.throws(() => validateSelection({ activeId: 'pairs', activities: [{ ...activity, kind: 'waiting' }] }, config), { status: 400 });
 });

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
-import { newPairing, joinPairing, pairingResult, participantKey, validatePairing, batchMilliseconds } from '../pairing.mjs';
+import { newPairing, joinPairing, pairingResult, participantKey, validatePairing, batchMilliseconds, changePairPrompt } from '../pairing.mjs';
 
 test('100 arrivals form 50 disjoint pairs; retries retain assignments; late odd arrival waits', () => {
   const keys = Array.from({ length: 101 }, () => participantKey(randomUUID()));
@@ -36,4 +36,27 @@ test('abandoned waiting identities expire before a late participant is matched',
   assert.equal(state.pairs.length, 0);
   assert.deepEqual(state.waiting.map(entry => entry.key), [present]);
   assert.equal(pairingResult(state, present).status, 'waiting');
+});
+
+
+test('shared suggestions cycle without repeats, coalesce retries and keep skip explicit', () => {
+  let state = newPairing('pairs');
+  state.pairs = [[participantKey('one'), participantKey('two')]];
+  const catalogue = ['Synthetic invitation A.', 'Synthetic invitation B.', 'Synthetic invitation C.'];
+  const draw = revision => changePairPrompt(state, 1, catalogue, 'next-prompt', revision, () => 0);
+  state = draw(0);
+  assert.equal(state.prompts[1].text, catalogue[0]);
+  assert.deepEqual(draw(0), state, 'lost-response retry must not draw again');
+  state = draw(1); assert.equal(state.prompts[1].text, catalogue[1]);
+  state = changePairPrompt(state, 1, catalogue, 'skip-prompt', 2);
+  assert.equal(pairingResult(state, state.pairs[0][0], catalogue).prompt.status, 'skipped');
+  assert.equal(pairingResult(state, state.pairs[0][0], catalogue).prompt.text, undefined);
+  state = draw(3); assert.equal(state.prompts[1].text, catalogue[2]);
+  state = draw(4); assert.notEqual(state.prompts[1].text, catalogue[2]);
+  assert.deepEqual(pairingResult(state, state.pairs[0][0], catalogue), pairingResult(state, state.pairs[0][1], catalogue));
+  validatePairing(state);
+  const edited = changePairPrompt(state, 1, ['Replacement synthetic invitation.'], 'next-prompt', 5);
+  assert.equal(edited.prompts[1].text, 'Replacement synthetic invitation.');
+  assert.deepEqual(changePairPrompt(edited, 1, [], 'next-prompt', 6), edited);
+  validatePairing(edited);
 });

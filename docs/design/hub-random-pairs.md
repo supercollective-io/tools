@@ -73,3 +73,59 @@ The full root gate passed its check stage, then stopped on Polymind’s unresolv
 `@langchain/core/messages` import and related model type errors. Container build
 could not start because Docker’s daemon was unavailable, so container smoke was
 not run. No deployment or physical-phone/venue check was performed.
+
+
+## Step two: shared suggestions
+
+The marker gains **We’ve found each other**, leading to a compact conversation view.
+A single suggestion is set in large ordinary text, with **Try another** and
+**Continue without a suggestion** below. **Show pair …** restores the identifier.
+The identifier is not duplicated above the suggestion. Existing typography,
+colours, controls and responsive column are retained. There is no timer or animation.
+
+The pair shares its current prompt and skip state; entry into conversation view is
+local to each phone, so one person cannot hide the other’s identifier before they
+have met. Each invitation’s authored catalogue is editable in Preparation. Executable prompt pools are now bundled in Hub and selected by profile, following
+the user’s request for automatic loading. Artistic notes remain outside this
+repository. The profile browser check exercises the bundled selection. A missing catalogue leaves conversation available without a draw
+button. Both phones poll the shared state; identical responses do not reannounce it.
+
+Revision-checked actions coalesce simultaneous taps and safely recover lost
+responses. The latest shared text survives restart. Tests cover deduplication and
+bounds, no-repeat cycles, catalogue edits, shared skips, stale retries and
+unauthorised prompt changes. Browser checks use separate participant contexts and
+cover redraw synchronisation, reload recovery, skip and return to the identifier.
+
+Step-two verification: Hub syntax checks and 36 unit/HTTP tests passed. Both Hub
+browser smoke scripts passed, including editing the catalogue, two-phone shared
+draws/skips, reload recovery and restoring the identifier. The implementation owner
+and independent reviewer inspected synthetic prompt captures at 320, 390 and 1100
+CSS pixels, retained in `test-results/design/hub-pair-prompts/` for the working patch
+on `2d427fb`. Neither found a blocking visual issue. Source review against the
+Vercel guidelines retrieved on 14 November 2026 and the mechanical detector found
+no new blocking issue; existing typography/palette advisories remain intentional.
+The root gate again passed checks and stopped on the same Polymind model type
+errors. This step does not alter container packaging. No deployment or physical
+venue testing was performed.
+
+
+## Automatic profile selection
+
+Prompt definitions now live in `apps/hub/profiles/prompt-pools.json`, with stable
+IDs and separate pairs/fours pools. The current performance profile selects the
+whole pairs pool through `promptPool`; optional `promptIds` select an ordered
+subset, and an empty list selects none. The executable pairs catalogue contains
+28 invitations, including props. The bounded list/history limit is now 64.
+
+Run creation resolves selection to ordinary prompt text; saved runs retain their
+snapshot through restart and later catalogue changes. Legacy runs are not silently
+backfilled. The manual editor remains a per-performance override. The bundled
+profiles directory is already copied by the Dockerfile and included in its build
+context, so runtime loading never reads another checkout.
+
+The focused gate passes 38 tests, including whole-pool loading, explicit subsets,
+invalid selectors, independent copies, saved snapshots and legacy compatibility.
+The full gate remains blocked by the existing Polymind model type errors.
+Both Hub browser smoke scripts also pass. The profile flow now asserts 28 loaded
+prompts and draws from them without any manual catalogue preparation. The narrow
+render was inspected with an actual bundled prompt; no clipping was observed.

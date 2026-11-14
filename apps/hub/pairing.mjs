@@ -14,6 +14,18 @@ export function validatePairing(value) {
     throw new Error('Invalid saved pairing');
   if (value.waiting.some(entry => !entry || !Number.isSafeInteger(entry.seenAt) || entry.seenAt < 0))
     throw new Error('Invalid saved waiting participant');
+  if (value.prompts !== undefined) {
+    if (!value.prompts || typeof value.prompts !== 'object' || Array.isArray(value.prompts)) throw new Error('Invalid saved prompts');
+    for (const [number, prompt] of Object.entries(value.prompts)) {
+      if (!/^[1-9][0-9]*$/.test(number) || Number(number) > value.pairs.length ||
+          !prompt || !Number.isSafeInteger(prompt.revision) || prompt.revision < 1 ||
+          !['shown', 'skipped'].includes(prompt.status) || !Array.isArray(prompt.seen) || prompt.seen.length > 64 ||
+          prompt.seen.some(item => typeof item !== 'string' || !item.trim() || item.length > 300) ||
+          (prompt.last !== undefined && (typeof prompt.last !== 'string' || prompt.last.length > 300)) ||
+          (prompt.status === 'shown' && (typeof prompt.text !== 'string' || !prompt.text.trim() || prompt.text.length > 300)))
+        throw new Error('Invalid saved pair prompt');
+    }
+  }
   const keys = [...value.waiting.map(entry => entry.key), ...value.pairs.flat()];
   if (keys.length > 1000 || keys.some(key => typeof key !== 'string' || !/^[a-f0-9]{64}$/.test(key)) ||
       new Set(keys).size !== keys.length || (value.waiting.length > 0 && value.nextBatchAt === null))
@@ -44,8 +56,37 @@ export function joinPairing(saved, key, now = Date.now(), choose = randomInt) {
   }
   return next;
 }
-export function pairingResult(pairing, key) {
+export function pairingResult(pairing, key, catalogue = []) {
   const index = pairing.pairs.findIndex(pair => pair.includes(key));
   return { roundId: pairing.id, status: index < 0 ? 'waiting' : 'paired',
-    ...(index >= 0 ? { number: index + 1 } : {}) };
+    ...(index >= 0 ? { number: index + 1, promptCount: catalogue.length,
+      prompt: publicPrompt(pairing.prompts?.[index + 1]) } : {}) };
+}
+
+function publicPrompt(prompt) {
+  return prompt ? { revision: prompt.revision, status: prompt.status,
+    ...(prompt.status === 'shown' ? { text: prompt.text } : {}) } : { revision: 0, status: 'none' };
+}
+
+// The expected revision makes retrying a lost response safe, and coalesces
+// simultaneous draws by the two partners into one shared change.
+export function changePairPrompt(saved, number, catalogue, action, expectedRevision, choose = randomInt) {
+  const previous = saved.prompts?.[number];
+  if ((previous?.revision ?? 0) !== expectedRevision) return saved;
+  let prompt;
+  if (action === 'skip-prompt') {
+    prompt = { ...previous, revision: expectedRevision + 1, status: 'skipped', seen: previous?.seen ?? [] };
+    delete prompt.text;
+  } else {
+    if (!catalogue.length) return saved;
+    let seen = (previous?.seen ?? []).filter(item => catalogue.includes(item));
+    let candidates = catalogue.filter(item => !seen.includes(item));
+    if (!candidates.length) {
+      seen = [];
+      candidates = catalogue.filter(item => catalogue.length === 1 || item !== previous?.last);
+    }
+    const text = candidates[choose(candidates.length)];
+    prompt = { revision: expectedRevision + 1, status: 'shown', text, last: text, seen: [...seen, text] };
+  }
+  return { ...saved, prompts: { ...saved.prompts, [number]: prompt } };
 }

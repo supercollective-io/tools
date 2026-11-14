@@ -174,3 +174,10 @@ dd { margin: 4px 0 20px; }
 #pair-marker details { text-align: left; }
 #pair-join { width: 100%; }
 @media (forced-colors: active) { .pair-shape { background: CanvasText !important; forced-color-adjust: none; } }
+
+#pair-found { width: 100%; margin: 20px 0; }
+#pair-conversation-title { font-size: 1.7rem; line-height: 1.15; letter-spacing: -.025em; margin: 28px 0 20px; }
+#pair-prompt-text { font-size: 1.5rem; line-height: 1.35; text-wrap: pretty; }
+.pair-prompt-actions { display: flex; flex-direction: column; gap: 12px; margin: 28px 0; }
+.pair-prompt-actions .button { margin: 0; }
+#pair-show-number { border-color: var(--line); }

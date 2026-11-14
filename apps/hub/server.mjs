@@ -5,7 +5,7 @@ import { constants } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isPolymindInvitation } from './invitations.mjs';
-import { newPairing, validatePairing, participantKey, joinPairing, pairingResult } from './pairing.mjs';
+import { newPairing, validatePairing, participantKey, joinPairing, pairingResult, changePairPrompt } from './pairing.mjs';
 import { openRuns, profiles, programme } from './run-profiles.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -107,7 +107,7 @@ export function validateSelection(value, config) {
     throw new HttpError(400, 'Provide between one and twenty activities');
   }
   const activities = value.activities.map(activity => {
-    exactKeys(activity, ['id', 'label', 'kind', 'status', 'instruction', 'url'], 'activity');
+    exactKeys(activity, ['id', 'label', 'kind', 'status', 'instruction', 'url', 'prompts'], 'activity');
     const id = text(activity.id, 'activity ID', 80);
     if (!/^[a-z0-9-]+$/.test(id)) throw new HttpError(400, 'Activity IDs use lowercase letters, digits and hyphens');
     const label = text(activity.label, 'activity label', 100);
@@ -116,6 +116,11 @@ export function validateSelection(value, config) {
       throw new HttpError(400, 'Invalid activity kind or status');
     }
     const result = { id, label, kind: activity.kind, status: activity.status, instruction };
+    if (activity.prompts !== undefined) {
+      if (activity.kind !== 'pairs' || !Array.isArray(activity.prompts) || activity.prompts.length > 64)
+        throw new HttpError(400, 'Provide up to 64 suggestions for a pairs invitation');
+      result.prompts = [...new Set(activity.prompts.map(item => text(item, 'suggestion', 300)))];
+    }
     if (activity.kind === 'activity' && activity.status === 'ready') {
       result.url = participantUrl(activity.url, config);
     } else if (activity.url !== undefined && activity.url !== '') {
@@ -321,23 +326,30 @@ export async function createHub(config) {
       if (path === '/api/current' && req.method === 'GET') {
         const current = state.activities.find(activity => activity.id === state.activeId);
         reply(200, { schemaVersion: 1, revision: state.revision, updatedAt: state.updatedAt,
-          current, nameHandoff: supportsNameHandoff(current, config),
+          current: Object.fromEntries(Object.entries(current).filter(([key]) => key !== 'prompts')), nameHandoff: supportsNameHandoff(current, config),
           ...(current.kind === 'pairs' && current.status === 'ready' && state.pairing ? { pairingRound: state.pairing.id } : {}) }); return;
       }
       if (path === '/api/pairing' && req.method === 'POST') {
         if (req.headers.origin !== config.publicOrigin) throw new HttpError(403, 'Same-origin update required');
         const body = await readJson(req);
-        exactKeys(body, ['roundId', 'token', 'action'], 'pairing');
+        exactKeys(body, ['roundId', 'token', 'action', 'expectedPromptRevision'], 'pairing');
         if (typeof body.token !== 'string' || !/^[a-f0-9-]{36}$/.test(body.token) ||
-            typeof body.roundId !== 'string' || !['join', 'leave'].includes(body.action))
+            typeof body.roundId !== 'string' || !['join', 'leave', 'next-prompt', 'skip-prompt'].includes(body.action))
           throw new HttpError(400, 'Invalid pairing request');
+        const promptAction = ['next-prompt', 'skip-prompt'].includes(body.action);
+        if (promptAction && (!Number.isSafeInteger(body.expectedPromptRevision) || body.expectedPromptRevision < 0 || body.expectedPromptRevision >= Number.MAX_SAFE_INTEGER))
+          throw new HttpError(400, 'Provide expectedPromptRevision');
         const key = participantKey(body.token);
         const write = writes.then(async () => {
           const current = state.activities.find(item => item.id === state.activeId);
           if (current.kind !== 'pairs' || current.status !== 'ready' || state.pairing?.id !== body.roundId)
             throw new HttpError(409, 'The pairing invitation changed. Refresh this page.');
           let pairing;
-          if (body.action === 'leave') {
+          if (promptAction) {
+            const number = state.pairing.pairs.findIndex(pair => pair.includes(key)) + 1;
+            if (!number) throw new HttpError(409, 'Find your partner before requesting a suggestion.');
+            pairing = changePairPrompt(state.pairing, number, current.prompts ?? [], body.action, body.expectedPromptRevision);
+          } else if (body.action === 'leave') {
             pairing = structuredClone(state.pairing);
             pairing.waiting = pairing.waiting.filter(item => item.key !== key);
             if (!pairing.waiting.length) pairing.nextBatchAt = null;
@@ -347,7 +359,7 @@ export async function createHub(config) {
             const next = { ...state, pairing };
             await atomicSave(statePath, next); state = next;
           }
-          const result = pairingResult(pairing, key);
+          const result = pairingResult(pairing, key, current.prompts ?? []);
           return body.action === 'leave' && result.status !== 'paired' ? { status: 'left' } : result;
         });
         writes = write.catch(() => {});

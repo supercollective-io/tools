@@ -3,9 +3,33 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import zkm from './profiles/zkm-production-show-14-11-2026.json' with { type: 'json' };
 
+import promptPools from './profiles/prompt-pools.json' with { type: 'json' };
+
+for (const pool of Object.values(promptPools)) {
+  if (![2, 4].includes(pool.groupSize) || !Array.isArray(pool.prompts) || !pool.prompts.length || pool.prompts.length > 64 ||
+      pool.prompts.some(prompt => !/^[a-z0-9-]+$/.test(prompt.id) || typeof prompt.text !== 'string' || !prompt.text.trim() || prompt.text.length > 300) ||
+      new Set(pool.prompts.map(prompt => prompt.id)).size !== pool.prompts.length)
+    throw new Error('Invalid bundled prompt pool');
+}
 export const profiles = [zkm];
 export function programme(profile = zkm) {
-  return profile.activities.map(activity => ({ ...activity, status: activity.kind === 'activity' ? 'unavailable' : 'ready' }));
+  return profile.activities.map(source => {
+    const { promptPool, promptIds, ...activity } = structuredClone(source);
+    if (promptPool !== undefined) {
+      const pool = Object.hasOwn(promptPools, promptPool) ? promptPools[promptPool] : undefined;
+      if (typeof promptPool !== 'string' || !pool || pool.groupSize !== 2 || activity.kind !== 'pairs' || activity.prompts !== undefined)
+        throw new Error('Choose a known pairs prompt pool without inline prompts');
+      const selected = promptIds ?? pool.prompts.map(prompt => prompt.id);
+      if (!Array.isArray(selected) || selected.length > 64 || selected.some(id => typeof id !== 'string') || new Set(selected).size !== selected.length)
+        throw new Error('Prompt IDs must be a distinct list of up to 64 IDs');
+      activity.prompts = selected.map(id => {
+        const prompt = pool.prompts.find(item => item.id === id);
+        if (!prompt) throw new Error(`Unknown prompt ID in pool ${promptPool}: ${id}`);
+        return prompt.text;
+      });
+    } else if (promptIds !== undefined) throw new Error('Prompt IDs require a prompt pool');
+    return { ...activity, status: activity.kind === 'activity' ? 'unavailable' : 'ready' };
+  });
 }
 
 // Runs are private preparation records. Only installing a prepared programme

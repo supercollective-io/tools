@@ -1,0 +1,140 @@
+{
+  "pairs": {
+    "groupSize": 2,
+    "prompts": [
+      {
+        "id": "whisper",
+        "text": "Continue your conversation in whispers."
+      },
+      {
+        "id": "slow-commentary",
+        "text": "Speak as though you’re commentating on a very slow sporting event."
+      },
+      {
+        "id": "slower-voices",
+        "text": "Let your voices gradually get slower. See how slow the conversation can become."
+      },
+      {
+        "id": "talk-to-ceiling",
+        "text": "Lie beside each other and talk to the ceiling."
+      },
+      {
+        "id": "shared-view",
+        "text": "Sit or stand side by side. Choose something in the room to look at together."
+      },
+      {
+        "id": "different-heights",
+        "text": "Find an arrangement in which one of you is higher than the other. Swap after a while."
+      },
+      {
+        "id": "shoes-off",
+        "text": "Take your shoes off while you talk."
+      },
+      {
+        "id": "face-away",
+        "text": "Find a position in which neither of you is facing the other. Continue your conversation there."
+      },
+      {
+        "id": "shared-pace",
+        "text": "Walk together at the pace of whoever is moving more slowly."
+      },
+      {
+        "id": "orbit",
+        "text": "Keep talking while you slowly orbit each other."
+      },
+      {
+        "id": "echo-movement",
+        "text": "Let one person’s small movements travel into the other person’s body. Swap who begins."
+      },
+      {
+        "id": "backs-touch",
+        "text": "If you both want to, let your backs touch while you talk."
+      },
+      {
+        "id": "change-distance",
+        "text": "Find a comfortable distance. Change it together during the conversation."
+      },
+      {
+        "id": "one-finger-object",
+        "text": "Keep a light object between you using one finger each."
+      },
+      {
+        "id": "balance-bottle",
+        "text": "Balance an empty plastic bottle between your bodies. Decide together where it goes."
+      },
+      {
+        "id": "shared-object",
+        "text": "Both hold the same object while you talk. Let it move between you."
+      },
+      {
+        "id": "slack-string",
+        "text": "Each hold one end of a string. Keep it just slack enough to touch the floor while you talk."
+      },
+      {
+        "id": "string-signals",
+        "text": "Use the string to send each other signals while you talk. Invent what they mean."
+      },
+      {
+        "id": "rope-or-fabric",
+        "text": "Hold opposite ends of a rope or strip of fabric while you talk. Explore the distance and slack between you."
+      },
+      {
+        "id": "changing-fabric",
+        "text": "Each hold an edge of a piece of fabric. Find a shape you can keep changing together."
+      },
+      {
+        "id": "fabric-roof",
+        "text": "Make a small roof with the fabric. Have your conversation underneath it."
+      },
+      {
+        "id": "shared-drawing",
+        "text": "Draw on the same piece of paper while you talk. Neither of you owns a part of it."
+      },
+      {
+        "id": "uncertainty-mark",
+        "text": "Invent a mark for ‘I’m not sure’. Either of you can use it during the conversation."
+      },
+      {
+        "id": "stay-with-thought",
+        "text": "Invent a gesture that means ‘stay with that thought’."
+      },
+      {
+        "id": "change-a-rule",
+        "text": "Choose a rule for how you’ll talk together. Try it, then change it."
+      },
+      {
+        "id": "wordless-disagreement",
+        "text": "Find a way to say ‘I disagree, but keep going’ without words. Then continue your conversation."
+      },
+      {
+        "id": "shared-sound",
+        "text": "Take a little time to make a shared sound. Then start talking again."
+      },
+      {
+        "id": "three-objects",
+        "text": "Arrange three objects to show how you are together right now. You don’t have to agree on what the arrangement means. Then continue your conversation."
+      }
+    ]
+  },
+  "fours": {
+    "groupSize": 4,
+    "prompts": [
+      {
+        "id": "teach-a-signal",
+        "text": "Each pair teaches the other a gesture or signal they invented."
+      },
+      {
+        "id": "four-person-fabric",
+        "text": "Make a shape with a piece of fabric that needs all four of you."
+      },
+      {
+        "id": "travelling-movement",
+        "text": "Start a small movement and let it travel around the group. Keep talking as it travels."
+      },
+      {
+        "id": "unsaid-object",
+        "text": "Choose an object to stand for something none of you has said yet. Give it a place in the group."
+      }
+    ]
+  }
+}

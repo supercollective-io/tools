@@ -24,7 +24,7 @@
   "activities": [
     { "id": "arrival", "label": "Arrivals room", "kind": "waiting", "instruction": "" },
     { "id": "polymind", "label": "1 · Record individually", "kind": "activity", "instruction": "Not available yet." },
-    { "id": "analogue", "label": "2 · Pairs", "kind": "pairs", "instruction": "Find the person with the same pair number. Show them your screen to check." },
+    { "id": "analogue", "label": "2 · Pairs", "kind": "pairs", "promptPool": "pairs", "instruction": "Find the person with the same pair number. Show them your screen to check." },
     { "id": "four", "label": "4 · Groups of four", "kind": "analogue", "instruction": "Work in groups of four. Keep your phone away." },
     { "id": "polymind-all", "label": "All · Polymind analysis", "kind": "activity", "instruction": "Not available yet." },
     { "id": "collective-voice", "label": "Collective Voice", "kind": "activity", "instruction": "Not available yet." },
