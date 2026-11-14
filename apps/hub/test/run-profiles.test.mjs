@@ -614,9 +614,9 @@ test('profile pools expand to saved text and explicit IDs select an ordered subs
   assert.ok(four.prompts.length > 0);
   assert.equal(four.promptPool, undefined);
   const full = programme().find(item => item.id === 'analogue');
-  assert.equal(full.prompts.length, 28);
+  assert.equal(full.prompts.length, 29);
   assert.equal(full.promptPool, undefined);
-  assert.equal(new Set(full.prompts).size, 28);
+  assert.equal(new Set(full.prompts).size, 29);
   const activity = { id: 'pairs', label: 'Pairs', kind: 'pairs', instruction: '', promptPool: 'pairs' };
   const subset = programme({ activities: [{ ...activity, promptIds: ['balance-bottle', 'whisper'] }] })[0];
   assert.equal(subset.prompts.length, 2);
@@ -649,6 +649,6 @@ test('restart retains saved prompt snapshots and does not backfill legacy runs',
     const old = await call(restarted, `/api/operator/runs/${legacy.body.id}`);
     assert.equal(old.body.activities.find(item => item.id === 'analogue').prompts, undefined);
     const fresh = await createRun(restarted);
-    assert.equal(fresh.body.activities.find(item => item.id === 'analogue').prompts.length, 28);
+    assert.equal(fresh.body.activities.find(item => item.id === 'analogue').prompts.length, 29);
   } finally { await restarted.close(); }
 });

@@ -246,9 +246,12 @@ it("keeps transcripts private and unconfirmed, handles upload retries and delete
   expect(
     (await request("/api/state", undefined, a.cookie)).body.contribution,
   ).toBeUndefined();
-  await expect(
-    readFile(join(directory, `${recording}.audio`)),
-  ).rejects.toThrow();
+  // Successful transcription is persisted before asynchronous audio cleanup.
+  await vi.waitFor(async () => {
+    await expect(
+      readFile(join(directory, `${recording}.audio`)),
+    ).rejects.toMatchObject({ code: "ENOENT" });
+  });
 });
 
 it("hands the exact snapshot to the packaged Python worker and validates the returned allocation", async () => {

@@ -269,7 +269,7 @@ The performance profile loads both prompt pools automatically when a new run is
 created. No manual paste is needed. Prompt definitions live in
 [`profiles/prompt-pools.json`](profiles/prompt-pools.json); the pairs activity in
 [`profiles/zkm-production-show-14-11-2026.json`](profiles/zkm-production-show-14-11-2026.json)
-selects it with `"promptPool": "pairs"`. This currently loads all 28 pair prompts.
+selects it with `"promptPool": "pairs"`. This currently loads all 29 pair prompts.
 Optionally add `"promptIds": ["whisper", "balance-bottle"]` to select an ordered
 subset; an empty list disables suggestions. Unknown pools/IDs and duplicate IDs
 fail rather than silently dropping prompts. Inline `prompts` and a pool selector
