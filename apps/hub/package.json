@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test",
-    "check": "node --check server.mjs && node --check invitations.mjs && node --check run-profiles.mjs && node --check public/hub.js && node --check public/operator.js && node --check public/run-preparation.js",
+    "check": "node --check server.mjs && node --check pairing.mjs && node --check public/pairing.js && node --check invitations.mjs && node --check run-profiles.mjs && node --check public/hub.js && node --check public/operator.js && node --check public/run-preparation.js",
     "verify": "pnpm run check && pnpm test",
     "dev": "node --env-file=.env server.mjs"
   }

@@ -70,7 +70,7 @@ function showMode(next) {
 function ready(activity) { return activity.status === 'ready'; }
 function description(activity) {
   if (!ready(activity)) return 'Needs preparation';
-  return { activity: 'Link saved · check before showing', analogue: 'In person', waiting: 'Waiting', closed: 'Closing' }[activity.kind];
+  return { activity: 'Link saved · check before showing', analogue: 'In person', pairs: 'Random pairs', waiting: 'Waiting', closed: 'Closing' }[activity.kind];
 }
 function cueButton(activity, label = `Show invitation: ${activity.label}`) {
   const node = button(label, () => cue(activity));
@@ -289,6 +289,7 @@ function edit(activity) {
   form.elements.label.value = activity.label;
   form.elements.kind.value = activity.kind;
   form.elements.instruction.value = activity.instruction;
+  form.elements.prompts.value = (activity.prompts ?? []).join('\n');
   const chooseWebsite = element('option', 'Choose a website'); chooseWebsite.value = '';
   form.elements.origin.replaceChildren(chooseWebsite, ...origins.map(value => {
     const option = element('option', new URL(value).host); option.value = value; return option;
@@ -328,6 +329,7 @@ function updateImpact() {
 function updateFields() {
   const digital = form.elements.kind.value === 'activity';
   $('#digital-fields').hidden = !digital;
+  $('#pair-prompts-field').hidden = form.elements.kind.value !== 'pairs';
   const app = form.elements.app.value;
   $('#app-preparation').hidden = app === 'manual';
   $('#create-activity').hidden = app === 'flight';
@@ -413,6 +415,7 @@ form.addEventListener('submit', async event => {
   const activity = { id: editingId, label: form.elements.label.value.trim(), kind: form.elements.kind.value,
     status: form.elements.kind.value !== 'activity' || form.elements.destination.value.trim() ? 'ready' : 'unavailable',
     instruction: form.elements.instruction.value.trim() };
+  if (activity.kind === 'pairs') activity.prompts = form.elements.prompts.value.split('\n').map(value => value.trim()).filter(Boolean);
   if (activity.kind === 'activity' && activity.status === 'ready') {
     try { activity.url = destination(); } catch {
       $('#editor-error').textContent = 'Choose a website for this path, or paste the full participant link.';

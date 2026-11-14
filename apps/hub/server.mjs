@@ -5,10 +5,11 @@ import { constants } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isPolymindInvitation } from './invitations.mjs';
+import { newPairing, validatePairing, participantKey, joinPairing, pairingResult, changePairPrompt } from './pairing.mjs';
 import { openRuns, profiles, programme } from './run-profiles.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
-const kinds = new Set(['activity', 'analogue', 'waiting', 'closed']);
+const kinds = new Set(['activity', 'analogue', 'pairs', 'waiting', 'closed']);
 const privateSegments = /(^|\/)(operator|admin|host|control|controls|projection|projector|presenter)(\/|$)/i;
 const forbiddenQuery = /(token|password|secret|credential|auth|operator|admin|api[_-]?key)|^key$/i;
 const flightAudienceOrigin = 'https://fly.supercollective.io';
@@ -106,7 +107,7 @@ export function validateSelection(value, config) {
     throw new HttpError(400, 'Provide between one and twenty activities');
   }
   const activities = value.activities.map(activity => {
-    exactKeys(activity, ['id', 'label', 'kind', 'status', 'instruction', 'url'], 'activity');
+    exactKeys(activity, ['id', 'label', 'kind', 'status', 'instruction', 'url', 'prompts'], 'activity');
     const id = text(activity.id, 'activity ID', 80);
     if (!/^[a-z0-9-]+$/.test(id)) throw new HttpError(400, 'Activity IDs use lowercase letters, digits and hyphens');
     const label = text(activity.label, 'activity label', 100);
@@ -115,6 +116,11 @@ export function validateSelection(value, config) {
       throw new HttpError(400, 'Invalid activity kind or status');
     }
     const result = { id, label, kind: activity.kind, status: activity.status, instruction };
+    if (activity.prompts !== undefined) {
+      if (activity.kind !== 'pairs' || !Array.isArray(activity.prompts) || activity.prompts.length > 64)
+        throw new HttpError(400, 'Provide up to 64 suggestions for a pairs invitation');
+      result.prompts = [...new Set(activity.prompts.map(item => text(item, 'suggestion', 300)))];
+    }
     if (activity.kind === 'activity' && activity.status === 'ready') {
       result.url = participantUrl(activity.url, config);
     } else if (activity.url !== undefined && activity.url !== '') {
@@ -237,7 +243,7 @@ export async function createHub(config) {
   let state;
   try {
     state = JSON.parse(await readFile(statePath, 'utf8'));
-    exactKeys(state, ['schemaVersion', 'revision', 'updatedAt', 'activeId', 'activities', 'runId'], 'saved state');
+    exactKeys(state, ['schemaVersion', 'revision', 'updatedAt', 'activeId', 'activities', 'runId', 'pairing'], 'saved state');
     if (state.schemaVersion !== 1 || !Number.isSafeInteger(state.revision) || state.revision < 1 ||
         !Number.isFinite(Date.parse(state.updatedAt))) throw new Error('Invalid saved state version');
     // Old manual invitations may be incomplete. Preserve the programme and
@@ -253,6 +259,7 @@ export async function createHub(config) {
       }
     }
     validateSelection({ activeId: state.activeId, activities: state.activities }, config);
+    if (state.pairing !== undefined) validatePairing(state.pairing);
     if (state.runId !== undefined && (typeof state.runId !== 'string' || !/^[a-zA-Z0-9_-]{16,100}$/.test(state.runId))) throw new Error('Invalid saved run ID');
     if (repaired) {
       state.revision += 1; state.updatedAt = new Date().toISOString(); await atomicSave(statePath, state);
@@ -266,7 +273,17 @@ export async function createHub(config) {
   const runs = await openRuns(config, { atomicSave, HttpError, appRequest, appSummary, participantUrl, validateSelection,
     configurePolymind: (id, draft) => appRequest(config, 'polymind', id, draft, undefined, true) });
   if (state.runId) runs.get(state.runId);
-  const operatorState = value => ({ ...value, ...(value.runId ? { operatorNotes: runs.get(value.runId).operatorNotes ?? {} } : {}) });
+  const operatorState = value => {
+    const { pairing, ...publicProgramme } = value;
+    return { ...publicProgramme, ...(value.runId ? { operatorNotes: runs.get(value.runId).operatorNotes ?? {} } : {}),
+      ...(pairing ? { pairingSummary: { pairs: pairing.pairs.length, waiting: pairing.waiting.length } } : {}) };
+  };
+  function preparePairing(next) {
+    const current = next.activities.find(item => item.id === next.activeId);
+    if (current.kind === 'pairs' && current.status === 'ready' && next.pairing?.activityId !== current.id)
+      next.pairing = newPairing(current.id);
+    return next;
+  }
   const credentialHash = createHash('sha256').update(`${config.username}:${config.password}`).digest();
   function authenticated(req) {
     const header = req.headers.authorization ?? '';
@@ -279,6 +296,7 @@ export async function createHub(config) {
   };
   const assets = new Map([
     ['/', ['index.html', 'text/html; charset=utf-8']], ['/hub.js', ['hub.js', 'text/javascript; charset=utf-8']],
+    ['/pairing.js', ['pairing.js', 'text/javascript; charset=utf-8']],
     ['/style.css', ['style.css', 'text/css; charset=utf-8']], ['/operator', ['operator.html', 'text/html; charset=utf-8']],
     ['/operator.js', ['operator.js', 'text/javascript; charset=utf-8']],
     ['/run-preparation.js', ['run-preparation.js', 'text/javascript; charset=utf-8']],
@@ -308,7 +326,44 @@ export async function createHub(config) {
       if (path === '/api/current' && req.method === 'GET') {
         const current = state.activities.find(activity => activity.id === state.activeId);
         reply(200, { schemaVersion: 1, revision: state.revision, updatedAt: state.updatedAt,
-          current, nameHandoff: supportsNameHandoff(current, config) }); return;
+          current: Object.fromEntries(Object.entries(current).filter(([key]) => key !== 'prompts')), nameHandoff: supportsNameHandoff(current, config),
+          ...(current.kind === 'pairs' && current.status === 'ready' && state.pairing ? { pairingRound: state.pairing.id } : {}) }); return;
+      }
+      if (path === '/api/pairing' && req.method === 'POST') {
+        if (req.headers.origin !== config.publicOrigin) throw new HttpError(403, 'Same-origin update required');
+        const body = await readJson(req);
+        exactKeys(body, ['roundId', 'token', 'action', 'expectedPromptRevision'], 'pairing');
+        if (typeof body.token !== 'string' || !/^[a-f0-9-]{36}$/.test(body.token) ||
+            typeof body.roundId !== 'string' || !['join', 'leave', 'next-prompt', 'skip-prompt'].includes(body.action))
+          throw new HttpError(400, 'Invalid pairing request');
+        const promptAction = ['next-prompt', 'skip-prompt'].includes(body.action);
+        if (promptAction && (!Number.isSafeInteger(body.expectedPromptRevision) || body.expectedPromptRevision < 0 || body.expectedPromptRevision >= Number.MAX_SAFE_INTEGER))
+          throw new HttpError(400, 'Provide expectedPromptRevision');
+        const key = participantKey(body.token);
+        const write = writes.then(async () => {
+          const current = state.activities.find(item => item.id === state.activeId);
+          if (current.kind !== 'pairs' || current.status !== 'ready' || state.pairing?.id !== body.roundId)
+            throw new HttpError(409, 'The pairing invitation changed. Refresh this page.');
+          let pairing;
+          if (promptAction) {
+            const number = state.pairing.pairs.findIndex(pair => pair.includes(key)) + 1;
+            if (!number) throw new HttpError(409, 'Find your partner before requesting a suggestion.');
+            pairing = changePairPrompt(state.pairing, number, current.prompts ?? [], body.action, body.expectedPromptRevision);
+          } else if (body.action === 'leave') {
+            pairing = structuredClone(state.pairing);
+            pairing.waiting = pairing.waiting.filter(item => item.key !== key);
+            if (!pairing.waiting.length) pairing.nextBatchAt = null;
+          } else pairing = joinPairing(state.pairing, key);
+          if (!pairing) throw new HttpError(409, 'Pairing is full. Ask the facilitator for a partner.');
+          if (JSON.stringify(pairing) !== JSON.stringify(state.pairing)) {
+            const next = { ...state, pairing };
+            await atomicSave(statePath, next); state = next;
+          }
+          const result = pairingResult(pairing, key, current.prompts ?? []);
+          return body.action === 'leave' && result.status !== 'paired' ? { status: 'left' } : result;
+        });
+        writes = write.catch(() => {});
+        reply(200, await write); return;
       }
       if (path === '/api/operator/state' && req.method === 'GET') { reply(200, operatorState(state)); return; }
       if (path === '/api/operator/profiles' && req.method === 'GET') { reply(200, profiles); return; }
@@ -403,7 +458,8 @@ export async function createHub(config) {
         const write = writes.then(async () => {
           if (body.expectedRevision !== state.revision) throw new HttpError(409, 'The manifest changed. Reload before saving.');
           const next = { schemaVersion: 1, revision: state.revision + 1,
-            updatedAt: new Date().toISOString(), ...selection, ...(state.runId ? { runId: state.runId } : {}) };
+            updatedAt: new Date().toISOString(), ...selection, ...(state.runId ? { runId: state.runId } : {}), ...(state.pairing ? { pairing: state.pairing } : {}) };
+          preparePairing(next);
           await atomicSave(statePath, next);
           state = next;
           return next;

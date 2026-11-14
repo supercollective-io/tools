@@ -4,7 +4,7 @@ The independent participant entrance is deployed at **https://we.supercollective
 
 A ready digital activity shows its state, title and a “Join activity” link. Room instructions appear only when there is no activity to open (waiting, unavailable, in-person or closed states). The operator instruction field is hidden for ready digital activities; saved instructions remain available if the activity becomes unavailable. Connection information appears only on failure and clears after recovery. Default activity names apply to new programmes; existing saved names are not migrated.
 
-The public entrance has no registration or participant data. Identity and saved matches remain in the destination apps. Keep using the same browser; a QR scanner's separate browser can lose access to an existing app session. Physical phone and return-session testing is still required.
+The public entrance has no account registration. Random pairing uses an anonymous browser token; Hub saves its hash and assignment privately. Names and app-specific matches remain in the destination apps. Keep using the same browser; a QR scanner's separate browser can lose access to an existing app session. Physical phone and return-session testing is still required.
 
 ## Run and verify
 
@@ -45,7 +45,7 @@ and [show profile operation brief](../../docs/design/show-profile-operation.md).
 
 The shipped profile is **ZKM · 14 November 2026** (`zkm-production-show-14-11-2026`).
 Its revised sequence is: **Arrivals room** (waiting) → **1 · Record individually**
-(on a phone) → **2 · Analogue objects** (in pairs) → **4 · Groups of four** →
+(on a phone) → **2 · Pairs** (in pairs) → **4 · Groups of four** →
 **All · Polymind analysis** (of the original 1 contributions) → Collective Voice
 → Puck → Flight. The closing invitation is removed. Installing a new run preserves the current waiting invitation exactly. Its writing question is “What is something
 you’d like to change, but can’t change on your own?” Its Collective Voice question
@@ -146,7 +146,7 @@ profile source.
 | `HUB_DATA_DIR` | Durable directory; `/data` in the image |
 | `HOST`, `PORT` | `0.0.0.0`, `3000` in the image |
 
-`/healthz` checks application readiness and writable storage. Public `/api/current` exposes only revision, timestamp and the current invitation. `/api/operator/config` supplies the allowed website choices and app-control origins privately. `/api/operator/state` reads/updates the full programme privately. A PUT accepts `{expectedRevision, activeId, activities}`; stale edits return 409. Activity fields are `id`, `label`, `kind`, `status`, `instruction`, and a participant `url` only for a ready digital activity. The allowed kinds are `activity`, `analogue`, `waiting`, `closed`; status is `ready` or `unavailable`.
+`/healthz` checks application readiness and writable storage. Public `/api/current` exposes only revision, timestamp and the current invitation. `/api/operator/config` supplies the allowed website choices and app-control origins privately. `/api/operator/state` reads/updates the full programme privately. A PUT accepts `{expectedRevision, activeId, activities}`; stale edits return 409. Activity fields are `id`, `label`, `kind`, `status`, `instruction`, and a participant `url` only for a ready digital activity. The allowed kinds are `activity`, `analogue`, `pairs`, `waiting`, `closed`; status is `ready` or `unavailable`.
 
 URLs require HTTPS and an explicitly allowed origin. Credentials, fragments, known control/projection paths and credential-bearing query fields are rejected. Flight's public invitation is accepted only as `https://fly.supercollective.io/?key=...`, with that origin explicitly allowlisted and one URL-safe opaque key of 24–128 characters. This checks the public route and key shape only: the Hub cannot verify that the value is Flight's participant key rather than another Flight secret. Operators must copy Flight's audience invitation; Flight's bridge key belongs in its Bearer header and must never be put in a URL. Operators must still open and check the actual participant page before saving it. Do not add private control URLs to any activity field.
 
@@ -230,3 +230,75 @@ invitation explicitly while waiting, or launch a fresh rehearsal.
 Deploy the compatible Flight API before enabling its token in Hub. Existing manual
 invitations continue working without the API. Source changes alone do not configure
 or deploy either service.
+
+## Random pairs
+
+The **2 · Pairs** cue in new show runs uses Hub’s `pairs` mode. For an existing
+installed show, edit its pairs invitation in Preparation, set **What should people
+do? → Find a random partner**, and save it. Existing saved runs are not migrated.
+Use the ordinary live cue to show it. No Match worker or model is involved.
+
+Participants choose **Find me a partner**. Hub gathers arrivals for about 12 seconds,
+shuffles the batch and assigns disjoint pairs. A remaining person waits for another
+arrival or asks the facilitator; they can leave the waiting list. Waiting entries expire after 20 seconds without
+a poll and rejoin when the page becomes active again. Late arrivals
+form further batches without changing existing assignments. This is random within
+each batch, not a uniform shuffle of everyone who will eventually enter the room.
+
+Both phones show the same number, colour and shape. Numbers are unique within the
+pairing round; colour/shape combinations repeat after 25 pairs, so participants must
+check the number. The phone display and spoken number complement facilitation;
+recognition at venue distances has not been verified. Missing partners and an odd
+final participant need facilitator help. The fours cue remains an in-person invitation.
+
+The browser saves an anonymous token and current round in local storage. Use one
+browser per participant. Refreshing or restarting Hub retains assignments. Clearing
+storage or changing browser loses that identity; ask the facilitator rather than
+joining repeatedly. With storage blocked, recovery lasts only while the page remains
+open. Names and contributions are not used for pairing. Only a token hash is persisted.
+
+Pairing data lives in the private `state.json`, covered by its existing backup.
+Returning to the same pairs cue retains assignments. Installing a different run
+clears them; activating a different pairs activity starts a new round. There is no
+automatic reshuffle or reassignment of absent people. The round is bounded to 1000
+participants. Shared suggestions are configured separately for each pairs invitation.
+
+### Shared discussion suggestions
+
+The performance profile loads its prompt pool automatically when a new run is
+created. No manual paste is needed. Prompt definitions live in
+[`profiles/prompt-pools.json`](profiles/prompt-pools.json); the pairs activity in
+[`profiles/zkm-production-show-14-11-2026.json`](profiles/zkm-production-show-14-11-2026.json)
+selects it with `"promptPool": "pairs"`. This currently loads all 28 pair prompts.
+Optionally add `"promptIds": ["whisper", "balance-bottle"]` to select an ordered
+subset; an empty list disables suggestions. Unknown pools/IDs and duplicate IDs
+fail rather than silently dropping prompts. Inline `prompts` and a pool selector
+cannot be combined. Fours are catalogued separately for future use; the existing
+fours cue does not draw prompts.
+
+The resolved text is saved in each run. Catalogue or profile edits affect new runs
+only: resuming a saved run retains its exact prompt list, including an empty legacy
+list. The bundled catalogue ships with the Hub image and needs no sibling checkout.
+Performance notes remain in the performance repository.
+
+For a per-performance override, edit the pairs invitation in Preparation and use
+**Pair suggestions**, one per line (up to 64, each up to 300 characters). Save the
+invitation before showing it.
+Include only props available for that performance. A blank list leaves conversation
+available without a suggestion button. Editing the list does not rematch participants.
+
+After meeting, each participant chooses **We’ve found each other**. Either partner
+can choose **Try something together**, **Try another**, or **Continue without a
+suggestion**. The pair shares one current suggestion or skipped state; both phones
+refresh it about every two seconds. Suggestions do not repeat until the list is
+exhausted, and the next cycle avoids repeating the last suggestion immediately.
+With only one suggestion, there is no **Try another** button while it is shown.
+Participants can adapt the activity verbally and use **Show pair …** to return to
+the identifying screen without losing their suggestion.
+
+A refresh or server restart preserves the pair’s suggestion. The browser also
+remembers whether it has entered conversation view. Simultaneous taps and retries
+against the same suggestion revision produce one shared update. If a request fails,
+Hub keeps the last displayed suggestion and reads the saved result on the next poll;
+it does not automatically draw another. Editing the catalogue changes subsequent
+draws; the currently displayed suggestion remains until replaced or skipped.

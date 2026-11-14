@@ -19,8 +19,8 @@ const profileId = 'zkm-production-show-14-11-2026';
 const writingQuestion = 'What is something you’d like to change, but can’t change on your own?';
 const voiceQuestion = 'What would you like us to become capable of together that feels impossible alone?';
 const puckQuestion = 'What shall we do with this plane?';
-const sequence = 'Arrivals room → 1 · Record individually → 2 · Analogue objects → 4 · Groups of four → All · Polymind analysis → Collective Voice → Puck → Flight';
-const analogueInstruction = 'Put your phone away and work in pairs with the analogue objects.';
+const sequence = 'Arrivals room → 1 · Record individually → 2 · Pairs → 4 · Groups of four → All · Polymind analysis → Collective Voice → Puck → Flight';
+const analogueInstruction = 'Find the person with the same pair number. Show them your screen to check.';
 const fourInstruction = 'Work in groups of four. Keep your phone away.';
 const config = configuration({
   HUB_OPERATOR_PASSWORD: password,
@@ -211,9 +211,55 @@ try {
   let liveState = await (await operator.request.get(`${base}/api/operator/state`)).json();
   assert.equal(liveState.activities.find(item => item.id === 'polymind').url, writingUrl);
 
-  await operator.getByRole('button', { name: 'Show invitation: 2 · Analogue objects', exact: true }).click();
-  await expect(participant.getByRole('heading', { name: '2 · Analogue objects' })).toBeVisible();
-  await expect(participant.locator('#instruction')).toHaveText(analogueInstruction);
+  const profilePrompts = liveState.activities.find(item => item.id === 'analogue').prompts;
+  assert.equal(profilePrompts.length, 28, 'The profile loads its pool without manual preparation');
+  await operator.getByRole('button', { name: 'Show invitation: 2 · Pairs', exact: true }).click();
+  await expect(participant.getByRole('heading', { name: '2 · Pairs' })).toBeVisible();
+  await expect(participant.locator('#pairing')).toBeVisible();
+  // Two independent phones share one saved assignment, without sharing identity.
+  const partnerContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const partner = await partnerContext.newPage();
+  await partner.goto(base);
+  await participant.getByRole('button', { name: 'Find me a partner' }).click();
+  await partner.getByRole('button', { name: 'Find me a partner' }).click();
+  await expect(participant.locator('#pair-marker')).toBeVisible({ timeout: 20000 });
+  await expect(partner.locator('#pair-marker')).toBeVisible({ timeout: 20000 });
+  const pairNumber = await participant.locator('#pair-number').textContent();
+  await expect(partner.locator('#pair-number')).toHaveText(pairNumber);
+  await participant.reload();
+  await expect(participant.locator('#pair-number')).toHaveText(pairNumber);
+  for (const width of [320, 390, 1100]) {
+    await participant.setViewportSize({ width, height: 844 });
+    assert.equal(await participant.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await participant.screenshot({ path: join(output, `pairing-${width}.png`), fullPage: true });
+  }
+  await participant.setViewportSize({ width: 390, height: 844 });
+  await participant.getByRole('button', { name: 'We’ve found each other', exact: true }).click();
+  await partner.getByRole('button', { name: 'We’ve found each other', exact: true }).click();
+  await participant.getByRole('button', { name: 'Try something together', exact: true }).click();
+  await expect(participant.getByRole('button', { name: 'Try another', exact: true })).toBeVisible();
+  const firstPrompt = await participant.locator('#pair-prompt-text').textContent();
+  assert.ok(profilePrompts.includes(firstPrompt));
+  await expect(partner.locator('#pair-prompt-text')).toHaveText(firstPrompt);
+  await partner.getByRole('button', { name: 'Try another', exact: true }).click();
+  await expect(partner.locator('#pair-prompt-text')).not.toHaveText(firstPrompt);
+  const secondPrompt = await partner.locator('#pair-prompt-text').textContent();
+  await expect(participant.locator('#pair-prompt-text')).toHaveText(secondPrompt);
+  await participant.reload();
+  await expect(participant.locator('#pair-conversation')).toBeVisible();
+  await expect(participant.locator('#pair-prompt-text')).toHaveText(secondPrompt);
+  for (const width of [320, 390, 1100]) {
+    await participant.setViewportSize({ width, height: 844 });
+    assert.equal(await participant.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await participant.screenshot({ path: join(output, `pair-prompt-${width}.png`), fullPage: true });
+  }
+  await participant.setViewportSize({ width: 390, height: 844 });
+  await partner.getByRole('button', { name: 'Continue without a suggestion', exact: true }).click();
+  await expect(participant.locator('#pair-prompt-text')).toHaveText('Continue your conversation.');
+  await participant.getByRole('button', { name: `Show pair ${pairNumber}`, exact: true }).click();
+  await expect(participant.locator('#pair-marker')).toBeVisible();
+  await expect(participant.locator('#pair-number')).toHaveText(pairNumber);
+  await partnerContext.close();
   await operator.screenshot({ path: join(output, 'profile-live-cue-desktop.png'), fullPage: true });
   await operator.setViewportSize({ width: 390, height: 844 });
   assert.equal(await operator.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,
@@ -239,9 +285,9 @@ try {
     'Changing activity cues must not create app resources or update app preparation');
   await expect(participant.getByRole('link', { name: 'Join activity' })).toHaveAttribute('href', writingUrl);
 
-  await operator.getByRole('button', { name: 'Show invitation: 2 · Analogue objects', exact: true }).click();
-  await expect(participant.getByRole('heading', { name: '2 · Analogue objects' })).toBeVisible();
-  await expect(participant.locator('#instruction')).toHaveText(analogueInstruction);
+  await operator.getByRole('button', { name: 'Show invitation: 2 · Pairs', exact: true }).click();
+  await expect(participant.getByRole('heading', { name: '2 · Pairs' })).toBeVisible();
+  await expect(participant.locator('#pairing')).toBeVisible();
   assert.equal(upstream.filter(item => item.method === 'POST' || item.method === 'PUT').length, upstreamMutationsBeforeCues,
     'Returning to the analogue cue must not create or reconfigure an app');
   await operator.screenshot({ path: join(output, 'profile-live-cue-desktop.png'), fullPage: true });
@@ -272,8 +318,8 @@ try {
   const liveCueRows = await operator.locator('#cues .cue-row').allTextContents();
   assert.match(liveCueRows[3], /Next activity · In person/,
     'Groups of four must remain the next cue after the analogue activity');
-  await expect(participant.getByRole('heading', { name: '2 · Analogue objects' })).toBeVisible();
-  await expect(participant.locator('#instruction')).toHaveText(analogueInstruction);
+  await expect(participant.getByRole('heading', { name: '2 · Pairs' })).toBeVisible();
+  await expect(participant.locator('#pairing')).toBeVisible();
 
   const postedResourceCount = upstream.filter(item => item.method === 'POST').length;
   const resourceIds = [...polymindSessions.keys(), ...puckRooms.keys()];
@@ -293,8 +339,8 @@ try {
     'Resuming and checking a saved run must not create new app resources');
   assert.deepEqual([...polymindSessions.keys(), ...puckRooms.keys()], resourceIds,
     'A resumed run must retain its original Polymind sessions and Puck room');
-  await expect(participant.getByRole('heading', { name: '2 · Analogue objects' })).toBeVisible();
-  await expect(participant.locator('#instruction')).toHaveText(analogueInstruction);
+  await expect(participant.getByRole('heading', { name: '2 · Pairs' })).toBeVisible();
+  await expect(participant.locator('#pairing')).toBeVisible();
 
   await operator.getByRole('tab', { name: 'Preparation' }).click();
   await operator.screenshot({ path: join(output, 'profile-prepared-puck-desktop.png'), fullPage: true });

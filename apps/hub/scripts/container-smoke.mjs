@@ -23,7 +23,7 @@ async function ready(base, path = '/healthz') {
 }
 try {
   docker('volume', 'create', volume);
-  docker('run', '--detach', '--rm', '--name', name, '--publish', '127.0.0.1::3000',
+  docker('run', '--detach', '--name', name, '--publish', '127.0.0.1::3000',
     '--mount', `type=volume,source=${volume},target=/data`, '--env', `HUB_OPERATOR_PASSWORD=${password}`, '--env', `COOLIFY_URL=https://www.we.supercollective.io,${origin}`, image);
   started = true;
   let base = `http://${docker('port', name, '3000/tcp')}`;
@@ -61,6 +61,8 @@ try {
   if (started) console.error(docker('logs', name));
   throw error;
 } finally {
-  if (started) docker('stop', name);
+  // Explicit removal waits for the container to release its volume; --rm after
+  // docker stop can still be removing the container when volume removal starts.
+  if (started) docker('rm', '--force', name);
   docker('volume', 'rm', volume);
 }

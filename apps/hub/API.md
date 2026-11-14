@@ -38,7 +38,7 @@ API](../puck/docs/operator-api.md).
 
 The Show profiles controls use the named profile
 `zkm-production-show-14-11-2026`. Its revised sequence is Arrivals room (waiting),
-1 · Record individually, 2 · Analogue objects, 4 · Groups of four, All · Polymind
+1 · Record individually, 2 · Pairs, 4 · Groups of four, All · Polymind
 analysis, Collective Voice, Puck, and Flight. The closing invitation is removed.
 The profile's `activityBindings` maps one bounded Polymind session to both the 1
 and All invitations; those cues share the same session and round. Collective Voice
@@ -94,7 +94,7 @@ bounded show flow](../../docs/operations.md#bounded-show-flow) and [recording
 operations](../../docs/operations.md#collective-microphone-and-historical-operations).
 
 For `POST /api/operator/runs`, `settings` contains `writingQuestion` and
-`voiceQuestion` (up to 2,000 characters each), `model`, optional `voiceModel`, `puckQuestion` (up to 240
+`voiceQuestion` (up to 2,000 characters each), `model`, optional `voiceModel`, `puckQuestion` (up to 640
 characters), `puckOptions`, and optional `flightUrl`. `model` contains `provider`
 (`openai` or `ollama`), the exact `model` ID, optional OpenAI `reasoningEffort`
 (`none`, `low`, `medium` or `high`), `maxInputCharacters` (1–1,000,000),
@@ -192,3 +192,56 @@ is not sent in HTTP requests. A destination consumes and removes it immediately,
 then prefills its own join form; joining uses its existing API and identity rules.
 The name is not authentication, and no cross-origin credentials are transferred.
 If storage is unavailable, the name remains usable for the current page visit.
+
+## Participant pairing
+
+A ready `pairs` activity exposes `pairingRound` in `GET /api/current`. It does not
+expose membership. `POST /api/pairing` requires same-origin JSON with
+`{roundId, token, action}`. The browser generates a random UUID token and saves it
+locally before joining; actions are `join` and `leave`. Never put the token in a URL.
+`join` is idempotent and doubles as a poll while waiting. It returns
+`{roundId, status: "waiting"}` or `{roundId, status: "paired", number}` for that token.
+`leave` removes only waiting membership, never changes a completed pair, and returns
+`{status: "left"}` (or the existing pair if assignment won the race). Requests for an inactive or superseded round return 409.
+
+Mutations use the same serial queue and atomic file save as programme changes.
+Participant updates do not advance the operator programme revision. The private
+operator state reports only `pairingSummary: {pairs, waiting}`, not tokens or hashes.
+Saved state gains an optional `pairing` record; old states without it remain valid.
+Back up the complete state file, and do not expose it publicly.
+
+### Shared pair suggestions
+
+Pair activities accept optional `prompts: string[]`: at most 64 nonblank strings,
+each at most 300 characters. Validation trims and deduplicates them. Other activity
+kinds reject this field. The catalogue is available in the private programme editor
+but is omitted from `GET /api/current`.
+
+A paired `/api/pairing` response now includes `promptCount` and
+`prompt: {revision, status, text?}`. Status is `none`, `shown` or `skipped`; only a
+shown prompt includes text. Poll with `action: "join"` to receive the pair’s latest
+state. No other pair’s state or draw history is exposed.
+
+`next-prompt` and `skip-prompt` actions additionally require
+`expectedPromptRevision`, a nonnegative safe integer below `Number.MAX_SAFE_INTEGER`.
+Only an already paired token can change a suggestion. If the expected revision is
+stale, the route returns the current result without another mutation. This makes
+lost-response retries safe and coalesces simultaneous partner taps. Draws and skips
+share the programme’s serial write queue and atomic save. No model is called.
+
+The optional `pairing.prompts` map in private saved state stores each pair’s current
+suggestion, revision and bounded draw history. Older saved rounds without this map
+start with prompt revision zero. Catalogue changes affect future draws; existing
+shown text remains stable until the pair changes or skips it.
+
+
+### Profile prompt selection
+
+Source profile activities may specify `promptPool` and optional `promptIds`.
+`programme()` resolves them using `profiles/prompt-pools.json` at run creation,
+strips these source-only fields, and saves ordinary `prompts` text in the run.
+Omitting `promptIds` selects the whole pool; `[]` selects none. Selected IDs must
+be unique and belong to the pool. Currently only the `pairs` pool can be bound to
+a `pairs` activity; the fours catalogue is reserved for a later group flow.
+Unknown or incompatible selections fail preparation. Existing saved runs are
+never re-resolved or backfilled, including when resumed after a deployment.

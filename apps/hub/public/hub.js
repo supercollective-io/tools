@@ -1,3 +1,4 @@
+import { showPairing } from './pairing.js';
 const title = document.querySelector('#activity-title');
 const instruction = document.querySelector('#instruction');
 const phase = document.querySelector('#phase');
@@ -56,15 +57,16 @@ async function refresh() {
     if (revision !== state.revision) {
       const current = state.current;
       title.textContent = current.label;
-      phase.hidden = current.kind === 'analogue';
+      phase.hidden = ['analogue', 'pairs'].includes(current.kind);
+      showPairing(state.pairingRound);
       instruction.textContent = current.instruction;
-      phase.textContent = { activity: 'Current activity', analogue: 'In-person activity',
+      phase.textContent = { activity: 'Current activity', analogue: 'In-person activity', pairs: 'Find a partner',
         waiting: 'Waiting', closed: 'Finished' }[current.kind];
       const canOpen = current.kind === 'activity' && current.status === 'ready' && current.url;
       handoff = Boolean(canOpen && state.nameHandoff);
       nameArea.hidden = !handoff;
       link.hidden = !canOpen;
-      instruction.hidden = Boolean(canOpen) || !current.instruction;
+      instruction.hidden = Boolean(canOpen) || Boolean(state.pairingRound) || !current.instruction;
       if (canOpen) { link.href = current.url; link.textContent = 'Join activity'; }
       else link.removeAttribute('href');
       revision = state.revision;
