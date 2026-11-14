@@ -609,6 +609,10 @@ test('missing Flight configuration leaves the invitation unprepared and manual o
 
 
 test('profile pools expand to saved text and explicit IDs select an ordered subset', () => {
+  const four = programme().find(item => item.id === 'four');
+  assert.equal(four.kind, 'fours');
+  assert.ok(four.prompts.length > 0);
+  assert.equal(four.promptPool, undefined);
   const full = programme().find(item => item.id === 'analogue');
   assert.equal(full.prompts.length, 28);
   assert.equal(full.promptPool, undefined);

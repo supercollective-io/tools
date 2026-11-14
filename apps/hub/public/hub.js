@@ -57,10 +57,10 @@ async function refresh() {
     if (revision !== state.revision) {
       const current = state.current;
       title.textContent = current.label;
-      phase.hidden = ['analogue', 'pairs'].includes(current.kind);
-      showPairing(state.pairingRound);
+      phase.hidden = ['analogue', 'pairs', 'fours'].includes(current.kind);
+      showPairing(state.pairingRound, current.kind);
       instruction.textContent = current.instruction;
-      phase.textContent = { activity: 'Current activity', analogue: 'In-person activity', pairs: 'Find a partner',
+      phase.textContent = { activity: 'Current activity', analogue: 'In-person activity', pairs: 'Find a partner', fours: 'Find your group',
         waiting: 'Waiting', closed: 'Finished' }[current.kind];
       const canOpen = current.kind === 'activity' && current.status === 'ready' && current.url;
       handoff = Boolean(canOpen && state.nameHandoff);

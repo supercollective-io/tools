@@ -353,3 +353,58 @@ test('suggestion catalogues are bounded, deduplicated and limited to pairs invit
   }
   assert.throws(() => validateSelection({ activeId: 'pairs', activities: [{ ...activity, kind: 'waiting' }] }, config), { status: 400 });
 });
+
+test('fours API preserves pairs, private identities, prompt revisions and assignments across cue changes and restart', async () => {
+  const { newPairing, participantKey } = await import('../pairing.mjs');
+  const { randomUUID } = await import('node:crypto');
+  const directory = await mkdtemp(join(temporary, 'fours-'));
+  let app = await serve(directory);
+  const tokens = Array.from({ length: 6 }, () => randomUUID());
+  let roundId;
+  const request = (token, action = 'join', expectedPromptRevision) => fetch(`${app.base}/api/pairing`, {
+    method: 'POST', headers: { origin: config.publicOrigin, 'content-type': 'application/json' },
+    body: JSON.stringify({ token, roundId, action, expectedPromptRevision }),
+  });
+  const getState = async () => (await fetch(`${app.base}/api/operator/state`, { headers: authenticated })).json();
+  try {
+    await app.close();
+    const path = join(directory, 'state.json');
+    const saved = JSON.parse(await readFile(path, 'utf8'));
+    saved.pairing = newPairing('pairs');
+    saved.pairing.pairs = [tokens.slice(0, 2), tokens.slice(2, 4), tokens.slice(4, 6)].map(pair => pair.map(participantKey));
+    saved.activities.push({ id: 'pairs', label: '2 · Pairs', kind: 'pairs', status: 'ready', instruction: '' },
+      { id: 'four', label: '4 · Groups of four', kind: 'fours', status: 'ready', instruction: '', prompts: ['Synthetic fours A.', 'Synthetic fours B.'] });
+    await writeFile(path, JSON.stringify(saved));
+    app = await serve(directory);
+    let state = await getState(); state.activeId = 'four';
+    assert.equal((await put(app.base, state)).status, 200);
+    const current = await (await fetch(`${app.base}/api/current`)).json();
+    roundId = current.pairingRound;
+    assert.equal(current.current.prompts, undefined);
+    const results = await Promise.all(tokens.map(token => request(token).then(response => response.json())));
+    assert.equal(results.filter(result => result.status === 'paired').length, 4);
+    assert.equal(results.filter(result => result.status === 'unmatched-pair').length, 2);
+    for (let i = 0; i < 6; i += 2) assert.deepEqual(results[i], results[i + 1]);
+    const members = tokens.filter((_, i) => results[i].status === 'paired');
+    const concurrent = await Promise.all(members.map(token => request(token, 'next-prompt', 0).then(response => response.json())));
+    assert.ok(concurrent.every(result => result.prompt.revision === 1));
+    assert.ok(concurrent.every(result => result.prompt.text === concurrent[0].prompt.text));
+    assert.equal((await request(randomUUID(), 'next-prompt', 0)).status, 409);
+    assert.equal((await (await request(randomUUID())).json()).status, 'not-paired');
+    state = await getState();
+    assert.equal(state.fours, undefined);
+    assert.equal(state.pairing, undefined);
+    assert.deepEqual(state.foursSummary, { groups: 1, unmatchedPairs: 1 });
+    state.activeId = 'pairs'; assert.equal((await put(app.base, state)).status, 200);
+    assert.equal((await request(members[0])).status, 409);
+    state = await getState(); state.activeId = 'four'; assert.equal((await put(app.base, state)).status, 200);
+    await app.close(); app = await serve(directory);
+    assert.deepEqual(await (await request(members[0])).json(), concurrent[0]);
+    assert.equal((await fetch(`${app.base}/api/operator/group-defaults`)).status, 401);
+    const defaults = await (await fetch(`${app.base}/api/operator/group-defaults`, { headers: authenticated })).json();
+    assert.deepEqual(defaults.map(item => item.kind), ['pairs', 'fours']);
+    assert.equal(defaults[0].label, '2 · Pairs');
+    assert.ok(defaults.every(item => item.prompts.length > 0));
+    assert.equal(JSON.stringify(await getState()).includes(participantKey(tokens[0])), false);
+  } finally { if (app.server.listening) await app.close(); }
+});

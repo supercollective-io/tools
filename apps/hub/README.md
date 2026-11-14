@@ -146,7 +146,7 @@ profile source.
 | `HUB_DATA_DIR` | Durable directory; `/data` in the image |
 | `HOST`, `PORT` | `0.0.0.0`, `3000` in the image |
 
-`/healthz` checks application readiness and writable storage. Public `/api/current` exposes only revision, timestamp and the current invitation. `/api/operator/config` supplies the allowed website choices and app-control origins privately. `/api/operator/state` reads/updates the full programme privately. A PUT accepts `{expectedRevision, activeId, activities}`; stale edits return 409. Activity fields are `id`, `label`, `kind`, `status`, `instruction`, and a participant `url` only for a ready digital activity. The allowed kinds are `activity`, `analogue`, `pairs`, `waiting`, `closed`; status is `ready` or `unavailable`.
+`/healthz` checks application readiness and writable storage. Public `/api/current` exposes only revision, timestamp and the current invitation. `/api/operator/config` supplies the allowed website choices and app-control origins privately. `/api/operator/state` reads/updates the full programme privately. A PUT accepts `{expectedRevision, activeId, activities}`; stale edits return 409. Activity fields are `id`, `label`, `kind`, `status`, `instruction`, and a participant `url` only for a ready digital activity. The allowed kinds are `activity`, `analogue`, `pairs`, `fours`, `waiting`, `closed`; status is `ready` or `unavailable`.
 
 URLs require HTTPS and an explicitly allowed origin. Credentials, fragments, known control/projection paths and credential-bearing query fields are rejected. Flight's public invitation is accepted only as `https://fly.supercollective.io/?key=...`, with that origin explicitly allowlisted and one URL-safe opaque key of 24–128 characters. This checks the public route and key shape only: the Hub cannot verify that the value is Flight's participant key rather than another Flight secret. Operators must copy Flight's audience invitation; Flight's bridge key belongs in its Bearer header and must never be put in a URL. Operators must still open and check the actual participant page before saving it. Do not add private control URLs to any activity field.
 
@@ -249,7 +249,7 @@ Both phones show the same number, colour and shape. Numbers are unique within th
 pairing round; colour/shape combinations repeat after 25 pairs, so participants must
 check the number. The phone display and spoken number complement facilitation;
 recognition at venue distances has not been verified. Missing partners and an odd
-final participant need facilitator help. The fours cue remains an in-person invitation.
+final participant need facilitator help. The fours cue joins two existing pairs, as described below.
 
 The browser saves an anonymous token and current round in local storage. Use one
 browser per participant. Refreshing or restarting Hub retains assignments. Clearing
@@ -265,7 +265,7 @@ participants. Shared suggestions are configured separately for each pairs invita
 
 ### Shared discussion suggestions
 
-The performance profile loads its prompt pool automatically when a new run is
+The performance profile loads both prompt pools automatically when a new run is
 created. No manual paste is needed. Prompt definitions live in
 [`profiles/prompt-pools.json`](profiles/prompt-pools.json); the pairs activity in
 [`profiles/zkm-production-show-14-11-2026.json`](profiles/zkm-production-show-14-11-2026.json)
@@ -273,8 +273,8 @@ selects it with `"promptPool": "pairs"`. This currently loads all 28 pair prompt
 Optionally add `"promptIds": ["whisper", "balance-bottle"]` to select an ordered
 subset; an empty list disables suggestions. Unknown pools/IDs and duplicate IDs
 fail rather than silently dropping prompts. Inline `prompts` and a pool selector
-cannot be combined. Fours are catalogued separately for future use; the existing
-fours cue does not draw prompts.
+cannot be combined. The fours activity selects `"promptPool": "fours"` and loads its separate pool by default.
+Pools must match the invitation kind (`pairs` or `fours`).
 
 The resolved text is saved in each run. Catalogue or profile edits affect new runs
 only: resuming a saved run retains its exact prompt list, including an empty legacy
@@ -302,3 +302,30 @@ against the same suggestion revision produce one shared update. If a request fai
 Hub keeps the last displayed suggestion and reads the saved result on the next poll;
 it does not automatically draw another. Editing the catalogue changes subsequent
 draws; the currently displayed suggestion remains until replaced or skipped.
+
+### Groups of four
+
+The **4 · Groups of four** cue uses `fours` mode. On first activation, Hub shuffles
+completed pairs from the current pairs round and combines two whole pairs per
+group. All four phones show the same group number, colour and shape automatically.
+Each participant chooses **We’ve found our group**; anyone can draw, replace or
+skip a shared suggestion from the fours pool. Suggestions use the same revision
+and persistence protections as pair suggestions.
+
+An odd remaining pair stays together and sees facilitator guidance. A browser
+without an assigned pair also receives facilitator guidance. Keep the same browser
+between pairs and fours. Hub does not split pairs or automatically add a fifth
+person. Grouping is a snapshot at the first fours cue: finish pairing before
+showing it. Late pairs are not inserted into existing groups. Returning to the
+same cue and restarting Hub retain the grouping and prompts. Starting a different
+pairs round or installing another run clears the fours grouping.
+
+In Preparation, **Fours suggestions** allows the same per-invitation editing as
+**Pair suggestions**. For an older ZKM show, edit its pairs or fours invitation
+and choose **Use ZKM pair and fours defaults for this invitation**. This fills
+that invitation’s title, mode, instruction and full prompt pool in the editor.
+Review and **Save invitation**; saving a live invitation requires confirmation.
+This preserves app sessions and other invitations. It does not rewrite the saved
+run snapshot, so apply it again if that old run is installed as a different
+programme. The existing internal pairs ID `analogue` remains stable for saved
+show compatibility; the participant title is **2 · Pairs**.
