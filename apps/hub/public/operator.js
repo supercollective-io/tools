@@ -70,7 +70,7 @@ function showMode(next) {
 function ready(activity) { return activity.status === 'ready'; }
 function description(activity) {
   if (!ready(activity)) return 'Needs preparation';
-  return { activity: 'Link saved · check before showing', analogue: 'In person', pairs: 'Random pairs', waiting: 'Waiting', closed: 'Closing' }[activity.kind];
+  return { activity: 'Link saved · check before showing', analogue: 'In person', pairs: 'Random pairs', fours: 'Two pairs into four', waiting: 'Waiting', closed: 'Closing' }[activity.kind];
 }
 function cueButton(activity, label = `Show invitation: ${activity.label}`) {
   const node = button(label, () => cue(activity));
@@ -329,7 +329,9 @@ function updateImpact() {
 function updateFields() {
   const digital = form.elements.kind.value === 'activity';
   $('#digital-fields').hidden = !digital;
-  $('#pair-prompts-field').hidden = form.elements.kind.value !== 'pairs';
+  $('#pair-prompts-field').hidden = !['pairs', 'fours'].includes(form.elements.kind.value);
+  $('#group-prompts-label').textContent = form.elements.kind.value === 'fours' ? 'Fours suggestions' : 'Pair suggestions';
+  $('#group-defaults').hidden = !['analogue', 'four'].includes(editingId);
   const app = form.elements.app.value;
   $('#app-preparation').hidden = app === 'manual';
   $('#create-activity').hidden = app === 'flight';
@@ -415,7 +417,7 @@ form.addEventListener('submit', async event => {
   const activity = { id: editingId, label: form.elements.label.value.trim(), kind: form.elements.kind.value,
     status: form.elements.kind.value !== 'activity' || form.elements.destination.value.trim() ? 'ready' : 'unavailable',
     instruction: form.elements.instruction.value.trim() };
-  if (activity.kind === 'pairs') activity.prompts = form.elements.prompts.value.split('\n').map(value => value.trim()).filter(Boolean);
+  if (['pairs', 'fours'].includes(activity.kind)) activity.prompts = form.elements.prompts.value.split('\n').map(value => value.trim()).filter(Boolean);
   if (activity.kind === 'activity' && activity.status === 'ready') {
     try { activity.url = destination(); } catch {
       $('#editor-error').textContent = 'Choose a website for this path, or paste the full participant link.';
@@ -499,3 +501,26 @@ runTools = runPreparation({ getState: () => state, blocked: () => busy || appBus
     void checkActivities();
   } });
 void load();
+
+// Applying defaults edits the form only; the ordinary save and live-confirmation
+// path remains authoritative. It never recreates a run or its app sessions.
+$('#group-defaults').addEventListener('click', async () => {
+  const id = editingId;
+  const button = $('#group-defaults');
+  button.disabled = true;
+  try {
+    const response = await fetch('/api/operator/group-defaults', { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+    if (!response.ok) throw new Error('Could not load defaults. Try again.');
+    const defaults = (await response.json()).find(item => item.id === id);
+    if (editingId !== id || !defaults) return;
+    form.elements.label.value = defaults.label;
+    form.elements.kind.value = defaults.kind;
+    form.elements.instruction.value = defaults.instruction;
+    form.elements.prompts.value = defaults.prompts.join('\n');
+    dirty = true;
+    updateFields();
+  } catch (failure) {
+    $('#editor-error').textContent = failure.message;
+    $('#editor-error').hidden = false;
+  } finally { button.disabled = false; }
+});

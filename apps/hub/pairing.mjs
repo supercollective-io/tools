@@ -5,13 +5,30 @@ export const waitingLeaseMilliseconds = 20000;
 export function newPairing(activityId) {
   return { activityId, id: randomUUID(), waiting: [], pairs: [], nextBatchAt: null };
 }
+// Preserve pairs as indivisible units. Assign once at the fours cue; returning
+// to that cue reuses the saved grouping and shared prompts.
+export function newFours(activityId, pairing, choose = randomInt) {
+  const next = { ...newPairing(activityId), groupSize: 4, sourceRound: pairing?.id ?? null, unmatched: [] };
+  const pairs = structuredClone(pairing?.pairs ?? []);
+  for (let i = pairs.length - 1; i > 0; i--) {
+    const j = choose(i + 1);
+    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+  }
+  while (pairs.length >= 2) next.pairs.push(pairs.splice(0, 2).flat());
+  next.unmatched = pairs.flat();
+  return next;
+}
 export function validatePairing(value) {
   if (!value || typeof value.activityId !== 'string' || !/^[a-z0-9-]{1,80}$/.test(value.activityId) ||
       typeof value.id !== 'string' || !/^[a-f0-9-]{36}$/.test(value.id) ||
       !Array.isArray(value.waiting) || !Array.isArray(value.pairs) ||
-      value.pairs.some(pair => !Array.isArray(pair) || pair.length !== 2) ||
+      value.pairs.some(pair => !Array.isArray(pair) || pair.length !== (value.groupSize ?? 2)) ||
       (value.nextBatchAt !== null && (!Number.isSafeInteger(value.nextBatchAt) || value.nextBatchAt < 0)))
     throw new Error('Invalid saved pairing');
+  if (value.groupSize !== undefined && value.groupSize !== 4) throw new Error('Invalid group size');
+  if (value.groupSize === 4 && (value.waiting.length || value.nextBatchAt !== null ||
+      (value.sourceRound !== null && (typeof value.sourceRound !== 'string' || !/^[a-f0-9-]{36}$/.test(value.sourceRound))) ||
+      !Array.isArray(value.unmatched) || ![0, 2].includes(value.unmatched.length))) throw new Error('Invalid saved fours');
   if (value.waiting.some(entry => !entry || !Number.isSafeInteger(entry.seenAt) || entry.seenAt < 0))
     throw new Error('Invalid saved waiting participant');
   if (value.prompts !== undefined) {
@@ -26,7 +43,7 @@ export function validatePairing(value) {
         throw new Error('Invalid saved pair prompt');
     }
   }
-  const keys = [...value.waiting.map(entry => entry.key), ...value.pairs.flat()];
+  const keys = [...value.waiting.map(entry => entry.key), ...value.pairs.flat(), ...(value.unmatched ?? [])];
   if (keys.length > 1000 || keys.some(key => typeof key !== 'string' || !/^[a-f0-9]{64}$/.test(key)) ||
       new Set(keys).size !== keys.length || (value.waiting.length > 0 && value.nextBatchAt === null))
     throw new Error('Invalid saved pairing participants');
@@ -58,7 +75,7 @@ export function joinPairing(saved, key, now = Date.now(), choose = randomInt) {
 }
 export function pairingResult(pairing, key, catalogue = []) {
   const index = pairing.pairs.findIndex(pair => pair.includes(key));
-  return { roundId: pairing.id, status: index < 0 ? 'waiting' : 'paired',
+  return { roundId: pairing.id, status: index < 0 ? (pairing.groupSize === 4 ? (pairing.unmatched.includes(key) ? 'unmatched-pair' : 'not-paired') : 'waiting') : 'paired',
     ...(index >= 0 ? { number: index + 1, promptCount: catalogue.length,
       prompt: publicPrompt(pairing.prompts?.[index + 1]) } : {}) };
 }

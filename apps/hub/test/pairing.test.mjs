@@ -60,3 +60,28 @@ test('shared suggestions cycle without repeats, coalesce retries and keep skip e
   assert.deepEqual(changePairPrompt(edited, 1, [], 'next-prompt', 6), edited);
   validatePairing(edited);
 });
+
+test('fours combine intact pairs, share prompts and retain an odd pair for facilitation', async () => {
+  const { newFours } = await import('../pairing.mjs');
+  const source = newPairing('pairs');
+  source.pairs = Array.from({ length: 5 }, (_, i) => [participantKey(`${i}-a`), participantKey(`${i}-b`)]);
+  const original = structuredClone(source);
+  let fours = newFours('four', source, () => 0);
+  validatePairing(fours);
+  assert.deepEqual(source, original);
+  assert.equal(fours.pairs.length, 2);
+  assert.equal(fours.unmatched.length, 2);
+  for (const pair of source.pairs) {
+    assert.deepEqual(pairingResult(fours, pair[0]), pairingResult(fours, pair[1]));
+  }
+  assert.equal(pairingResult(fours, fours.unmatched[0]).status, 'unmatched-pair');
+  assert.equal(pairingResult(fours, participantKey('late')).status, 'not-paired');
+  fours = changePairPrompt(fours, 1, ['Synthetic fours prompt.'], 'next-prompt', 0);
+  for (const member of fours.pairs[0]) assert.equal(pairingResult(fours, member).prompt.text, 'Synthetic fours prompt.');
+  assert.deepEqual(changePairPrompt(fours, 1, ['Synthetic fours prompt.'], 'next-prompt', 0), fours);
+  validatePairing(JSON.parse(JSON.stringify(fours)));
+  assert.throws(() => validatePairing({ ...fours, unmatched: [fours.pairs[0][0], fours.pairs[0][1]] }));
+  const empty = newFours('four');
+  validatePairing(empty);
+  assert.equal(pairingResult(empty, participantKey('late')).status, 'not-paired');
+});

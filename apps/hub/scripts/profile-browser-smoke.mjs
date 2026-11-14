@@ -21,7 +21,6 @@ const voiceQuestion = 'What would you like us to become capable of together that
 const puckQuestion = 'What shall we do with this plane?';
 const sequence = 'Arrivals room → 1 · Record individually → 2 · Pairs → 4 · Groups of four → All · Polymind analysis → Collective Voice → Puck → Flight';
 const analogueInstruction = 'Find the person with the same pair number. Show them your screen to check.';
-const fourInstruction = 'Work in groups of four. Keep your phone away.';
 const config = configuration({
   HUB_OPERATOR_PASSWORD: password,
   HUB_DATA_DIR: temporary,
@@ -185,6 +184,21 @@ try {
   assert.deepEqual(installed.activities.map(item => item.id), ['arrival', 'polymind', 'analogue', 'four', 'polymind-all', 'collective-voice', 'puck', 'flight']);
   assert.equal(installed.activeId, 'arrival');
   await operator.getByRole('tab', { name: 'Preparation' }).click();
+  await operator.locator('#manual-programme > summary').click();
+  // Defaults are a reviewable form edit, preserving the installed run and app URLs.
+  for (const [label, kind] of [['2 · Pairs', 'pairs'], ['4 · Groups of four', 'fours']]) {
+    await operator.locator('.prepare-choice').filter({ hasText: label }).click();
+    await operator.getByLabel('What should people do?').selectOption('analogue');
+    await operator.getByRole('button', { name: 'Use ZKM pair and fours defaults for this invitation', exact: true }).click();
+    await expect(operator.getByLabel('What should people do?')).toHaveValue(kind);
+    await expect(operator.getByLabel(kind === 'pairs' ? 'Pair suggestions' : 'Fours suggestions', { exact: true })).not.toHaveValue('');
+    await operator.screenshot({ path: join(output, `profile-${kind}-preparation.png`), fullPage: true });
+    await operator.getByRole('button', { name: 'Save invitation', exact: true }).click();
+    await expect(operator.locator('#feedback')).toContainText(`Saved ${label}`);
+  }
+  const updatedProgramme = await (await operator.request.get(`${base}/api/operator/state`)).json();
+  assert.equal(updatedProgramme.runId, installed.runId);
+  assert.deepEqual(updatedProgramme.activities.filter(item => item.kind === 'activity'), installed.activities.filter(item => item.kind === 'activity'));
   const creations = upstream.filter(item => item.method === 'POST').length;
   await operator.getByRole('button', { name: 'Launch show', exact: true }).click();
   await expect(operator.locator('#run')).toBeVisible();
@@ -259,7 +273,13 @@ try {
   await participant.getByRole('button', { name: `Show pair ${pairNumber}`, exact: true }).click();
   await expect(participant.locator('#pair-marker')).toBeVisible();
   await expect(participant.locator('#pair-number')).toHaveText(pairNumber);
-  await partnerContext.close();
+  const extraContexts = await Promise.all([1, 2].map(() => browser.newContext({ viewport: { width: 390, height: 844 } })));
+  const extras = await Promise.all(extraContexts.map(context => context.newPage()));
+  for (const phone of extras) {
+    await phone.goto(base);
+    await phone.getByRole('button', { name: 'Find me a partner' }).click();
+  }
+  for (const phone of extras) await expect(phone.locator('#pair-marker')).toBeVisible({ timeout: 20000 });
   await operator.screenshot({ path: join(output, 'profile-live-cue-desktop.png'), fullPage: true });
   await operator.setViewportSize({ width: 390, height: 844 });
   assert.equal(await operator.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,
@@ -269,7 +289,33 @@ try {
 
   await operator.getByRole('button', { name: 'Show invitation: 4 · Groups of four', exact: true }).click();
   await expect(participant.getByRole('heading', { name: '4 · Groups of four' })).toBeVisible();
-  await expect(participant.locator('#instruction')).toHaveText(fourInstruction);
+  const phones = [participant, partner, ...extras];
+  const foursPrompts = liveState.activities.find(item => item.id === 'four').prompts;
+  assert.ok(foursPrompts.length > 0);
+  for (const phone of phones) {
+    await expect(phone.getByRole('button', { name: 'We’ve found our group', exact: true })).toBeVisible();
+    await expect(phone.locator('#pair-number')).toHaveText('01');
+    await phone.getByRole('button', { name: 'We’ve found our group', exact: true }).click();
+  }
+  await participant.getByRole('button', { name: 'Try something together', exact: true }).click();
+  await expect(participant.getByRole('button', { name: 'Try another', exact: true })).toBeVisible();
+  const foursPrompt = await participant.locator('#pair-prompt-text').textContent();
+  assert.ok(foursPrompts.includes(foursPrompt));
+  for (const phone of phones) await expect(phone.locator('#pair-prompt-text')).toHaveText(foursPrompt);
+  await extras[0].reload();
+  await expect(extras[0].locator('#pair-prompt-text')).toHaveText(foursPrompt);
+  for (const width of [320, 390, 1100]) {
+    await participant.setViewportSize({ width, height: 844 });
+    assert.equal(await participant.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await participant.screenshot({ path: join(output, `fours-prompt-${width}.png`), fullPage: true });
+  }
+  await participant.setViewportSize({ width: 390, height: 844 });
+  await partner.getByRole('button', { name: 'Continue without a suggestion', exact: true }).click();
+  for (const phone of phones) await expect(phone.locator('#pair-prompt-text')).toHaveText('Continue your conversation.');
+  await participant.getByRole('button', { name: 'Show group 01', exact: true }).click();
+  await participant.screenshot({ path: join(output, 'fours-marker-390.png'), fullPage: true });
+  await partnerContext.close();
+  for (const context of extraContexts) await context.close();
   await operator.getByRole('button', { name: 'Show invitation: All · Polymind analysis', exact: true }).click();
   await expect(participant.getByRole('heading', { name: 'All · Polymind analysis' })).toBeVisible();
   liveState = await (await operator.request.get(`${base}/api/operator/state`)).json();
@@ -316,7 +362,7 @@ try {
     'https://puck.supercollective.io/room/profile-room-1');
   await expect(operator.locator('#run-sequence')).toContainText(sequence);
   const liveCueRows = await operator.locator('#cues .cue-row').allTextContents();
-  assert.match(liveCueRows[3], /Next activity · In person/,
+  assert.match(liveCueRows[3], /Next activity · Two pairs into four/,
     'Groups of four must remain the next cue after the analogue activity');
   await expect(participant.getByRole('heading', { name: '2 · Pairs' })).toBeVisible();
   await expect(participant.locator('#pairing')).toBeVisible();

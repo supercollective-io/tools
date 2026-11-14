@@ -12,6 +12,7 @@ const showNumber = document.querySelector('#pair-show-number');
 const colours = ['blue', 'gold', 'pink', 'orange', 'green'];
 const shapes = ['circle', 'square', 'triangle', 'diamond', 'cross'];
 let round;
+let fours = false;
 let token;
 let joined = false;
 let busy = false;
@@ -24,26 +25,36 @@ const storageKey = 'rw-pairing-v1';
 function remember() {
   try { localStorage.setItem(storageKey, JSON.stringify({ round, token, joined, found })); } catch { /* In-page recovery still works. */ }
 }
-export function showPairing(nextRound) {
+export function showPairing(nextRound, kind = 'pairs') {
+  fours = kind === 'fours';
+  join.textContent = fours ? 'Show my group' : 'Find me a partner';
+  foundButton.textContent = fours ? 'We’ve found our group' : 'We’ve found each other';
+  document.querySelector('.pair-label').textContent = fours ? 'Group' : 'Pair';
+  document.querySelector('#pair-help summary').textContent = fours ? 'Can’t find your group?' : 'Can’t find your partner?';
+  document.querySelector('#pair-help p').textContent = fours
+    ? 'Stay with your partner and show your group number to the facilitator.'
+    : 'Show your number to the facilitator. They can help you find each other or join another pair.';
   panel.hidden = !nextRound;
   document.body.classList.toggle('pairing-active', Boolean(nextRound));
   if (nextRound === round) return;
   round = nextRound;
   joined = false; paired = false; renderedResult = ''; found = false; currentResult = undefined;
-  token = crypto.randomUUID();
+  token ??= crypto.randomUUID();
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey));
-    if (saved?.round === round && /^[a-f0-9-]{36}$/.test(saved.token)) {
-      token = saved.token; joined = saved.joined === true; found = saved.found === true;
+    if (/^[a-f0-9-]{36}$/.test(saved?.token)) {
+      token = saved.token;
+      if (saved.round === round) { joined = saved.joined === true; found = saved.found === true; }
     }
   } catch { /* A missing or invalid saved identity starts a new invitation. */ }
+  if (round && fours) joined = true;
   if (round) remember();
   marker.hidden = true;
   conversation.hidden = true; message.hidden = false;
   error.hidden = true;
   join.hidden = joined;
-  leave.hidden = !joined;
-  message.textContent = joined ? 'Finding you a partner…' : 'Join when you are ready to meet someone.';
+  leave.hidden = fours || !joined;
+  message.textContent = fours ? 'Finding your group…' : joined ? 'Finding you a partner…' : 'Join when you are ready to meet someone.';
   if (round && joined) void update();
 }
 async function update(action = 'join') {
@@ -69,7 +80,7 @@ async function update(action = 'join') {
     if (renderedResult === resultKey) return;
     renderedResult = resultKey;
     currentResult = result;
-    join.hidden = joined; leave.hidden = !joined || paired;
+    join.hidden = joined; leave.hidden = fours || !joined || paired;
     marker.hidden = !paired || found;
     if (paired) {
       const colour = colours[(result.number - 1) % colours.length];
@@ -77,8 +88,13 @@ async function update(action = 'join') {
       document.querySelector('#pair-shape').setAttribute('class', `pair-shape ${colour} ${shape}`);
       document.querySelector('#pair-number').textContent = String(result.number).padStart(2, '0');
       document.querySelector('#pair-description').textContent = `${colour[0].toUpperCase()}${colour.slice(1)} ${shape}`;
-      message.textContent = 'Hold up your screen. Find the same number, then compare screens.';
+      message.textContent = fours ? 'Stay with your partner. Find the other pair with this group number, then compare all four screens.' : 'Hold up your screen. Find the same number, then compare screens.';
       renderConversation();
+    } else if (fours) {
+      conversation.hidden = true; message.hidden = false;
+      message.textContent = result.status === 'unmatched-pair'
+        ? 'There is no other pair available for your group. Stay together and ask the facilitator.'
+        : 'This browser has no pair in this grouping. Ask the facilitator to help you join a group.';
     } else message.textContent = joined
       ? 'Finding you a partner… We shuffle arrivals in batches of about 12 seconds. If you are still waiting, keep this page open or ask the facilitator.'
       : 'Join when you are ready to meet someone.';
@@ -114,12 +130,12 @@ function renderConversation() {
   const shown = prompt.status === 'shown';
   const skipped = prompt.status === 'skipped';
   document.querySelector('#pair-prompt-text').textContent = shown ? prompt.text
-    : skipped || !available ? 'Continue your conversation.' : 'Either of you can get a suggestion.';
+    : skipped || !available ? 'Continue your conversation.' : (fours ? 'Anyone in your group can get a suggestion.' : 'Either of you can get a suggestion.');
   document.querySelector('#pair-prompt-help').hidden = !shown;
   nextPrompt.hidden = !available || (shown && currentResult.promptCount === 1);
   nextPrompt.textContent = shown ? 'Try another' : 'Try something together';
   skipPrompt.hidden = skipped || (!shown && !available);
-  showNumber.textContent = `Show pair ${String(currentResult.number).padStart(2, '0')}`;
+  showNumber.textContent = `Show ${fours ? 'group' : 'pair'} ${String(currentResult.number).padStart(2, '0')}`;
 }
 foundButton.addEventListener('click', () => {
   found = true; remember(); renderConversation();

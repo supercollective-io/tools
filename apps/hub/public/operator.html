@@ -59,7 +59,7 @@
         <div id="editor-controls"></div>
         <p id="edit-impact" class="aside"></p>
         <label class="field">Invitation name<input name="label" maxlength="100" required autocomplete="off"></label>
-        <label class="field">What should people do?<select name="kind"><option value="activity">Open a digital activity</option><option value="pairs">Find a random partner</option><option value="analogue">Take part in person</option><option value="waiting">Wait for the next cue</option><option value="closed">Finish / closing conversation</option></select></label>
+        <label class="field">What should people do?<select name="kind"><option value="activity">Open a digital activity</option><option value="pairs">Find a random partner</option><option value="fours">Join two pairs into four</option><option value="analogue">Take part in person</option><option value="waiting">Wait for the next cue</option><option value="closed">Finish / closing conversation</option></select></label>
         <div id="digital-fields">
           <label class="field">App<select name="app"><option value="polymind">Polymind</option><option value="puck">Puck</option><option value="flight">Flight</option><option value="manual">Another app / participant link</option></select></label>
           <section id="app-preparation" aria-label="Connect an activity">
@@ -92,9 +92,10 @@
         </div>
         <label class="field" id="instruction-field">Instruction for the room<textarea name="instruction" maxlength="1000"></textarea></label>
         <div id="pair-prompts-field" hidden>
-          <label class="field" for="pair-prompts">Pair suggestions<textarea id="pair-prompts" name="prompts" maxlength="19264" aria-describedby="pair-prompts-help"></textarea></label>
+          <label class="field" for="pair-prompts"><span id="group-prompts-label">Pair suggestions</span><textarea id="pair-prompts" name="prompts" maxlength="19264" aria-describedby="pair-prompts-help"></textarea></label>
           <p id="pair-prompts-help" class="aside">One suggestion per line. Up to 64 suggestions, each up to 300 characters. Include only activities available in the room. Leave blank for conversation without suggestions.</p>
         </div>
+        <button id="group-defaults" type="button" hidden>Use ZKM pair and fours defaults for this invitation</button>
         <p id="editor-error" role="alert" tabindex="-1" hidden></p>
         <div class="editor-actions"><button type="submit" class="button">Save invitation</button><button id="cancel" type="button">Cancel editing</button></div>
         <div id="saved-link"></div>

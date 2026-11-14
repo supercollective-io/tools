@@ -17,8 +17,8 @@ export function programme(profile = zkm) {
     const { promptPool, promptIds, ...activity } = structuredClone(source);
     if (promptPool !== undefined) {
       const pool = Object.hasOwn(promptPools, promptPool) ? promptPools[promptPool] : undefined;
-      if (typeof promptPool !== 'string' || !pool || pool.groupSize !== 2 || activity.kind !== 'pairs' || activity.prompts !== undefined)
-        throw new Error('Choose a known pairs prompt pool without inline prompts');
+      if (typeof promptPool !== 'string' || !pool || pool.groupSize !== ({ pairs: 2, fours: 4 })[activity.kind] || activity.prompts !== undefined)
+        throw new Error('Choose a matching group prompt pool without inline prompts');
       const selected = promptIds ?? pool.prompts.map(prompt => prompt.id);
       if (!Array.isArray(selected) || selected.length > 64 || selected.some(id => typeof id !== 'string') || new Set(selected).size !== selected.length)
         throw new Error('Prompt IDs must be a distinct list of up to 64 IDs');

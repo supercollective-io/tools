@@ -5,11 +5,11 @@ import { constants } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isPolymindInvitation } from './invitations.mjs';
-import { newPairing, validatePairing, participantKey, joinPairing, pairingResult, changePairPrompt } from './pairing.mjs';
+import { newPairing, newFours, validatePairing, participantKey, joinPairing, pairingResult, changePairPrompt } from './pairing.mjs';
 import { openRuns, profiles, programme } from './run-profiles.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
-const kinds = new Set(['activity', 'analogue', 'pairs', 'waiting', 'closed']);
+const kinds = new Set(['activity', 'analogue', 'pairs', 'fours', 'waiting', 'closed']);
 const privateSegments = /(^|\/)(operator|admin|host|control|controls|projection|projector|presenter)(\/|$)/i;
 const forbiddenQuery = /(token|password|secret|credential|auth|operator|admin|api[_-]?key)|^key$/i;
 const flightAudienceOrigin = 'https://fly.supercollective.io';
@@ -117,8 +117,8 @@ export function validateSelection(value, config) {
     }
     const result = { id, label, kind: activity.kind, status: activity.status, instruction };
     if (activity.prompts !== undefined) {
-      if (activity.kind !== 'pairs' || !Array.isArray(activity.prompts) || activity.prompts.length > 64)
-        throw new HttpError(400, 'Provide up to 64 suggestions for a pairs invitation');
+      if (!['pairs', 'fours'].includes(activity.kind) || !Array.isArray(activity.prompts) || activity.prompts.length > 64)
+        throw new HttpError(400, 'Provide up to 64 suggestions for a pairs or fours invitation');
       result.prompts = [...new Set(activity.prompts.map(item => text(item, 'suggestion', 300)))];
     }
     if (activity.kind === 'activity' && activity.status === 'ready') {
@@ -243,7 +243,7 @@ export async function createHub(config) {
   let state;
   try {
     state = JSON.parse(await readFile(statePath, 'utf8'));
-    exactKeys(state, ['schemaVersion', 'revision', 'updatedAt', 'activeId', 'activities', 'runId', 'pairing'], 'saved state');
+    exactKeys(state, ['schemaVersion', 'revision', 'updatedAt', 'activeId', 'activities', 'runId', 'pairing', 'fours'], 'saved state');
     if (state.schemaVersion !== 1 || !Number.isSafeInteger(state.revision) || state.revision < 1 ||
         !Number.isFinite(Date.parse(state.updatedAt))) throw new Error('Invalid saved state version');
     // Old manual invitations may be incomplete. Preserve the programme and
@@ -259,7 +259,14 @@ export async function createHub(config) {
       }
     }
     validateSelection({ activeId: state.activeId, activities: state.activities }, config);
-    if (state.pairing !== undefined) validatePairing(state.pairing);
+    if (state.pairing !== undefined) {
+      validatePairing(state.pairing);
+      if (state.pairing.groupSize) throw new Error('Invalid pairs round');
+    }
+    if (state.fours !== undefined) {
+      validatePairing(state.fours);
+      if (state.fours.groupSize !== 4 || state.fours.sourceRound !== (state.pairing?.id ?? null)) throw new Error('Invalid fours source');
+    }
     if (state.runId !== undefined && (typeof state.runId !== 'string' || !/^[a-zA-Z0-9_-]{16,100}$/.test(state.runId))) throw new Error('Invalid saved run ID');
     if (repaired) {
       state.revision += 1; state.updatedAt = new Date().toISOString(); await atomicSave(statePath, state);
@@ -274,14 +281,19 @@ export async function createHub(config) {
     configurePolymind: (id, draft) => appRequest(config, 'polymind', id, draft, undefined, true) });
   if (state.runId) runs.get(state.runId);
   const operatorState = value => {
-    const { pairing, ...publicProgramme } = value;
+    const { pairing, fours, ...publicProgramme } = value;
     return { ...publicProgramme, ...(value.runId ? { operatorNotes: runs.get(value.runId).operatorNotes ?? {} } : {}),
+      ...(fours ? { foursSummary: { groups: fours.pairs.length, unmatchedPairs: fours.unmatched.length / 2 } } : {}),
       ...(pairing ? { pairingSummary: { pairs: pairing.pairs.length, waiting: pairing.waiting.length } } : {}) };
   };
   function preparePairing(next) {
     const current = next.activities.find(item => item.id === next.activeId);
-    if (current.kind === 'pairs' && current.status === 'ready' && next.pairing?.activityId !== current.id)
+    if (current.kind === 'pairs' && current.status === 'ready' && next.pairing?.activityId !== current.id) {
       next.pairing = newPairing(current.id);
+      delete next.fours;
+    }
+    if (current.kind === 'fours' && current.status === 'ready' && next.fours?.activityId !== current.id)
+      next.fours = newFours(current.id, next.pairing);
     return next;
   }
   const credentialHash = createHash('sha256').update(`${config.username}:${config.password}`).digest();
@@ -327,7 +339,7 @@ export async function createHub(config) {
         const current = state.activities.find(activity => activity.id === state.activeId);
         reply(200, { schemaVersion: 1, revision: state.revision, updatedAt: state.updatedAt,
           current: Object.fromEntries(Object.entries(current).filter(([key]) => key !== 'prompts')), nameHandoff: supportsNameHandoff(current, config),
-          ...(current.kind === 'pairs' && current.status === 'ready' && state.pairing ? { pairingRound: state.pairing.id } : {}) }); return;
+          ...(['pairs', 'fours'].includes(current.kind) && current.status === 'ready' && state[current.kind === 'fours' ? 'fours' : 'pairing'] ? { pairingRound: state[current.kind === 'fours' ? 'fours' : 'pairing'].id } : {}) }); return;
       }
       if (path === '/api/pairing' && req.method === 'POST') {
         if (req.headers.origin !== config.publicOrigin) throw new HttpError(403, 'Same-origin update required');
@@ -342,21 +354,24 @@ export async function createHub(config) {
         const key = participantKey(body.token);
         const write = writes.then(async () => {
           const current = state.activities.find(item => item.id === state.activeId);
-          if (current.kind !== 'pairs' || current.status !== 'ready' || state.pairing?.id !== body.roundId)
+          const field = current.kind === 'fours' ? 'fours' : 'pairing';
+          const saved = state[field];
+          if (!['pairs', 'fours'].includes(current.kind) || current.status !== 'ready' || saved?.id !== body.roundId)
             throw new HttpError(409, 'The pairing invitation changed. Refresh this page.');
           let pairing;
           if (promptAction) {
-            const number = state.pairing.pairs.findIndex(pair => pair.includes(key)) + 1;
-            if (!number) throw new HttpError(409, 'Find your partner before requesting a suggestion.');
-            pairing = changePairPrompt(state.pairing, number, current.prompts ?? [], body.action, body.expectedPromptRevision);
-          } else if (body.action === 'leave') {
-            pairing = structuredClone(state.pairing);
+            const number = saved.pairs.findIndex(pair => pair.includes(key)) + 1;
+            if (!number) throw new HttpError(409, 'Find your pair or group before requesting a suggestion.');
+            pairing = changePairPrompt(saved, number, current.prompts ?? [], body.action, body.expectedPromptRevision);
+          } else if (current.kind === 'fours') pairing = saved;
+          else if (body.action === 'leave') {
+            pairing = structuredClone(saved);
             pairing.waiting = pairing.waiting.filter(item => item.key !== key);
             if (!pairing.waiting.length) pairing.nextBatchAt = null;
-          } else pairing = joinPairing(state.pairing, key);
+          } else pairing = joinPairing(saved, key);
           if (!pairing) throw new HttpError(409, 'Pairing is full. Ask the facilitator for a partner.');
-          if (JSON.stringify(pairing) !== JSON.stringify(state.pairing)) {
-            const next = { ...state, pairing };
+          if (JSON.stringify(pairing) !== JSON.stringify(saved)) {
+            const next = { ...state, [field]: pairing };
             await atomicSave(statePath, next); state = next;
           }
           const result = pairingResult(pairing, key, current.prompts ?? []);
@@ -366,6 +381,7 @@ export async function createHub(config) {
         reply(200, await write); return;
       }
       if (path === '/api/operator/state' && req.method === 'GET') { reply(200, operatorState(state)); return; }
+      if (path === '/api/operator/group-defaults' && req.method === 'GET') { reply(200, programme().filter(item => ['pairs', 'fours'].includes(item.kind))); return; }
       if (path === '/api/operator/profiles' && req.method === 'GET') { reply(200, profiles); return; }
       const runRoute = /^\/api\/operator\/runs(?:\/([a-zA-Z0-9_-]+)(?:\/(prepare|use|puck-options|settings))?)?$/.exec(path);
       if (runRoute && ['GET', 'POST'].includes(req.method)) {
@@ -458,7 +474,7 @@ export async function createHub(config) {
         const write = writes.then(async () => {
           if (body.expectedRevision !== state.revision) throw new HttpError(409, 'The manifest changed. Reload before saving.');
           const next = { schemaVersion: 1, revision: state.revision + 1,
-            updatedAt: new Date().toISOString(), ...selection, ...(state.runId ? { runId: state.runId } : {}), ...(state.pairing ? { pairing: state.pairing } : {}) };
+            updatedAt: new Date().toISOString(), ...selection, ...(state.runId ? { runId: state.runId } : {}), ...(state.pairing ? { pairing: state.pairing } : {}), ...(state.fours ? { fours: state.fours } : {}) };
           preparePairing(next);
           await atomicSave(statePath, next);
           state = next;
