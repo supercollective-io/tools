@@ -181,7 +181,7 @@ try {
   await expect(participant.getByRole('heading', { name: 'Waiting to begin' })).toBeVisible();
   const installed = await (await operator.request.get(`${base}/api/operator/state`)).json();
   assert.equal(installed.activities.find(item => item.id === 'flight').url, `https://fly.supercollective.io/?key=${'f'.repeat(32)}`);
-  assert.deepEqual(installed.activities.map(item => item.id), ['arrival', 'polymind', 'analogue', 'four', 'polymind-all', 'collective-voice', 'puck', 'flight']);
+  assert.deepEqual(installed.activities.map(item => item.id), ['arrival', 'polymind', 'analogue', 'four', 'polymind-all', 'collective-voice', 'puck', 'flight', 'closing']);
   assert.equal(installed.activeId, 'arrival');
   await operator.getByRole('tab', { name: 'Preparation' }).click();
   await operator.locator('#manual-programme > summary').click();
