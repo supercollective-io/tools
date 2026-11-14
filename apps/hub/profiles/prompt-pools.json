@@ -48,7 +48,7 @@
       },
       {
         "id": "backs-touch",
-        "text": "If you both want to, let your backs touch while you talk."
+        "text": "Let your backs touch while you talk."
       },
       {
         "id": "change-distance",
@@ -79,20 +79,16 @@
         "text": "Hold opposite ends of a rope or strip of fabric while you talk. Explore the distance and slack between you."
       },
       {
-        "id": "changing-fabric",
-        "text": "Each hold an edge of a piece of fabric. Find a shape you can keep changing together."
-      },
-      {
         "id": "fabric-roof",
         "text": "Make a small roof with the fabric. Have your conversation underneath it."
       },
       {
         "id": "shared-drawing",
-        "text": "Draw on the same piece of paper while you talk. Neither of you owns a part of it."
+        "text": "Draw on the same piece of paper while you talk."
       },
       {
         "id": "uncertainty-mark",
-        "text": "Invent a mark for ‘I’m not sure’. Either of you can use it during the conversation."
+        "text": "Invent a gesture for ‘I’m not sure’. Either of you can use it during the conversation."
       },
       {
         "id": "stay-with-thought",
@@ -111,8 +107,16 @@
         "text": "Take a little time to make a shared sound. Then start talking again."
       },
       {
-        "id": "three-objects",
-        "text": "Arrange three objects to show how you are together right now. You don’t have to agree on what the arrangement means. Then continue your conversation."
+        "id": "hand-puppets",
+        "text": "Continue your conversation through two hand puppets. Your empty hands will do."
+      },
+      {
+        "id": "searching-for-words",
+        "text": "Choose an object to hold whenever you’re searching for words. Your partner waits until you put it down."
+      },
+      {
+        "id": "share-food",
+        "text": "Take some food from the bowl and share it together while talking."
       }
     ]
   },
@@ -120,20 +124,28 @@
     "groupSize": 4,
     "prompts": [
       {
-        "id": "teach-a-signal",
-        "text": "Each pair teaches the other a gesture or signal they invented."
+        "id": "invite-other-pair",
+        "text": "Invite the other pair into your way of being together. Keep talking."
       },
       {
-        "id": "four-person-fabric",
-        "text": "Make a shape with a piece of fabric that needs all four of you."
+        "id": "borrow-gradually",
+        "text": "Let something from the other pair’s way of talking creep into yours."
       },
       {
-        "id": "travelling-movement",
-        "text": "Start a small movement and let it travel around the group. Keep talking as it travels."
+        "id": "keep-both-ways",
+        "text": "Have one conversation while each pair keeps its own way of being together."
       },
       {
-        "id": "unsaid-object",
-        "text": "Choose an object to stand for something none of you has said yet. Give it a place in the group."
+        "id": "mix-clumsily",
+        "text": "Combine your two ways of talking as clumsily as you like. Adjust as you go."
+      },
+      {
+        "id": "take-turns-hosting",
+        "text": "Take turns hosting the conversation in each pair’s way."
+      },
+      {
+        "id": "invent-the-rest",
+        "text": "Keep a little of each pair’s way of being together. Invent the rest."
       }
     ]
   }

@@ -226,7 +226,7 @@ try {
   assert.equal(liveState.activities.find(item => item.id === 'polymind').url, writingUrl);
 
   const profilePrompts = liveState.activities.find(item => item.id === 'analogue').prompts;
-  assert.equal(profilePrompts.length, 28, 'The profile loads its pool without manual preparation');
+  assert.equal(profilePrompts.length, 29, 'The profile loads its pool without manual preparation');
   await operator.getByRole('button', { name: 'Show invitation: 2 · Pairs', exact: true }).click();
   await expect(participant.getByRole('heading', { name: '2 · Pairs' })).toBeVisible();
   await expect(participant.locator('#pairing')).toBeVisible();
