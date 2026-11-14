@@ -29,6 +29,7 @@
     { "id": "polymind-all", "label": "All · Polymind analysis", "kind": "activity", "instruction": "Not available yet." },
     { "id": "collective-voice", "label": "Collective Voice", "kind": "activity", "instruction": "Not available yet." },
     { "id": "puck", "label": "Puck", "kind": "activity", "instruction": "Not available yet." },
-    { "id": "flight", "label": "Flight", "kind": "activity", "instruction": "Not available yet." }
+    { "id": "flight", "label": "Flight", "kind": "activity", "instruction": "Not available yet." },
+    { "id": "closing", "label": "We’re done rehearsing we", "kind": "closed", "instruction": "" }
   ]
 }

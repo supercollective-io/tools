@@ -56,6 +56,11 @@ async function refresh() {
     const state = await response.json();
     if (revision !== state.revision) {
       const current = state.current;
+      const isClosed = current.kind === 'closed';
+      document.querySelector('#closing').hidden = !isClosed;
+      document.querySelector('.shell > header').hidden = isClosed;
+      document.querySelector('.current').hidden = isClosed;
+      document.body.classList.toggle('closing-active', isClosed);
       title.textContent = current.label;
       phase.hidden = ['analogue', 'pairs', 'fours'].includes(current.kind);
       showPairing(state.pairingRound, current.kind);

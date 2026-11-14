@@ -47,7 +47,7 @@ The shipped profile is **ZKM · 14 November 2026** (`zkm-production-show-14-11-2
 Its revised sequence is: **Arrivals room** (waiting) → **1 · Record individually**
 (on a phone) → **2 · Pairs** (in pairs) → **4 · Groups of four** →
 **All · Polymind analysis** (of the original 1 contributions) → Collective Voice
-→ Puck → Flight. The closing invitation is removed. Installing a new run preserves the current waiting invitation exactly. Its writing question is “What is something
+→ Puck → Flight → **We’re done rehearsing we** (closing page). Installing a new run preserves the current waiting invitation exactly. Its writing question is “What is something
 you’d like to change, but can’t change on your own?” Its Collective Voice question
 is “What would you like us to become capable of together that feels impossible
 alone?” Its Puck question is “What shall we do with this plane?”
@@ -329,3 +329,12 @@ This preserves app sessions and other invitations. It does not rewrite the saved
 run snapshot, so apply it again if that old run is installed as a different
 programme. The existing internal pairs ID `analogue` remains stable for saved
 show compatibility; the participant title is **2 · Pairs**.
+
+### Closing page
+
+A `closed` invitation displays the final page: “We’re done rehearsing we. Now it is
+time for the performance.” It links to the hosted tools, their source code, the
+Supercollective GitHub organisation and Jobi’s website. New ZKM runs include this
+cue after Flight. For an existing programme, add an invitation in Preparation
+and choose **Finish / closing conversation**, then show it from Live cues. Saved
+runs are not migrated. Returning to waiting restores the ordinary entrance.

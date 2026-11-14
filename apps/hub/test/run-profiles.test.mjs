@@ -461,12 +461,12 @@ test('1–2–4–All keeps one Polymind session, private cues and the programme
   const app = await start({ upstream });
   let runId;
   let expectedInvitation;
-  const expectedOrder = ['arrival', 'polymind', 'analogue', 'four', 'polymind-all', 'collective-voice', 'puck', 'flight'];
+  const expectedOrder = ['arrival', 'polymind', 'analogue', 'four', 'polymind-all', 'collective-voice', 'puck', 'flight', 'closing'];
   try {
     const created = await createRun(app, { requestId: 'one-two-four-all-request-0001' });
     runId = created.body.id;
     assert.deepEqual(created.body.activities.map(item => item.id), expectedOrder);
-    assert.equal(created.body.activities.some(item => item.id === 'closing'), false);
+    assert.equal(created.body.activities.find(item => item.id === 'closing').kind, 'closed');
     assert.equal(created.body.activityBindings.polymind.includes('polymind-all'), true);
     assert.equal(typeof created.body.operatorNotes.polymind, 'string');
     assert.equal(typeof created.body.operatorNotes['polymind-all'], 'string');

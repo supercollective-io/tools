@@ -220,6 +220,27 @@ try {
   await expect(operator.getByRole('link', { name: 'Open saved participant page to check' })).toHaveAttribute('href', 'https://polymind.supercollective.io/?session=created-1');
   assert.equal(requests.size, 1);
   await operator.screenshot({ path: join(output, 'operator-api-preparation.png'), fullPage: true });
+  await operator.getByRole('tab', { name: 'Live cues' }).click();
+  operator.once('dialog', dialog => dialog.accept());
+  await operator.getByRole('button', { name: 'Show invitation: Closing conversation', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'We’re done rehearsing we. Now it is time for the performance.' })).toBeVisible();
+  await expect(page.locator('.current')).toBeHidden();
+  await expect(page.getByText('A performance by Jobi.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Explore the performance on GitHub' })).toHaveAttribute('href', 'https://github.com/supercollective-io/');
+  await expect(page.getByRole('link', { name: /^Source code for/ })).toHaveCount(3);
+  await page.reload();
+  await expect(page.locator('#closing')).toBeVisible();
+  for (const width of [320, 390, 1200]) {
+    await page.setViewportSize({ width, height: 900 });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,
+      `Closing page must fit a ${width}px viewport`);
+    await page.screenshot({ path: join(output, `closing-${width}.png`), fullPage: true });
+  }
+  await page.getByRole('link', { name: 'jobi.is', exact: true }).focus();
+  await expect(page.getByRole('link', { name: 'jobi.is', exact: true })).toBeFocused();
+  await operator.getByRole('button', { name: 'Return to waiting', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Waiting to begin' })).toBeVisible();
+  await expect(page.locator('#closing')).toBeHidden();
   await context.route(`${base}/api/current`, route => route.abort());
   await expect(page.getByRole('status')).toContainText('Connection interrupted');
   await context.unroute(`${base}/api/current`);
